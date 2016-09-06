@@ -3,21 +3,7 @@ package tests.morph;
 
 
 import java.util.ArrayList;
-import java.util.Locale;
-
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.ParticleSystem;
-import com.thomasdiewald.pixelflow.src.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.src.dwgl.DwGLTexture.TexturePingPong;
-
-import controlP5.Button;
-import controlP5.ControlP5;
-import controlP5.Group;
-import controlP5.RadioButton;
-import controlP5.Toggle;
 import processing.core.*;
-import processing.opengl.PGraphics2D;
-import processing.opengl.Texture;
 
 
 public class Main_morph3 extends PApplet {

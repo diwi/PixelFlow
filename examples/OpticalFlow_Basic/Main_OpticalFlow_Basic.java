@@ -7,7 +7,7 @@
  * 
  */
 
-package com.thomasdiewald.pixelflow.examples.OpticalFlow_Basic;
+package OpticalFlow_Basic;
 
 
 

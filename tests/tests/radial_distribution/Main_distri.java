@@ -4,16 +4,7 @@ package tests.radial_distribution;
 
 import java.util.Random;
 
-import com.thomasdiewald.pixelflow.examples.AirBalls.Ball;
-import com.thomasdiewald.pixelflow.src.Fluid;
-
-import controlP5.Button;
-import controlP5.ControlP5;
-import controlP5.Group;
-import controlP5.RadioButton;
-import controlP5.Toggle;
 import processing.core.*;
-import processing.opengl.PGraphics2D;
 
 public class Main_distri extends PApplet {
   

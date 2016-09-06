@@ -11,7 +11,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.WindTunnel;
+package WindTunnel;
 
 
 import java.util.ArrayList;

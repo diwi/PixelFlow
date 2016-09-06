@@ -9,7 +9,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.OpticalFlow_Capture;
+package OpticalFlow_Capture;
 
 
 

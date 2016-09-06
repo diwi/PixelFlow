@@ -2,15 +2,9 @@ package tests.gui_tests;
 
 
 import controlP5.Accordion;
-import controlP5.Button;
-import controlP5.CallbackEvent;
-import controlP5.CallbackListener;
-import controlP5.ControlEvent;
 import controlP5.ControlKey;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.Slider;
-import controlP5.Textarea;
 import processing.core.*;
 
 

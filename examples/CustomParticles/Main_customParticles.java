@@ -9,7 +9,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.CustomParticles;
+package CustomParticles;
 
 
 

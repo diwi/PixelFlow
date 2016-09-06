@@ -8,7 +8,7 @@
  */
 
 
-package com.thomasdiewald.pixelflow.examples.LiquidPainting;
+package LiquidPainting;
 
 
 

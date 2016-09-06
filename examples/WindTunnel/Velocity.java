@@ -9,7 +9,7 @@
  */
 
 
-package com.thomasdiewald.pixelflow.examples.WindTunnel;
+package WindTunnel;
 
 public class Velocity{
   

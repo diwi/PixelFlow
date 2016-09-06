@@ -10,7 +10,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.Streamlines;
+package Streamlines;
 
 
 

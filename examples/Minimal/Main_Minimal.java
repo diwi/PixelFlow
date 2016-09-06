@@ -7,7 +7,7 @@
  * 
  */
 
-package com.thomasdiewald.pixelflow.examples.Minimal;
+package Minimal;
 
 
 

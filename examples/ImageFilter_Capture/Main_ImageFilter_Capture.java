@@ -8,7 +8,7 @@
  */
 
 
-package com.thomasdiewald.pixelflow.examples.ImageFilter_Capture;
+package ImageFilter_Capture;
 
 
 

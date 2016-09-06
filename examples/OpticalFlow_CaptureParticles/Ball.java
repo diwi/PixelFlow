@@ -9,7 +9,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.OpticalFlow_CaptureParticles;
+package OpticalFlow_CaptureParticles;
 
 import processing.core.PGraphics;
 

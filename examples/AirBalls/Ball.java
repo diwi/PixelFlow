@@ -9,7 +9,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.examples.AirBalls;
+package AirBalls;
 
 import processing.core.PGraphics;
 

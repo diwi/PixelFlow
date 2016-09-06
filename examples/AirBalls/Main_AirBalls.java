@@ -8,7 +8,7 @@
  */
 
 
-package com.thomasdiewald.pixelflow.examples.AirBalls;
+package AirBalls;
 
 
 import com.thomasdiewald.pixelflow.src.Fluid;
