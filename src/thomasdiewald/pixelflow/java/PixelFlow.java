@@ -52,7 +52,7 @@ public class PixelFlow{
   }
   
   
-  public static final String SHADER_DIR = "/pixelflow/glsl/";
+  public static final String SHADER_DIR = "/thomasdiewald/pixelflow/glsl/";
   
   public PApplet papplet;
   public PJOGL   pjogl;
