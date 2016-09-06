@@ -2,5 +2,21 @@
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
 
-processing library download page:
-http://thomasdiewald.com/processing/libraries/pixelflow/
+
+**Features**
+
+FluidSimulation  /  
+Optical Flow  /  
+Harris Corner Detection  /  
+Motion Tracking  /  
+Image Processing Filters  /  
+Particle Systems  /  
+GLSL Tools  /
+
+etc..
+
+
+
+
+library distribution
+http://thomasdiewald.com/processing/libraries/pixelflow
