@@ -1,3 +1,9 @@
 bin
 tests
 distribution
+/.classpath
+/.project
+/.settings
+.settings
+.classpath
+.project
