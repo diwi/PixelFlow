@@ -13,12 +13,6 @@ package OpticalFlow_Capture_Fluid;
 
 
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.OpticalFlow;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.src.filter.Filter;
-
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -28,6 +22,11 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
+import src.Fluid;
+import src.OpticalFlow;
+import src.PixelFlow;
+import src.dwgl.DwGLSLProgram;
+import src.filter.Filter;
 
 
 public class Main_OpticalFlow_Capture_Fluid extends PApplet {

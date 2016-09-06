@@ -12,9 +12,6 @@ package Basic;
 
 
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-
 import controlP5.Button;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -22,6 +19,8 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.Fluid;
+import src.PixelFlow;
 
 public class Main_Basic extends PApplet {
   

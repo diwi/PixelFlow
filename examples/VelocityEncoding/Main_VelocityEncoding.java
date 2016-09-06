@@ -13,9 +13,6 @@ package VelocityEncoding;
 
 
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.dwgl.DwGLSLProgram;
 import controlP5.Button;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -23,6 +20,9 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.Fluid;
+import src.PixelFlow;
+import src.dwgl.DwGLSLProgram;
 
 
 public class Main_VelocityEncoding extends PApplet {

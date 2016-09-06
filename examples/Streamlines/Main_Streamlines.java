@@ -14,10 +14,6 @@ package Streamlines;
 
 
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.*;
-
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -26,6 +22,7 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.*;
 
 
 

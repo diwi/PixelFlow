@@ -14,16 +14,15 @@ package OpticalFlow_CaptureSettings;
 
 
 
-import com.thomasdiewald.pixelflow.src.OpticalFlow;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.filter.Filter;
-
 import controlP5.CheckBox;
 import controlP5.ControlP5;
 import controlP5.Group;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
+import src.OpticalFlow;
+import src.PixelFlow;
+import src.filter.Filter;
 
 
 public class Main_OpticalFlow_CaptureSettings extends PApplet {

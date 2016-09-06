@@ -11,11 +11,10 @@ package Minimal;
 
 
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.Fluid;
+import src.PixelFlow;
 
 public class Main_Minimal extends PApplet {
   

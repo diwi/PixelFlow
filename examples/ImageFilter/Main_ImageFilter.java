@@ -12,17 +12,16 @@ package ImageFilter;
 
 
 
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.filter.Filter;
-import com.thomasdiewald.pixelflow.src.filter.MedianFilter;
-import com.thomasdiewald.pixelflow.src.filter.SobelFilter;
-import com.thomasdiewald.pixelflow.src.filter.Laplace;
-
 import controlP5.ControlP5;
 import controlP5.Group;
 import controlP5.Slider;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.PixelFlow;
+import src.filter.Filter;
+import src.filter.Laplace;
+import src.filter.MedianFilter;
+import src.filter.SobelFilter;
 
 
 public class Main_ImageFilter extends PApplet {

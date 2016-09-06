@@ -11,11 +11,10 @@ package OpticalFlow_Basic;
 
 
 
-import com.thomasdiewald.pixelflow.src.OpticalFlow;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.OpticalFlow;
+import src.PixelFlow;
 
 public class Main_OpticalFlow_Basic extends PApplet {
  

@@ -16,11 +16,6 @@ package WindTunnel;
 
 import java.util.ArrayList;
 
-import com.thomasdiewald.pixelflow.src.Fluid;
-import com.thomasdiewald.pixelflow.src.PixelFlow;
-import com.thomasdiewald.pixelflow.src.StreamLines;
-import com.thomasdiewald.pixelflow.src.dwgl.DwGLSLProgram;
-
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -29,6 +24,10 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import src.Fluid;
+import src.PixelFlow;
+import src.StreamLines;
+import src.dwgl.DwGLSLProgram;
 
 
 public class Main_WindTunnel extends PApplet {
