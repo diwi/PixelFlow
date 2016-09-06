@@ -3,7 +3,7 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 
 
 
-**Features**
+# Features
 
 FluidSimulation  /  
 Optical Flow  /  
@@ -16,9 +16,8 @@ GLSL Tools  /
 etc..
 
 
-
-
 library distribution:
+
 http://thomasdiewald.com/processing/libraries/pixelflow
 
 
