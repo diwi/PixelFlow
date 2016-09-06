@@ -16,9 +16,9 @@ package OpticalFlow_Capture;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
-import src.OpticalFlow;
-import src.PixelFlow;
-import src.filter.Filter;
+import thomasdiewald.pixelflow.java.OpticalFlow;
+import thomasdiewald.pixelflow.java.PixelFlow;
+import thomasdiewald.pixelflow.java.filter.Filter;
 
 public class Main_OpticalFlow_Capture extends PApplet {
  

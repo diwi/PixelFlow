@@ -20,9 +20,9 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import src.Fluid;
-import src.PixelFlow;
-import src.dwgl.DwGLSLProgram;
+import thomasdiewald.pixelflow.java.Fluid;
+import thomasdiewald.pixelflow.java.PixelFlow;
+import thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 
 
 public class Main_VelocityEncoding extends PApplet {

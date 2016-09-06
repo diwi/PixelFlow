@@ -22,7 +22,7 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import src.*;
+import thomasdiewald.pixelflow.java.*;
 
 
 

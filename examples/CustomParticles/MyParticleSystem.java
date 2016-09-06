@@ -14,10 +14,10 @@ import com.jogamp.opengl.GL2ES2;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;
-import src.Fluid;
-import src.PixelFlow;
-import src.dwgl.DwGLSLProgram;
-import src.dwgl.DwGLTexture;
+import thomasdiewald.pixelflow.java.Fluid;
+import thomasdiewald.pixelflow.java.PixelFlow;
+import thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
 
 public class MyParticleSystem{

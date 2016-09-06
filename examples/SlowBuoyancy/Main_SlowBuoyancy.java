@@ -21,9 +21,9 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import src.Fluid;
-import src.ParticleSystem;
-import src.PixelFlow;
+import thomasdiewald.pixelflow.java.Fluid;
+import thomasdiewald.pixelflow.java.ParticleSystem;
+import thomasdiewald.pixelflow.java.PixelFlow;
 
 
 public class Main_SlowBuoyancy extends PApplet {

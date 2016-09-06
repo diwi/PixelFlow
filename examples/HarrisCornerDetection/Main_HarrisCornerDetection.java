@@ -17,9 +17,9 @@ import controlP5.Group;
 import controlP5.Slider;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import src.HarrisCorner;
-import src.PixelFlow;
-import src.filter.Filter;
+import thomasdiewald.pixelflow.java.HarrisCorner;
+import thomasdiewald.pixelflow.java.PixelFlow;
+import thomasdiewald.pixelflow.java.filter.Filter;
 
 
 public class Main_HarrisCornerDetection extends PApplet {

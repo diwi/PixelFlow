@@ -18,12 +18,12 @@ import controlP5.Slider;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
-import src.HarrisCorner;
-import src.PixelFlow;
-import src.filter.Filter;
-import src.filter.Laplace;
-import src.filter.MedianFilter;
-import src.filter.SobelFilter;
+import thomasdiewald.pixelflow.java.HarrisCorner;
+import thomasdiewald.pixelflow.java.PixelFlow;
+import thomasdiewald.pixelflow.java.filter.Filter;
+import thomasdiewald.pixelflow.java.filter.Laplace;
+import thomasdiewald.pixelflow.java.filter.MedianFilter;
+import thomasdiewald.pixelflow.java.filter.SobelFilter;
 
 
 public class Main_ImageFilter_Capture extends PApplet {

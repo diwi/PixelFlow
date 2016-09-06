@@ -13,8 +13,8 @@ package Minimal;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import src.Fluid;
-import src.PixelFlow;
+import thomasdiewald.pixelflow.java.Fluid;
+import thomasdiewald.pixelflow.java.PixelFlow;
 
 public class Main_Minimal extends PApplet {
   
