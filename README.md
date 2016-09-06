@@ -18,5 +18,9 @@ etc..
 
 
 
-library distribution
+library distribution:
 http://thomasdiewald.com/processing/libraries/pixelflow
+
+
+
+![alt text](http://thomasdiewald.com/processing/libraries/pixelflow/pixelflow_LiquidText.jpg "pixelflow_LiquidText")
