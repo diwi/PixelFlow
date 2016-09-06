@@ -34,10 +34,11 @@ public class PixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "0.15";
+    static public final String version = "0.16";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "http://www.thomasdiewald.com";
+    static public final String git     = "https://github.com/diwi/PixelFlow.git";
     
     public String toString(){
       return name+" v"+version +"  -  "+web;
