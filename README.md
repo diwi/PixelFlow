@@ -20,3 +20,8 @@ http://thomasdiewald.com/processing/libraries/pixelflow
 
 
 ![alt text](http://thomasdiewald.com/processing/libraries/pixelflow/pixelflow_LiquidText.jpg "pixelflow_LiquidText")
+
+
+# tested Platforms
+Windows 10 x64
+Linux, Ubuntu 16.04 x64
