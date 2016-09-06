@@ -2,7 +2,6 @@
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
 
-
 # Features
 
 FluidSimulation  /  
@@ -16,10 +15,8 @@ GLSL Tools  /
 etc..
 
 
-library distribution:
-
+# Download
 http://thomasdiewald.com/processing/libraries/pixelflow
-
 
 
 ![alt text](http://thomasdiewald.com/processing/libraries/pixelflow/pixelflow_LiquidText.jpg "pixelflow_LiquidText")
