@@ -44,21 +44,25 @@ public class DwGLSLShader{
 
     content = new String[]
         {
-          ""                                       + DwUtils.NL,
-          "#version 130"                           + DwUtils.NL,
-          ""                                       + DwUtils.NL,
-          "precision mediump float;"               + DwUtils.NL,
-          "precision mediump int;"                 + DwUtils.NL,
-          ""                                       + DwUtils.NL,
-          "void main(){"                           + DwUtils.NL,
-          "  int x = ((gl_VertexID<<1) & 2) - 1;"  + DwUtils.NL,
-          "  int y = ((gl_VertexID   ) & 2) - 1;"  + DwUtils.NL,
-          "  gl_Position = vec4(x,y,0,1);"         + DwUtils.NL,
-          "}"                                      + DwUtils.NL,
-          ""                                       + DwUtils.NL,
+           " "
+          ,"#version 150"
+          ,""
+          ,"precision mediump float;"
+          ,"precision mediump int;"
+          ,""                                     
+          ,"void main(){"                         
+          ,"  int x = ((gl_VertexID<<1) & 2) - 1;"
+          ,"  int y = ((gl_VertexID   ) & 2) - 1;"
+          ,"  gl_Position = vec4(x,y,0,1);"
+          ,"}"
+          ," "
         };
+    
+    
+    for(int i = 0; i < content.length; i++){
+      content[i] += DwUtils.NL;
+    }
     build();
-
   }
 
   public DwGLSLShader(PixelFlow context, int type, String path){

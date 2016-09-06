@@ -8,7 +8,7 @@
  */
 
 
-#version 130
+#version 150
 
 out vec4 glFragColor;
 

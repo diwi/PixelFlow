@@ -113,18 +113,31 @@ public class PixelFlow{
   
   
   
-  
-  
+//  GLSL  |  OpenGL 
+// -------|---------  
+//  1.10  |   2.0
+//  1.20  |   2.1
+//  1.30  |   3.0
+//  1.40  |   3.1
+//  1.50  |   3.2
+//  3.30  |   3.3
+//  4.00  |   4.0
+//  4.10  |   4.1
+//  4.20  |   4.2
+//  4.30  |   4.3
+//  4.40  |   4.4
 
-  
-  
+
+  // https://github.com/processing/processing/wiki/Advanced-OpenGL
+  // PJOGL.profile = 3;
+
   public GL2ES2 begin(){
 //    System.out.printf("%"+(scope_depth*2+1)+"s GLScope.begin %d\n", " ", scope_depth);
     if( scope_depth == 0){
-      pjogl = (PJOGL) papplet.beginPGL();
+      pjogl = (PJOGL) papplet.beginPGL(); 
       gl    = pjogl.gl.getGL2ES2();
     }
-    
+
     scope_depth++;
     return gl;
   }

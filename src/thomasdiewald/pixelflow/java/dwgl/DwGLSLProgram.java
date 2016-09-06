@@ -38,7 +38,7 @@ public class DwGLSLProgram {
   //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(PixelFlow context, String vert_path, String frag_path) {
     if(vert_path != null) {
-      this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER  , vert_path);
+      this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER, vert_path);
     } else {
       this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER);
       vert_path = this.vert.path;

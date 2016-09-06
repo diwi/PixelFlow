@@ -8,7 +8,7 @@
  */
 
 
-#version 130
+#version 150
 
 
 uniform ivec2     num_lines;

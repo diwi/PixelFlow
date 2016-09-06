@@ -7,7 +7,7 @@
  * 
  */
 
-#version 130
+#version 150
 
 precision mediump float;
 precision mediump int;
