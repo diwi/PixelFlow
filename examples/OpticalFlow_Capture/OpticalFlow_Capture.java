@@ -21,7 +21,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
-public class Main_OpticalFlow_Capture extends PApplet {
+public class OpticalFlow_Capture extends PApplet {
  
   PixelFlow context;
   
@@ -109,6 +109,6 @@ public class Main_OpticalFlow_Capture extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_OpticalFlow_Capture.class.getName() });
+    PApplet.main(new String[] { OpticalFlow_Capture.class.getName() });
   }
 }

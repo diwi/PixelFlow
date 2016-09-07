@@ -26,7 +26,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Main_LiquidPainting extends PApplet {
+public class LiquidPainting extends PApplet {
   
 
 
@@ -345,6 +345,6 @@ public class Main_LiquidPainting extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_LiquidPainting.class.getName() });
+    PApplet.main(new String[] { LiquidPainting.class.getName() });
   }
 }

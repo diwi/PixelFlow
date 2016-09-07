@@ -17,7 +17,7 @@ import com.thomasdiewald.pixelflow.java.PixelFlow;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
-public class Main_OpticalFlow_Basic extends PApplet {
+public class OpticalFlow_Basic extends PApplet {
  
 
   OpticalFlow opticalflow;
@@ -116,6 +116,6 @@ public class Main_OpticalFlow_Basic extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_OpticalFlow_Basic.class.getName() });
+    PApplet.main(new String[] { OpticalFlow_Basic.class.getName() });
   }
 }

@@ -24,7 +24,7 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
-public class Main_FirstBlood extends PApplet {
+public class FirstBlood extends PApplet {
   
   private class MyFluidData implements Fluid.FluidData{
     
@@ -333,6 +333,6 @@ public class Main_FirstBlood extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_FirstBlood.class.getName() });
+    PApplet.main(new String[] { FirstBlood.class.getName() });
   }
 }

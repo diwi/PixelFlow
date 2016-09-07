@@ -26,7 +26,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Main_VelocityEncoding extends PApplet {
+public class VelocityEncoding extends PApplet {
   
 
 
@@ -462,6 +462,6 @@ public class Main_VelocityEncoding extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_VelocityEncoding.class.getName() });
+    PApplet.main(new String[] { VelocityEncoding.class.getName() });
   }
 }

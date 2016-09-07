@@ -30,7 +30,7 @@ import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
 
-public class Main_OpticalFlow_Capture_Fluid extends PApplet {
+public class OpticalFlow_Capture_Fluid extends PApplet {
  
   
  private class MyFluidData implements Fluid.FluidData{
@@ -610,6 +610,6 @@ public class Main_OpticalFlow_Capture_Fluid extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_OpticalFlow_Capture_Fluid.class.getName() });
+    PApplet.main(new String[] { OpticalFlow_Capture_Fluid.class.getName() });
   }
 }

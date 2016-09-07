@@ -20,7 +20,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Main_MultipleFluids extends PApplet {
+public class MultipleFluids extends PApplet {
   
   
   int viewport_w = 1150;
@@ -228,6 +228,6 @@ public class Main_MultipleFluids extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_MultipleFluids.class.getName() });
+    PApplet.main(new String[] { MultipleFluids.class.getName() });
   }
 }

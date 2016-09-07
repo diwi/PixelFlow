@@ -27,7 +27,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Main_SlowBuoyancy extends PApplet {
+public class SlowBuoyancy extends PApplet {
   
 
 
@@ -343,6 +343,6 @@ public class Main_SlowBuoyancy extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_SlowBuoyancy.class.getName() });
+    PApplet.main(new String[] { SlowBuoyancy.class.getName() });
   }
 }

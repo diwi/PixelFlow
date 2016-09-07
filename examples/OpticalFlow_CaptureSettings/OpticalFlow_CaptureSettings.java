@@ -26,7 +26,7 @@ import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
 
-public class Main_OpticalFlow_CaptureSettings extends PApplet {
+public class OpticalFlow_CaptureSettings extends PApplet {
  
   
   int cam_w = 640;
@@ -227,6 +227,6 @@ public class Main_OpticalFlow_CaptureSettings extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_OpticalFlow_CaptureSettings.class.getName() });
+    PApplet.main(new String[] { OpticalFlow_CaptureSettings.class.getName() });
   }
 }

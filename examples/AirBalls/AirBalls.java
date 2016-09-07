@@ -25,7 +25,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class Main_AirBalls extends PApplet {
+public class AirBalls extends PApplet {
   
   private class MyFluidData implements Fluid.FluidData{
     
@@ -570,6 +570,6 @@ public class Main_AirBalls extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_AirBalls.class.getName() });
+    PApplet.main(new String[] { AirBalls.class.getName() });
   }
 }

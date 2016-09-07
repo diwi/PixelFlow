@@ -25,7 +25,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Main_ImageFilter extends PApplet {
+public class ImageFilter extends PApplet {
  
   // two draw-buffers for swaping
   PGraphics2D pg_src_A;
@@ -452,6 +452,6 @@ public class Main_ImageFilter extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_ImageFilter.class.getName() });
+    PApplet.main(new String[] { ImageFilter.class.getName() });
   }
 }

@@ -30,7 +30,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class Main_Streamlines extends PApplet {
+public class Streamlines extends PApplet {
   
   private class MyFluidData implements Fluid.FluidData{
     
@@ -405,6 +405,6 @@ public class Main_Streamlines extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_Streamlines.class.getName() });
+    PApplet.main(new String[] { Streamlines.class.getName() });
   }
 }

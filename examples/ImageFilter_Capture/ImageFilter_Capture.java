@@ -27,7 +27,7 @@ import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
 
-public class Main_ImageFilter_Capture extends PApplet {
+public class ImageFilter_Capture extends PApplet {
   
   
   // Camera
@@ -425,6 +425,6 @@ public class Main_ImageFilter_Capture extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { Main_ImageFilter_Capture.class.getName() });
+    PApplet.main(new String[] { ImageFilter_Capture.class.getName() });
   }
 }
