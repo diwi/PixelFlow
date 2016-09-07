@@ -11,13 +11,13 @@
 package CustomParticles;
 
 import com.jogamp.opengl.GL2ES2;
+import com.thomasdiewald.pixelflow.java.Fluid;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;
-import thomasdiewald.pixelflow.java.Fluid;
-import thomasdiewald.pixelflow.java.PixelFlow;
-import thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
 
 public class MyParticleSystem{

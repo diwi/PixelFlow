@@ -13,12 +13,13 @@ package OpticalFlow_Capture;
 
 
 
+import com.thomasdiewald.pixelflow.java.OpticalFlow;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.filter.Filter;
+
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
-import thomasdiewald.pixelflow.java.OpticalFlow;
-import thomasdiewald.pixelflow.java.PixelFlow;
-import thomasdiewald.pixelflow.java.filter.Filter;
 
 public class Main_OpticalFlow_Capture extends PApplet {
  

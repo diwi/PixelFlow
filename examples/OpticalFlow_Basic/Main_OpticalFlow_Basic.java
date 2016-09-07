@@ -11,10 +11,11 @@ package OpticalFlow_Basic;
 
 
 
+import com.thomasdiewald.pixelflow.java.OpticalFlow;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import thomasdiewald.pixelflow.java.OpticalFlow;
-import thomasdiewald.pixelflow.java.PixelFlow;
 
 public class Main_OpticalFlow_Basic extends PApplet {
  

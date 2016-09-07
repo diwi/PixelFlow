@@ -23,5 +23,4 @@ http://thomasdiewald.com/processing/libraries/pixelflow
 
 
 # tested Platforms
-Windows 10 x64  
-Linux, Ubuntu 16.04 x64  
+Windows, Linux, MacOS
