@@ -151,7 +151,7 @@ public class StreamLines{
       context.begin();
       context.beginDraw(dst, true);
       context.gl.glEnable(GL.GL_BLEND);
-//      context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // BLEND
+      context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // BLEND
       context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);                 // ADD
       
       shader_streamlineRender.begin();

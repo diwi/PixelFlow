@@ -25,9 +25,8 @@ void main(){
   float len = line_uv;
   glFragColor = vec4(len, 0.5, 1-len, len * 0.5 + 0.5);
   glFragColor = vec4(1, sqrt(len)*0.9, len*len, (len) * 0.8 + 0.2);
-  glFragColor = clamp(glFragColor, vec4(0), vec4(1));
+  
 
-  // glFragColor.a *= alpha;
 }
 
 
