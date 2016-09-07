@@ -20,7 +20,7 @@ and more ...
 + Processing IDE -> Library Manager
 
 
-# Get Started
+# Getting Started
 
 ![result](https://github.com/diwi/PixelFlow/blob/master/examples/GetStarted/out/GetStarted.jpg)
 
@@ -90,4 +90,4 @@ public void draw() {
 
 
 # Platforms
-windows, linux, osx
+Windows, Linux, MacOSX
