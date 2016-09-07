@@ -17,7 +17,8 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 
 # Download
 + latest [PixelFlow.zip] (https://raw.githubusercontent.com/diwi/PixelFlow/master/processing-library/distribution/PixelFlow.zip)
-+ [Processing Library Web] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ Processing IDE -> Library Manager
 
 # tested Platforms
 + windows
