@@ -1,26 +1,26 @@
+![PixelFlow Header](http://thomasdiewald.com/processing/libraries/pixelflow/PixelFlow_header.jpg)
+
 # PixelFlow
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
-
 # Features
 
-FluidSimulation  /  
-Optical Flow  /  
-Harris Corner Detection  /  
-Motion Tracking  /  
-Image Processing Filters  /  
-Particle Systems  /  
-GLSL Tools  /
-
-etc..
++ FluidSimulation
++ Optical Flow
++ Harris Corner Detection
++ Motion Tracking  /  
++ Image Processing Filters
++ Particle Systems
++ GLSL Tools
++ and more ...
 
 
 # Download
-http://thomasdiewald.com/processing/libraries/pixelflow
-
-
-![alt text](http://thomasdiewald.com/processing/libraries/pixelflow/pixelflow_LiquidText.jpg "pixelflow_LiquidText")
-
++ latest [PixelFlow.zip] (https://raw.githubusercontent.com/diwi/PixelFlow/master/processing-library/distribution/PixelFlow.zip)
++ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ Processing IDE -> Library Manager
 
 # tested Platforms
-windows, linux, osx
++ windows
++ linux
++ osx
