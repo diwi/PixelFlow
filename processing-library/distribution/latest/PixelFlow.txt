@@ -31,7 +31,7 @@ sentence = PixelFlow is a Processing library for high performance GPU-Computing 
 # 'sentence' always will be prepended, so you should start by writing the
 # second sentence here. If your library only works on certain operating systems,
 # mention it here.
-paragraph = FluidSimulation / Optical Flow / Harris Corner Detection / Motion Tracking / Image Processing Filters / Particle Systems / Voronoi / GLSL Tools / 
+paragraph = Fluid Simulation / Optical Flow / Harris Corner Detection / Motion Tracking / Image Processing / Particle Systems / Voronoi / GLSL Tools 
 
 # Links in the 'sentence' and 'paragraph' attributes can be inserted using the
 # same syntax as for authors. 
