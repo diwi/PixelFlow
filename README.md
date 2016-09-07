@@ -23,4 +23,4 @@ http://thomasdiewald.com/processing/libraries/pixelflow
 
 
 # tested Platforms
-Windows, Linux, MacOS
+windows, linux, osx
