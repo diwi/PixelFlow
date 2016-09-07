@@ -21,6 +21,9 @@ and more ...
 
 
 # Get Started
+
+![result](https://github.com/diwi/PixelFlow/blob/master/examples/GetStarted/out/GetStarted.jpg)
+
 ```java
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
@@ -83,6 +86,7 @@ public void draw() {
   image(pg_fluid, 0, 0);
 }
 ```
+
 
 
 # Platforms
