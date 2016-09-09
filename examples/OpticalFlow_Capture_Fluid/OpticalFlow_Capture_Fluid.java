@@ -266,6 +266,9 @@ public class OpticalFlow_Capture_Fluid extends PApplet {
     
     pg_cam_a = (PGraphics2D) createGraphics(cam_w, cam_h, P2D);
     pg_cam_a.noSmooth();
+    pg_cam_a.beginDraw();
+    pg_cam_a.background(0);
+    pg_cam_a.endDraw();
     
     pg_cam_b = (PGraphics2D) createGraphics(cam_w, cam_h, P2D);
     pg_cam_b.noSmooth();

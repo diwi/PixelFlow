@@ -17,6 +17,7 @@ package Streamlines;
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.StreamLines;
+import com.thomasdiewald.pixelflow.java.filter.Filter;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -100,9 +101,15 @@ public class Streamlines extends PApplet {
     }
   }
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  int viewport_w = 800;
-  int viewport_h = 800;
+  
+  
+//  int viewport_w = 800;
+//  int viewport_h = 800;
   int fluidgrid_scale = 1;
   
   int BACKGROUND_COLOR = 0;
@@ -133,6 +140,8 @@ public class Streamlines extends PApplet {
   }
   
   public void setup() {
+    
+    surface.setLocation(viewport_x, viewport_y);
     
     // main library context
     context = new PixelFlow(this);
@@ -174,13 +183,25 @@ public class Streamlines extends PApplet {
     pg_obstacles.rect(0, 0, pg_obstacles.width, pg_obstacles.height);
     
     //
-    pg_obstacles.noStroke();
-    pg_obstacles.fill(64);
-    pg_obstacles.rect(250, 500, 50, 200);
+//    pg_obstacles.noStroke();
+//    pg_obstacles.fill(64);
+//    pg_obstacles.rect(250, 500, 50, 200);
+//    
+//    pg_obstacles.noStroke();
+//    pg_obstacles.fill(64);
+//    pg_obstacles.rect(400, 100, 300, 10);
     
+    pg_obstacles.rectMode(CENTER);
     pg_obstacles.noStroke();
     pg_obstacles.fill(64);
-    pg_obstacles.rect(400, 100, 300, 10);
+    randomSeed(0);
+    for(int i = 0; i < 20; i++){
+      float px = random(width);
+      float py = random(height);
+      float sx = random(15, 60);
+      float sy = random(15, 60);
+      pg_obstacles.rect(px, py, sx, sy);
+    }
     
     pg_obstacles.endDraw();
     
@@ -224,6 +245,7 @@ public class Streamlines extends PApplet {
     if(DISPLAY_STREAMLINES){
       streamlines.render(pg_fluid, fluid, STREAMLINE_DENSITY);
     }
+    
 
     // RENDER
     // display textures

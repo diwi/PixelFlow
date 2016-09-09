@@ -53,8 +53,14 @@ public class Minimal extends PApplet {
     }
   }
   
-  int viewport_w = 800;
-  int viewport_h = 800;
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
+  
+  
+//  int viewport_w = 800;
+//  int viewport_h = 800;
   int fluidgrid_scale = 1;
   
   int BACKGROUND_COLOR = 255;
@@ -75,6 +81,8 @@ public class Minimal extends PApplet {
   
   
   public void setup() {
+    
+    surface.setLocation(viewport_x, viewport_y);
        
     // main library context
     PixelFlow context = new PixelFlow(this);

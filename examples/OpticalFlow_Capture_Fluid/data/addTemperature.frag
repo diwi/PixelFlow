@@ -26,7 +26,7 @@ uniform sampler2D tex_src; // current temperature
 void main(){
 
   vec2 posn     = gl_FragCoord.xy / wh;
-  float data_opticalflow = texture(tex_ext, posn).x;
+  vec2 data_opticalflow = texture(tex_ext, posn).xy;
   float data_src = texture(tex_src, posn).x;
   
   float temperature = length(data_opticalflow) * multiplier;

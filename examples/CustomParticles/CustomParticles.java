@@ -32,7 +32,7 @@ public class CustomParticles extends PApplet {
     @Override
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, intensity, temperature;
+      float px, py, vx, vy, radius, vscale, temperature;
       float px_norm, py_norm, radius_norm;
       
       radius = 15;
@@ -110,9 +110,13 @@ public class CustomParticles extends PApplet {
   }
   
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  int viewport_w = 800;
-  int viewport_h = 800;
+//  int viewport_w = 800;
+//  int viewport_h = 800;
   int fluidgrid_scale = 3;
   
   int BACKGROUND_COLOR = 0;
@@ -136,6 +140,7 @@ public class CustomParticles extends PApplet {
 
   
   public void setup() {
+    surface.setLocation(viewport_x, viewport_y);
     
     // main library context
     PixelFlow context = new PixelFlow(this);
@@ -186,6 +191,8 @@ public class CustomParticles extends PApplet {
     particles = new MyParticleSystem(context, 1024 * 1024);
 
     createGUI();
+    
+   
     
 //    frameRate(1000);
     frameRate(60);

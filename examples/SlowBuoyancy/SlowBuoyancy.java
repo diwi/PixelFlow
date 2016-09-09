@@ -68,24 +68,28 @@ public class SlowBuoyancy extends PApplet {
       vscale = 15;
       px     = width/2-0;
       py     = 0;
-      radius = width/6f;
+      radius = 100;
       fluid.addDensity (px, py, radius, 1.0f, 0.0f, 0.40f, 1f, 1);
-      radius = width/6f;
+      radius = 100;
       fluid.addTemperature(px, py, radius, temperature);
       
       px     = width/2+0;
       py     = height;
-      radius = width/6f;
+      radius = 100;
       fluid.addDensity (px, py, radius, 0.00f, 0.40f, 1, 1f, 1);
-      radius = width/6f;
+      radius = 100;
       fluid.addTemperature(px, py, radius, -temperature);
     }
     
   }
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  int viewport_w = 700;
-  int viewport_h = 900;
+//  int viewport_w = 700;
+//  int viewport_h = 900;
   int fluidgrid_scale = 1;
   
   int BACKGROUND_COLOR = 0;
@@ -111,7 +115,8 @@ public class SlowBuoyancy extends PApplet {
 
   public void setup() {
       
-
+    surface.setLocation(viewport_x, viewport_y);
+    
     // main library context
     PixelFlow context = new PixelFlow(this);
     context.print();

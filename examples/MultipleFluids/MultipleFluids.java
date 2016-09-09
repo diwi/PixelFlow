@@ -22,9 +22,16 @@ import processing.opengl.PGraphics2D;
 
 public class MultipleFluids extends PApplet {
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  int viewport_w = 1150;
-  int viewport_h =  600;
+  int border = 50;
+  
+  
+//  int viewport_w = 1150;
+//  int viewport_h =  600;
   
   FLuidSystem fluidsystem1;
   FLuidSystem fluidsystem2;
@@ -36,13 +43,15 @@ public class MultipleFluids extends PApplet {
   }
   
   public void setup() {
+    
+    surface.setLocation(viewport_x, viewport_y);
       
     PixelFlow context = new PixelFlow(this);
     context.print();
     context.printGL();
 
-    fluidsystem1 = new FLuidSystem(0, context, 500, 500, 1);
-    fluidsystem2 = new FLuidSystem(1, context, 500, 500, 1);
+    fluidsystem1 = new FLuidSystem(0, context, (viewport_w-3*border)/2, viewport_h-2*border, 1);
+    fluidsystem2 = new FLuidSystem(1, context, (viewport_w-3*border)/2, viewport_h-2*border, 1);
     
     fluidsystem1.fluid.param.dissipation_velocity = 0.99f;
     
@@ -53,8 +62,8 @@ public class MultipleFluids extends PApplet {
 
   public void draw() {
     
-    fluidsystem1.setPosition( 50, 50);
-    fluidsystem2.setPosition(600, 50);
+    fluidsystem1.setPosition(border, border);
+    fluidsystem2.setPosition(border*2 + fluidsystem1.w, border);
    
     fluidsystem1.update();
     fluidsystem2.update();

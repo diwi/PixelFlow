@@ -74,10 +74,13 @@ public class FirstBlood extends PApplet {
     }
   }
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  
-  int viewport_w = 600;
-  int viewport_h = 600;
+//  int viewport_w = 600;
+//  int viewport_h = 600;
   int fluidgrid_scale = 1;
   
   int BACKGROUND_COLOR = 255;
@@ -101,6 +104,7 @@ public class FirstBlood extends PApplet {
   }
   
   public void setup() {
+    surface.setLocation(viewport_x, viewport_y);
     
     // main library context
     PixelFlow context = new PixelFlow(this);
@@ -133,13 +137,13 @@ public class FirstBlood extends PApplet {
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
     // some rectangle
-//    pg_obstacles.rectMode(CENTER);
-//    pg_obstacles.translate(width/2, height/2f);
-//    pg_obstacles.rotate(PI*0.1f);
-//    pg_obstacles.stroke(192);
-//    pg_obstacles.strokeWeight(10);
-//    pg_obstacles.noFill();
-//    pg_obstacles.rect(0, 0, 200, 200);
+    pg_obstacles.rectMode(CENTER);
+    pg_obstacles.translate(width/2, height/2f);
+    pg_obstacles.rotate(PI*0.1f);
+    pg_obstacles.stroke(192);
+    pg_obstacles.strokeWeight(10);
+    pg_obstacles.noFill();
+    pg_obstacles.rect(0, 0, 200, 200);
     // border-obstacle
     pg_obstacles.resetMatrix();
     pg_obstacles.rectMode(CORNER);
@@ -151,7 +155,7 @@ public class FirstBlood extends PApplet {
     
     createGUI();
     
-    frameRate(60);
+    frameRate(600);
   }
   
  

@@ -91,9 +91,13 @@ public class LiquidPainting extends PApplet {
  
   }
   
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 237;
+  int viewport_y = 0;
   
-  int viewport_w = 1200;
-  int viewport_h =  900;
+//  int viewport_w = 1200;
+//  int viewport_h =  900;
   int fluidgrid_scale = 1;
   
   int BACKGROUND_COLOR = 0;
@@ -113,8 +117,8 @@ public class LiquidPainting extends PApplet {
   public void settings() {
     image = loadImage("mc_escher.jpg");
     
-    viewport_w = image.width;
-    viewport_h = image.height;
+//    viewport_w = image.width;
+//    viewport_h = image.height;
     
     size(viewport_w, viewport_h, P2D);
     smooth(4);
@@ -123,6 +127,8 @@ public class LiquidPainting extends PApplet {
 
   
   public void setup() {
+    
+    surface.setLocation(viewport_x, viewport_y);
     
     // main library context
     context = new PixelFlow(this);
@@ -155,6 +161,9 @@ public class LiquidPainting extends PApplet {
     pg_image.noSmooth();
     pg_image.beginDraw();
     pg_image.clear();
+    pg_image.translate(width/2, height/2);
+    pg_image.scale(viewport_h / (float)image.height);
+    pg_image.imageMode(CENTER);
     pg_image.image(image, 0, 0);
     pg_image.endDraw();
 
