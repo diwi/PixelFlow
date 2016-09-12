@@ -111,7 +111,7 @@ public class MyParticleSystem{
     // this "kind of" clears the texture
     // also, in the render-pass, the vertex gets clipped and no fragment is generated
     // --> speeds up everything
-    spawn(-1, -1, 0, particles_x *particles_y);
+    spawn(null, -1, -1, 0, particles_x *particles_y);
     
     ALIVE_LO = ALIVE_HI = ALIVE_PARTICLES = 0;
   }
@@ -123,7 +123,7 @@ public class MyParticleSystem{
    * @param py_norm normalized y spawn-position [0, 1]
    * @param count
    */
-  public void spawn(float px_norm, float py_norm, float radius_norm, int count){
+  public void spawn(Fluid fluid, float px, float py, float radius, int count){
     
     count = Math.round(count * spwan_scale);
     
@@ -139,10 +139,13 @@ public class MyParticleSystem{
     context.begin();
     context.beginDraw(tex_particles.dst);
     shader_particleSpawn.begin();
+    if(fluid != null){
+      shader_particleSpawn.uniform2f("wh_viewport", fluid.viewp_w, fluid.viewp_h);
+    }
     shader_particleSpawn.uniform1i("spawn_lo", spawn_lo);
     shader_particleSpawn.uniform1i("spawn_hi", spawn_hi);
-    shader_particleSpawn.uniform2f("spawn_origin", px_norm, py_norm);
-    shader_particleSpawn.uniform1f("spawn_radius", radius_norm);
+    shader_particleSpawn.uniform2f("spawn_origin", px, py);
+    shader_particleSpawn.uniform1f("spawn_radius", radius);
     shader_particleSpawn.uniform1f("noise", noise);
     shader_particleSpawn.uniform2f("wh_particles" , particles_x, particles_y);
     shader_particleSpawn.uniformTexture("tex_particels" , tex_particles.src);

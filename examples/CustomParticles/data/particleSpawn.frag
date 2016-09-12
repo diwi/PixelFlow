@@ -19,7 +19,7 @@
 
 out vec4 glFragColor;
 
-uniform vec2 wh;
+
 
 uniform int   spawn_lo;
 uniform int   spawn_hi;
@@ -27,6 +27,7 @@ uniform vec2  spawn_origin;
 uniform float spawn_radius;
 uniform float noise;
 uniform vec2  wh_particles;
+uniform vec2  wh_viewport = vec2(1);
 
 uniform sampler2D tex_particels;
 
@@ -56,7 +57,7 @@ void main(){
     vec2 xy = vec2(cos(angle), sin(angle));
    
     particle_data.xy = spawn_origin + xy * radius;
-
+    particle_data.xy /= wh_viewport; // normalize
   } else {
     // keep old particle data
     particle_data = texture(tex_particels, gl_FragCoord.xy/wh_particles);

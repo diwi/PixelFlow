@@ -33,28 +33,20 @@ public class CustomParticles extends PApplet {
     public void update(Fluid fluid) {
     
       float px, py, vx, vy, radius, vscale, temperature;
-      float px_norm, py_norm, radius_norm;
-      
+ 
       radius = 15;
       vscale = 10;
       px     = width/2;
       py     = 50;
       vx     = 1 * +vscale;
       vy     = 1 *  vscale;
-      
-      radius = 40;
-      fluid.addDensity(px, py, radius, 0.2f, 0.3f, 0.5f, 1.0f);
       radius = 40;
       temperature = 1f;
+      fluid.addDensity(px, py, radius, 0.2f, 0.3f, 0.5f, 1.0f);
       fluid.addTemperature(px, py, radius, temperature);
+      particles.spawn(fluid, px, py, radius, 100);
       
-      px_norm     = px / (float) width;
-      py_norm     = py / (float) height;
-      radius_norm = 1.1f*radius / (float) height;
-      particles.spawn(px_norm, py_norm, radius_norm, 100);
-      
-      
-     
+
       boolean mouse_input = !cp5.isMouseOver() && mousePressed;
       
       // add impulse: density + velocity, particles
@@ -65,15 +57,9 @@ public class CustomParticles extends PApplet {
         py     = height-mouseY;
         vx     = (mouseX - pmouseX) * +vscale;
         vy     = (mouseY - pmouseY) * -vscale;
-        
-        fluid.addDensity(px, py, radius, 0.25f, 0.0f, 0.1f, 1.0f);
+        fluid.addDensity (px, py, radius, 0.25f, 0.0f, 0.1f, 1.0f);
         fluid.addVelocity(px, py, radius, vx, vy);
-        
-        radius *= 2;
-        px_norm     = px / (float) width;
-        py_norm     = py / (float) height;
-        radius_norm = 1.1f*radius / (float) height;
-        particles.spawn(px_norm, py_norm, radius_norm, 300);
+        particles.spawn(fluid, px, py, radius*2, 300);
       }
       
       // add impulse: density + temperature, particles
@@ -83,27 +69,17 @@ public class CustomParticles extends PApplet {
         px     = mouseX;
         py     = height-mouseY;
         temperature = 2f;
-        
         fluid.addDensity(px, py, radius, 0.25f, 0.0f, 0.1f, 1.0f);
         fluid.addTemperature(px, py, radius, temperature);
-        
-        px_norm     = px / (float) width;
-        py_norm     = py / (float) height;
-        radius_norm = 1.1f*radius / (float) height;
-        particles.spawn(px_norm, py_norm, radius_norm, 100);
+        particles.spawn(fluid, px, py, radius, 100);
       }
       
       // particles
       if(mouse_input && mouseButton == RIGHT){
         px     = mouseX;
         py     = height - 1 - mouseY; // invert
-        radius = 50; // invert
-        
-        px_norm     = px / (float) width;
-        py_norm     = py / (float) height;
-        radius_norm = radius / (float) height;
-      
-        particles.spawn(px_norm, py_norm, radius_norm, 300);
+        radius = 50;
+        particles.spawn(fluid, px, py, radius, 300);
       }
        
     }
