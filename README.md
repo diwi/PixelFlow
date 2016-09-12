@@ -15,7 +15,7 @@ and more ...
 
 
 # Download
-+ latest [PixelFlow.zip] (https://raw.githubusercontent.com/diwi/PixelFlow/master/processing-library/distribution/PixelFlow.zip)
++ [Releases] (https://github.com/diwi/PixelFlow/releases)
 + [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
 
