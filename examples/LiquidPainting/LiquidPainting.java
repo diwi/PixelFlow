@@ -93,7 +93,7 @@ public class LiquidPainting extends PApplet {
   
   int viewport_w = 1280;
   int viewport_h = 720;
-  int viewport_x = 237;
+  int viewport_x = 230;
   int viewport_y = 0;
   
 //  int viewport_w = 1200;

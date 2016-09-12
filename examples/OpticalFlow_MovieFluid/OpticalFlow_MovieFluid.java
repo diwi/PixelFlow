@@ -70,17 +70,20 @@ public class OpticalFlow_MovieFluid extends PApplet {
         }
         
       }
-      
+//      addTemperatureTexture(fluid, opticalflow);
       addDensityTexture_cam(fluid, opticalflow);
       addVelocityTexture   (fluid, opticalflow);
-      addTemperatureTexture(fluid, opticalflow);
+//      addTemperatureTexture(fluid, opticalflow);
     }
     
 
     public void addDensityTexture_cam(Fluid fluid, OpticalFlow opticalflow){
       int[] pg_tex_handle = new int[1];
       
-      if( !pg_movie_a.getTexture().available() ) return;
+      if( !pg_movie_a.getTexture().available() ) {
+        System.out.println("no tex");
+        return;
+      }
       
       float mix = opticalflow.UPDATE_STEP > 1 ? 0.05f : 1.0f;
       
@@ -154,7 +157,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
  
   int view_w = 1280;
   int view_h = 720;
-  int view_x = 237;
+  int view_x = 230;
   int view_y = 0;
   
   

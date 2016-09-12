@@ -62,6 +62,7 @@ public class Fluid{
   public  int   simulation_step;
   
   // dimension
+  public  int   grid_scale;
   public  int   fluid_w, fluid_h; 
   public  int   viewp_w, viewp_h; 
   private float fluid_w_inv, fluid_h_inv;
@@ -165,13 +166,13 @@ public class Fluid{
 
   public void resize(int viewport_width, int viewport_height, int fluidgrid_scale) {
     
-    fluidgrid_scale = Math.max(1, fluidgrid_scale);
+    this.grid_scale = Math.max(1, fluidgrid_scale);
     
     viewp_w = viewport_width;
     viewp_h = viewport_height;
     
-    fluid_w = Math.max(1, viewp_w / fluidgrid_scale);
-    fluid_h = Math.max(1, viewp_h / fluidgrid_scale);
+    fluid_w = Math.max(1, viewp_w / grid_scale);
+    fluid_h = Math.max(1, viewp_h / grid_scale);
     
     fluid_w_inv = 1.0f / fluid_w;
     fluid_h_inv = 1.0f / fluid_h;

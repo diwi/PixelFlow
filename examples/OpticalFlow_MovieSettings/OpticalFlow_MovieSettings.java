@@ -36,7 +36,7 @@ public class OpticalFlow_MovieSettings extends PApplet {
   
   int view_w = 1280;
   int view_h = 720;
-  int view_x = 237;
+  int view_x = 230;
   int view_y = 0;
   
   

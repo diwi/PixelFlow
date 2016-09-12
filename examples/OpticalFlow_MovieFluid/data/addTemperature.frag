@@ -25,13 +25,13 @@ uniform sampler2D tex_src; // current temperature
 
 void main(){
 
-  vec2 posn     = gl_FragCoord.xy / wh;
-  vec2 data_opticalflow = texture(tex_ext, posn).xy;
-  float data_src = texture(tex_src, posn).x;
+  vec2  posn = gl_FragCoord.xy / wh;
+  vec2  data_opticalflow = texture(tex_ext, posn).xy;
+  float data_src         = texture(tex_src, posn).x;
   
   float temperature = length(data_opticalflow) * multiplier;
   
-  float data_new = 0.0;
+  float data_new = data_src;
   
   // REPLACE
   if(blend_mode == 0){
@@ -57,5 +57,6 @@ void main(){
     data_new = mix(data_src, temperature, mix_value_);
   }
   glFragColor = data_new;
+
 }
 
