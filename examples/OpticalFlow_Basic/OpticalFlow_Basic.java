@@ -19,17 +19,23 @@ import processing.opengl.PGraphics2D;
 
 public class OpticalFlow_Basic extends PApplet {
  
+  int viewport_w = 1280;
+  int viewport_h = 720;
+  int viewport_x = 230;
+  int viewport_y = 0;
 
   OpticalFlow opticalflow;
   PGraphics2D pg_oflow;
   PGraphics2D pg_src;
   
   public void settings() {
-    size(1000, 800, P2D);
+    size(viewport_w, viewport_h, P2D);
     smooth(4);
   }
 
   public void setup() {
+    
+    surface.setLocation(viewport_x, viewport_y);
 
     // main library context
     PixelFlow context = new PixelFlow(this);

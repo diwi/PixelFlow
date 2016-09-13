@@ -192,19 +192,19 @@ public class OpticalFlow_MovieFluid extends PApplet {
 
 
   // some state variables for the GUI/display
-  public int     BACKGROUND_COLOR  = 0;
-  public boolean DISPLAY_MOVIE   = true;
-  public boolean APPLY_GRAYSCALE = false;
-  public boolean APPLY_BILATERAL = true;
-  public int     VELOCITY_LINES  = 6;
+  int     BACKGROUND_COLOR  = 0;
+  boolean DISPLAY_SOURCE   = true;
+  boolean APPLY_GRAYSCALE = false;
+  boolean APPLY_BILATERAL = true;
+  int     VELOCITY_LINES  = 6;
   
-  public boolean UPDATE_FLUID = true;
+  boolean UPDATE_FLUID = true;
   
-  public boolean DISPLAY_FLUID_TEXTURES  = true;
-  public boolean DISPLAY_FLUID_VECTORS   = !true;
-  public boolean DISPLAY_PARTICLES       = !true;
+  boolean DISPLAY_FLUID_TEXTURES  = true;
+  boolean DISPLAY_FLUID_VECTORS   = !true;
+  boolean DISPLAY_PARTICLES       = !true;
   
-  public int     DISPLAY_fluid_texture_mode = 0;
+  int     DISPLAY_fluid_texture_mode = 0;
   
 
   
@@ -278,6 +278,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     if( movie.available() ){
       movie.read();
       
+      // compute movie display size to fit the best
       int movie_w = movie.width;
       int movie_h = movie.height;
       
@@ -288,8 +289,6 @@ public class OpticalFlow_MovieFluid extends PApplet {
         mov_h_fit = pg_movie_h;
         mov_w_fit = (pg_movie_h/(float)movie_h) * movie_w;
       }
-      
-      
       
       // render to offscreenbuffer
       pg_movie_a.beginDraw();
@@ -311,25 +310,21 @@ public class OpticalFlow_MovieFluid extends PApplet {
         swapCamBuffer();
       }
       
-
       // update Optical Flow
       opticalflow.update(pg_movie_a);
     }
     
-
     if(UPDATE_FLUID){
       fluid.update();
     }
   
-    
     // render Optical Flow
     pg_oflow.beginDraw();
     pg_oflow.background(BACKGROUND_COLOR);
-    if(DISPLAY_MOVIE){// && ADD_DENSITY_MODE == 0){
+    if(DISPLAY_SOURCE){
       pg_oflow.image(pg_movie_a, 0, 0);
     }
     pg_oflow.endDraw();
-    
     
     // add fluid stuff to rendering
     if(DISPLAY_FLUID_TEXTURES){
@@ -474,7 +469,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     APPLY_BILATERAL = (val[1] > 0);
   }
   public void setOptionsGeneral(float[] val){
-    DISPLAY_MOVIE = (val[0] > 0);
+    DISPLAY_SOURCE = (val[0] > 0);
   }
  
   
@@ -579,7 +574,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
       group_oflow.getCaptionLabel().align(CENTER, CENTER);
       
-      py = 15;
+      px = 10; py = 15;
       
       cp5.addSlider("blur input").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py)
         .setRange(0, 30).setValue(opticalflow.param.blur_input).plugTo(opticalflow.param, "blur_input");
@@ -615,14 +610,14 @@ public class OpticalFlow_MovieFluid extends PApplet {
       .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
       group_display.getCaptionLabel().align(CENTER, CENTER);
       
-      py = 15;
+      px = 10; py = 15;
       
       cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
           .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
   
       cp5.addCheckBox("setOptionsGeneral").setGroup(group_display).setSize(38, 18).setPosition(px, py+=oy)
           .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
-          .addItem("display movie", 0).activate(DISPLAY_MOVIE ? 0 : 100);
+          .addItem("display source", 0).activate(DISPLAY_SOURCE ? 0 : 100);
   
       cp5.addCheckBox("activeFilters").setGroup(group_display).setSize(18, 18).setPosition(px, py+=(int)(oy*1.5f))
           .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)

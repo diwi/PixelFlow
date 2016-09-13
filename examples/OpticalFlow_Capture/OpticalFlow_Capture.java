@@ -30,7 +30,6 @@ public class OpticalFlow_Capture extends PApplet {
   PGraphics2D pg_cam;
   PGraphics2D pg_oflow;
   
-
   int cam_w = 640;
   int cam_h = 480;
   
@@ -84,27 +83,27 @@ public class OpticalFlow_Capture extends PApplet {
       pg_cam.endDraw();
       
       // update Optical Flow
-      opticalflow.update(pg_cam);
-      
-      // rgba -> luminance (just for display)
-      Filter.get(context).luminance.apply(pg_cam, pg_cam);
-      
-      // render Optical Flow
-      pg_oflow.beginDraw();
-      pg_oflow.clear();
-      pg_oflow.image(pg_cam, 0, 0, width, height);
-      pg_oflow.endDraw();
-      
-      // flow visualizations
-      opticalflow.param.display_mode = 0;
-      opticalflow.renderVelocityShading(pg_oflow);
-      opticalflow.renderVelocityStreams(pg_oflow, 5);
-      
-      // display result
-      image(pg_oflow, 0, 0);
+      opticalflow.update(pg_cam); 
     }
     
-
+    // rgba -> luminance (just for display)
+    Filter.get(context).luminance.apply(pg_cam, pg_cam);
+    
+    // render Optical Flow
+    pg_oflow.beginDraw();
+    pg_oflow.clear();
+    pg_oflow.image(pg_cam, 0, 0, width, height);
+    pg_oflow.endDraw();
+    
+    // flow visualizations
+    opticalflow.param.display_mode = 0;
+    opticalflow.renderVelocityShading(pg_oflow);
+    opticalflow.renderVelocityStreams(pg_oflow, 5);
+    
+    // display result
+    background(0);
+    image(pg_oflow, 0, 0);
+ 
   }
   
 
