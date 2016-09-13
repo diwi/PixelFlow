@@ -3,7 +3,7 @@
 # PixelFlow
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
-# Features
+## Features
 FluidSimulation /  
 Optical Flow /  
 Harris Corner Detection /  
@@ -14,13 +14,13 @@ GLSL Tools /
 and more ...
 
 
-# Download
+## Download
 + [Releases] (https://github.com/diwi/PixelFlow/releases)
 + [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
 
 
-# Getting Started
+## Getting Started
 
 ![result](https://github.com/diwi/PixelFlow/blob/master/examples/GetStarted/out/GetStarted.jpg)
 
@@ -89,5 +89,15 @@ public void draw() {
 
 
 
-# Platforms
+## Platforms
 Windows, Linux, MacOSX
+
+## Processing Version
+- [Processing 3.2.1] (https://processing.org/download/?processing)
+
+### Installation, Processing IDE
+- Install via the Library Manager
+- Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
+
+
+
