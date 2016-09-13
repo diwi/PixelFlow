@@ -101,7 +101,7 @@ public class Ball {
     // fluid affects bigger objects more
     float contact_area_factor = (rad * rad) / (MAX_RAD * MAX_RAD);
     fluid_vx_new *= contact_area_factor;
-    fluid_vx_new *= contact_area_factor;
+    fluid_vy_new *= contact_area_factor;
   
     // smooth
     fluid_vx = fluid_vx * FLUID_INERTIA + fluid_vx_new * (1-FLUID_INERTIA);

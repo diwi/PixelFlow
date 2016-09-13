@@ -192,8 +192,9 @@ public class ParticleCollisionSystem extends PApplet {
     particlesystem = new ParticleSystem(this);
     
     // set some parameters
-    particlesystem.PARTICLE_COUNT = 5000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.6f;
+    particlesystem.PARTICLE_SHAPE_IDX = 0;
+    particlesystem.PARTICLE_COUNT = 1000;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.7f;
     
     Particle.COLLISION_SPRING = 0.80f;
     Particle.COLLISION_DAMPING= 0.80f;
@@ -536,7 +537,7 @@ public class ParticleCollisionSystem extends PApplet {
 
     RadioButton rb_shp = cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(18, 18).setPosition(px, py+=oy)
     .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-    .addItem("circle1"   , 0)
+    .addItem("disk"   , 0)
     .addItem("hightlight", 1)
     .addItem("donut"     , 2)
     .addItem("rectangle" , 3)

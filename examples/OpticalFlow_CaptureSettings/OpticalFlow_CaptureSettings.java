@@ -32,8 +32,12 @@ public class OpticalFlow_CaptureSettings extends PApplet {
   int cam_w = 640;
   int cam_h = 480;
   
+  
+  
   int view_w = 1200;
   int view_h = (int)(view_w * cam_h/(float)cam_w);
+  int view_x = 230;
+  int view_y = 0;
   
   int gui_w = 200;
   
@@ -64,6 +68,8 @@ public class OpticalFlow_CaptureSettings extends PApplet {
   }
 
   public void setup() {
+    
+    surface.setLocation(view_x, view_y);
     
     // main library context
     context = new PixelFlow(this);

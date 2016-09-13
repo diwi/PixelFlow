@@ -288,7 +288,7 @@ public class OpticalFlow_MovieSettings extends PApplet {
     cp5 = new ControlP5(this);
     
     int sx = 100, sy = 14;
-    int px = 10, py = 20, oy = (int)(sy*1.5f);
+    int px = 10, py = 20, oy = 20;
     
     Group group_oflow = cp5.addGroup("OpticalFlow")
     .setPosition(width-gui_w, 20).setHeight(20).setWidth(gui_w)
@@ -315,6 +315,19 @@ public class OpticalFlow_MovieSettings extends PApplet {
     .setRange(0, 2.0f).setValue(opticalflow.param.threshold)
     .plugTo(opticalflow.param, "threshold").linebreak();
     
+    
+    cp5.addRadio("setDisplayMode").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
+        .setSpacingColumn(40).setSpacingRow(2).setItemsPerRow(3)
+        .addItem("dir", 0)
+        .addItem("normal", 1)
+        .addItem("Shading", 2)
+        .activate(opticalflow.param.display_mode);
+    
+    cp5.addSlider("line density").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=(int)(18*1.5f))
+    .setRange(1, 10).setValue(VELOCITY_LINES)
+    .plugTo(this, "VELOCITY_LINES").linebreak();
+    
+    
     cp5.addSpacer("display").setGroup(group_oflow).setPosition(px, py+=oy);
 
     CheckBox cb = cp5.addCheckBox("activeFilters").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
@@ -326,16 +339,7 @@ public class OpticalFlow_MovieSettings extends PApplet {
     if(APPLY_GRAYSCALE) cb.activate(0);
     if(APPLY_BILATERAL) cb.activate(1);
     
-    cp5.addSlider("line density").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=(int)(oy*2.5))
-    .setRange(1, 10).setValue(VELOCITY_LINES)
-    .plugTo(this, "VELOCITY_LINES").linebreak();
 
-    cp5.addRadio("setDisplayMode").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
-        .setSpacingColumn(40).setSpacingRow(2).setItemsPerRow(3)
-        .addItem("dir", 0)
-        .addItem("normal", 1)
-        .addItem("Shading", 2)
-        .activate(opticalflow.param.display_mode);
 
     group_oflow.open();
   }
