@@ -11,12 +11,11 @@
 package ParticleCollisionSystem;
 
 
+import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 
 import controlP5.Accordion;
-import controlP5.Button;
-import controlP5.CheckBox;
 import controlP5.ControlP5;
 import controlP5.Group;
 import controlP5.RadioButton;
@@ -40,9 +39,8 @@ public class ParticleCollisionSystem extends PApplet {
       px = width-80;
       py = 30;
       radius = 60;
-      r = 0.1f;
-      g = 0.4f;
-      b = 1.0f;
+      r = 0.1f; g = 0.4f; b = 1.0f;
+      r = 1f; g = 1f; b = 1f;
       vx = 0;
       vy = 50;
       intensity = 1.0f;
@@ -54,27 +52,22 @@ public class ParticleCollisionSystem extends PApplet {
       px = width/2;
       py = height/2;
       radius = 15;
-      r = 1.0f;
-      g = 0;
-      b = 0.4f;
+      r = 1.0f; g = 0; b = 0.4f;
+      r = 1f; g = 1f; b = 1f;
       vx = 0;
       vy = -50;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       temperature = -4;
       fluid.addVelocity(px, py, radius, vx, vy);
       
-      
-      
+
       // add impulse: density + velocit
       px = width/2+50;
       py = 50;
-      r = 1f;
-      g = 1f;
-      b = 1f;
       vx = -50;
       vy = 10;
       radius = 15;
-      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addDensity(px, py, radius, 1, 1, 1, intensity);
       temperature = -4;
       radius = 35;
       fluid.addVelocity(px, py, radius, vx, vy);
@@ -89,9 +82,9 @@ public class ParticleCollisionSystem extends PApplet {
         py     = height-mouseY;
         vx     = (mouseX - pmouseX) * +vscale;
         vy     = (mouseY - pmouseY) * -vscale;
-        radius = 12;
+        radius = 15;
         fluid.addDensity(px, py, radius, 1, 1, 1f, 1.0f);
-        radius = 25;
+        radius = 20;
         fluid.addVelocity(px, py, radius, vx, vy);
       }
       
@@ -118,11 +111,12 @@ public class ParticleCollisionSystem extends PApplet {
   int viewport_x = 230;
   int viewport_y = 0;
   
-//  int viewport_w = 800;
-//  int viewport_h = 800;
-  int fluidgrid_scale = 1;
+  int gui_w = 200;
+  int gui_x = 20;
+  int gui_y = 20;
   
-  int BACKGROUND_COLOR = 0;
+  int fluidgrid_scale = 1;
+
   
   // Fluid simulation
   public Fluid fluid;
@@ -132,12 +126,23 @@ public class ParticleCollisionSystem extends PApplet {
   //texture-buffer, for adding obstacles
   PGraphics2D pg_obstacles;
 
-  
-  
+  // particle system, cpu
   public ParticleSystem particlesystem;
   
-  public boolean COLLISION_DETECTION = true;
+  // acceleration structure for collision detection
   public CollisionGridAccelerator collision_grid;
+  
+  
+  // some state variables for the GUI/display
+  int     BACKGROUND_COLOR  = 0;
+  int     VELOCITY_LINES  = 6;
+  boolean COLLISION_DETECTION = true;
+  boolean UPDATE_FLUID = true;
+  boolean DISPLAY_FLUID_TEXTURES  = true;
+  boolean DISPLAY_FLUID_VECTORS   = !true;
+  boolean DISPLAY_PARTICLES       = !true;
+  int     DISPLAY_fluid_texture_mode = 0;
+  
 
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -152,7 +157,6 @@ public class ParticleCollisionSystem extends PApplet {
     context.print();
     context.printGL();
     
-    
     // fluid simulation
     fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
     
@@ -162,16 +166,13 @@ public class ParticleCollisionSystem extends PApplet {
     fluid.param.dissipation_temperature = 0.50f;
     fluid.param.vorticity               = 0.10f;
     
-    
     // interface for adding data to the fluid simulation
     MyFluidData cb_fluid_data = new MyFluidData();
     fluid.addCallback_FluiData(cb_fluid_data);
    
-    
     // pgraphics for fluid
     pg_fluid = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
     pg_fluid.smooth(4);
-    
     
     // pgraphics for obstacles
     pg_obstacles = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
@@ -188,35 +189,33 @@ public class ParticleCollisionSystem extends PApplet {
     
     fluid.addObstacles(pg_obstacles);
 
-    
-    particlesystem = new ParticleSystem(this);
+    // particle system object
+    particlesystem = new ParticleSystem(this, width, height);
     
     // set some parameters
-    particlesystem.PARTICLE_SHAPE_IDX = 0;
-    particlesystem.PARTICLE_COUNT = 1000;
+    particlesystem.PARTICLE_COUNT              = 1000;
     particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.7f;
+    particlesystem.PARTICLE_SHAPE_IDX          = 0;
+    particlesystem.SPRINGINESS                 = 0.80f;
+    particlesystem.MULT_GRAVITY                = 0.50f;
     
-    Particle.COLLISION_SPRING = 0.80f;
-    Particle.COLLISION_DAMPING= 0.80f;
-    Particle.GRAVITY = 0.01f;
-     
     particlesystem.initParticles();
     
+    // collision detection accelerating system
     collision_grid = new CollisionGridAccelerator();
 
     createGUI();
 
+    background(0);
     frameRate(60);
   }
   
   
 
   
-  
   // float buffer for pixel transfer from OpenGL to the host application
   float[] fluid_velocity;
 
- 
   public void draw() {    
 
     // update simulation
@@ -240,9 +239,6 @@ public class ParticleCollisionSystem extends PApplet {
       fluid.renderFluidVectors(pg_fluid, 10);
     }
     
-    if(DISPLAY_PARTICLES){
-    }
-    
 
     // add a force to particle[0] with the middle mousebutton
     if(mousePressed && mouseButton == CENTER){
@@ -251,8 +247,8 @@ public class ParticleCollisionSystem extends PApplet {
       float dx = mouseX - particle.x;
       float dy = mouseY - particle.y;
       
-      float damping_pos = 0.2f;
-      float damping_vel = 0.2f;
+      float damping_pos = 0.1f;
+      float damping_vel = 0.1f;
       
       particle.x  += dx * damping_pos;
       particle.y  += dy * damping_pos;
@@ -269,9 +265,8 @@ public class ParticleCollisionSystem extends PApplet {
     fluid_velocity = fluid.getVelocity(fluid_velocity);
     
     
-
-    // optinally, collision detection can be applied
-    if(COLLISION_DETECTION && Particle.COLLISION_SPRING != 0.0){
+    // collision detection
+    if(COLLISION_DETECTION && particlesystem.SPRINGINESS != 0.0){
       collision_grid.updateCollisions(particlesystem.particles);
     }
  
@@ -290,16 +285,14 @@ public class ParticleCollisionSystem extends PApplet {
 
       int PIDX    = py_grid * w_grid + px_grid;
 
-      float fluid_vx = +fluid_velocity[PIDX * 2 + 0] * 0.05f;
-      float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.05f; // invert y
+      float fluid_vx = +fluid_velocity[PIDX * 2 + 0] * 0.02f;
+      float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.02f; // invert y
       
-     
       particle.applyFLuid(fluid_vx, fluid_vy);
       particle.applyGravity();
       particle.updatePosition(10, 10, width-10, height-10);
-      particle.updateColor(particlesystem.PARTICLE_SHADING);
+      particle.updateColor();
     }
-    
     
 
     // RENDER
@@ -310,14 +303,13 @@ public class ParticleCollisionSystem extends PApplet {
     
 
     // draw particlesystem
-    if(DISPLAY_PARTICLES){
-      PGraphics pg = this.g;
-      pg.blendMode(BLEND);
-      pg.hint(DISABLE_DEPTH_MASK);
-      particlesystem.display(pg);
-    }
+    PGraphics pg = this.g;
+    pg.hint(DISABLE_DEPTH_MASK);
+    pg.blendMode(BLEND);
+//    pg.blendMode(ADD);
+    particlesystem.display(pg);
+    pg.blendMode(BLEND);
     
-
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", fluid.fluid_w, fluid.fluid_h, fluid.simulation_step, frameRate);
     surface.setTitle(txt_fps);
@@ -325,18 +317,32 @@ public class ParticleCollisionSystem extends PApplet {
   
 
   
-  
-  
-  
-  
-  boolean UPDATE_FLUID = true;
-  
-  boolean DISPLAY_FLUID_TEXTURES  = true;
-  boolean DISPLAY_FLUID_VECTORS   = !true;
-  boolean DISPLAY_PARTICLES       = true;
-  
-  int     DISPLAY_fluid_texture_mode = 0;
-  
+  public void fluid_resizeUp(){
+    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
+  }
+  public void fluid_resizeDown(){
+    fluid.resize(width, height, ++fluidgrid_scale);
+  }
+  public void fluid_reset(){
+    fluid.reset();
+  }
+  public void fluid_togglePause(){
+    UPDATE_FLUID = !UPDATE_FLUID;
+  }
+  public void fluid_displayMode(int val){
+    DISPLAY_fluid_texture_mode = val;
+    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
+  }
+  public void fluid_displayVelocityVectors(int val){
+    DISPLAY_FLUID_VECTORS = val != -1;
+  }
+  public void fluid_displayParticles(int val){
+    DISPLAY_PARTICLES = val != -1;
+  }
+  public void activateCollisionDetection(float[] val){
+    COLLISION_DETECTION = (val[0] > 0);
+  }
+
   public void keyReleased(){
     if(key == 'p') fluid_togglePause(); // pause / unpause simulation
     if(key == '+') fluid_resizeUp();    // increase fluid-grid resolution
@@ -353,32 +359,7 @@ public class ParticleCollisionSystem extends PApplet {
     if(key == 'e') DISPLAY_PARTICLES      = !DISPLAY_PARTICLES;
   }
   
-
-  public void fluid_resizeUp(){
-    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
-  }
-  public void fluid_resizeDown(){
-    fluid.resize(width, height, ++fluidgrid_scale);
-  }
-  public void fluid_reset(){
-//    particle_system.reset();
-    fluid.reset();
-  }
-  public void fluid_togglePause(){
-    UPDATE_FLUID = !UPDATE_FLUID;
-  }
-  public void setDisplayMode(int val){
-    DISPLAY_fluid_texture_mode = val;
-    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
-  }
-  public void setDisplayVelocityVectors(int val){
-    DISPLAY_FLUID_VECTORS = val != -1;
-  }
-  public void setDisplayParticles(int val){
-    DISPLAY_PARTICLES = val != -1;
-  }
-  
-  
+ 
   
   
   ControlP5 cp5;
@@ -386,237 +367,145 @@ public class ParticleCollisionSystem extends PApplet {
   public void createGUI(){
     cp5 = new ControlP5(this);
     
-    Group group_fluid = cp5.addGroup("fluid controls")
-//    .setPosition(20, 40)
-    .setHeight(20).setWidth(180)
-    .setBackgroundHeight(330)
-    .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_fluid.getCaptionLabel().align(LEFT, CENTER);
-  
-    Button breset = cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset").setWidth(75);
-    Button bplus  = cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp").setWidth(25);
-    Button bminus = cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setWidth(25).linebreak();
+    int sx, sy, px, py, oy;
     
-    float[] pxy = breset.getPosition();
-    bplus .setPosition(pxy[0] + 75 + 10, pxy[1]);
-    bminus.setPosition(pxy[0] + 75 + 25 + 20, pxy[1]);
+    sx = 100; sy = 14; oy = (int)(sy*1.5f);
     
-    int px, py, oy;
-    int sx = 100, sy = 14;
-    
-    cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_velocity)
-    .plugTo(fluid.param, "dissipation_velocity").linebreak();
-    
-    cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_density)
-    .plugTo(fluid.param, "dissipation_density").linebreak();
-    
-    cp5 .addSlider("temperature").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_temperature)
-    .plugTo(fluid.param, "dissipation_temperature").linebreak();
-  
-    cp5 .addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.vorticity)
-    .plugTo(fluid.param, "vorticity").linebreak();
-        
-    cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 80).setValue(fluid.param.num_jacobi_projection)
-    .plugTo(fluid.param, "num_jacobi_projection").linebreak();
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - FLUID
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_fluid = cp5.addGroup("fluid");
+    {
+      group_fluid.setHeight(20).setSize(gui_w, 300)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_fluid.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset"     ).setSize(80, 18).setPosition(px    , py);
+      cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp"  ).setSize(39, 18).setPosition(px+=82, py);
+      cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setSize(39, 18).setPosition(px+=41, py);
+      
+      px = 10;
+     
+      cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
+          .setRange(0, 1).setValue(fluid.param.dissipation_velocity).plugTo(fluid.param, "dissipation_velocity");
+      
+      cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_density).plugTo(fluid.param, "dissipation_density");
+      
+      cp5.addSlider("temperature").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_temperature).plugTo(fluid.param, "dissipation_temperature");
+      
+      cp5.addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.vorticity).plugTo(fluid.param, "vorticity");
           
-    cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.timestep)
-    .plugTo(fluid.param, "timestep").linebreak();
-        
-    cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 50).setValue(fluid.param.gridscale)
-    .plugTo(fluid.param, "gridscale").linebreak();
+      cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 80).setValue(fluid.param.num_jacobi_projection).plugTo(fluid.param, "num_jacobi_projection");
+            
+      cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.timestep).plugTo(fluid.param, "timestep");
+          
+      cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 50).setValue(fluid.param.gridscale).plugTo(fluid.param, "gridscale");
+      
+      RadioButton rb_setFluid_DisplayMode = cp5.addRadio("fluid_displayMode").setGroup(group_fluid).setSize(80,18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
+          .addItem("Density"    ,0)
+          .addItem("Temperature",1)
+          .addItem("Pressure"   ,2)
+          .addItem("Velocity"   ,3)
+          .activate(DISPLAY_fluid_texture_mode);
+      for(Toggle toggle : rb_setFluid_DisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
+      
+      cp5.addRadio("fluid_displayVelocityVectors").setGroup(group_fluid).setSize(18,18).setPosition(px, py+=(int)(oy*2.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("Velocity Vectors", 0)
+          .activate(DISPLAY_FLUID_VECTORS ? 0 : 2);
+    }
     
-    RadioButton rb_setDisplayMode = cp5.addRadio("setDisplayMode").setGroup(group_fluid)
-        .setPosition(10, 210).setSize(80,18)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
-        .addItem("Density"    ,0)
-        .addItem("Temperature",1)
-        .addItem("Pressure"   ,2)
-        .addItem("Velocity"   ,3)
-        .activate(0);
-    for(Toggle toggle : rb_setDisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
-    
-    cp5.addRadio("setDisplayVelocityVectors").setGroup(group_fluid)
-        .setPosition(10, 255).setSize(18,18)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-        .addItem("Velocity Vectors",0)
-        ;
 
-    cp5.addNumberbox("BACKGROUND_COLOR").setGroup(group_fluid)
-    .setPosition(10,280).setSize(80,18)
-    .setMin(0).setMax(255)
-    .setScrollSensitivity(1) .setValue(BACKGROUND_COLOR);
     
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - PARTICLES
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_particles = cp5.addGroup("Particles");
+    {
+      
+      group_particles.setHeight(20).setSize(gui_w, 260)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_particles.getCaptionLabel().align(CENTER, CENTER);
+      
+      sx = 100; px = 10; py = 10;oy = (int)(sy*1.4f);
+      
+      cp5.addButton("reset particles").setGroup(group_particles).setWidth(160).setPosition(10, 10).plugTo(particlesystem, "initParticles");
+
+      cp5.addSlider("Particle count").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
+          .setRange(10, 15000).setValue(particlesystem.PARTICLE_COUNT).plugTo(particlesystem, "setParticleCount");
+      
+      cp5.addSlider("Fill Factor").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.2f, 1.5f).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR).plugTo(particlesystem, "setFillFactor");
+      
+      cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
+          .setRange(0.85f, 1.0f).setValue(particlesystem.MULT_VELOCITY).plugTo(particlesystem, "MULT_VELOCITY");
+      
+      cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
+
+      cp5.addSlider("FLUID").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1f).setValue(particlesystem.MULT_FLUID).plugTo(particlesystem, "MULT_FLUID");
+      
+      cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1f).setValue(particlesystem.SPRINGINESS).plugTo(particlesystem, "SPRINGINESS");
+      
+      cp5.addCheckBox("activateCollisionDetection").setGroup(group_particles).setSize(40, 18).setPosition(px, py+=(int)(oy*1.5f))
+          .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
+          .addItem("collision detection", 0)
+          .activate(COLLISION_DETECTION ? 0 : 2);
+      
+      RadioButton rgb_shape = cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(50, 18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(3).plugTo(particlesystem, "setParticleShape")
+          .addItem("disk"  , 0)
+          .addItem("spot"  , 1)
+          .addItem("donut" , 2)
+          .addItem("rect"  , 3)
+          .addItem("circle", 4)
+          .activate(particlesystem.PARTICLE_SHAPE_IDX);
+      for(Toggle toggle : rgb_shape.getItems()) toggle.getCaptionLabel().alignX(CENTER);
+    }
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - DISPLAY
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_display = cp5.addGroup("display");
+    {
+      group_display.setHeight(20).setSize(gui_w, 25)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_display.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
+          .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
+    }
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_fluid)
+      .addItem(group_particles)
+      .addItem(group_display)
+      .open(1);
+  }
+  
    
-    group_fluid.close();
-    
-    
-    
-    
-    Group group_particles = cp5.addGroup("Particle Controls")
-//    .setPosition(20, 40)
-    .setHeight(20).setWidth(180)
-    .setBackgroundHeight(400)
-    .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_particles.getCaptionLabel().align(LEFT, CENTER);
-    
-    sx = 90;
-    py = 10;
-    px = 10;
-    oy = (int) (sy * 1.4f);
-    
-    cp5.addButton("reset particles").setGroup(group_particles).setWidth(160).setPosition(10, 10)
-    .plugTo(this, "initParticles").linebreak();
-    
-    py+=10;
-    
-    cp5.addSlider("Particle count").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(10, 15000).setValue(particlesystem.PARTICLE_COUNT)
-    .plugTo(this, "setParticleCount").linebreak();
-    
-    cp5.addSlider("Fill Factor").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 2).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR)
-    .plugTo(this, "setParticlesFillFactor").linebreak();
-    
-    cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 0.05f).setValue(Particle.GRAVITY)
-    .plugTo(this, "setParticle_GRAVITY").linebreak();
 
-    
-    cp5.addSlider("VEL DISSIPATION").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0.85f, 1.0f).setValue(Particle.VELOCITY_DISSIPATION)
-    .plugTo(this, "seParticle_VELOCITY_DISSIPATION").linebreak();
-    
-    py+=10;
-    
-    cp5.addSlider("FLUID DISSIPATION").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Particle.FLUID_DISSIPATION)
-    .plugTo(this, "setParticle_FLUID_DISSIPATION").linebreak();
-    
-    cp5.addSlider("FLUID INERTIA").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Particle.FLUID_INERTIA)
-    .plugTo(this, "setParticle_FLUID_INERTIA").linebreak();
-    
-    cp5.addSlider("FLUID SCALE").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 2f).setValue(Particle.FLUID_SCALE)
-    .plugTo(this, "setParticle_FLUID_SCALE").linebreak();
-    
-    
-    
-    
-    cp5.addSlider("COLL SPRING").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
-    .setRange(0, 1f).setValue(Particle.COLLISION_SPRING)
-    .plugTo(this, "setParticle_COLLISION_SPRING").linebreak();
-    
-    cp5.addSlider("COLL DAMPING").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Particle.COLLISION_DAMPING)
-    .plugTo(this, "setParticle_COLLISION_DAMPING").linebreak();
 
-    
-//    COLLISION_DETECTION
-    CheckBox cb = cp5.addCheckBox("activateCollisions").setGroup(group_particles).setSize(18, 18).setPosition(px, py+=(int)(oy*1.5f))
-    .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
-    .addItem("collision detection", 0)
-    ;
-    
-    if(COLLISION_DETECTION) cb.activate(0);
-
-    
-    py+=10;
-    
-    cp5.addSlider("Particle SHADING").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 255).setValue(particlesystem.PARTICLE_SHADING)
-    .plugTo(particlesystem, "PARTICLE_SHADING").linebreak();
-    
-
-    cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(18, 18).setPosition(px, py+=oy)
-    .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-    .addItem("disk"      , 0)
-    .addItem("hightlight", 1)
-    .addItem("donut"     , 2)
-    .addItem("rectangle" , 3)
-    .addItem("circle"    , 4)
-    .activate(particlesystem.PARTICLE_SHAPE_IDX);
-
-    
-    Accordion accordion = cp5.addAccordion("acc")
-        .setPosition(20,20)
-        .setWidth(180)
-        .addItem(group_fluid)
-        .addItem(group_particles)
-        ;
-    
-    
-    accordion.setCollapseMode(Accordion.MULTI);
-    accordion.open(1);
-    
-  }
-  
-  
-  public void setParticleShape(int val){
-    if( val == -1){
-      DISPLAY_PARTICLES = false;
-    } else {
-      DISPLAY_PARTICLES = true;
-      particlesystem.PARTICLE_SHAPE_IDX = val;
-      particlesystem.initParticleShapes();
-    }
-  }
-  
-  public void activateCollisions(float[] val){
-    COLLISION_DETECTION = (val[0] > 0);
-  }
-  
-  public void initParticles(){
-    particlesystem.initParticles();
-  }
-  
-  public void setParticleCount(int count){
-    if(count == particlesystem.PARTICLE_COUNT && particlesystem.particles != null && particlesystem.particles.length == particlesystem.PARTICLE_COUNT){
-      return;
-    }
-    particlesystem.PARTICLE_COUNT = count;
-    initParticles();
-  }
-  public void setParticlesFillFactor(float screen_fill_factor){
-    if(screen_fill_factor == particlesystem.PARTICLE_SCREEN_FILL_FACTOR){
-      return;
-    }
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = screen_fill_factor;
-    particlesystem.initParticlesSize();
-    particlesystem.initParticleShapes();
-  }
-  
-  public void setParticle_GRAVITY(float v){
-    Particle.GRAVITY = v;
-  }
-  public void setParticle_COLLISION_SPRING(float v){
-    Particle.COLLISION_SPRING = v;
-  }
-  public void setParticle_COLLISION_DAMPING(float v){
-    Particle.COLLISION_DAMPING = v;
-  }
-  public void setParticle_VELOCITY_DISSIPATION(float v){
-    Particle.VELOCITY_DISSIPATION = v;
-  }
-  public void setParticle_FLUID_DISSIPATION(float v){
-    Particle.FLUID_DISSIPATION = v;
-  }
-  public void setParticle_FLUID_INERTIA(float v){
-    Particle.FLUID_INERTIA = v;
-  }
-  public void setParticle_FLUID_SCALE(float v){
-    Particle.FLUID_SCALE = v;
-  }
-  
-  
-  
   public static void main(String args[]) {
     PApplet.main(new String[] { ParticleCollisionSystem.class.getName() });
   }

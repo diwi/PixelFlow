@@ -35,7 +35,7 @@ const vec3 PALLETTE[] = vec3[](
 );
 
 vec3 getShading(float val){
-  val = clamp(val, 0.0, 1.0);
+  val = clamp(val, 0.0, 0.99999f);
   float lum_steps = val * (STEPS-1);
   float frac = fract(lum_steps);
   int id = int(floor(lum_steps));

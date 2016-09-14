@@ -1,6 +1,6 @@
-package ParticleCollisionSystem;
+package com.thomasdiewald.pixelflow.java;
 
-
+import ParticleCollisionSystem.Particle;
 
 public class CollisionGridAccelerator{
   
@@ -57,10 +57,10 @@ public class CollisionGridAccelerator{
       px -= bounds[0];
       py -= bounds[1];
       
-      int xmin = (int)((px-pr)/CELL_SIZE); //xmin = Math.max(xmin, 0);
-      int xmax = (int)((px+pr)/CELL_SIZE); //xmax = Math.min(xmax, GRID_X-1);
-      int ymin = (int)((py-pr)/CELL_SIZE); //ymin = Math.max(ymin, 0);
-      int ymax = (int)((py+pr)/CELL_SIZE); //ymax = Math.min(ymax, GRID_Y-1);
+      int xmin = (int)((px-pr)/CELL_SIZE); // xmin = Math.max(xmin, 0);
+      int xmax = (int)((px+pr)/CELL_SIZE); // xmax = Math.min(xmax, GRID_X-1);
+      int ymin = (int)((py-pr)/CELL_SIZE); // ymin = Math.max(ymin, 0);
+      int ymax = (int)((py+pr)/CELL_SIZE); // ymax = Math.min(ymax, GRID_Y-1);
       
       for(int y = ymin; y <= ymax ; y++){
         for(int x = xmin; x <= xmax ; x++){
@@ -99,10 +99,10 @@ public class CollisionGridAccelerator{
       px -= bounds[0];
       py -= bounds[1];
       
-      int xmin = (int)((px-pr)/CELL_SIZE); //xmin = Math.max(xmin, 0);
-      int xmax = (int)((px+pr)/CELL_SIZE); //xmax = Math.min(xmax, GRID_X-1);
-      int ymin = (int)((py-pr)/CELL_SIZE); //ymin = Math.max(ymin, 0);
-      int ymax = (int)((py+pr)/CELL_SIZE); //ymax = Math.min(ymax, GRID_Y-1);
+      int xmin = (int)((px-pr)/CELL_SIZE); // xmin = Math.max(xmin, 0);
+      int xmax = (int)((px+pr)/CELL_SIZE); // xmax = Math.min(xmax, GRID_X-1);
+      int ymin = (int)((py-pr)/CELL_SIZE); // ymin = Math.max(ymin, 0);
+      int ymax = (int)((py+pr)/CELL_SIZE); // ymax = Math.min(ymax, GRID_Y-1);
 
       for(int y = ymin; y <= ymax ; y++){
         for(int x = xmin; x <= xmax ; x++){

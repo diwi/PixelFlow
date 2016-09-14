@@ -182,7 +182,7 @@ public class AirBalls extends PApplet {
    
     createGUI();
     
-    new FrameCapture(this, "examples/");
+//    new FrameCapture(this, "examples/");
     
     frameRate(600);
   }

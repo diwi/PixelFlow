@@ -6,7 +6,7 @@
  * A Processing/Java library for high performance GPU-Computing (GLSL).
  * 
  */
-package ParticleCollisionSystem;
+package com.thomasdiewald.pixelflow.java;
 
 /**
  * @author Thomas

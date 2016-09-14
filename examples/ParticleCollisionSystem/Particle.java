@@ -7,59 +7,37 @@
  * 
  */
 
-
-
 package ParticleCollisionSystem;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PGraphics;
-import processing.core.PImage;
+import com.thomasdiewald.pixelflow.java.CollisionObject;
+
+import processing.core.PMatrix2D;
 import processing.core.PShape;
 
 public class Particle implements CollisionObject{
   
-
-  static public float MAX_RAD;
+  // max radius among all particles, used for normalization, ...
+  static public float MAX_RAD; 
   
-  // STATIC GLOBAL controlling variables
+  // parent system
+  public ParticleSystem system;
   
-  // gravity
-  static public float GRAVITY = 0.005f;
-  
-  // collisions
-  static public float COLLISION_SPRING  = 0.30f; // collision-damping for: particle <-> particle
-  static public float COLLISION_DAMPING = 0.50f; // collision-damping for: particle <-> solid
-  
-  static public float VELOCITY_DISSIPATION = 0.95f; // gobal viscosity
-  
-  // fluid
-  static public float FLUID_INERTIA     = 0.10f;
-  static public float FLUID_DISSIPATION = 0.30f;
-  static public float FLUID_SCALE       = 0.4f;
-  
-
-  
-  //position, radius
-  public float x, y, rad, mass;
-  public int color;
-
-  // final velocity
-  public float vx = 0; 
-  public float vy = 0;
-
-
-  // fluid velocity
-  public float fluid_vx = 0;
-  public float fluid_vy = 0;
-  
-  // index in particles array
+  // index (must be unique)
   public int idx;
+  
+  // position, radius, velocity
+  public float x=0, y=0, rad=0, vx=0, vy=0;
+  
+  // just experimenting
+  private float contact_area_factor;
 
-  PShape shp_particle;
+  // display shape
+  private PShape    shp_particle;
+  private PMatrix2D shp_transform = new PMatrix2D();
 
   
-  public Particle(int idx) {
+  public Particle(ParticleSystem system, int idx) {
+    this.system = system;
     this.idx = idx;
   }
 
@@ -68,148 +46,68 @@ public class Particle implements CollisionObject{
     this.y = y;
   }
   
-  public void setRadius(float rad){
-    this.rad = Math.max(rad, 0.1f);
-    this.mass = 1f;
-    MAX_RAD = Math.max(MAX_RAD, rad);
+  public void setRadius(float rad_){
+    rad = Math.max(rad_, 0.1f);
+    contact_area_factor = (rad * rad) / (MAX_RAD * MAX_RAD);
   }
   
-  private int PARTICLE_SHAPE_IDX;
+  public void setShape(PShape shape){
+    shp_particle = shape;
+    updateShapePosition();
+  }
+
+  public void setColor(int col_argb){
+    shp_particle.setTint(col_argb);
+    shp_particle.setFill(col_argb);
+  }
   
-  public void initShape(PApplet papplet, PImage sprite_img, int PARTICLE_SHAPE_IDX){
-    this.PARTICLE_SHAPE_IDX = PARTICLE_SHAPE_IDX;
-//    shp_particle = papplet.createShape();
-//    shp_particle.beginShape(PShape.QUAD);
-//    shp_particle.noStroke();
-//    shp_particle.texture(sprite_img);
-//    shp_particle.textureMode(PConstants.NORMAL);
-//    shp_particle.normal(0, 0, 1);
-//    shp_particle.vertex(-rad, -rad, 0, 0);
-//    shp_particle.vertex(+rad, -rad, 1, 0);
-//    shp_particle.vertex(+rad, +rad, 1, 1);
-//    shp_particle.vertex(-rad, +rad, 0, 1);
-//    shp_particle.endShape();    
-    
-
-    PShape sprite = papplet.createShape(PShape.GEOMETRY);
-    sprite.beginShape(PConstants.QUAD);
-    sprite.noStroke();
-    sprite.noFill();
-    sprite.textureMode(PConstants.NORMAL);
-    sprite.texture(sprite_img);
-    sprite.normal(0, 0, 1);
-    sprite.vertex(-rad, -rad, 0, 0);
-    sprite.vertex(+rad, -rad, 1, 0);
-    sprite.vertex(+rad, +rad, 1, 1);
-    sprite.vertex(-rad, +rad, 0, 1);
-    sprite.endShape();
-    
-    
-    
-    
-    
-    float threshold1 = 1;   // radius shortening for arc segments
-    float threshold2 = 140; // arc between segments
-    
-    double arc1 = Math.acos(Math.max((rad-threshold1), 0) / rad);
-    double arc2 = (180 - threshold2) * Math.PI / 180;
-    double arc = Math.min(arc1, arc2);
-    
-    int num_vtx = (int)Math.ceil(2*Math.PI/arc);
-    
-//    System.out.println(num_vtx);
-
-    PShape circle = papplet.createShape(PShape.GEOMETRY);
-    circle.beginShape();
-    circle.noStroke();
-    circle.fill(200,100);
-    for(int i = 0; i < num_vtx; i++){
-      float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * rad;
-      float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * rad;
-      circle.vertex(vx, vy);
-    }
-    circle.endShape(PConstants.CLOSE);
-
-    
-    
-    PShape line = papplet.createShape(PShape.GEOMETRY);
-    line.beginShape(PConstants.LINES);
-    line.stroke(0, 100);
-    line.strokeWeight(1);
-    line.vertex(0, 0);
-    line.vertex(-(rad-1), 0);
-    line.endShape();
-
-    
-
-//    PShape circle = papplet.createShape(PConstants.ELLIPSE, 0, 0, rad*2, rad*2);
-//    circle.setStroke(false);
-//    circle.setFill(papplet.color(200,100));
+  
+//  public void applyCollision(Particle[] others) {
+//    if(system.SPRINGINESS == 0){
+//      return;
+//    }
+//    
+//    for (int i = idx + 1; i < others.length; i++) {
+//      updateCollisionPair(others[i]);
+//    }   
+//  }
+//  
+//  
+//  public void updateCollisionPair(Particle othr) {
+//    float dx = othr.x - this.x;
+//    float dy = othr.y - this.y;
+//    float dist_cur = dx*dx + dy*dy; // squared distance!
+//    float dist_min = othr.rad + this.rad;
+//    
+//    if (dist_cur < (dist_min*dist_min)) { 
+//      if(dist_cur == 0.0f) return; // problem, particles have same coordinates
+//      dist_cur = (float) Math.sqrt(dist_cur);
+//      
+//      float overlap = (dist_min - dist_cur) * 0.5f;
+//      float collision_x = (dx / dist_cur) * overlap * system.SPRINGINESS;
+//      float collision_y = (dy / dist_cur) * overlap * system.SPRINGINESS;
+//      
+//      this.vx -= collision_x;
+//      this.vy -= collision_y;
+//      othr.vx += collision_x;
+//      othr.vy += collision_y;
+//    }
 //
-//    PShape line = papplet.createShape(PConstants.LINE, 0, 0, -(rad-1), 0);
-//    line.setStroke(papplet.color(0,200));
-//    line.setStrokeWeight(1); 
-    
-    shp_particle = papplet.createShape(PShape.GROUP);
-    
-    if( PARTICLE_SHAPE_IDX >= 0 && PARTICLE_SHAPE_IDX < 4){
-      shp_particle.addChild(sprite);
-    }
-    if( PARTICLE_SHAPE_IDX == 4){      
-      shp_particle.addChild(circle);
-      shp_particle.addChild(line);
-    }
-    
-  }
+//  }
   
   
-  public void applyCollision(Particle[] others) {
-    if(COLLISION_SPRING == 0){
-      return; // save a lot of processing power
-    }
-    
-    for (int i = idx + 1; i < others.length; i++) {
-      updateCollisionPair(others[i]);
-    }   
-  }
-  
-  
-  public void updateCollisionPair(Particle othr) {
-    float dx = othr.x - this.x;
-    float dy = othr.y - this.y;
-    float dist_cur = dx*dx + dy*dy; // squared distance!
-    float dist_min = othr.rad + this.rad;
-    
-    if (dist_cur < (dist_min*dist_min)) { 
-      if(dist_cur == 0.0f) return; // problem, particles have same coordinates
-      dist_cur = (float) Math.sqrt(dist_cur);
-      
-      float overlap = (dist_min - dist_cur) * 0.5f;
-      float collision_x = (dx / dist_cur) * overlap * COLLISION_SPRING;
-      float collision_y = (dy / dist_cur) * overlap * COLLISION_SPRING;
-      
-      this.vx -= collision_x;
-      this.vy -= collision_y;
-      othr.vx += collision_x;
-      othr.vy += collision_y;
-    }
+  private Particle tmp = null;
 
-  }
-  
-  public int collision_count = 0;
-  public Particle tmp = null;
-  
   @Override
   public void beginCollision(){
     tmp = null;
-    collision_count = 0;
   }
   
   public void updateCollision(Particle othr) {
     if(this == othr    ) return; // not colliding with myself
     if(this == othr.tmp) return; // already collided with "othr"
     
-    othr.tmp = this;
+    othr.tmp = this; // mark as checked
     
     float dx = othr.x - this.x;
     float dy = othr.y - this.y;
@@ -217,122 +115,87 @@ public class Particle implements CollisionObject{
     float dist_min = othr.rad + this.rad;
     
     if (dist_cur < (dist_min*dist_min)) { 
-      if(dist_cur < 0.0001f) return; // problem, particles have same coordinates
+      if(dist_cur < 0.001f) return; // problem, particles have same coordinates
       dist_cur = (float) Math.sqrt(dist_cur);
       
-      float overlap = (dist_min - dist_cur) * 0.5f;
-      float collision_x = (dx / dist_cur) * overlap * COLLISION_SPRING;
-      float collision_y = (dy / dist_cur) * overlap * COLLISION_SPRING;
-      
-      this.vx -= collision_x;
-      this.vy -= collision_y;
-       
-      collision_count++;
+      float overlap_scale = othr.rad / dist_min;
+
+      float overlap = (dist_min - dist_cur) * overlap_scale;
+      float collision_x = overlap * (dx / dist_cur);
+      float collision_y = overlap * (dy / dist_cur);
+
+      vx += -collision_x * system.SPRINGINESS;
+      vy += -collision_y * system.SPRINGINESS;
     }
   }
   
-  
- 
-  public void applyFLuid(float fluid_vx_new, float fluid_vy_new){
- 
-    fluid_vx_new *= FLUID_SCALE;
-    fluid_vy_new *= FLUID_SCALE;
-    
-    // fluid affects bigger objects more
-    float contact_area_factor = (rad * rad) / (MAX_RAD * MAX_RAD);
-    fluid_vx_new *= contact_area_factor;
-    fluid_vy_new *= contact_area_factor;
-  
-    // smooth
-    fluid_vx = fluid_vx * FLUID_INERTIA + fluid_vx_new * (1-FLUID_INERTIA);
-    fluid_vy = fluid_vy * FLUID_INERTIA + fluid_vy_new * (1-FLUID_INERTIA);
-    
-    // dissipate
-    fluid_vx *= FLUID_DISSIPATION;
-    fluid_vy *= FLUID_DISSIPATION;
-   
-    // add to particle-velocity
-    vx += fluid_vx;
-    vy += fluid_vy;
+
+  public void applyFLuid(float fluid_vx, float fluid_vy){ 
+    // contact_area_factor: smaller objects move slower
+    vx += fluid_vx * system.MULT_FLUID * contact_area_factor;
+    vy += fluid_vy * system.MULT_FLUID * contact_area_factor;
   }
   
   
   public void applyGravity(){
-    // smaller objects "fall" faster in this demo
-    float contact_area_factor = (rad * rad) / (MAX_RAD * MAX_RAD);
-    float mass_volume = 1f / (float)Math.sqrt(contact_area_factor);
-    vy += GRAVITY * mass_volume;
+    if(system.MULT_GRAVITY == 0.0) return;
+    // contact_area_factor: smaller objects "fall" faster
+    vy += 0.01 * system.MULT_GRAVITY * 1f/contact_area_factor;
   }
   
 
   public void updatePosition(int xmin, int ymin, int xmax, int ymax) {
-    // slow down a bit
-    vx *= VELOCITY_DISSIPATION;
-    vy *= VELOCITY_DISSIPATION;
-    
+    // slow down
+    vx *= system.MULT_VELOCITY;
+    vy *= system.MULT_VELOCITY;
+  
     // update position
     x += vx;
     y += vy;
     
     // boundary conditions
-    if ((x - rad) < xmin) { x = xmin + rad; vx *= -COLLISION_DAMPING; }
-    if ((x + rad) > xmax) { x = xmax - rad; vx *= -COLLISION_DAMPING; }
-    if ((y - rad) < ymin) { y = ymin + rad; vy *= -COLLISION_DAMPING; }
-    if ((y + rad) > ymax) { y = ymax - rad; vy *= -COLLISION_DAMPING; } 
+    if ((x - rad) < xmin) { x = xmin + rad; vx *= -system.SPRINGINESS; }
+    if ((x + rad) > xmax) { x = xmax - rad; vx *= -system.SPRINGINESS; }
+    if ((y - rad) < ymin) { y = ymin + rad; vy *= -system.SPRINGINESS; }
+    if ((y + rad) > ymax) { y = ymax - rad; vy *= -system.SPRINGINESS; } 
+    
+    // apply new position to PShape
+    updateShapePosition();
+  }
+  
+  private void updateShapePosition(){
+    // build transformation matrix
+    shp_transform.reset();
+    shp_transform.translate(x, y);
+    shp_transform.rotate((float)Math.atan2(vy,vx));
 
     // update shape position
     shp_particle.resetMatrix();
-    shp_particle.rotate((float)Math.atan2(vy,vx));
-    shp_particle.translate(x, y);
-  }
-
-  public float getSpeed(){
-    return (float)Math.sqrt(vx*vx + vy*vy);
+    shp_particle.applyMatrix(shp_transform);
   }
   
 
-  public void updateColor(int shading){
-    float speed = getSpeed() * 100;
-    
-    float radn = rad / MAX_RAD;
-    shading *= radn;
-    
-//    float collision = collision_count*20;
-//    speed += collision;
-    
-    int r,g,b,a;
-
-    if(idx == 0){
-      r = clamp(shading + speed*10) & 0xFF;
-      g = clamp(speed*0.5f        ) & 0xFF;
-      b = clamp(0                 ) & 0xFF;
-      a = 255;
-    } else {
-      r = clamp(shading + speed   ) & 0xFF;
-      g = clamp(shading-speed     ) & 0xFF;
-      b = clamp(shading-speed*0.6f) & 0xFF;
-      a = 255;
-    }
-    
-    if(PARTICLE_SHAPE_IDX == 4){
-      a = 200;
-    }
-    
-//    speed = 255f * rad / MAX_RAD;
-//    r = clamp(speed) & 0xFF;
-//    g = clamp(speed) & 0xFF;
-//    b = clamp(speed) & 0xFF;
-//    a = 255;
- 
-     
-    color = a << 24 | r << 16 | g << 8 | b;
-    if(PARTICLE_SHAPE_IDX == 4){
-      shp_particle.setFill(color); // TODO
-    } else {
-      shp_particle.setTint(color);
-    }
-  }
   
+  private final float[][] PALLETTE = 
+    {
+    {  50,  80,  130},    
+    { 100, 178, 255}, 
+    { 255, 120,  50},
+//      {   25,    100,    255}, 
+//      {   255,    0,    100}, 
+  };
+
+  private final void getShading(float val, float[] rgb){
+    if(val < 0.0) val = 0.0f; else if(val >= 1.0) val = 0.99999f;
+    float lum_steps = val * (PALLETTE.length-1);
+    int   idx = (int)(Math.floor(lum_steps));
+    float fract = lum_steps - idx;
+    
+    rgb[0] = PALLETTE[idx][0] * (1-fract) +  PALLETTE[idx+1][0] * fract;
+    rgb[1] = PALLETTE[idx][1] * (1-fract) +  PALLETTE[idx+1][1] * fract;
+    rgb[2] = PALLETTE[idx][2] * (1-fract) +  PALLETTE[idx+1][2] * fract;
+  }
+
   
   private int clamp(float v){
     if( v <   0 ) return 0;
@@ -340,13 +203,26 @@ public class Particle implements CollisionObject{
     return (int)v;
   }
   
+  private final float[] rgb = new float[3];
   
-  public void display(PGraphics pg){
-//    pg.shape(particle);
+  public void updateColor(){
+    float speed = getSpeed();
+    float radn  = 1.1f * rad / MAX_RAD;
+
+    getShading(speed * 0.5f, rgb);
+    int a = 255;
+    int r = clamp(rgb[0] * radn) & 0xFF;
+    int g = clamp(rgb[1] * radn) & 0xFF;
+    int b = clamp(rgb[2] * radn) & 0xFF;
+
+    int col = a << 24 | r << 16 | g << 8 | b;
+    setColor(col);
   }
 
-
-
+  
+  public float getSpeed(){
+    return (float) Math.sqrt(vx*vx + vy*vy);
+  }
 
   @Override public final float x  () { return x  ; }
   @Override public final float y  () { return y  ; }
