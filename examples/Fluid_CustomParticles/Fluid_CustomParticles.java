@@ -9,7 +9,7 @@
 
 
 
-package CustomParticles;
+package Fluid_CustomParticles;
 
 
 
@@ -24,7 +24,7 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
-public class CustomParticles extends PApplet {
+public class Fluid_CustomParticles extends PApplet {
   
   private class MyFluidData implements Fluid.FluidData{
     
@@ -380,6 +380,6 @@ public class CustomParticles extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { CustomParticles.class.getName() });
+    PApplet.main(new String[] { Fluid_CustomParticles.class.getName() });
   }
 }

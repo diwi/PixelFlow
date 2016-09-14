@@ -8,7 +8,7 @@
  */
 
 
-package CustomParticles;
+package Fluid_CustomParticles;
 
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.Fluid;
