@@ -137,7 +137,7 @@ public class ParticleCollisionSystem extends PApplet {
   public ParticleSystem particlesystem;
   
   public boolean COLLISION_DETECTION = true;
-  public CollisionDetectionGrid collision_detection;
+  public CollisionGridAccelerator collision_grid;
 
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -202,7 +202,7 @@ public class ParticleCollisionSystem extends PApplet {
      
     particlesystem.initParticles();
     
-    collision_detection = new CollisionDetectionGrid(particlesystem);
+    collision_grid = new CollisionGridAccelerator();
 
     createGUI();
 
@@ -272,7 +272,7 @@ public class ParticleCollisionSystem extends PApplet {
 
     // optinally, collision detection can be applied
     if(COLLISION_DETECTION && Particle.COLLISION_SPRING != 0.0){
-      collision_detection.updateCollisions();
+      collision_grid.updateCollisions(particlesystem.particles);
     }
  
     // update step: particle motion
@@ -462,7 +462,7 @@ public class ParticleCollisionSystem extends PApplet {
     Group group_particles = cp5.addGroup("Particle Controls")
 //    .setPosition(20, 40)
     .setHeight(20).setWidth(180)
-    .setBackgroundHeight(380)
+    .setBackgroundHeight(400)
     .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
     group_particles.getCaptionLabel().align(LEFT, CENTER);
     
@@ -535,16 +535,15 @@ public class ParticleCollisionSystem extends PApplet {
     .plugTo(particlesystem, "PARTICLE_SHADING").linebreak();
     
 
-    RadioButton rb_shp = cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(18, 18).setPosition(px, py+=oy)
+    cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(18, 18).setPosition(px, py+=oy)
     .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-    .addItem("disk"   , 0)
+    .addItem("disk"      , 0)
     .addItem("hightlight", 1)
     .addItem("donut"     , 2)
     .addItem("rectangle" , 3)
-    ;
-    
-    rb_shp.activate(particlesystem.PARTICLE_SHAPE_IDX);
-    
+    .addItem("circle"    , 4)
+    .activate(particlesystem.PARTICLE_SHAPE_IDX);
+
     
     Accordion accordion = cp5.addAccordion("acc")
         .setPosition(20,20)

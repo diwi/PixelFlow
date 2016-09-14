@@ -17,7 +17,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PShape;
 
-public class Particle {
+public class Particle implements CollisionObject{
   
 
   static public float MAX_RAD;
@@ -74,19 +74,92 @@ public class Particle {
     MAX_RAD = Math.max(MAX_RAD, rad);
   }
   
+  private int PARTICLE_SHAPE_IDX;
   
-  public void initShape(PApplet papplet, PImage sprite_img){
-    shp_particle = papplet.createShape();
-    shp_particle.beginShape(PConstants.QUAD);
-    shp_particle.noStroke();
-    shp_particle.texture(sprite_img);
-    shp_particle.textureMode(PConstants.NORMAL);
-    shp_particle.normal(0, 0, 1);
-    shp_particle.vertex(-rad, -rad, 0, 0);
-    shp_particle.vertex(+rad, -rad, 1, 0);
-    shp_particle.vertex(+rad, +rad, 1, 1);
-    shp_particle.vertex(-rad, +rad, 0, 1);
-    shp_particle.endShape();    
+  public void initShape(PApplet papplet, PImage sprite_img, int PARTICLE_SHAPE_IDX){
+    this.PARTICLE_SHAPE_IDX = PARTICLE_SHAPE_IDX;
+//    shp_particle = papplet.createShape();
+//    shp_particle.beginShape(PShape.QUAD);
+//    shp_particle.noStroke();
+//    shp_particle.texture(sprite_img);
+//    shp_particle.textureMode(PConstants.NORMAL);
+//    shp_particle.normal(0, 0, 1);
+//    shp_particle.vertex(-rad, -rad, 0, 0);
+//    shp_particle.vertex(+rad, -rad, 1, 0);
+//    shp_particle.vertex(+rad, +rad, 1, 1);
+//    shp_particle.vertex(-rad, +rad, 0, 1);
+//    shp_particle.endShape();    
+    
+
+    PShape sprite = papplet.createShape(PShape.GEOMETRY);
+    sprite.beginShape(PConstants.QUAD);
+    sprite.noStroke();
+    sprite.noFill();
+    sprite.textureMode(PConstants.NORMAL);
+    sprite.texture(sprite_img);
+    sprite.normal(0, 0, 1);
+    sprite.vertex(-rad, -rad, 0, 0);
+    sprite.vertex(+rad, -rad, 1, 0);
+    sprite.vertex(+rad, +rad, 1, 1);
+    sprite.vertex(-rad, +rad, 0, 1);
+    sprite.endShape();
+    
+    
+    
+    
+    
+    float threshold1 = 1;   // radius shortening for arc segments
+    float threshold2 = 140; // arc between segments
+    
+    double arc1 = Math.acos(Math.max((rad-threshold1), 0) / rad);
+    double arc2 = (180 - threshold2) * Math.PI / 180;
+    double arc = Math.min(arc1, arc2);
+    
+    int num_vtx = (int)Math.ceil(2*Math.PI/arc);
+    
+//    System.out.println(num_vtx);
+
+    PShape circle = papplet.createShape(PShape.GEOMETRY);
+    circle.beginShape();
+    circle.noStroke();
+    circle.fill(200,100);
+    for(int i = 0; i < num_vtx; i++){
+      float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * rad;
+      float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * rad;
+      circle.vertex(vx, vy);
+    }
+    circle.endShape(PConstants.CLOSE);
+
+    
+    
+    PShape line = papplet.createShape(PShape.GEOMETRY);
+    line.beginShape(PConstants.LINES);
+    line.stroke(0, 100);
+    line.strokeWeight(1);
+    line.vertex(0, 0);
+    line.vertex(-(rad-1), 0);
+    line.endShape();
+
+    
+
+//    PShape circle = papplet.createShape(PConstants.ELLIPSE, 0, 0, rad*2, rad*2);
+//    circle.setStroke(false);
+//    circle.setFill(papplet.color(200,100));
+//
+//    PShape line = papplet.createShape(PConstants.LINE, 0, 0, -(rad-1), 0);
+//    line.setStroke(papplet.color(0,200));
+//    line.setStrokeWeight(1); 
+    
+    shp_particle = papplet.createShape(PShape.GROUP);
+    
+    if( PARTICLE_SHAPE_IDX >= 0 && PARTICLE_SHAPE_IDX < 4){
+      shp_particle.addChild(sprite);
+    }
+    if( PARTICLE_SHAPE_IDX == 4){      
+      shp_particle.addChild(circle);
+      shp_particle.addChild(line);
+    }
+    
   }
   
   
@@ -126,13 +199,14 @@ public class Particle {
   public int collision_count = 0;
   public Particle tmp = null;
   
-  public void beforeCollisionDetection(){
+  @Override
+  public void beginCollision(){
     tmp = null;
     collision_count = 0;
   }
   
   public void updateCollision(Particle othr) {
-
+    if(this == othr    ) return; // not colliding with myself
     if(this == othr.tmp) return; // already collided with "othr"
     
     othr.tmp = this;
@@ -208,7 +282,7 @@ public class Particle {
 
     // update shape position
     shp_particle.resetMatrix();
-//    shp_particle.rotate((float)Math.atan2(vy,vx));
+    shp_particle.rotate((float)Math.atan2(vy,vx));
     shp_particle.translate(x, y);
   }
 
@@ -240,6 +314,10 @@ public class Particle {
       a = 255;
     }
     
+    if(PARTICLE_SHAPE_IDX == 4){
+      a = 200;
+    }
+    
 //    speed = 255f * rad / MAX_RAD;
 //    r = clamp(speed) & 0xFF;
 //    g = clamp(speed) & 0xFF;
@@ -248,7 +326,11 @@ public class Particle {
  
      
     color = a << 24 | r << 16 | g << 8 | b;
-    shp_particle.setTint(color);
+    if(PARTICLE_SHAPE_IDX == 4){
+      shp_particle.setFill(color); // TODO
+    } else {
+      shp_particle.setTint(color);
+    }
   }
   
   
@@ -261,6 +343,18 @@ public class Particle {
   
   public void display(PGraphics pg){
 //    pg.shape(particle);
+  }
+
+
+
+
+  @Override public final float x  () { return x  ; }
+  @Override public final float y  () { return y  ; }
+  @Override public final float rad() { return rad; }
+  
+  @Override
+  public void update(CollisionObject othr) {
+    updateCollision((Particle)othr);
   }
 
 }

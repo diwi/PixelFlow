@@ -6,6 +6,8 @@
  * A Processing/Java library for high performance GPU-Computing (GLSL).
  * 
  */
+
+
 package ParticleCollisionSystem;
 
 import processing.core.PApplet;
@@ -19,6 +21,7 @@ public class ParticleSystem {
   public float PARTICLE_SCREEN_FILL_FACTOR = 0.9f;
   public int   PARTICLE_COUNT              = 500;
   public int   PARTICLE_SHADING            = 255;
+  public int   PARTICLE_SHAPE_IDX          = 1;
 
   PApplet papplet;
   Particle[] particles;
@@ -34,68 +37,9 @@ public class ParticleSystem {
     size_x = papplet.width;
     size_y = papplet.height;
   }
-  
-  
-  public int PARTICLE_SHAPE_IDX = 1;
-  
-  
-  public PImage createSprite(){
-    int size = (int)(Particle.MAX_RAD * 1.5f);
-    size = Math.max(9, size);
-
-    PImage pimg = papplet.createImage(size, size, PConstants.ARGB);
-    pimg.loadPixels();
-    
-    float center_x = size/2f;
-    float center_y = size/2f;
-    
-    for(int y = 0; y < size; y++){
-      for(int x = 0; x < size; x++){
-        int pid = y * size + x;
-        
-        float dx = center_x - (x+0.5f);
-        float dy = center_y - (y+0.5f);
-        float dd = (float)Math.sqrt(dx*dx + dy*dy) * 1f;
-   
-        dd = dd/(size*0.5f); // normalize
-        
-        if(PARTICLE_SHAPE_IDX == 0){
-          if(dd<0) dd=0; else if(dd>1) dd=1;
-          dd = dd*dd*dd;
-          dd = 1-dd;
-          int a = (int)(dd*255);
-          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
-        }
-        else if(PARTICLE_SHAPE_IDX == 1){
-          if(dd<0) dd=0; else if(dd>1) dd=1;
-          dd = 1-dd;
-          dd = dd*dd;
-          int a = (int)(dd*255);
-          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
-        }
-        else if(PARTICLE_SHAPE_IDX == 2){
-          if(dd<0) dd=0; else if(dd>1) dd=1;
-          dd = Math.abs(dd-0.5f);
-          dd /= 0.5f;
-          dd = 1-dd;
-          dd = dd*dd*dd;
-          int a = (int)(dd*255);
-          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
-        }
-        else if(PARTICLE_SHAPE_IDX == 3){
-          int a = 255;
-          if(Math.abs(dx) < size/3f && Math.abs(dy) < size/3f) a = 0;
-          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
-        }
-        
-      }
-    }
-    pimg.updatePixels();
- 
-    return pimg;
-  }
 
   
+
   public void initParticles(){
     particles = new Particle[PARTICLE_COUNT];
     for (int i = 0; i < PARTICLE_COUNT; i++) {
@@ -144,12 +88,78 @@ public class ParticleSystem {
     shp_particlesystem = papplet.createShape(PShape.GROUP);
     
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      particles[i].initShape(papplet, sprite);
+      particles[i].initShape(papplet, sprite, PARTICLE_SHAPE_IDX);
       shp_particlesystem.addChild(particles[i].shp_particle);
     }
 
     shp_particlesystem.getTessellation(); // hack
   }
+  
+  
+  
+  
+  
+  PImage createSprite(){
+    int size = (int)(Particle.MAX_RAD * 1.5f);
+    size = Math.max(9, size);
+
+    PImage pimg = papplet.createImage(size, size, PConstants.ARGB);
+    pimg.loadPixels();
+    
+    float center_x = size/2f;
+    float center_y = size/2f;
+    
+    for(int y = 0; y < size; y++){
+      for(int x = 0; x < size; x++){
+        int pid = y * size + x;
+        
+        float dx = center_x - (x+0.5f);
+        float dy = center_y - (y+0.5f);
+        float dd = (float)Math.sqrt(dx*dx + dy*dy) * 1f;
+   
+        dd = dd/(size*0.5f); // normalize
+        
+        if(PARTICLE_SHAPE_IDX == 0){
+          if(dd<0) dd=0; else if(dd>1) dd=1;
+          dd*=dd; dd*=dd;
+          dd = 1-dd;
+          int a = (int)(dd*255);
+          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
+        }
+        else if(PARTICLE_SHAPE_IDX == 1){
+          if(dd<0) dd=0; else if(dd>1) dd=1;
+          dd = 1-dd;
+          dd = dd*dd;
+          int a = (int)(dd*255);
+          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
+        }
+        else if(PARTICLE_SHAPE_IDX == 2){
+          if(dd<0) dd=0; else if(dd>1) dd=1;
+          dd = Math.abs(dd-0.5f);
+          dd /= 0.5f;
+          dd = 1-dd;
+          dd = dd*dd*dd;
+          int a = (int)(dd*255);
+          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
+        }
+        else if(PARTICLE_SHAPE_IDX == 3){
+          int a = 255;
+          if(Math.abs(dx) < size/3f && Math.abs(dy) < size/3f) a = 0;
+          pimg.pixels[pid] = a << 24 | 0x00FFFFFF;
+        } else {
+          pimg.pixels[pid] = 0;
+        }
+        
+      }
+    }
+    pimg.updatePixels();
+ 
+    return pimg;
+  }
+  
+  
+  
+  
   
 
   // not sure if this is necessary, but i guess opengl stuff needs to be released internally.
