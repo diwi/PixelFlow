@@ -25,7 +25,7 @@ public class Minimal extends PApplet {
     @Override
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, intensity, temperature;
+      float px, py, vx, vy, radius, vscale, intensity, temperature;
       
       if(mousePressed){
 

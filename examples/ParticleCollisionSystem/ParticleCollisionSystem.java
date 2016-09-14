@@ -134,14 +134,12 @@ public class ParticleCollisionSystem extends PApplet {
   
   
   // some state variables for the GUI/display
-  int     BACKGROUND_COLOR  = 0;
-  int     VELOCITY_LINES  = 6;
-  boolean COLLISION_DETECTION = true;
-  boolean UPDATE_FLUID = true;
-  boolean DISPLAY_FLUID_TEXTURES  = true;
-  boolean DISPLAY_FLUID_VECTORS   = !true;
-  boolean DISPLAY_PARTICLES       = !true;
+  int     BACKGROUND_COLOR           = 0;
+  boolean UPDATE_FLUID               = true;
+  boolean DISPLAY_FLUID_TEXTURES     = true;
+  boolean DISPLAY_FLUID_VECTORS      = !true;
   int     DISPLAY_fluid_texture_mode = 0;
+  boolean COLLISION_DETECTION        = true;
   
 
   public void settings() {
@@ -239,7 +237,16 @@ public class ParticleCollisionSystem extends PApplet {
       fluid.renderFluidVectors(pg_fluid, 10);
     }
     
+    
+    // Transfer velocity data from the GPU to the host-application
+    // This is in general a bad idea because such operations are very slow. So 
+    // either do everything in shaders, and avoid memory transfer when possible, 
+    // or do it very rarely. however, this is just an example for convenience.
+    fluid_velocity = fluid.getVelocity(fluid_velocity);
+    
 
+    
+    
     // add a force to particle[0] with the middle mousebutton
     if(mousePressed && mouseButton == CENTER){
       Particle particle = particlesystem.particles[0];
@@ -257,14 +264,7 @@ public class ParticleCollisionSystem extends PApplet {
       particle.vy += dy * damping_vel;
     }
     
-    
-    // Transfer velocity data from the GPU to the host-application
-    // This is in general a bad idea because such operations are very slow. So 
-    // either do everything in shaders, and avoid memory transfer when possible, 
-    // or do it very rarely. however, this is just an example for convenience.
-    fluid_velocity = fluid.getVelocity(fluid_velocity);
-    
-    
+
     // collision detection
     if(COLLISION_DETECTION && particlesystem.SPRINGINESS != 0.0){
       collision_grid.updateCollisions(particlesystem.particles);
@@ -336,9 +336,6 @@ public class ParticleCollisionSystem extends PApplet {
   public void fluid_displayVelocityVectors(int val){
     DISPLAY_FLUID_VECTORS = val != -1;
   }
-  public void fluid_displayParticles(int val){
-    DISPLAY_PARTICLES = val != -1;
-  }
   public void activateCollisionDetection(float[] val){
     COLLISION_DETECTION = (val[0] > 0);
   }
@@ -356,7 +353,6 @@ public class ParticleCollisionSystem extends PApplet {
     
     if(key == 'q') DISPLAY_FLUID_TEXTURES = !DISPLAY_FLUID_TEXTURES;
     if(key == 'w') DISPLAY_FLUID_VECTORS  = !DISPLAY_FLUID_VECTORS;
-    if(key == 'e') DISPLAY_PARTICLES      = !DISPLAY_PARTICLES;
   }
   
  

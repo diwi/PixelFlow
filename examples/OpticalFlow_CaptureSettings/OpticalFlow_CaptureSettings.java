@@ -256,7 +256,7 @@ public class OpticalFlow_CaptureSettings extends PApplet {
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_oflow)
       .addItem(group_display)
-      .open(0, 1, 2);
+      .open(0, 1);
   }
   
   

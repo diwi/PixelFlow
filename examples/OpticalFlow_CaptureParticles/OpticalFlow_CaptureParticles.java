@@ -14,14 +14,17 @@ package OpticalFlow_CaptureParticles;
 
 
 
+import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.OpticalFlow;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.filter.Filter;
 
 import controlP5.Accordion;
-import controlP5.CheckBox;
+
 import controlP5.ControlP5;
 import controlP5.Group;
+import controlP5.RadioButton;
+import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
@@ -35,8 +38,12 @@ public class OpticalFlow_CaptureParticles extends PApplet {
   
   int view_w = 1200;
   int view_h = (int)(view_w * cam_h/(float)cam_w);
+  int view_x = 230;
+  int view_y = 0;
   
   int gui_w = 200;
+  int gui_x = view_w;
+  int gui_y = 0;
   
   //main library context
   PixelFlow context;
@@ -54,20 +61,19 @@ public class OpticalFlow_CaptureParticles extends PApplet {
   Capture cam;
   
   // some state variables for the GUI/display
-  boolean APPLY_GRAYSCALE = true;
-  boolean APPLY_BILATERAL = true;
-  int     VELOCITY_LINES  = 6;
+  int     BACKGROUND_COLOR    = 0;
+  boolean DISPLAY_SOURCE      = true;
+  boolean APPLY_GRAYSCALE     = true;
+  boolean APPLY_BILATERAL     = true;
+  boolean COLLISION_DETECTION = true;
+  
+  // particle system, cpu
+  public ParticleSystem particlesystem;
+  
+  // acceleration structure for collision detection
+  public CollisionGridAccelerator collision_grid;
   
 
-  
-  // Airballs
-  public int   NUM_BALLS = 500;
-  public float BALL_SCREEN_FILL_FACTOR = 0.20f;
-  public int   BALL_SHADING = 255;
-  
-  public Ball[] balls;
-  
-    
   public void settings() {
     size(view_w + gui_w, view_h, P2D);
     smooth(4);
@@ -75,6 +81,8 @@ public class OpticalFlow_CaptureParticles extends PApplet {
 
   public void setup() {
 
+    surface.setLocation(view_x, view_y);
+    
     // main library context
     context = new PixelFlow(this);
     context.print();
@@ -85,22 +93,6 @@ public class OpticalFlow_CaptureParticles extends PApplet {
     
     // optical flow parameters
     opticalflow.param.display_mode = 3;
-    
-    // ball parameters
-    NUM_BALLS                 = 3000;
-    BALL_SCREEN_FILL_FACTOR   = 0.25f;
-    BALL_SHADING              = 200;
-    Ball.GRAVITY              = 0;
-    Ball.COLLISION_DAMPING    = 0.60f;
-    Ball.COLLISION_SPRING     = 0.60f;
-    Ball.FLUID_SCALE          = 0.15f;
-    Ball.FLUID_INERTIA        = 0.50f;
-    Ball.FLUID_DISSIPATION    = 0.60f;
-    Ball.VELOCITY_DISSIPATION = 0.95f;
-    
-//    String[] cameras = Capture.list();
-//    printArray(cameras);
-//    cam = new Capture(this, cameras[0]);
     
     cam = new Capture(this, cam_w, cam_h, 30);
     cam.start();
@@ -115,36 +107,32 @@ public class OpticalFlow_CaptureParticles extends PApplet {
     pg_oflow.smooth(4);
     
     
-    initBalls();
+    // particle system object
+    particlesystem = new ParticleSystem(this, view_w, view_h);
+    
+    // set some parameters
+    particlesystem.PARTICLE_COUNT              = 1000;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.7f;
+    particlesystem.PARTICLE_SHAPE_IDX          = 0;
+    particlesystem.SPRINGINESS                 = 0.80f;
+    particlesystem.MULT_GRAVITY                = 0.50f;
+    particlesystem.MULT_VELOCITY               = 0.90f;
+    particlesystem.MULT_FLUID                  = 0.40f;
+    
+    particlesystem.initParticles();
+    
+    // collision detection accelerating system
+    collision_grid = new CollisionGridAccelerator();
 
     createGUI();
-      
-    background(0);
+
+    background(BACKGROUND_COLOR);
     frameRate(60);
+
   }
   
 
 
-  
-  public void initBalls(){
-    Ball.MAX_RAD = 0;
-    balls = new Ball[NUM_BALLS];
-    
-    float radius = sqrt((view_w * view_h * BALL_SCREEN_FILL_FACTOR) / NUM_BALLS) * 0.5f;
-    float r_min = radius * 0.8f;
-    float r_max = radius * 1.2f;
-    
-    randomSeed(0);
-    for (int i = 0; i < NUM_BALLS; i++) {
-      float rad = random(r_min, r_max);
-      float px = random(10 + 2 * rad, view_w - 2 * rad - 10);
-      float py = random(10 + 2 * rad, view_h - 2 * rad - 10);
-      balls[i] = new Ball(px, py, rad, i);
-    }
-    
-    balls[0].rad *= 2;
-  }
-  
   
   // float buffer for pixel transfer from OpenGL to the host application
   float[] fluid_velocity = new float[cam_w * cam_h * 2];
@@ -175,15 +163,17 @@ public class OpticalFlow_CaptureParticles extends PApplet {
       
       // render Optical Flow
       pg_oflow.beginDraw();
-      pg_oflow.clear();
-      pg_oflow.image(pg_cam_a, 0, 0, view_w, view_h);
+      pg_oflow.background(BACKGROUND_COLOR);
+      if(DISPLAY_SOURCE){
+        pg_oflow.image(pg_cam_a, 0, 0, view_w, view_h);
+      }
       pg_oflow.endDraw();
 
       // add flow-vectors to the image
       if(opticalflow.param.display_mode == 2){
         opticalflow.renderVelocityShading(pg_oflow);
       }
-      opticalflow.renderVelocityStreams(pg_oflow, VELOCITY_LINES);
+      opticalflow.renderVelocityStreams(pg_oflow, 10);
       
       
       // Transfer velocity data from the GPU to the host-application
@@ -196,34 +186,36 @@ public class OpticalFlow_CaptureParticles extends PApplet {
     
     
     
-    // add a force to ball[0] with the middle mousebutton
+    // add a force to particle[0] with the middle mousebutton
     if(mousePressed && mouseButton == CENTER){
-      Ball ball = balls[0];
+      Particle particle = particlesystem.particles[0];
       
-      float dx = mouseX - ball.x;
-      float dy = mouseY - ball.y;
+      float dx = mouseX - particle.x;
+      float dy = mouseY - particle.y;
       
-      float damping_pos = 0.2f;
-      float damping_vel = 0.2f;
+      float damping_pos = 0.1f;
+      float damping_vel = 0.1f;
       
-      ball.x  += dx * damping_pos;
-      ball.y  += dy * damping_pos;
+      particle.x  += dx * damping_pos;
+      particle.y  += dy * damping_pos;
       
-      ball.vx += dx * damping_vel;
-      ball.vy += dy * damping_vel;
+      particle.vx += dx * damping_vel;
+      particle.vy += dy * damping_vel;
     }
     
-     
     
-    // update step: ball motion
-    // 1) solve collisions between all balls
-    // 2) add fluid velocity to the balls' velocity
-    // 3) add gravity
-    // 4) update final velocity + position
-    for (Ball ball : balls) {
-
-      int px_view = Math.round(ball.x);
-      int py_view = Math.round(height - 1 - ball.y); // invert y
+    // collision detection
+    if(COLLISION_DETECTION && particlesystem.SPRINGINESS != 0.0){
+      collision_grid.updateCollisions(particlesystem.particles);
+    }
+    
+    // update step: particle motion
+    // 1) add fluid velocity to the particles' velocity
+    // 2) add gravity
+    // 3) update velocity + position + color
+    for (Particle particle : particlesystem.particles) {
+      int px_view = Math.round(particle.x);
+      int py_view = Math.round(height - 1 - particle.y); // invert y
       
       float scale_X = view_w / (float) cam_w;
       float scale_Y = view_h / (float) cam_h;
@@ -238,47 +230,26 @@ public class OpticalFlow_CaptureParticles extends PApplet {
       float fluid_vx = +fluid_velocity[PIDX * 2 + 0];
       float fluid_vy = -fluid_velocity[PIDX * 2 + 1]; // invert y
       
-      ball.applyCollisions(balls);
-      ball.applyGravity();
-      ball.applyFLuid(fluid_vx, fluid_vy);
-      ball.updatePosition(0, 0, view_w, view_h);
+      particle.applyFLuid(fluid_vx, fluid_vy);
+      particle.applyGravity();
+      particle.updatePosition(0, 0, view_w, view_h);
+      particle.updateColor();
     }
     
-
+ 
     // display result
     background(0);
     image(pg_oflow, 0, 0);
     
     
-    // draw Balls
+    // draw particlesystem
     PGraphics pg = this.g;
+    pg.hint(DISABLE_DEPTH_MASK);
     pg.blendMode(BLEND);
-    for (int i = 0; i < balls.length; i++) {
-      
-      Ball ball = balls[i];
-   
-      float vlen = sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
-      float dx = (ball.rad-2) * ball.vx / vlen;
-      float dy = (ball.rad-2) * ball.vy / vlen;
-       
-      // draw velocity
-      pg.stroke(255);
-      pg.strokeWeight(1);
-      pg.line(ball.x, ball.y, ball.x - dx, ball.y - dy);
-      
-      // draw ball
-      pg.noStroke();
-      if(i == 0){
-        pg.fill(BALL_SHADING + vlen*100, vlen, 0, 200);
-      } else {
-        pg.fill(vlen*100, BALL_SHADING*0.5f, BALL_SHADING, 200);
-      }
-      ball.display(pg);  
-    }
-    
-    
-   
-   
+//    pg.blendMode(ADD);
+    particlesystem.display(pg);
+    pg.blendMode(BLEND);
+
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", cam_w, cam_h, opticalflow.UPDATE_STEP, frameRate);
     surface.setTitle(txt_fps);
@@ -293,202 +264,162 @@ public class OpticalFlow_CaptureParticles extends PApplet {
     pg_cam_b = tmp;
   }
   
+ 
+
+  
+  public void opticalFlow_setDisplayMode(int val){
+    opticalflow.param.display_mode = val;
+  }
+  public void activeFilters(float[] val){
+    APPLY_GRAYSCALE = (val[0] > 0);
+    APPLY_BILATERAL = (val[1] > 0);
+  }
+  public void setOptionsGeneral(float[] val){
+    DISPLAY_SOURCE = (val[0] > 0);
+  }
+ 
+  public void activateCollisionDetection(float[] val){
+    COLLISION_DETECTION = (val[0] > 0);
+  }
+
   
   
   ControlP5 cp5;
   
   public void createGUI(){
+    
     cp5 = new ControlP5(this);
     
-    Group group_oflow = cp5.addGroup("OpticalFlow")
-    .setPosition(view_w, 20).setHeight(20).setWidth(gui_w)
-    .setBackgroundHeight(380).setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_oflow.getCaptionLabel().align(LEFT, CENTER);
+    int sx, sy, px, py, oy;
     
-    int sx = 100, sy = 14;
-    int px = 10, py = 20, oy = (int)(sy*1.5f);
-    
-    cp5.addSlider("blur input").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 30).setValue(opticalflow.param.blur_input)
-    .plugTo(opticalflow.param, "blur_input").linebreak();
-    
-    cp5.addSlider("blur flow").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 10).setValue(opticalflow.param.blur_flow)
-    .plugTo(opticalflow.param, "blur_flow").linebreak();
-    
-    cp5.addSlider("temporal smooth").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(opticalflow.param.temporal_smoothing)
-    .plugTo(opticalflow.param, "temporal_smoothing").linebreak();
-    
-    cp5.addSlider("flow scale").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 200f).setValue(opticalflow.param.flow_scale)
-    .plugTo(opticalflow.param, "flow_scale").linebreak();
-
-    cp5.addSlider("threshold").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 2.0f).setValue(opticalflow.param.threshold)
-    .plugTo(opticalflow.param, "threshold").linebreak();
-    
-    cp5.addSpacer("display").setGroup(group_oflow).setPosition(px, py+=oy);
-
-    CheckBox cb = cp5.addCheckBox("activeFilters").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
-    .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
-    .addItem("grayscale"       , 0)
-    .addItem("bilateral filter", 0)
-    ;
-    
-    if(APPLY_GRAYSCALE) cb.activate(0);
-    if(APPLY_BILATERAL) cb.activate(1);
-    
-    cp5.addSlider("line density").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=(int)(oy*2.5))
-    .setRange(1, 10).setValue(VELOCITY_LINES)
-    .plugTo(this, "VELOCITY_LINES").linebreak();
-
-    cp5.addRadio("setDisplayMode").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
-        .setSpacingColumn(40).setSpacingRow(2).setItemsPerRow(3)
-        .addItem("dir", 0)
-        .addItem("normal", 1)
-        .addItem("Shading", 2)
-        .activate(opticalflow.param.display_mode);
-
-    group_oflow.open();
-    
-    
-
-    
-    
-    
-
-    
-    Group group_balls = cp5.addGroup("ball controls")
-//    .setPosition(20, 40)
-    .setHeight(20).setWidth(gui_w)
-    .setBackgroundHeight(view_h)
-    .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_balls.getCaptionLabel().align(LEFT, CENTER);
-    
-    sx = 90;
-    py = 10;
+    sx = 100; sy = 14;
     oy = (int)(sy*1.5f);
     
-    cp5.addButton("reset balls").setGroup(group_balls).plugTo(this, "initBalls").setWidth(160).setPosition(px, 10);
-    
-    py+=10;
-    
-    cp5.addSlider("NUM BALLS").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(10, 5000).setValue(NUM_BALLS)
-    .plugTo(this, "setBallCount").linebreak();
-    
-    cp5.addSlider("Fill Factor").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(BALL_SCREEN_FILL_FACTOR)
-    .plugTo(this, "setBallsFillFactor").linebreak();
 
-    cp5.addSlider("GRAVITY").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 0.05f).setValue(Ball.GRAVITY)
-    .plugTo(this, "setBall_GRAVITY").linebreak();
-    
-    cp5.addSlider("COLL SPRING").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Ball.COLLISION_SPRING)
-    .plugTo(this, "setBall_COLLISION_SPRING").linebreak();
-    
-    cp5.addSlider("COLL DAMPING").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Ball.COLLISION_DAMPING)
-    .plugTo(this, "setBall_COLLISION_DAMPING").linebreak();
-    
-    cp5.addSlider("VEL DISSIPATION").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0.85f, 1.0f).setValue(Ball.VELOCITY_DISSIPATION)
-    .plugTo(this, "setBall_VELOCITY_DISSIPATION").linebreak();
-    
-    py+=10;
-    
-    cp5.addSlider("FLUID DISSIPATION").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Ball.FLUID_DISSIPATION)
-    .plugTo(this, "setBall_FLUID_DISSIPATION").linebreak();
-    
-    cp5.addSlider("FLUID INERTIA").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1f).setValue(Ball.FLUID_INERTIA)
-    .plugTo(this, "setBall_FLUID_INERTIA").linebreak();
-    
-    cp5.addSlider("FLUID SCALE").setGroup(group_balls).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(Ball.FLUID_SCALE)
-    .plugTo(this, "setBall_FLUID_SCALE").linebreak();
-
-    
-    py+=10;
-    
-    cp5.addSlider("BALL SHADING").setGroup(group_balls).setSize(sx, sy).setPosition(10, py+=oy)
-    .setRange(0, 255).setValue(BALL_SHADING)
-    .plugTo(this, "BALL_SHADING").linebreak();
-    
-    
-    Accordion accordion = cp5.addAccordion("acc")
-        .setPosition(view_w,0)
-        .setWidth(gui_w)
-        .addItem(group_oflow)
-        .addItem(group_balls)
-        ;
-
-    accordion.setCollapseMode(Accordion.MULTI);
-    accordion.open(0);
-    accordion.open(1);
-    
-    
-   
-    group_oflow.open();
-  }
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - OPTICAL FLOW
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_oflow = cp5.addGroup("Optical Flow");
+    {
+      group_oflow.setSize(gui_w, 165).setHeight(20)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_oflow.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("blur input").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py)
+        .setRange(0, 30).setValue(opticalflow.param.blur_input).plugTo(opticalflow.param, "blur_input");
+      
+      cp5.addSlider("blur flow").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
+        .setRange(0, 10).setValue(opticalflow.param.blur_flow).plugTo(opticalflow.param, "blur_flow");
+      
+      cp5.addSlider("temporal smooth").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
+        .setRange(0, 1).setValue(opticalflow.param.temporal_smoothing).plugTo(opticalflow.param, "temporal_smoothing");
+      
+      cp5.addSlider("flow scale").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
+        .setRange(0, 200f).setValue(opticalflow.param.flow_scale).plugTo(opticalflow.param, "flow_scale");
   
-
-  
-  public void setDisplayMode(int val){
-    opticalflow.param.display_mode = val;
-  }
-
-  public void activeFilters(float[] val){
-    APPLY_GRAYSCALE = (val[0] > 0);
-    APPLY_BILATERAL = (val[1] > 0);
-  }
-  
-  
-  
-  
-  
-  public void setBallCount(int count){
-    if(count == NUM_BALLS && balls != null && balls.length == NUM_BALLS){
-      return;
+      cp5.addSlider("threshold").setGroup(group_oflow).setSize(sx, sy).setPosition(px, py+=oy)
+        .setRange(0, 3.0f).setValue(opticalflow.param.threshold).plugTo(opticalflow.param, "threshold");
+      
+      cp5.addRadio("opticalFlow_setDisplayMode").setGroup(group_oflow).setSize(18, 18).setPosition(px, py+=oy)
+        .setSpacingColumn(40).setSpacingRow(2).setItemsPerRow(3)
+        .addItem("dir"    , 0)
+        .addItem("normal" , 1)
+        .addItem("Shading", 2)
+        .activate(opticalflow.param.display_mode);
     }
-    NUM_BALLS = count;
-    initBalls();
-  }
-  public void setBallsFillFactor(float screen_fill_factor){
-    if(screen_fill_factor == BALL_SCREEN_FILL_FACTOR){
-      return;
+    
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - PARTICLES
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_particles = cp5.addGroup("Particles");
+    {
+      
+      group_particles.setHeight(20).setSize(gui_w, 260)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_particles.getCaptionLabel().align(CENTER, CENTER);
+      
+      sx = 100; px = 10; py = 10;oy = (int)(sy*1.4f);
+      
+      cp5.addButton("reset particles").setGroup(group_particles).setWidth(160).setPosition(10, 10).plugTo(particlesystem, "initParticles");
+
+      cp5.addSlider("Particle count").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
+          .setRange(10, 15000).setValue(particlesystem.PARTICLE_COUNT).plugTo(particlesystem, "setParticleCount");
+      
+      cp5.addSlider("Fill Factor").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.2f, 1.5f).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR).plugTo(particlesystem, "setFillFactor");
+      
+      cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
+          .setRange(0.85f, 1.0f).setValue(particlesystem.MULT_VELOCITY).plugTo(particlesystem, "MULT_VELOCITY");
+      
+      cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
+
+      cp5.addSlider("FLOW").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1f).setValue(particlesystem.MULT_FLUID).plugTo(particlesystem, "MULT_FLUID");
+      
+      cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1f).setValue(particlesystem.SPRINGINESS).plugTo(particlesystem, "SPRINGINESS");
+      
+      cp5.addCheckBox("activateCollisionDetection").setGroup(group_particles).setSize(40, 18).setPosition(px, py+=(int)(oy*1.5f))
+          .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
+          .addItem("collision detection", 0)
+          .activate(COLLISION_DETECTION ? 0 : 2);
+      
+      RadioButton rgb_shape = cp5.addRadio("setParticleShape").setGroup(group_particles).setSize(50, 18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(3).plugTo(particlesystem, "setParticleShape")
+          .addItem("disk"  , 0)
+          .addItem("spot"  , 1)
+          .addItem("donut" , 2)
+          .addItem("rect"  , 3)
+          .addItem("circle", 4)
+          .activate(particlesystem.PARTICLE_SHAPE_IDX);
+      for(Toggle toggle : rgb_shape.getItems()) toggle.getCaptionLabel().alignX(CENTER);
     }
-    BALL_SCREEN_FILL_FACTOR = screen_fill_factor;
-    initBalls();
-  }
-  public void setBall_GRAVITY(float v){
-    Ball.GRAVITY = v;
-  }
-  public void setBall_COLLISION_SPRING(float v){
-    Ball.COLLISION_SPRING = v;
-  }
-  public void setBall_COLLISION_DAMPING(float v){
-    Ball.COLLISION_DAMPING = v;
-  }
-  public void setBall_VELOCITY_DISSIPATION(float v){
-    Ball.VELOCITY_DISSIPATION = v;
-  }
-  public void setBall_FLUID_DISSIPATION(float v){
-    Ball.FLUID_DISSIPATION = v;
-  }
-  public void setBall_FLUID_INERTIA(float v){
-    Ball.FLUID_INERTIA = v;
-  }
-  public void setBall_FLUID_SCALE(float v){
-    Ball.FLUID_SCALE = v;
-  }
+    
+    
+    
+    
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - DISPLAY
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_display = cp5.addGroup("display");
+    {
+      group_display.setHeight(20).setSize(gui_w, height)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_display.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
+          .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
   
+      cp5.addCheckBox("setOptionsGeneral").setGroup(group_display).setSize(38, 18).setPosition(px, py+=oy)
+          .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
+          .addItem("display source", 0).activate(DISPLAY_SOURCE ? 0 : 100);
   
-  
+      cp5.addCheckBox("activeFilters").setGroup(group_display).setSize(18, 18).setPosition(px, py+=(int)(oy*1.5f))
+          .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
+          .addItem("grayscale"       , 0).activate(APPLY_GRAYSCALE ? 0 : 100)
+          .addItem("bilateral filter", 1).activate(APPLY_BILATERAL ? 1 : 100);
+    }
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_oflow)
+      .addItem(group_particles)
+      .addItem(group_display)
+      .open(0, 1, 2);
+  }
   
   
 
