@@ -1,6 +1,15 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * 
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
+
 package com.thomasdiewald.pixelflow.java;
 
-import ParticleCollisionSystem.Particle;
 
 public class CollisionGridAccelerator{
   
@@ -11,7 +20,7 @@ public class CollisionGridAccelerator{
   private int               HEAD_PTR;
   private int[]             HEAD = new int[0];
   private int[]             NEXT = new int[0];
-  private CollisionObject[] DATA = new Particle[0];
+  private CollisionObject[] DATA = new CollisionObject[0];
   
   
   public CollisionGridAccelerator(){

@@ -1,12 +1,11 @@
 /**
  * 
- * Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com - MIT License
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
  * 
- * ___PixelFlow___
  * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 package ParticleCollisionSystem;
 
@@ -29,8 +28,8 @@ public class ParticleSystem {
   public float MULT_FLUID    = 0.50f;
   public float MULT_GRAVITY  = 0.50f;
   
-
   public PApplet papplet;
+  
   public Particle[] particles;
   public PShape shp_particlesystem;
   
@@ -62,14 +61,12 @@ public class ParticleSystem {
     initParticleShapes();
   }
   
-  
   public void setParticleShape(int val){
     PARTICLE_SHAPE_IDX = val;
     if( PARTICLE_SHAPE_IDX != -1){
       initParticleShapes();
     }
   }
-  
   
   public void initParticles(){
     particles = new Particle[PARTICLE_COUNT];
@@ -81,7 +78,6 @@ public class ParticleSystem {
     initParticleShapes();
   }
   
-
   public void initParticlesSize(){
 
     float radius = (float)Math.sqrt((size_x * size_y * PARTICLE_SCREEN_FILL_FACTOR) / PARTICLE_COUNT) * 0.5f;
@@ -100,7 +96,6 @@ public class ParticleSystem {
     particles[0].setRadius(r_max*1.5f);
   }
   
- 
   public void initParticlesPosition(){
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
@@ -110,9 +105,8 @@ public class ParticleSystem {
     }
   }
   
-  
   public void initParticleShapes(){
-//    clearShapes();
+//    clearShapes(); // not sure if this is required
 
     papplet.shapeMode(PConstants.CORNER);
     shp_particlesystem = papplet.createShape(PShape.GROUP);
@@ -128,7 +122,7 @@ public class ParticleSystem {
   }
   
   
-
+  // just some shape presets
   public PShape createParticleShape(Particle particle, PImage sprite_img){
     
     final float rad = particle.rad;
@@ -201,6 +195,7 @@ public class ParticleSystem {
   }
   
   
+  // create sprite on the fly
   PImage createSprite(){
     
     int size = (int)(Particle.MAX_RAD * 1.5f);
