@@ -1,10 +1,9 @@
 /**
  * 
- * Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com - MIT License
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
  * 
- * 
- * ___PixelFlow___
  * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
  * 
  */
 
@@ -29,13 +28,9 @@ public class MultipleFluids extends PApplet {
   
   int border = 50;
   
-  
-//  int viewport_w = 1150;
-//  int viewport_h =  600;
-  
+
   FLuidSystem fluidsystem1;
   FLuidSystem fluidsystem2;
-  
   
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -77,13 +72,6 @@ public class MultipleFluids extends PApplet {
     surface.setTitle(txt_fps);
   }
   
-  
-  
-  
-  
-  
-  
- 
   
   class FLuidSystem{
     
@@ -171,7 +159,7 @@ public class MultipleFluids extends PApplet {
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
 
-      float px, py, vx, vy, radius, vscale, r, g, b, a, temperature;
+      float px, py, vx, vy, radius, vscale, temperature;
 
       int w = system.w;
       int h = system.h;

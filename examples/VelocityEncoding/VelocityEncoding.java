@@ -37,7 +37,7 @@ public class VelocityEncoding extends PApplet {
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, a;
+      float px, py, vx, vy, radius, vscale;
 
       boolean mouse_input = !cp5.isMouseOver() && mousePressed;
       if(mouse_input ){
@@ -56,10 +56,6 @@ public class VelocityEncoding extends PApplet {
           radius = 25;
           fluid.addDensity (px, py, radius, 1.0f, 0.0f, 0.40f, 1f, 1);
         }
-//        if(mouseButton == RIGHT){
-//          radius = 15;
-//          fluid.addTemperature(px, py, radius, 15f);
-//        }
       }
   
       // use the text as input for density
@@ -434,19 +430,11 @@ public class VelocityEncoding extends PApplet {
         .activate(0);
     for(Toggle toggle : rb_setDisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
     
-    RadioButton rb_setDisplayVelocityVectors = cp5.addRadio("setDisplayVelocityVectors").setGroup(group_fluid)
+    cp5.addRadio("setDisplayVelocityVectors").setGroup(group_fluid)
         .setPosition(10, 255).setSize(18,18)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
         .addItem("Velocity Vectors",0)
-//        .activate(0)
         ;
-
-//    RadioButton rb_setDisplayParticles = cp5.addRadio("setDisplayParticles").setGroup(group_fluid)
-//        .setPosition(10, 280).setSize(18,18)
-//        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-//        .addItem("Particles",0)
-////        .activate(0)
-//        ;
 
     cp5.addNumberbox("BACKGROUND_COLOR").setGroup(group_fluid)
     .setPosition(10,310).setSize(80,18)

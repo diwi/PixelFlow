@@ -8,17 +8,13 @@
  */
 
 
-
-
 package SlowBuoyancy;
-
-
 
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.ParticleSystem;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 
-import controlP5.Button;
+import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
 import controlP5.RadioButton;
@@ -26,19 +22,15 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
-
 public class SlowBuoyancy extends PApplet {
   
-
-
   private class MyFluidData implements Fluid.FluidData{
-    
-    
+     
     @Override
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, a, temperature;
+      float px, py, vx, vy, radius, vscale, temperature;
 
       boolean mouse_input = !cp5.isMouseOver() && mousePressed;
       if(mouse_input ){
@@ -88,13 +80,14 @@ public class SlowBuoyancy extends PApplet {
   int viewport_x = 230;
   int viewport_y = 0;
   
-//  int viewport_w = 700;
-//  int viewport_h = 900;
+  int gui_w = 200;
+  int gui_x = viewport_w-gui_w;
+  int gui_y = 0;
+  
   int fluidgrid_scale = 1;
   
-  int BACKGROUND_COLOR = 0;
-  
-  public Fluid fluid;
+
+  Fluid fluid;
   MyFluidData cb_fluid_data;
   
   // default particle system
@@ -106,6 +99,13 @@ public class SlowBuoyancy extends PApplet {
   //texture-buffer, for adding obstacles
   PGraphics2D pg_obstacles;
 
+  // some state variables for the GUI/display
+  int     BACKGROUND_COLOR           = 0;
+  boolean UPDATE_FLUID               = true;
+  boolean DISPLAY_FLUID_TEXTURES     = true;
+  boolean DISPLAY_FLUID_VECTORS      = false;
+  int     DISPLAY_fluid_texture_mode = 0;
+  boolean DISPLAY_PARTICLES          = false;
 
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -163,6 +163,7 @@ public class SlowBuoyancy extends PApplet {
     
     createGUI();
 
+    background(0);
     frameRate(60);
   }
   
@@ -206,17 +207,33 @@ public class SlowBuoyancy extends PApplet {
     
   }
   
+  
+  
+  public void fluid_resizeUp(){
+    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
+  }
+  public void fluid_resizeDown(){
+    fluid.resize(width, height, ++fluidgrid_scale);
+  }
+  public void fluid_reset(){
+    fluid.reset();
+  }
+  public void fluid_togglePause(){
+    UPDATE_FLUID = !UPDATE_FLUID;
+  }
+  public void fluid_displayMode(int val){
+    DISPLAY_fluid_texture_mode = val;
+    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
+  }
+  public void fluid_displayVelocityVectors(int val){
+    DISPLAY_FLUID_VECTORS = val != -1;
+  }
+
+  public void fluid_displayParticles(int val){
+    DISPLAY_PARTICLES = val != -1;
+  }
 
 
-  
-  boolean UPDATE_FLUID = true;
-  
-  boolean DISPLAY_FLUID_TEXTURES  = true;
-  boolean DISPLAY_FLUID_VECTORS   = !true;
-  boolean DISPLAY_PARTICLES       = !true;
-  
-  int     DISPLAY_fluid_texture_mode = 0;
-  
   public void keyReleased(){
     if(key == 'p') fluid_togglePause(); // pause / unpause simulation
     if(key == '+') fluid_resizeUp();    // increase fluid-grid resolution
@@ -230,36 +247,8 @@ public class SlowBuoyancy extends PApplet {
     
     if(key == 'q') DISPLAY_FLUID_TEXTURES = !DISPLAY_FLUID_TEXTURES;
     if(key == 'w') DISPLAY_FLUID_VECTORS  = !DISPLAY_FLUID_VECTORS;
-    if(key == 'e') DISPLAY_PARTICLES      = !DISPLAY_PARTICLES;
   }
-  
-
-  public void fluid_resizeUp(){
-    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
-  }
-  public void fluid_resizeDown(){
-    fluid.resize(width, height, ++fluidgrid_scale);
-  }
-  public void fluid_reset(){
-    particle_system.reset();
-    fluid.reset();
-  }
-  public void fluid_togglePause(){
-    UPDATE_FLUID = !UPDATE_FLUID;
-  }
-  public void setDisplayMode(int val){
-    DISPLAY_fluid_texture_mode = val;
-    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
-  }
-  public void setDisplayVelocityVectors(int val){
-    DISPLAY_FLUID_VECTORS = val != -1;
-  }
-  public void setDisplayParticles(int val){
-    DISPLAY_PARTICLES = val != -1;
-  }
-  
-  
-  
+ 
   
   
   ControlP5 cp5;
@@ -267,83 +256,95 @@ public class SlowBuoyancy extends PApplet {
   public void createGUI(){
     cp5 = new ControlP5(this);
     
-    Group group_fluid = cp5.addGroup("fluid controls")
-    .setPosition(0, 20).setHeight(20).setWidth(180)
-    .setBackgroundHeight(350).setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_fluid.getCaptionLabel().align(LEFT, CENTER);
-  
-    Button breset = cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset").setWidth(75);
-    Button bplus  = cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp").setWidth(25);
-    Button bminus = cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setWidth(25).linebreak();
+    int sx, sy, px, py, oy;
     
-    float[] pxy = breset.getPosition();
-    bplus .setPosition(pxy[0] + 75 + 10, pxy[1]);
-    bminus.setPosition(pxy[0] + 75 + 25 + 20, pxy[1]);
+    sx = 100; sy = 14; oy = (int)(sy*1.5f);
     
-    int sx = 100, sy = 14;
-    
-    cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_velocity)
-    .plugTo(fluid.param, "dissipation_velocity").linebreak();
-    
-    cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_density)
-    .plugTo(fluid.param, "dissipation_density").linebreak();
-    
-    cp5 .addSlider("temperature").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_temperature)
-    .plugTo(fluid.param, "dissipation_temperature").linebreak();
-  
-    cp5 .addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.vorticity)
-    .plugTo(fluid.param, "vorticity").linebreak();
-        
-    cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 80).setValue(fluid.param.num_jacobi_projection)
-    .plugTo(fluid.param, "num_jacobi_projection").linebreak();
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - FLUID
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_fluid = cp5.addGroup("fluid");
+    {
+      group_fluid.setHeight(20).setSize(gui_w, 300)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_fluid.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset"     ).setSize(80, 18).setPosition(px    , py);
+      cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp"  ).setSize(39, 18).setPosition(px+=82, py);
+      cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setSize(39, 18).setPosition(px+=41, py);
+      
+      px = 10;
+     
+      cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
+          .setRange(0, 1).setValue(fluid.param.dissipation_velocity).plugTo(fluid.param, "dissipation_velocity");
+      
+      cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_density).plugTo(fluid.param, "dissipation_density");
+      
+      cp5.addSlider("temperature").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_temperature).plugTo(fluid.param, "dissipation_temperature");
+      
+      cp5.addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.vorticity).plugTo(fluid.param, "vorticity");
           
-    cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 1).setValue(fluid.param.timestep)
-    .plugTo(fluid.param, "timestep").linebreak();
-        
-    cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy)
-    .setRange(0, 50).setValue(fluid.param.gridscale)
-    .plugTo(fluid.param, "gridscale").linebreak();
+      cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 80).setValue(fluid.param.num_jacobi_projection).plugTo(fluid.param, "num_jacobi_projection");
+            
+      cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.timestep).plugTo(fluid.param, "timestep");
+          
+      cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 50).setValue(fluid.param.gridscale).plugTo(fluid.param, "gridscale");
+      
+      RadioButton rb_setFluid_DisplayMode = cp5.addRadio("fluid_displayMode").setGroup(group_fluid).setSize(80,18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
+          .addItem("Density"    ,0)
+          .addItem("Temperature",1)
+          .addItem("Pressure"   ,2)
+          .addItem("Velocity"   ,3)
+          .activate(DISPLAY_fluid_texture_mode);
+      for(Toggle toggle : rb_setFluid_DisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
+      
+      cp5.addRadio("fluid_displayVelocityVectors").setGroup(group_fluid).setSize(18,18).setPosition(px, py+=(int)(oy*2.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("Velocity Vectors", 0)
+          .activate(DISPLAY_FLUID_VECTORS ? 0 : 2);
+    }
     
-    RadioButton rb_setDisplayMode = cp5.addRadio("setDisplayMode").setGroup(group_fluid)
-        .setPosition(10, 210).setSize(80,18)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
-        .addItem("Density"    ,0)
-        .addItem("Temperature",1)
-        .addItem("Pressure"   ,2)
-        .addItem("Velocity"   ,3)
-        .activate(0);
-    for(Toggle toggle : rb_setDisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
     
-    RadioButton rb_setDisplayVelocityVectors = cp5.addRadio("setDisplayVelocityVectors").setGroup(group_fluid)
-        .setPosition(10, 255).setSize(18,18)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-        .addItem("Velocity Vectors",0)
-//        .activate(0)
-        ;
-
-    RadioButton rb_setDisplayParticles = cp5.addRadio("setDisplayParticles").setGroup(group_fluid)
-        .setPosition(10, 280).setSize(18,18)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-        .addItem("Particles",0)
-//        .activate(0)
-        ;
-
-    cp5.addNumberbox("BACKGROUND_COLOR").setGroup(group_fluid)
-    .setPosition(10,310).setSize(80,18)
-    .setMin(0).setMax(255)
-    .setScrollSensitivity(1) .setValue(BACKGROUND_COLOR);
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - DISPLAY
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_display = cp5.addGroup("display");
+    {
+      group_display.setHeight(20).setSize(gui_w, height)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_display.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
+          .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
+      
+      cp5.addRadio("fluid_displayParticles").setGroup(group_display).setSize(18,18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("display particles", 0)
+          .activate(DISPLAY_PARTICLES ? 0 : 2);
+    }
     
-    group_fluid.close();
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_fluid)
+      .addItem(group_display)
+      .open(0, 1);
   }
-  
-  
-  
   
   
   

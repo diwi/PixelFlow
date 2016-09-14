@@ -22,7 +22,6 @@ import com.thomasdiewald.pixelflow.java.filter.Filter;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.Numberbox;
 import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
@@ -40,7 +39,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, a;
+      float px, py, vx, vy, radius, vscale;
 
       boolean mouse_input = !cp5.isMouseOver() && mousePressed;
       if(mouse_input ){
@@ -182,6 +181,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
   
   int gui_w = 200;
   int gui_x = view_w;
+  int gui_y = 0;
   
   int fluidgrid_scale = 1;
   
@@ -575,7 +575,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
-    cp5.addAccordion("acc").setPosition(gui_x, 0).setWidth(gui_w).setSize(gui_w, height)
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_fluid)
       .addItem(group_oflow)

@@ -42,7 +42,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, a;
+      float px, py, vx, vy, radius, vscale;
 
       boolean mouse_input = !cp5.isMouseOver() && mousePressed;
       if(mouse_input ){
@@ -158,6 +158,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
    
   int gui_w = 200;
   int gui_x = view_w - gui_w;
+  int gui_y = 0;
   
   int pg_movie_w = view_w - gui_w;
   int pg_movie_h = view_h;
@@ -629,7 +630,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
-    cp5.addAccordion("acc").setPosition(gui_x, 0).setWidth(gui_w).setSize(gui_w, height)
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_fluid)
       .addItem(group_oflow)

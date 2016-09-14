@@ -24,7 +24,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.Numberbox;
 import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
@@ -40,7 +39,7 @@ public class WindTunnel extends PApplet {
     // this is called during the fluid-simulation update step.
     public void update(Fluid fluid) {
     
-      float px, py, vx, vy, radius, vscale, r, g, b, a;
+      float px, py, vx, vy, radius, vscale;
 
       boolean mouse_input = !cp5.isMouseOver() && mousePressed && !obstacle_painter.isDrawing();
       if(mouse_input ){
@@ -120,17 +119,17 @@ public class WindTunnel extends PApplet {
   int viewport_x = 230;
   int viewport_y = 0;
   
-//  int viewport_w = 1200;
-//  int viewport_h =  600;
+  int gui_w = 200;
+  int gui_x = viewport_w-gui_w;
+  int gui_y = 0;
+      
   int fluidgrid_scale = 1;
-  
-  int BACKGROUND_COLOR = 0;
-  
+
   PFont font;
   
-  public PixelFlow context;
-  public Fluid fluid;
-  public StreamLines streamlines;
+  PixelFlow context;
+  Fluid fluid;
+  StreamLines streamlines;
   MyFluidData cb_fluid_data;
 
   PGraphics2D pg_fluid;             // render target
@@ -143,10 +142,14 @@ public class WindTunnel extends PApplet {
   
   MorphShape morph; // animated morph shape, used as dynamic obstacle
   
-  
-  // Streamline states
-  public boolean DISPLAY_STREAMLINES = false;
-  public int     STREAMLINE_DENSITY  = 10;
+  // some state variables for the GUI/display
+  int     BACKGROUND_COLOR           = 0;
+  boolean UPDATE_FLUID               = true;
+  boolean DISPLAY_FLUID_TEXTURES     = true;
+  boolean DISPLAY_FLUID_VECTORS      = false;
+  int     DISPLAY_fluid_texture_mode = 0;
+  boolean DISPLAY_STREAMLINES        = false;
+  int     STREAMLINE_DENSITY         = 10;
 
 
   public void settings() {
@@ -638,17 +641,30 @@ public class WindTunnel extends PApplet {
   }
   
   
+  public void fluid_resizeUp(){
+    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
+  }
+  public void fluid_resizeDown(){
+    fluid.resize(width, height, ++fluidgrid_scale);
+  }
+  public void fluid_reset(){
+    fluid.reset();
+  }
+  public void fluid_togglePause(){
+    UPDATE_FLUID = !UPDATE_FLUID;
+  }
+  public void fluid_displayMode(int val){
+    DISPLAY_fluid_texture_mode = val;
+    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
+  }
+  public void fluid_displayVelocityVectors(int val){
+    DISPLAY_FLUID_VECTORS = val != -1;
+  }
 
-  
-  
-  boolean UPDATE_FLUID = true;
-  
-  boolean DISPLAY_FLUID_TEXTURES  = true;
-  boolean DISPLAY_FLUID_VECTORS   = !true;
-  boolean DISPLAY_PARTICLES       = !true;
-  
-  int     DISPLAY_fluid_texture_mode = 0;
-  
+  public void streamlines_displayStreamlines(int val){
+    DISPLAY_STREAMLINES = val != -1;
+  }
+
   public void keyReleased(){
     if(key == 'p') fluid_togglePause(); // pause / unpause simulation
     if(key == '+') fluid_resizeUp();    // increase fluid-grid resolution
@@ -662,35 +678,8 @@ public class WindTunnel extends PApplet {
     
     if(key == 'q') DISPLAY_FLUID_TEXTURES = !DISPLAY_FLUID_TEXTURES;
     if(key == 'w') DISPLAY_FLUID_VECTORS  = !DISPLAY_FLUID_VECTORS;
-    if(key == 'e') DISPLAY_PARTICLES      = !DISPLAY_PARTICLES;
   }
-  
-
-  public void fluid_resizeUp(){
-    fluid.resize(width, height, fluidgrid_scale = max(1, --fluidgrid_scale));
-  }
-  public void fluid_resizeDown(){
-    fluid.resize(width, height, ++fluidgrid_scale);
-  }
-  public void fluid_reset(){
-    fluid.reset();
-  }
-  public void fluid_togglePause(){
-    UPDATE_FLUID = !UPDATE_FLUID;
-  }
-  public void setDisplayMode(int val){
-    DISPLAY_fluid_texture_mode = val;
-    DISPLAY_FLUID_TEXTURES = DISPLAY_fluid_texture_mode != -1;
-  }
-  public void setDisplayVelocityVectors(int val){
-    DISPLAY_FLUID_VECTORS = val == 0;
-    DISPLAY_STREAMLINES   = val == 1;
-  }
-  public void setDisplayParticles(int val){
-    DISPLAY_PARTICLES = val != -1;
-  }
-  
-  
+ 
   
   
   ControlP5 cp5;
@@ -698,107 +687,122 @@ public class WindTunnel extends PApplet {
   public void createGUI(){
     cp5 = new ControlP5(this);
     
+    int sx, sy, px, py, oy;
     
-    int px, py, oy;
-    int sx = 100, sy = 14;
+    sx = 100; sy = 14; oy = (int)(sy*1.5f);
     
-    sx = 90;
-    px = 10;
-    py = 10;
-    oy = (int)(sy*1.5f);
-    
-    
-    Group group_fluid = cp5.addGroup("fluid controls")
-//    .setPosition(20, 40)
-    .setHeight(20).setWidth(180)
-    .setBackgroundHeight(height)
-    .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-    group_fluid.getCaptionLabel().align(LEFT, CENTER);
-  
-    cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset").setWidth(75).setPosition(px, py);
-    cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp").setWidth(25).setPosition(px+=85, py);
-    cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setWidth(25).setPosition(px+=30, py);
-    
-    px = 10;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - FLUID
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_fluid = cp5.addGroup("fluid");
+    {
+      group_fluid.setHeight(20).setSize(gui_w, 300)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_fluid.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset"     ).setSize(80, 18).setPosition(px    , py);
+      cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp"  ).setSize(39, 18).setPosition(px+=82, py);
+      cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setSize(39, 18).setPosition(px+=41, py);
+      
+      px = 10;
      
-    cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5))
-    .setRange(0, 1).setValue(fluid.param.dissipation_velocity)
-    .plugTo(fluid.param, "dissipation_velocity").linebreak();
-    
-    cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_density)
-    .plugTo(fluid.param, "dissipation_density").linebreak();
-    
-    cp5 .addSlider("temperature").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(fluid.param.dissipation_temperature)
-    .plugTo(fluid.param, "dissipation_temperature").linebreak();
-  
-    cp5 .addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(fluid.param.vorticity)
-    .plugTo(fluid.param, "vorticity").linebreak();
-        
-    cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 80).setValue(fluid.param.num_jacobi_projection)
-    .plugTo(fluid.param, "num_jacobi_projection").linebreak();
+      cp5.addSlider("velocity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
+          .setRange(0, 1).setValue(fluid.param.dissipation_velocity).plugTo(fluid.param, "dissipation_velocity");
+      
+      cp5.addSlider("density").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_density).plugTo(fluid.param, "dissipation_density");
+      
+      cp5.addSlider("temperature").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.dissipation_temperature).plugTo(fluid.param, "dissipation_temperature");
+      
+      cp5.addSlider("vorticity").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.vorticity).plugTo(fluid.param, "vorticity");
           
-    cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 1).setValue(fluid.param.timestep)
-    .plugTo(fluid.param, "timestep").linebreak();
-        
-    cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(0, 50).setValue(fluid.param.gridscale)
-    .plugTo(fluid.param, "gridscale").linebreak();
-    
-    RadioButton rb_setDisplayMode = cp5.addRadio("setDisplayMode").setGroup(group_fluid).setSize(80,18).setPosition(px, py+=(int)(oy*1.5))
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
-        .addItem("Density"    ,0)
-        .addItem("Temperature",1)
-        .addItem("Pressure"   ,2)
-        .addItem("Velocity"   ,3)
-        .activate(0);
-    for(Toggle toggle : rb_setDisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
-    
-    cp5.addRadio("setDisplayVelocityVectors").setGroup(group_fluid).setSize(18,18).setPosition(px, py+=(int)(oy*2.5))
-    .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-    .addItem("Velocity Vectors",0)
-    .addItem("StreamLines"     ,1)
-    ;
-    
-
-    cp5.addSlider("line density").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=(int)(oy*2.5))
-    .setRange(5, 20).setValue(STREAMLINE_DENSITY)
-    .plugTo(this, "STREAMLINE_DENSITY").linebreak();
-    
-    cp5.addSlider("line length").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(5, 300).setValue(streamlines.param.line_length)
-    .plugTo(streamlines.param, "line_length").linebreak();
-    
-    cp5.addSlider("Velocity scale").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(1, 50).setValue(streamlines.param.velocity_scale)
-    .plugTo(streamlines.param, "velocity_scale").linebreak();
-    
-    cp5.addSlider("Velocity min").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
-    .setRange(1, 200).setValue(streamlines.param.velocity_min)
-    .plugTo(streamlines.param, "velocity_min").linebreak();
+      cp5.addSlider("iterations").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 80).setValue(fluid.param.num_jacobi_projection).plugTo(fluid.param, "num_jacobi_projection");
+            
+      cp5.addSlider("timestep").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 1).setValue(fluid.param.timestep).plugTo(fluid.param, "timestep");
+          
+      cp5.addSlider("gridscale").setGroup(group_fluid).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 50).setValue(fluid.param.gridscale).plugTo(fluid.param, "gridscale");
+      
+      RadioButton rb_setFluid_DisplayMode = cp5.addRadio("fluid_displayMode").setGroup(group_fluid).setSize(80,18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(2)
+          .addItem("Density"    ,0)
+          .addItem("Temperature",1)
+          .addItem("Pressure"   ,2)
+          .addItem("Velocity"   ,3)
+          .activate(DISPLAY_fluid_texture_mode);
+      for(Toggle toggle : rb_setFluid_DisplayMode.getItems()) toggle.getCaptionLabel().alignX(CENTER);
+      
+      cp5.addRadio("fluid_displayVelocityVectors").setGroup(group_fluid).setSize(18,18).setPosition(px, py+=(int)(oy*2.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("Velocity Vectors", 0)
+          .activate(DISPLAY_FLUID_VECTORS ? 0 : 2);
+    }
     
     
-    Numberbox bg = cp5.addNumberbox("BACKGROUND_COLOR").setGroup(group_fluid).setSize(80,sy).setPosition(px, py+=(int)(oy*1.5f))
-    .setMin(0).setMax(255).setScrollSensitivity(1) .setValue(BACKGROUND_COLOR);
-    bg.getCaptionLabel().align(LEFT, CENTER).getStyle().setMarginLeft(85);
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - STREAMLINES
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_streamlines = cp5.addGroup("streamlines");
+    {
+      group_streamlines.setHeight(20).setSize(gui_w, 150)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_streamlines.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("line density").setGroup(group_streamlines).setSize(sx, sy).setPosition(px, py)
+          .setRange(5, 20).setValue(STREAMLINE_DENSITY).plugTo(this, "STREAMLINE_DENSITY");
+      
+      cp5.addSlider("line length").setGroup(group_streamlines).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(5, 300).setValue(streamlines.param.line_length).plugTo(streamlines.param, "line_length");
+      
+      cp5.addSlider("Velocity scale").setGroup(group_streamlines).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(1, 50).setValue(streamlines.param.velocity_scale).plugTo(streamlines.param, "velocity_scale");
+      
+      cp5.addSlider("Velocity min").setGroup(group_streamlines).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(1, 200).setValue(streamlines.param.velocity_min).plugTo(streamlines.param, "velocity_min");
+      
+      cp5.addRadio("streamlines_displayStreamlines").setGroup(group_streamlines).setSize(18,18).setPosition(px, py+=(int)(oy*1.5f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("StreamLines", 0)
+          .activate(DISPLAY_STREAMLINES ? 0 : 2);
+    }
     
     
-    group_fluid.close();
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - DISPLAY
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_display = cp5.addGroup("display");
+    {
+      group_display.setHeight(20).setSize(gui_w, height)
+      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
+      group_display.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
+          .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
+    }
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_fluid)
+      .addItem(group_streamlines)
+      .addItem(group_display)
+      .open(0, 1, 2);
    
-
-    Accordion accordion = cp5.addAccordion("acc")
-        .setPosition(width-180,0)
-        .setWidth(180)
-        .addItem(group_fluid)
-        ;
-
-    accordion.setCollapseMode(Accordion.MULTI);
-    accordion.open(0);
-    
   }
   
   

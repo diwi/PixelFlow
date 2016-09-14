@@ -39,6 +39,7 @@ public class OpticalFlow_CaptureSettings extends PApplet {
   
   int gui_w = 200;
   int gui_x = view_w;
+  int gui_y = 0;
   
   //main library context
   PixelFlow context;
@@ -251,7 +252,7 @@ public class OpticalFlow_CaptureSettings extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
-    cp5.addAccordion("acc").setPosition(gui_x, 0).setWidth(gui_w).setSize(gui_w, height)
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_oflow)
       .addItem(group_display)
