@@ -7,7 +7,7 @@
  * 
  */
 
-package ParticleCollisionSystem;
+package ParticleCollisionSystem_Euler;
 
 import com.thomasdiewald.pixelflow.java.CollisionObject;
 

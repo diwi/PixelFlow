@@ -7,7 +7,7 @@
  * 
  */
 
-package ParticleCollisionSystem;
+package ParticleCollisionSystem_Verlets;
 
 import processing.core.PApplet;
 import processing.core.PConstants;

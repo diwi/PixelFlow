@@ -7,7 +7,7 @@
  * 
  */
 
-package OpticalFlow_CaptureParticles;
+package ParticleCollisionSystem_Verlets;
 
 import com.thomasdiewald.pixelflow.java.CollisionObject;
 
@@ -25,8 +25,13 @@ public class Particle implements CollisionObject{
   // index (must be unique)
   public int idx;
   
-  // position, radius, velocity
-  public float x=0, y=0, rad=0, vx=0, vy=0;
+  // verlet integration
+  public float x  = 0, y  = 0; // position
+  public float px = 0, py = 0; // previous position
+  public float ax = 0, ay = 0; // acceleration
+  public float rad= 0; ;       // radius
+  
+  public boolean pinned = false;
   
   // just experimenting
   private float contact_area_factor;
@@ -34,7 +39,7 @@ public class Particle implements CollisionObject{
   // display shape
   private PShape    shp_particle;
   private PMatrix2D shp_transform = new PMatrix2D();
-
+  
   
   public Particle(ParticleSystem system, int idx) {
     this.system = system;
@@ -44,6 +49,8 @@ public class Particle implements CollisionObject{
   public void setposition(float x, float y){
     this.x = x;
     this.y = y;
+    this.px = x;
+    this.py = y;
   }
   
   public void setRadius(float rad_){
@@ -61,41 +68,6 @@ public class Particle implements CollisionObject{
     shp_particle.setFill(col_argb);
   }
   
-  
-//  public void applyCollision(Particle[] others) {
-//    if(system.SPRINGINESS == 0){
-//      return;
-//    }
-//    
-//    for (int i = idx + 1; i < others.length; i++) {
-//      updateCollisionPair(others[i]);
-//    }   
-//  }
-//  
-//  
-//  public void updateCollisionPair(Particle othr) {
-//    float dx = othr.x - this.x;
-//    float dy = othr.y - this.y;
-//    float dist_cur = dx*dx + dy*dy; // squared distance!
-//    float dist_min = othr.rad + this.rad;
-//    
-//    if (dist_cur < (dist_min*dist_min)) { 
-//      if(dist_cur == 0.0f) return; // problem, particles have same coordinates
-//      dist_cur = (float) Math.sqrt(dist_cur);
-//      
-//      float overlap = (dist_min - dist_cur) * 0.5f;
-//      float collision_x = (dx / dist_cur) * overlap * system.SPRINGINESS;
-//      float collision_y = (dy / dist_cur) * overlap * system.SPRINGINESS;
-//      
-//      this.vx -= collision_x;
-//      this.vy -= collision_y;
-//      othr.vx += collision_x;
-//      othr.vy += collision_y;
-//    }
-//
-//  }
-  
-  
   private Particle tmp = null;
 
   @Override
@@ -109,61 +81,85 @@ public class Particle implements CollisionObject{
     
     othr.tmp = this; // mark as checked
     
-    float dx = othr.x - this.x;
-    float dy = othr.y - this.y;
-    float dist_cur = dx*dx + dy*dy; // squared distance!
-    float dist_min = othr.rad + this.rad;
+    float dx        = othr.x - this.x;
+    float dy        = othr.y - this.y;
+    float dd_cur_sq = dx*dx + dy*dy; // squared distance!
+    float dd_min    = othr.rad + this.rad;
+    float dd_min_sq = dd_min*dd_min;
     
-    if (dist_cur < (dist_min*dist_min)) { 
-      if(dist_cur < 0.001f) return; // problem, particles have same coordinates
-      dist_cur = (float) Math.sqrt(dist_cur);
+    if (dd_cur_sq < dd_min_sq) { 
       
-      float overlap_scale = othr.rad / dist_min;
+//      if(dd_cur_sq < 0.00001f) return; // problem, particles have same coordinates
+//      float dd_cur = (float) Math.sqrt(dd_cur_sq);
+//      float overlap_scale = othr.rad / dd_min;
+//      float overlap = (dd_min - dd_cur) * overlap_scale;
+//      float collision_x = overlap * (dx / dd_cur) * system.SPRINGINESS;
+//      float collision_y = overlap * (dy / dd_cur) * system.SPRINGINESS;
 
-      float overlap = (dist_min - dist_cur) * overlap_scale;
-      float collision_x = overlap * (dx / dist_cur);
-      float collision_y = overlap * (dy / dist_cur);
-
-      vx += -collision_x * system.SPRINGINESS;
-      vy += -collision_y * system.SPRINGINESS;
+      // http://www.gotoandplay.it/_articles/2005/08/advCharPhysics.php
+      float delta = dd_min_sq / (dd_cur_sq + dd_min_sq) - 0.5f;
+      float collision_x = dx * delta *  system.SPRINGINESS;
+      float collision_y = dy * delta *  system.SPRINGINESS;
+      
+      this.x -= collision_x;
+      this.y -= collision_y;
+      othr.x += collision_x;
+      othr.y += collision_y;
     }
   }
-  
+
 
   public void applyFLuid(float fluid_vx, float fluid_vy){ 
     // contact_area_factor: smaller objects move slower
-    vx += fluid_vx * system.MULT_FLUID * contact_area_factor;
-    vy += fluid_vy * system.MULT_FLUID * contact_area_factor;
+    ax += fluid_vx * system.MULT_FLUID * contact_area_factor;
+    ay += fluid_vy * system.MULT_FLUID * contact_area_factor;
+    
+//    x += fluid_vx * system.MULT_FLUID * contact_area_factor;
+//    y += fluid_vy * system.MULT_FLUID * contact_area_factor;
   }
   
   
   public void applyGravity(){
     if(system.MULT_GRAVITY == 0.0) return;
     // contact_area_factor: smaller objects "fall" faster
-    vy += 0.01 * system.MULT_GRAVITY * 1f/contact_area_factor;
+    ay += 0.05f * system.MULT_GRAVITY * 1f/contact_area_factor;
   }
   
 
-  public void updatePosition(int xmin, int ymin, int xmax, int ymax) {
+  public void updatePosition(float time_step) {
+    
     // slow down
-    vx *= system.MULT_VELOCITY;
-    vy *= system.MULT_VELOCITY;
-  
-    // update position
-    x += vx;
-    y += vy;
+    float vx = (x - px) * system.MULT_VELOCITY;
+    float vy = (y - py) * system.MULT_VELOCITY;
     
-    // boundary conditions
-    if ((x - rad) < xmin) { x = xmin + rad; vx *= -system.SPRINGINESS; }
-    if ((x + rad) > xmax) { x = xmax - rad; vx *= -system.SPRINGINESS; }
-    if ((y - rad) < ymin) { y = ymin + rad; vy *= -system.SPRINGINESS; }
-    if ((y + rad) > ymax) { y = ymax - rad; vy *= -system.SPRINGINESS; } 
+    px = x;
+    py = y;
     
-    // apply new position to PShape
-    updateShapePosition();
+    // new position, verlet integration
+    x += vx + ax * 0.5f * time_step * time_step;
+    y += vy + ay * 0.5f * time_step * time_step;
+    
+    ax = 0;
+    ay = 0;
   }
   
-  private void updateShapePosition(){
+  public void fixboundaries(int xmin, int ymin, int xmax, int ymax){    
+    if ((x - rad) < xmin) { float vx = x - px; x = xmin + rad; px = x + vx * system.SPRINGINESS; }
+    if ((x + rad) > xmax) { float vx = x - px; x = xmax - rad; px = x + vx * system.SPRINGINESS; }
+    if ((y - rad) < ymin) { float vy = y - py; y = ymin + rad; py = y + vy * system.SPRINGINESS; }
+    if ((y + rad) > ymax) { float vy = y - py; y = ymax - rad; py = y + vy * system.SPRINGINESS; }
+  }
+  
+  
+  public void updateShape(){
+    updateShapePosition();
+    updateShapeColor();
+  }
+  
+  public void updateShapePosition(){
+    float vx = x - px;
+    float vy = y - py;
+    
     // build transformation matrix
     shp_transform.reset();
     shp_transform.translate(x, y);
@@ -205,7 +201,7 @@ public class Particle implements CollisionObject{
   
   private final float[] rgb = new float[3];
   
-  public void updateColor(){
+  public void updateShapeColor(){
     float speed = getSpeed();
     float radn  = 1.1f * rad / MAX_RAD;
 
@@ -221,6 +217,8 @@ public class Particle implements CollisionObject{
 
   
   public float getSpeed(){
+    float vx = x-px;
+    float vy = y-py;
     return (float) Math.sqrt(vx*vx + vy*vy);
   }
 

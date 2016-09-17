@@ -22,6 +22,7 @@ public class CollisionGridAccelerator{
   private int[]             NEXT = new int[0];
   private CollisionObject[] DATA = new CollisionObject[0];
   
+  private float[] cache_xyr = new float[0];
   
   public CollisionGridAccelerator(){
   }
@@ -101,9 +102,13 @@ public class CollisionGridAccelerator{
     for(int i = 0; i < particles.length; i++){
       CollisionObject particle = particles[i];
 
-      float pr = particle.rad();
-      float px = particle.x();
-      float py = particle.y();
+//      float pr = particle.rad();
+//      float px = particle.x();
+//      float py = particle.y();
+      
+      float px = cache_xyr[i*3+0];
+      float py = cache_xyr[i*3+1];
+      float pr = cache_xyr[i*3+2];
       
       px -= bounds[0];
       py -= bounds[1];
@@ -164,11 +169,30 @@ public class CollisionGridAccelerator{
     CELL_SIZE =(r_sum * 2) /particles.length;
   }
   
+  
+  public void cacheXYR(CollisionObject[] particles){
+    
+
+    int num_particles = particles.length;
+    int size_min = num_particles*3;
+    if(cache_xyr.length < size_min){
+      cache_xyr = new float[size_min];
+    }
+    for(int i = 0, idx = 0; i < num_particles; i++){
+      CollisionObject particle = particles[i];
+      cache_xyr[idx++] = particle.x();
+      cache_xyr[idx++] = particle.y();
+      cache_xyr[idx++] = particle.rad();
+    }
+  }
+  
+  
 
   
   public void updateCollisions(CollisionObject[] particles){
 
     // 0) prepare dimensions, size,
+    cacheXYR(particles);
     computeBounds(particles);
     int gx = (int) Math.ceil((bounds[2] - bounds[0])/CELL_SIZE);
     int gy = (int) Math.ceil((bounds[3] - bounds[1])/CELL_SIZE);

@@ -8,7 +8,7 @@
  */
 
 
-package ParticleCollisionSystem;
+package ParticleCollisionSystem_Verlets;
 
 
 import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
@@ -25,7 +25,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class ParticleCollisionSystem extends PApplet {
+public class ParticleCollisionSystem_Verlet extends PApplet {
   
   private class MyFluidData implements Fluid.FluidData{
     
@@ -192,10 +192,12 @@ public class ParticleCollisionSystem extends PApplet {
     
     // set some parameters
     particlesystem.PARTICLE_COUNT              = 1000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.7f;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.60f;
     particlesystem.PARTICLE_SHAPE_IDX          = 0;
     particlesystem.SPRINGINESS                 = 0.80f;
+    particlesystem.MULT_FLUID                  = 0.80f;
     particlesystem.MULT_GRAVITY                = 0.50f;
+    particlesystem.MULT_VELOCITY               = 0.96f;
     
     particlesystem.initParticles();
     
@@ -247,33 +249,33 @@ public class ParticleCollisionSystem extends PApplet {
 
     
     
+    
     // add a force to particle[0] with the middle mousebutton
     if(mousePressed && mouseButton == CENTER){
       Particle particle = particlesystem.particles[0];
-      
       float dx = mouseX - particle.x;
       float dy = mouseY - particle.y;
       
-      float damping_pos = 0.1f;
-      float damping_vel = 0.1f;
-      
+      float damping_pos = 0.3f;
       particle.x  += dx * damping_pos;
       particle.y  += dy * damping_pos;
-      
-      particle.vx += dx * damping_vel;
-      particle.vy += dy * damping_vel;
     }
+    
+    
     
 
     // collision detection
     if(COLLISION_DETECTION && particlesystem.SPRINGINESS != 0.0){
-      collision_grid.updateCollisions(particlesystem.particles);
+      for(int i = 0; i < 1; i++){  
+        collision_grid.updateCollisions(particlesystem.particles);
+      }
+      for (Particle particle : particlesystem.particles) { 
+        particle.fixboundaries(10, 10, width-10, height-10);
+      }
     }
- 
+    
+
     // update step: particle motion
-    // 1) add fluid velocity to the particles' velocity
-    // 2) add gravity
-    // 3) update velocity + position + color
     for (Particle particle : particlesystem.particles) {
       int px_view = Math.round(particle.x);
       int py_view = Math.round(height - 1 - particle.y); // invert y
@@ -285,13 +287,14 @@ public class ParticleCollisionSystem extends PApplet {
 
       int PIDX    = py_grid * w_grid + px_grid;
 
-      float fluid_vx = +fluid_velocity[PIDX * 2 + 0] * 0.02f;
-      float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.02f; // invert y
+      float fluid_vx = +fluid_velocity[PIDX * 2 + 0] * 0.05f;
+      float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.05f; // invert y
       
       particle.applyFLuid(fluid_vx, fluid_vy);
       particle.applyGravity();
-      particle.updatePosition(10, 10, width-10, height-10);
-      particle.updateColor();
+      particle.updatePosition(1);
+      particle.fixboundaries(10, 10, width-10, height-10);
+      particle.updateShape();
     }
     
 
@@ -503,6 +506,6 @@ public class ParticleCollisionSystem extends PApplet {
 
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { ParticleCollisionSystem.class.getName() });
+    PApplet.main(new String[] { ParticleCollisionSystem_Verlet.class.getName() });
   }
 }

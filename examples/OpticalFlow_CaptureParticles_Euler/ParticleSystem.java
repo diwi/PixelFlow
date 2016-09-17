@@ -7,7 +7,7 @@
  * 
  */
 
-package OpticalFlow_CaptureParticles;
+package OpticalFlow_CaptureParticles_Euler;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
