@@ -18,6 +18,7 @@ import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.OpticalFlow;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
 
 import controlP5.Accordion;
 
@@ -112,12 +113,16 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     
     // set some parameters
     particlesystem.PARTICLE_COUNT              = 1000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.7f;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.70f;
     particlesystem.PARTICLE_SHAPE_IDX          = 0;
-    particlesystem.SPRINGINESS                 = 0.80f;
-    particlesystem.MULT_GRAVITY                = 0.50f;
-    particlesystem.MULT_VELOCITY               = 0.90f;
+
     particlesystem.MULT_FLUID                  = 0.40f;
+    particlesystem.MULT_GRAVITY                = 0.50f;
+
+    particlesystem.particle_param.BOUNDS_DAMPING    = 1f;
+    particlesystem.particle_param.COLLISION_DAMPING = 0.80f;
+    particlesystem.particle_param.VELOCITY_DAMPING  = 0.90f;
+    
     
     particlesystem.initParticles();
     
@@ -135,7 +140,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
 
   
   // float buffer for pixel transfer from OpenGL to the host application
-  float[] fluid_velocity = new float[cam_w * cam_h * 2];
+  float[] flow_velocity = new float[cam_w * cam_h * 2];
 
   public void draw() {
     
@@ -180,7 +185,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
       // This is in general a bad idea because such operations are very slow. So 
       // either do everything in shaders, and avoid memory transfer when possible, 
       // or do it very rarely. however, this is just an example for convenience.
-      fluid_velocity = opticalflow.getVelocity(fluid_velocity);
+      flow_velocity = opticalflow.getVelocity(flow_velocity);
        
     }
     
@@ -188,25 +193,25 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     
     // add a force to particle[0] with the middle mousebutton
     if(mousePressed && mouseButton == CENTER){
-      Particle particle = particlesystem.particles[0];
-      float dx = mouseX - particle.x;
-      float dy = mouseY - particle.y;
+      VerletParticle2D particle = particlesystem.particles[0];
+      float dx = mouseX - particle.cx;
+      float dy = mouseY - particle.cy;
       
       float damping_pos = 0.3f;
-      particle.x  += dx * damping_pos;
-      particle.y  += dy * damping_pos;
+      particle.cx  += dx * damping_pos;
+      particle.cy  += dy * damping_pos;
     }
     
     
     
 
     // collision detection
-    if(COLLISION_DETECTION && particlesystem.SPRINGINESS != 0.0){
+    if(COLLISION_DETECTION && particlesystem.particle_param.COLLISION_DAMPING != 0.0){
       for(int i = 0; i < 1; i++){  
         collision_grid.updateCollisions(particlesystem.particles);
       }
-      for (Particle particle : particlesystem.particles) { 
-        particle.fixboundaries(0, 0, view_w, view_h);
+      for (VerletParticle2D particle : particlesystem.particles) { 
+        particle.updateBounds(0, 0, view_w, view_h);
       }
     }
     
@@ -214,9 +219,9 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     // 1) add fluid velocity to the particles' velocity
     // 2) add gravity
     // 3) update velocity + position + color
-    for (Particle particle : particlesystem.particles) {
-      int px_view = Math.round(particle.x);
-      int py_view = Math.round(height - 1 - particle.y); // invert y
+    for (VerletParticle2D particle : particlesystem.particles) {
+      int px_view = Math.round(particle.cx);
+      int py_view = Math.round(height - 1 - particle.cy); // invert y
       
       float scale_X = view_w / (float) cam_w;
       float scale_Y = view_h / (float) cam_h;
@@ -228,13 +233,12 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
 
       int PIDX    = py_grid * w_grid + px_grid;
 
-      float fluid_vx = +fluid_velocity[PIDX * 2 + 0];
-      float fluid_vy = -fluid_velocity[PIDX * 2 + 1]; // invert y
+      float flow_vx = +flow_velocity[PIDX * 2 + 0] * particlesystem.MULT_FLUID;
+      float flow_vy = -flow_velocity[PIDX * 2 + 1] * particlesystem.MULT_FLUID; // invert y
       
-      particle.applyFLuid(fluid_vx, fluid_vy);
-      particle.applyGravity();
-      particle.updatePosition(1);
-      particle.fixboundaries(0, 0, view_w, view_h);
+      particle.addForce(flow_vx, flow_vy);
+      particle.addGravity(0, 0.05f * particlesystem.MULT_GRAVITY);
+      particle.updatePosition(10, 10, width-10, height-10, 1);
       particle.updateShape();
     }
     
@@ -355,7 +359,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
       .setRange(0.2f, 1.5f).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR).plugTo(particlesystem, "setFillFactor");
       
       cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
-          .setRange(0.85f, 1.0f).setValue(particlesystem.MULT_VELOCITY).plugTo(particlesystem, "MULT_VELOCITY");
+          .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.VELOCITY_DAMPING).plugTo(particlesystem.particle_param, "VELOCITY_DAMPING");
       
       cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
@@ -364,7 +368,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
           .setRange(0, 1f).setValue(particlesystem.MULT_FLUID).plugTo(particlesystem, "MULT_FLUID");
       
       cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1f).setValue(particlesystem.SPRINGINESS).plugTo(particlesystem, "SPRINGINESS");
+          .setRange(0, 1f).setValue(particlesystem.particle_param.COLLISION_DAMPING).plugTo(particlesystem.particle_param, "COLLISION_DAMPING");
       
       cp5.addCheckBox("activateCollisionDetection").setGroup(group_particles).setSize(40, 18).setPosition(px, py+=(int)(oy*1.5f))
           .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)

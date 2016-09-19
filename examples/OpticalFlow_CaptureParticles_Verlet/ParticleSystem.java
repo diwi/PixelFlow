@@ -9,6 +9,8 @@
 
 package OpticalFlow_CaptureParticles_Verlet;
 
+import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -23,14 +25,14 @@ public class ParticleSystem {
   public int   PARTICLE_SHAPE_IDX          = 1;
   
   // particle behavior
-  public float SPRINGINESS   = 0.30f;
-  public float MULT_VELOCITY = 0.95f;
   public float MULT_FLUID    = 0.50f;
   public float MULT_GRAVITY  = 0.50f;
   
+  VerletParticle2D.Param particle_param = new VerletParticle2D.Param();
+  
   public PApplet papplet;
   
-  public Particle[] particles;
+  public VerletParticle2D[] particles;
   public PShape shp_particlesystem;
   
   public int size_x;
@@ -69,9 +71,11 @@ public class ParticleSystem {
   }
   
   public void initParticles(){
-    particles = new Particle[PARTICLE_COUNT];
+    particles = new VerletParticle2D[PARTICLE_COUNT];
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      particles[i] = new Particle(this, i);
+      particles[i] = new VerletParticle2D(i);
+      particles[i].setCollisionGroup(i);
+      particles[i].setParamByRef(particle_param);
     }
     initParticlesSize();
     initParticlesPosition();
@@ -86,11 +90,12 @@ public class ParticleSystem {
     float r_min = radius * (1.0f - rand_range);
     float r_max = radius * (1.0f + rand_range);
     
-    Particle.MAX_RAD = r_max;
+    VerletParticle2D.MAX_RAD = r_max;
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       float pr = papplet.random(r_min, r_max);
       particles[i].setRadius(pr);
+      particles[i].setMass(r_max*r_max/(pr*pr) );
     }
     
     particles[0].setRadius(r_max*1.5f);
@@ -101,7 +106,7 @@ public class ParticleSystem {
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       float px = papplet.random(0, size_x - 1);
       float py = papplet.random(0, size_y - 1);
-      particles[i].setposition(px, py);
+      particles[i].setPosition(px, py);
     }
   }
   
@@ -123,7 +128,7 @@ public class ParticleSystem {
   
   
   // just some shape presets
-  public PShape createParticleShape(Particle particle, PImage sprite_img){
+  public PShape createParticleShape(VerletParticle2D particle, PImage sprite_img){
     
     final float rad = particle.rad;
 
@@ -198,7 +203,7 @@ public class ParticleSystem {
   // create sprite on the fly
   PImage createSprite(){
     
-    int size = (int)(Particle.MAX_RAD * 1.5f);
+    int size = (int)(VerletParticle2D.MAX_RAD * 1.5f);
     size = Math.max(9, size);
     
     PImage pimg = papplet.createImage(size, size, PConstants.ARGB);

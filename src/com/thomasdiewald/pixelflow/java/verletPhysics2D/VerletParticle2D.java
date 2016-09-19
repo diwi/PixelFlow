@@ -17,15 +17,15 @@ import processing.core.PMatrix2D;
 import processing.core.PShape;
 
 
-public class Particle implements CollisionObject{
+public class VerletParticle2D implements CollisionObject{
   
   // max radius among all particles, used for normalization, ...
   static public float MAX_RAD = 0; 
   
   static public class Param{
     public float COLLISION_DAMPING = 1;
-    public float VELOCITY_DAMPING = 1;
-    
+    public float BOUNDS_DAMPING    = 1;
+    public float VELOCITY_DAMPING  = 1;
     
     public float SPRINGCONSTRAINT_increase = 0.99999f;
     public float SPRINGCONSTRAINT_decrease = 0.99999f;
@@ -60,10 +60,10 @@ public class Particle implements CollisionObject{
   private PMatrix2D shp_transform = null;
   
 
-  public Particle( int idx) {
+  public VerletParticle2D( int idx) {
     this.idx = idx;
   }
-  public Particle( int idx, float x, float y, float rad) {
+  public VerletParticle2D( int idx, float x, float y, float rad) {
     this.idx = idx;
     setPosition(x, y);
     setRadius(rad);
@@ -85,6 +85,10 @@ public class Particle implements CollisionObject{
   
   public void setParamByRef(Param param){
     this.param = param;
+  }
+  
+  public void setCollisionGroup(int id){
+    collision_group = id;
   }
   
   
@@ -128,17 +132,17 @@ public class Particle implements CollisionObject{
   }
   
   
-  public void updateSprings(Particle[] particles){
+  public void updateSprings(VerletParticle2D[] particles){
     
     if(fixed) return;
     
     // sum up force of attached springs
     float spring_x = 0;
     float spring_y = 0;
-    Particle pa = this;
+    VerletParticle2D pa = this;
     for(int i = 0; i < spring_count; i++){
       SpringConstraint spring = springs[i];
-      Particle pb = particles[spring.idx];
+      VerletParticle2D pb = particles[spring.idx];
       
       float dx = pb.cx - pa.cx;
       float dy = pb.cy - pa.cy;
@@ -203,8 +207,8 @@ public class Particle implements CollisionObject{
   public void updatePosition(int xmin, int ymin, int xmax, int ymax, float timestep) {
     if(fixed) return;
     
-    float vx = (cx - px) * param.VELOCITY_DAMPING / mass;
-    float vy = (cy - py) * param.VELOCITY_DAMPING / mass;
+    float vx = (cx - px) * param.VELOCITY_DAMPING;
+    float vy = (cy - py) * param.VELOCITY_DAMPING;
  
     px = cx;
     py = cy;
@@ -214,6 +218,7 @@ public class Particle implements CollisionObject{
     cy += vy + ay * 0.5 * timestep * timestep;
     
     ax = ay = 0;
+    
     
     // constrain bounds
     updateBounds(xmin, ymin, xmax, ymax);
@@ -240,24 +245,26 @@ public class Particle implements CollisionObject{
       return;
     }
     
-//    float damping = COLLISION_DAMPING;
+    float damping = param.BOUNDS_DAMPING;
 //    if ((cx - rad) < xmin) { float vx = cx - px; cx = xmin + rad; px = cx + vx * damping; }
 //    if ((cx + rad) > xmax) { float vx = cx - px; cx = xmax - rad; px = cx + vx * damping; }
 //    if ((cy - rad) < ymin) { float vy = cy - py; cy = ymin + rad; py = cy + vy * damping; }
 //    if ((cy + rad) > ymax) { float vy = cy - py; cy = ymax - rad; py = cy + vy * damping; }
     
     // friction
-//    if ((cx - rad) < xmin) { float vx = cx - px, vy = cy - py; cx = xmin + rad; px = cx + vx * damping; py = cy - vy * damping; }
-//    if ((cx + rad) > xmax) { float vx = cx - px, vy = cy - py; cx = xmax - rad; px = cx + vx * damping; py = cy - vy * damping; }
-//    if ((cy - rad) < ymin) { float vx = cx - px, vy = cy - py; cy = ymin + rad; px = cx - vx * damping; py = cy + vy * damping; }
-//    if ((cy + rad) > ymax) { float vx = cx - px, vy = cy - py; cy = ymax - rad; px = cx - vx * damping; py = cy + vy * damping; }
-//    
     
+    
+    if ((cx - rad) < xmin) { float vx = cx - px, vy = cy - py; cx = xmin + rad; px = cx + vx * damping; py = cy - vy * damping; }
+    if ((cx + rad) > xmax) { float vx = cx - px, vy = cy - py; cx = xmax - rad; px = cx + vx * damping; py = cy - vy * damping; }
+    if ((cy - rad) < ymin) { float vx = cx - px, vy = cy - py; cy = ymin + rad; px = cx - vx * damping; py = cy + vy * damping; }
+    if ((cy + rad) > ymax) { float vx = cx - px, vy = cy - py; cy = ymax - rad; px = cx - vx * damping; py = cy + vy * damping; }
+    
+
     // causes damping in both axis, friction
-    if ((cx - rad) < xmin) { cx = xmin + rad; px = cx; py = cy; }
-    if ((cx + rad) > xmax) { cx = xmax - rad; px = cx; py = cy; }
-    if ((cy - rad) < ymin) { cy = ymin + rad; px = cx; py = cy; }
-    if ((cy + rad) > ymax) { cy = ymax - rad; px = cx; py = cy; }
+//    if ((cx - rad) < xmin) { cx = xmin + rad; px = cx; py = cy; }
+//    if ((cx + rad) > xmax) { cx = xmax - rad; px = cx; py = cy; }
+//    if ((cy - rad) < ymin) { cy = ymin + rad; px = cx; py = cy; }
+//    if ((cy + rad) > ymax) { cy = ymax - rad; px = cx; py = cy; }
   }
 
 
@@ -265,7 +272,7 @@ public class Particle implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // PARTICLE COLLISION
   //////////////////////////////////////////////////////////////////////////////
-  public void updateCollision(Particle othr) {
+  public void updateCollision(VerletParticle2D othr) {
     
     if(othr.collision_group == this.collision_group) return; // particles are of the same group
     if(this == othr    ) return; // not colliding with myself
@@ -301,7 +308,7 @@ public class Particle implements CollisionObject{
   }
   
   
-  private Particle tmp = null;
+  private VerletParticle2D tmp = null;
 
   @Override
   public void beginCollision() {
@@ -310,7 +317,7 @@ public class Particle implements CollisionObject{
   
   @Override
   public void update(CollisionObject othr) {
-    updateCollision((Particle)othr);
+    updateCollision((VerletParticle2D)othr);
   }
 
   @Override
