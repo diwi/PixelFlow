@@ -204,8 +204,8 @@ public class DwGLTexture{
   /**
    * TODO: currently, this only works on float textures (32 bit, half-float?) i guess?
    * 
-   * @param x
-   * @param y
+   * @param cx
+   * @param cy
    * @param w
    * @param h
    * @param data array, for the returned opengl-texture-data

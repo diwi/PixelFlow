@@ -194,8 +194,8 @@ public class CollisionGridAccelerator{
     // 0) prepare dimensions, size,
     cacheXYR(particles);
     computeBounds(particles);
-    int gx = (int) Math.ceil((bounds[2] - bounds[0])/CELL_SIZE);
-    int gy = (int) Math.ceil((bounds[3] - bounds[1])/CELL_SIZE);
+    int gx = (int) Math.ceil((bounds[2] - bounds[0])/CELL_SIZE)+1;
+    int gy = (int) Math.ceil((bounds[3] - bounds[1])/CELL_SIZE)+1;
     int ppll_len = particles.length * 4 + 1; // just an estimate
     
     // 1) resize if necessary
