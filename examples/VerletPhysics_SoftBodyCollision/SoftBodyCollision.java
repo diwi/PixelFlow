@@ -118,18 +118,18 @@ public class SoftBodyCollision extends PApplet {
             vertex(pa.cx, pa.cy);
             vertex(pb.cx, pb.cy);
             break;
-  //        case SHEAR:
-  //          strokeWeight(0.5f);
-  //          stroke(0,255,0);
-  //          vertex(pa.cx, pa.cy);
-  //          vertex(pb.cx, pb.cy);
-  //          break;
-  //        case BEND:
-  //          strokeWeight(0.5f);
-  //          stroke(255,0,0);
-  //          vertex(pa.cx, pa.cy);
-  //          vertex(pb.cx, pb.cy);
-  //          break;
+          case SHEAR:
+            strokeWeight(0.5f);
+            stroke(0,255,0);
+            vertex(pa.cx, pa.cy);
+            vertex(pb.cx, pb.cy);
+            break;
+          case BEND:
+            strokeWeight(0.5f);
+            stroke(255,0,0);
+            vertex(pa.cx, pa.cy);
+            vertex(pb.cx, pb.cy);
+            break;
           default:
             break;
         }

@@ -1,5 +1,13 @@
 # Examples
 
+###cathegories:
+
+
++ Fluid Simulation
++ Optical Flow
++ ImageProcessing
++ Verlect Physics (ParticleSystems, SoftBodies)
+
 
 
 # Dependencies

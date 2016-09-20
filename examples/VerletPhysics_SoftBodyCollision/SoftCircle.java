@@ -80,13 +80,28 @@ public class SoftCircle{
       
       addSpring(particles, ia, ib_L, SpringConstraint.TYPE.SHEAR);
       addSpring(particles, ia, ib_R, SpringConstraint.TYPE.SHEAR);
-
-      off = 4;
+      
+      off = 3;
       ib_L = (num_vtx + ia + off) % num_vtx;
       ib_R = (num_vtx + ia - off) % num_vtx;
       
       addSpring(particles, ia, ib_L, SpringConstraint.TYPE.SHEAR);
       addSpring(particles, ia, ib_R, SpringConstraint.TYPE.SHEAR);
+
+      off = 4;
+      ib_L = (num_vtx + ia + off) % num_vtx;
+      ib_R = (num_vtx + ia - off) % num_vtx;
+      
+      addSpring(particles, ia, ib_L, SpringConstraint.TYPE.BEND);
+      addSpring(particles, ia, ib_R, SpringConstraint.TYPE.BEND);
+      
+      
+      off = 5;
+      ib_L = (num_vtx + ia + off) % num_vtx;
+      ib_R = (num_vtx + ia - off) % num_vtx;
+      
+      addSpring(particles, ia, ib_L, SpringConstraint.TYPE.BEND);
+      addSpring(particles, ia, ib_R, SpringConstraint.TYPE.BEND);
 
     }
   

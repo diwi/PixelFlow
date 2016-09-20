@@ -425,8 +425,10 @@ public class VerletParticle2D implements CollisionObject{
   }
 
   public void setColor(int col_argb){
-    shp_particle.setTint(col_argb);
-    shp_particle.setFill(col_argb);
+    if(shp_particle != null){
+      shp_particle.setTint(col_argb);
+      shp_particle.setFill(col_argb);
+    }
   }
   
   public void updateShape(){

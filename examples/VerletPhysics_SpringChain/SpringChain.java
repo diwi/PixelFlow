@@ -42,7 +42,7 @@ public class SpringChain extends PApplet {
     
     physics = new VerletPhysics2D();
 
-    physics.param.GRAVITY = new float[]{ 0, 0 };
+    physics.param.GRAVITY = new float[]{ 0, 1 };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
     physics.param.iterations_collisions = 4;
     physics.param.iterations_springs    = 4;
@@ -180,7 +180,6 @@ public class SpringChain extends PApplet {
     particle_curr.setRadius(radius);
     particle_curr.setPosition(random(off, width-off), random(off, height-off));
     if(idx_curr == 0) particle_curr.enable(true, true, true);
-//    particle_curr.enable(!true, true, true);
     addParticle(particle_curr);
     
     if(particle_prev != null){
