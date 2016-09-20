@@ -1,4 +1,4 @@
-package VerletPhysics.SoftBodyCollision;
+package VerletPhysics_SoftBodyCollision;
 
 
 
@@ -90,8 +90,8 @@ public class SoftBodyCollision extends PApplet {
       
     float timestep = 1f;
     int iterations_springs = 4;
-    int iterations_collision = 4;
-    int iterations_collisions = 2;
+    int iterations_collisions = 4;
+    int particle_count = particles.length;
 
     // mouse interaction
     if(particle_mouse != null){
@@ -104,20 +104,20 @@ public class SoftBodyCollision extends PApplet {
       
     // iterative spring refinement
     for(int k = 0; k < iterations_springs; k++){
-      for(int i = 0; i < particles.length; i++) particles[i].beforeSprings();
-      for(int i = 0; i < particles.length; i++) particles[i].updateSprings(particles);
-      for(int i = 0; i < particles.length; i++) particles[i].afterSprings(0, 0, width, height);
+      for(int i = 0; i < particle_count; i++) particles[i].beforeSprings();
+      for(int i = 0; i < particle_count; i++) particles[i].updateSprings(particles);
+      for(int i = 0; i < particle_count; i++) particles[i].afterSprings(0, 0, width, height);
     }
     
-    for(int i = 0; i < iterations_collision; i++){  
-      for (VerletParticle2D particle : particles) particle.beforeCollision();
-      collision_grid.updateCollisions(particles, particles.length);
-      for (VerletParticle2D particle : particles) particle.afterCollision(0, 0, width, height);
+    // iterative collision refinement
+    for(int k = 0; k < iterations_collisions; k++){  
+      for(int i = 0; i < particle_count; i++) particles[i].beforeCollision();
+      collision_grid.updateCollisions(particles, particle_count);
+      for(int i = 0; i < particle_count; i++) particles[i].afterCollision(0, 0, width, height);
     }
 
-
     // verlet integration
-    for(int i = 0; i < particles.length; i++){
+    for(int i = 0; i < particle_count; i++){
       particles[i].addGravity(0.0f, GRAVITY);
       particles[i].updatePosition(0, 0, width, height, timestep);
     }

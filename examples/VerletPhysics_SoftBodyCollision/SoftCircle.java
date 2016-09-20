@@ -1,4 +1,4 @@
-package VerletPhysics.SoftBodyCollision;
+package VerletPhysics_SoftBodyCollision;
 
 import java.util.Arrays;
 

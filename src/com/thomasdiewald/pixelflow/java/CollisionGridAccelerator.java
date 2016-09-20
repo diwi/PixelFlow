@@ -30,19 +30,18 @@ public class CollisionGridAccelerator{
   private void resize(int gx, int gy, int PPLL_size){
     
     // HEAD pointers
-    if( gx > GRID_X || gy > GRID_Y){
-      GRID_X = gx;
-      GRID_Y = gy;
-      HEAD = new int[GRID_X * GRID_Y];
-      System.out.println("CollisionGridAccelerator.resize -> HEAD: "+GRID_X+", "+GRID_Y);
+//    if( gx > GRID_X || gy > GRID_Y){
+    if( (gx * gy) > HEAD.length){
+      HEAD = new int[gx * gy];
+//      System.out.println("CollisionGridAccelerator.resize -> HEAD: "+gx+", "+gy);
     }
 
     // NEXT pointers, DATA array
-    if(PPLL_size >= NEXT.length){
+    if(PPLL_size > NEXT.length){
       int size_new = (int)(PPLL_size * 1.2f);
-      NEXT = new int     [size_new];
+      NEXT = new int            [size_new];
       DATA = new CollisionObject[size_new];
-      System.out.println("CollisionGridAccelerator.resize -> NEXT/DATA: "+size_new);
+//      System.out.println("CollisionGridAccelerator.resize -> NEXT/DATA: "+size_new+", "+PPLL_size);
     }
     
     // clear NEXT pointers
@@ -52,6 +51,10 @@ public class CollisionGridAccelerator{
 
     // reset HEAD pointer
     HEAD_PTR = 0;
+    
+    // set grid size
+    GRID_X = gx;
+    GRID_Y = gy;
   }
   
   
@@ -166,7 +169,7 @@ public class CollisionGridAccelerator{
     bounds[2] = x_max;
     bounds[3] = y_max;
     
-    CELL_SIZE =(r_sum * 2) /particles.length;
+    CELL_SIZE = (r_sum * 2) /particles.length;
   }
   
   

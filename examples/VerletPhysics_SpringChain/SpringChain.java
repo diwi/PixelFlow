@@ -1,4 +1,4 @@
-package VerletPhysics.SpringGraph;
+package VerletPhysics_SpringChain;
 
 
 
@@ -30,7 +30,7 @@ public class SpringChain extends PApplet {
   int particle_count = 0;
   VerletParticle2D[] particles = new VerletParticle2D[particle_count];
   
-  CollisionGridAccelerator collsion_grid;
+  CollisionGridAccelerator collision_grid;
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
@@ -54,7 +54,7 @@ public class SpringChain extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
-    collsion_grid = new CollisionGridAccelerator();
+    collision_grid = new CollisionGridAccelerator();
     
     int idx = 0;
     
@@ -107,7 +107,7 @@ public class SpringChain extends PApplet {
     int off = 50;
     VerletParticle2D particle_curr = new VerletParticle2D(idx_curr);
     
-    float radius = 5;
+    float radius = 10;
     particle_curr.setCollisionGroup(idx_curr);
     particle_curr.setMass(1);
     particle_curr.setParamByRef(param);
@@ -117,7 +117,7 @@ public class SpringChain extends PApplet {
     addParticle(particle_curr);
     
     if(particle_prev != null){
-    float restlen = radius * 2 * 1.1f;
+    float restlen = radius * 3;
     float rest_len_sq = restlen*restlen;
     
 //    particle_curr.addSpring(new SpringConstraint(particle_prev.idx, 0.0f, 0.000f, rest_len_sq, SpringConstraint.TYPE.STRUCT));
@@ -139,9 +139,49 @@ public class SpringChain extends PApplet {
 
     background(255);
       
+//    float timestep = 1f;
+//    int iterations_springs = 4;
+//    int iterations_collisions = 2;
+//
+//    // mouse interaction
+//    if(particle_mouse != null){
+//      float damping = 1;
+//      float dx = mouseX - particle_mouse.cx;
+//      float dy = mouseY - particle_mouse.cy;
+//      particle_mouse.cx += dx * damping;
+//      particle_mouse.cy += dy * damping;
+//    } 
+//      
+//    // iterative spring refinement
+//    for(int k = 0; k < iterations_springs; k++){
+//      for(int i = 0; i < particle_count; i++){
+//        particles[i].beforeSprings();
+//      }
+//      for(int i = 0; i < particle_count; i++){
+//        particles[i].updateSprings(particles);
+//      }
+//      for(int i = 0; i < particle_count; i++){
+//        particles[i].afterSprings(0, 0, width-0, height-0);
+//      }
+//    }
+//
+//
+//    // verlet integration
+//    for(int i = 0; i < particle_count; i++){
+//      particles[i].addGravity(0.0f, GRAVITY);
+//      particles[i].updatePosition(0, 0, width-0, height-0, timestep);
+//    }
+// 
+//    for(int k = 0; k < iterations_collisions; k++){
+//      collision_grid.updateCollisions(particles, particle_count);
+//    }
+    
+    
+    
+    
     float timestep = 1f;
     int iterations_springs = 4;
-    int iterations_collisions = 2;
+    int iterations_collisions = 4;
 
     // mouse interaction
     if(particle_mouse != null){
@@ -154,27 +194,29 @@ public class SpringChain extends PApplet {
       
     // iterative spring refinement
     for(int k = 0; k < iterations_springs; k++){
-      for(int i = 0; i < particle_count; i++){
-        particles[i].beforeSprings();
-      }
-      for(int i = 0; i < particle_count; i++){
-        particles[i].updateSprings(particles);
-      }
-      for(int i = 0; i < particle_count; i++){
-        particles[i].afterSprings(0, 0, width-0, height-0);
-      }
+      for(int i = 0; i < particle_count; i++) particles[i].beforeSprings();
+      for(int i = 0; i < particle_count; i++) particles[i].updateSprings(particles);
+      for(int i = 0; i < particle_count; i++) particles[i].afterSprings(0, 0, width, height);
     }
-
+    
+    // iterative collision refinement
+    for(int k = 0; k < iterations_collisions; k++){  
+      for(int i = 0; i < particle_count; i++) particles[i].beforeCollision();
+      collision_grid.updateCollisions(particles, particle_count);
+      for(int i = 0; i < particle_count; i++) particles[i].afterCollision(0, 0, width, height);
+    }
 
     // verlet integration
     for(int i = 0; i < particle_count; i++){
       particles[i].addGravity(0.0f, GRAVITY);
-      particles[i].updatePosition(0, 0, width-0, height-0, timestep);
+      particles[i].updatePosition(0, 0, width, height, timestep);
     }
- 
-    for(int k = 0; k < iterations_collisions; k++){
-      collsion_grid.updateCollisions(particles, particle_count);
-    }
+    
+    
+    
+    
+    
+    
     
     
     
