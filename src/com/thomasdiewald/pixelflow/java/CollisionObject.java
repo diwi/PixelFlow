@@ -14,8 +14,8 @@ package com.thomasdiewald.pixelflow.java;
 
 public interface CollisionObject {
 
-  public void beginCollision();
-  public void update    (CollisionObject othr);
+  public void resetCollisionPtr();
+  public void update(CollisionObject othr);
 
   public float x();
   public float y();

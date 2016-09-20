@@ -119,9 +119,9 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     particlesystem.MULT_FLUID                  = 0.40f;
     particlesystem.MULT_GRAVITY                = 0.50f;
 
-    particlesystem.particle_param.BOUNDS_DAMPING    = 1f;
-    particlesystem.particle_param.COLLISION_DAMPING = 0.80f;
-    particlesystem.particle_param.VELOCITY_DAMPING  = 0.90f;
+    particlesystem.particle_param.DAMP_BOUNDS    = 1f;
+    particlesystem.particle_param.DAMP_COLLISION = 0.80f;
+    particlesystem.particle_param.DAMP_VELOCITY  = 0.90f;
     
     
     particlesystem.initParticles();
@@ -206,12 +206,12 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     
 
     // collision detection
-    if(COLLISION_DETECTION && particlesystem.particle_param.COLLISION_DAMPING != 0.0){
-      for(int i = 0; i < 1; i++){  
-        collision_grid.updateCollisions(particlesystem.particles);
-      }
-      for (VerletParticle2D particle : particlesystem.particles) { 
-        particle.updateBounds(0, 0, view_w, view_h);
+    if(COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0){
+      int num_iterations = 4;
+      for(int i = 0; i < num_iterations; i++){  
+        for (VerletParticle2D particle : particlesystem.particles)particle.beforeCollision();
+        collision_grid.updateCollisions(particlesystem.particles, particlesystem.particles.length);
+        for (VerletParticle2D particle : particlesystem.particles) particle.afterCollision(0, 0, view_w, view_h);
       }
     }
     
@@ -359,7 +359,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
       .setRange(0.2f, 1.5f).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR).plugTo(particlesystem, "setFillFactor");
       
       cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
-          .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.VELOCITY_DAMPING).plugTo(particlesystem.particle_param, "VELOCITY_DAMPING");
+          .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.DAMP_VELOCITY).plugTo(particlesystem.particle_param, "DAMP_VELOCITY");
       
       cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
@@ -368,7 +368,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
           .setRange(0, 1f).setValue(particlesystem.MULT_FLUID).plugTo(particlesystem, "MULT_FLUID");
       
       cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1f).setValue(particlesystem.particle_param.COLLISION_DAMPING).plugTo(particlesystem.particle_param, "COLLISION_DAMPING");
+          .setRange(0, 1f).setValue(particlesystem.particle_param.DAMP_COLLISION).plugTo(particlesystem.particle_param, "DAMP_COLLISION");
       
       cp5.addCheckBox("activateCollisionDetection").setGroup(group_particles).setSize(40, 18).setPosition(px, py+=(int)(oy*1.5f))
           .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)

@@ -7,7 +7,7 @@
  * 
  */
 
-package ParticleCollisionSystem_Euler;
+package OpticalFlow_CaptureParticles_Euler;
 
 import com.thomasdiewald.pixelflow.java.CollisionObject;
 

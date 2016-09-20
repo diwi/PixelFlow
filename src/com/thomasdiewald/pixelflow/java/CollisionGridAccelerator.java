@@ -22,7 +22,7 @@ public class CollisionGridAccelerator{
   private int[]             NEXT = new int[0];
   private CollisionObject[] DATA = new CollisionObject[0];
   
-  private float[] cache_xyr = new float[0];
+//  private float[] cache_xyr = new float[0];
   
   public CollisionGridAccelerator(){
   }
@@ -56,9 +56,9 @@ public class CollisionGridAccelerator{
   
   
   
-  private void create(CollisionObject[] particles){
+  private void create(CollisionObject[] particles, int num_particles){
 
-    for(int i = 0; i < particles.length; i++){
+    for(int i = 0; i < num_particles; i++){
       CollisionObject particle = particles[i];
       float pr = particle.rad();
       float px = particle.x();
@@ -91,24 +91,24 @@ public class CollisionGridAccelerator{
   
   
   
-  private void solveCollisions(CollisionObject[] particles){
+  private void solveCollisions(CollisionObject[] particles, int num_particles){
     
     // reset states
-    for(int i = 0; i < particles.length; i++){
-      particles[i].beginCollision();
+    for(int i = 0; i < num_particles; i++){
+      particles[i].resetCollisionPtr();
     }
     
     // solve collisions
-    for(int i = 0; i < particles.length; i++){
+    for(int i = 0; i < num_particles; i++){
       CollisionObject particle = particles[i];
 
-//      float pr = particle.rad();
-//      float px = particle.x();
-//      float py = particle.y();
+      float pr = particle.rad();
+      float px = particle.x();
+      float py = particle.y();
       
-      float px = cache_xyr[i*3+0];
-      float py = cache_xyr[i*3+1];
-      float pr = cache_xyr[i*3+2];
+//      float px = cache_xyr[i*3+0];
+//      float py = cache_xyr[i*3+1];
+//      float pr = cache_xyr[i*3+2];
       
       px -= bounds[0];
       py -= bounds[1];
@@ -136,7 +136,7 @@ public class CollisionGridAccelerator{
   
   public float[] bounds = new float[4];
   
-  public void computeBounds(CollisionObject[] particles){ 
+  public void computeBounds(CollisionObject[] particles, int num_particles){ 
     float x_min = +Float.MAX_VALUE;
     float y_min = +Float.MAX_VALUE;
     float x_max = -Float.MAX_VALUE;
@@ -146,7 +146,7 @@ public class CollisionGridAccelerator{
     
     float r_sum = 0;
     
-    for(int i = 0; i < particles.length; i++){
+    for(int i = 0; i < num_particles; i++){
       float x = particles[i].x();
       float y = particles[i].y();
       float r = particles[i].rad();
@@ -170,30 +170,30 @@ public class CollisionGridAccelerator{
   }
   
   
-  public void cacheXYR(CollisionObject[] particles){
-    
-
-    int num_particles = particles.length;
-    int size_min = num_particles*3;
-    if(cache_xyr.length < size_min){
-      cache_xyr = new float[size_min];
-    }
-    for(int i = 0, idx = 0; i < num_particles; i++){
-      CollisionObject particle = particles[i];
-      cache_xyr[idx++] = particle.x();
-      cache_xyr[idx++] = particle.y();
-      cache_xyr[idx++] = particle.rad();
-    }
-  }
+//  public void cacheXYR(CollisionObject[] particles, int num_particles){
+//    
+//    int size_min = num_particles*3;
+//    if(cache_xyr.length < size_min){
+//      cache_xyr = new float[size_min];
+//    }
+//    for(int i = 0, idx = 0; i < num_particles; i++){
+//      CollisionObject particle = particles[i];
+//      cache_xyr[idx++] = particle.x();
+//      cache_xyr[idx++] = particle.y();
+//      cache_xyr[idx++] = particle.rad();
+//    }
+//  }
   
-  
-
   
   public void updateCollisions(CollisionObject[] particles){
+    updateCollisions(particles, particles.length);
+  }
+  
+  public void updateCollisions(CollisionObject[] particles, int num_particles){
 
     // 0) prepare dimensions, size,
-    cacheXYR(particles);
-    computeBounds(particles);
+//    cacheXYR(particles, num_particles);
+    computeBounds(particles, num_particles);
     int gx = (int) Math.ceil((bounds[2] - bounds[0])/CELL_SIZE)+1;
     int gy = (int) Math.ceil((bounds[3] - bounds[1])/CELL_SIZE)+1;
     int ppll_len = particles.length * 4 + 1; // just an estimate
@@ -202,16 +202,16 @@ public class CollisionGridAccelerator{
     resize(gx, gy, ppll_len);
     
     // 2) create per-pixel-linked-list (PPLL)
-    create(particles);
+    create(particles, num_particles);
     
     // resize if necessary
     if(HEAD_PTR > NEXT.length){
       resize(gx, gy, HEAD_PTR);
-      create(particles);
+      create(particles, num_particles);
     }
     
     // 3) solve collisions for each particle
-    solveCollisions(particles);
+    solveCollisions(particles, num_particles);
   }
 
   
