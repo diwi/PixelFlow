@@ -10,10 +10,6 @@ package com.thomasdiewald.pixelflow.java.verletPhysics2D;
 
 import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 
-/**
- * @author Thomas
- *
- */
 public class VerletPhysics2D {
   
   public static class Param{  

@@ -439,7 +439,7 @@ public class VerletParticle2D implements CollisionObject{
     if(shp_transform != null){
       shp_transform.reset();
       shp_transform.translate(cx, cy);
-      shp_transform.rotate((float)Math.atan2(cx - px,cy - py));
+      shp_transform.rotate((float)Math.atan2(cy-py, cx-px));
     }
 
     // update shape position
@@ -449,7 +449,7 @@ public class VerletParticle2D implements CollisionObject{
     }
   }
   
-  private final float[][] PALLETTE = 
+  protected final float[][] PALLETTE = 
     {
     {  50,  80,  130},    
     { 100, 178, 255}, 
@@ -458,7 +458,7 @@ public class VerletParticle2D implements CollisionObject{
 //      {   255,    0,    100}, 
   };
 
-  private final void getShading(float val, float[] rgb){
+  protected final void getShading(float val, float[] rgb){
     if(val < 0.0) val = 0.0f; else if(val >= 1.0) val = 0.99999f;
     float lum_steps = val * (PALLETTE.length-1);
     int   idx = (int)(Math.floor(lum_steps));
@@ -470,7 +470,7 @@ public class VerletParticle2D implements CollisionObject{
   }
 
   
-  private int clamp(float v){
+  protected int clamp(float v){
     if( v <   0 ) return 0;
     if( v > 255 ) return 255;
     return (int)v;
