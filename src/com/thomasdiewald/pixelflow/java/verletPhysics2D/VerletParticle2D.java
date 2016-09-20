@@ -136,7 +136,7 @@ public class VerletParticle2D implements CollisionObject{
   public void beforeSprings(){
     spring_x = spring_y = 0;
   }
-  public void afterSprings(int xmin, int ymin, int xmax, int ymax){
+  public void afterSprings(float xmin, float ymin, float xmax, float ymax){
     
     // prevent spring from exploding
     float limit = 1f;
@@ -160,7 +160,7 @@ public class VerletParticle2D implements CollisionObject{
     collision_x = collision_y = 0;
     collision_count = 0;
   }
-  public void afterCollision(int xmin, int ymin, int xmax, int ymax){
+  public void afterCollision(float xmin, float ymin, float xmax, float ymax){
     // prevent explosions
     float limit = 1f;
     float dd_sq = collision_x*collision_x + collision_y*collision_y;
@@ -208,7 +208,7 @@ public class VerletParticle2D implements CollisionObject{
   }
   
   
-  public void updatePosition(int xmin, int ymin, int xmax, int ymax, float timestep) {
+  public void updatePosition(float xmin, float ymin, float xmax, float ymax, float timestep) {
     if(!enable_forces) return;
     
     float vx = (cx - px) * param.DAMP_VELOCITY;
@@ -330,7 +330,7 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // BOUNDARY COLLISION
   //////////////////////////////////////////////////////////////////////////////
-  public void updateBounds(int xmin, int ymin, int xmax, int ymax){
+  public void updateBounds(float xmin, float ymin, float xmax, float ymax){
     if(!enable_collisions){
       return;
     }
@@ -436,13 +436,17 @@ public class VerletParticle2D implements CollisionObject{
   
   public void updateShapePosition(){
     // build transformation matrix
-    shp_transform.reset();
-    shp_transform.translate(cx, cy);
-    shp_transform.rotate((float)Math.atan2(cx - px,cy - py));
+    if(shp_transform != null){
+      shp_transform.reset();
+      shp_transform.translate(cx, cy);
+      shp_transform.rotate((float)Math.atan2(cx - px,cy - py));
+    }
 
     // update shape position
-    shp_particle.resetMatrix();
-    shp_particle.applyMatrix(shp_transform);
+    if(shp_particle != null){
+      shp_particle.resetMatrix();
+      shp_particle.applyMatrix(shp_transform);
+    }
   }
   
   private final float[][] PALLETTE = 

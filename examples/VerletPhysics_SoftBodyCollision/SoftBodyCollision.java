@@ -3,8 +3,8 @@ package VerletPhysics_SoftBodyCollision;
 
 
 
-import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
 
 import processing.core.*;
@@ -20,15 +20,13 @@ public class SoftBodyCollision extends PApplet {
   int gui_x = 20;
   int gui_y = 20;
   
-  
-  public static float GRAVITY = 0.1f;
 
-  VerletParticle2D.Param param_softbody = new VerletParticle2D.Param();
-  VerletParticle2D.Param param_cloth    = new VerletParticle2D.Param();
+  VerletPhysics2D physics;
   
   VerletParticle2D[] particles = new VerletParticle2D[0];
   
-  CollisionGridAccelerator collision_grid;
+  VerletParticle2D.Param param_softbody = new VerletParticle2D.Param();
+  VerletParticle2D.Param param_cloth    = new VerletParticle2D.Param();
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
@@ -38,7 +36,13 @@ public class SoftBodyCollision extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
-    collision_grid = new CollisionGridAccelerator();
+    
+    physics = new VerletPhysics2D();
+
+    physics.param.GRAVITY = new float[]{ 0, 0.1f };
+    physics.param.bounds  = new float[]{ 0, 0, width, height };
+    physics.param.iterations_collisions = 4;
+    physics.param.iterations_springs    = 4;
     
     int idx = 0;
     
@@ -75,8 +79,6 @@ public class SoftBodyCollision extends PApplet {
     softbody.getNode(particles,  0, 0).enable(true, false, false);
     softbody.getNode(particles, 39, 0).enable(true, false, false);
     
-    
-
     frameRate(60);
   }
   
@@ -88,11 +90,6 @@ public class SoftBodyCollision extends PApplet {
 
     background(255);
       
-    float timestep = 1f;
-    int iterations_springs = 4;
-    int iterations_collisions = 4;
-    int particle_count = particles.length;
-
     // mouse interaction
     if(particle_mouse != null){
       float damping = 1;
@@ -101,28 +98,9 @@ public class SoftBodyCollision extends PApplet {
       particle_mouse.cx += dx * damping;
       particle_mouse.cy += dy * damping;
     } 
-      
-    // iterative spring refinement
-    for(int k = 0; k < iterations_springs; k++){
-      for(int i = 0; i < particle_count; i++) particles[i].beforeSprings();
-      for(int i = 0; i < particle_count; i++) particles[i].updateSprings(particles);
-      for(int i = 0; i < particle_count; i++) particles[i].afterSprings(0, 0, width, height);
-    }
+
     
-    // iterative collision refinement
-    for(int k = 0; k < iterations_collisions; k++){  
-      for(int i = 0; i < particle_count; i++) particles[i].beforeCollision();
-      collision_grid.updateCollisions(particles, particle_count);
-      for(int i = 0; i < particle_count; i++) particles[i].afterCollision(0, 0, width, height);
-    }
-
-    // verlet integration
-    for(int i = 0; i < particle_count; i++){
-      particles[i].addGravity(0.0f, GRAVITY);
-      particles[i].updatePosition(0, 0, width, height, timestep);
-    }
- 
-
+    physics.update(particles, particles.length, 1);
 
   
     // draw
@@ -165,43 +143,38 @@ public class SoftBodyCollision extends PApplet {
   
   VerletParticle2D particle_mouse = null;
   
-  public void mousePressed(){
+  
+  
+  public VerletParticle2D findNearestParticle(float mx, float my){
+    VerletParticle2D particle = null;
     float dd_min = Float.MAX_VALUE;
     for(int i = 0; i < particles.length; i++){
-      float dx = mouseX - particles[i].cx;
-      float dy = mouseY - particles[i].cy;
+      float dx = mx - particles[i].cx;
+      float dy = my - particles[i].cy;
       float dd_sq = dx*dx + dy*dy;
       if( dd_sq < dd_min){
         dd_min = dd_sq;
-        particle_mouse = particles[i];
+        particle = particles[i];
       }
     }
-    
-    if(mouseButton == CENTER){
-      particle_mouse.enable(true, true, true);
-    }
-    if(mouseButton == RIGHT ){
-      particle_mouse.enable(true, false, false);
-    }
+    return particle;
   }
+    
+
+  public void mousePressed(){
+    particle_mouse = findNearestParticle(mouseX, mouseY);
+    if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
+    if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
+  }
+  
   public void mouseReleased(){
-    if(mouseButton == CENTER){
-      particle_mouse.enable(true, true, true);
-    }
-    if(mouseButton == RIGHT ){
-      particle_mouse.enable(true, false, false);
-    }
+    if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
+    if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
     particle_mouse.px = particle_mouse.cx = mouseX;
     particle_mouse.py = particle_mouse.cy = mouseY;
     particle_mouse = null;
-
   }
 
-  
-
- 
-
-  
   
   public static void main(String args[]) {
     PApplet.main(new String[] { SoftBodyCollision.class.getName() });

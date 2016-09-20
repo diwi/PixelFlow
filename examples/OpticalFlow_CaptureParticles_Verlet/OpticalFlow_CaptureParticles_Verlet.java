@@ -14,11 +14,11 @@ package OpticalFlow_CaptureParticles_Verlet;
 
 
 
-import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.OpticalFlow;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.filter.Filter;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
 
 import controlP5.Accordion;
 
@@ -69,10 +69,10 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
   boolean COLLISION_DETECTION = true;
   
   // particle system, cpu
-  public ParticleSystem particlesystem;
+  ParticleSystem particlesystem;
   
-  // acceleration structure for collision detection
-  public CollisionGridAccelerator collision_grid;
+  // verlet physics, handles the update-step
+  VerletPhysics2D physics;
   
 
   public void settings() {
@@ -117,7 +117,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     particlesystem.PARTICLE_SHAPE_IDX          = 0;
 
     particlesystem.MULT_FLUID                  = 0.40f;
-    particlesystem.MULT_GRAVITY                = 0.50f;
+    particlesystem.MULT_GRAVITY                = 0.00f;
 
     particlesystem.particle_param.DAMP_BOUNDS    = 1f;
     particlesystem.particle_param.DAMP_COLLISION = 0.80f;
@@ -126,8 +126,11 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     
     particlesystem.initParticles();
     
-    // collision detection accelerating system
-    collision_grid = new CollisionGridAccelerator();
+    physics = new VerletPhysics2D();
+    physics.param.GRAVITY = new float[]{0, 0.1f};
+    physics.param.bounds  = new float[]{0, 0, view_w, view_h};
+    physics.param.iterations_collisions = 4;
+    physics.param.iterations_springs    = 0; // no springs in this demo
 
     createGUI();
 
@@ -191,34 +194,7 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
     
     
     
-    // add a force to particle[0] with the middle mousebutton
-    if(mousePressed && mouseButton == CENTER){
-      VerletParticle2D particle = particlesystem.particles[0];
-      float dx = mouseX - particle.cx;
-      float dy = mouseY - particle.cy;
-      
-      float damping_pos = 0.3f;
-      particle.cx  += dx * damping_pos;
-      particle.cy  += dy * damping_pos;
-    }
-    
-    
-    
-
-    // collision detection
-    if(COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0){
-      int num_iterations = 4;
-      for(int i = 0; i < num_iterations; i++){  
-        for (VerletParticle2D particle : particlesystem.particles)particle.beforeCollision();
-        collision_grid.updateCollisions(particlesystem.particles, particlesystem.particles.length);
-        for (VerletParticle2D particle : particlesystem.particles) particle.afterCollision(0, 0, view_w, view_h);
-      }
-    }
-    
-    // update step: particle motion
-    // 1) add fluid velocity to the particles' velocity
-    // 2) add gravity
-    // 3) update velocity + position + color
+    // add force: Optical Flow
     for (VerletParticle2D particle : particlesystem.particles) {
       int px_view = Math.round(particle.cx);
       int py_view = Math.round(height - 1 - particle.cy); // invert y
@@ -237,11 +213,30 @@ public class OpticalFlow_CaptureParticles_Verlet extends PApplet {
       float flow_vy = -flow_velocity[PIDX * 2 + 1] * particlesystem.MULT_FLUID; // invert y
       
       particle.addForce(flow_vx, flow_vy);
-      particle.addGravity(0, 0.05f * particlesystem.MULT_GRAVITY);
-      particle.updatePosition(10, 10, width-10, height-10, 1);
-      particle.updateShape();
     }
     
+    
+    //  add force: Middle Mouse Button (MMB) -> particle[0]
+    if(mousePressed && mouseButton == CENTER){
+      VerletParticle2D particle = particlesystem.particles[0];
+      float dx = mouseX - particle.cx;
+      float dy = mouseY - particle.cy;
+      
+      float damping_pos = 0.3f;
+      particle.cx += dx * damping_pos;
+      particle.cy += dy * damping_pos;
+    }
+
+    // update physics step
+    boolean collision_detection = COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0;
+    
+    physics.param.GRAVITY[1] = 0.05f * particlesystem.MULT_GRAVITY;
+    physics.param.iterations_collisions = collision_detection ? 4 : 0;
+
+    physics.update(particlesystem.particles, particlesystem.particles.length, 1);
+    
+    
+
  
     // display result
     background(0);

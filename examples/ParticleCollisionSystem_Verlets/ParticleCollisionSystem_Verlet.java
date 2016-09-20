@@ -11,12 +11,11 @@
 package ParticleCollisionSystem_Verlets;
 
 
-import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
 
-import ParticleCollisionSystem_Euler.Particle;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -121,7 +120,7 @@ public class ParticleCollisionSystem_Verlet extends PApplet {
 
   
   // Fluid simulation
-  public Fluid fluid;
+  Fluid fluid;
 
   // render targets
   PGraphics2D pg_fluid;
@@ -129,10 +128,10 @@ public class ParticleCollisionSystem_Verlet extends PApplet {
   PGraphics2D pg_obstacles;
 
   // particle system, cpu
-  public ParticleSystem particlesystem;
-  
-  // acceleration structure for collision detection
-  public CollisionGridAccelerator collision_grid;
+  ParticleSystem particlesystem;
+
+  // verlet physics, handles the update-step
+  VerletPhysics2D physics;
   
   
   // some state variables for the GUI/display
@@ -207,9 +206,12 @@ public class ParticleCollisionSystem_Verlet extends PApplet {
     
     particlesystem.initParticles();
     
-    // collision detection accelerating system
-    collision_grid = new CollisionGridAccelerator();
-
+    physics = new VerletPhysics2D();
+    physics.param.GRAVITY = new float[]{0, 0.1f};
+    physics.param.bounds  = new float[]{10, 10, width-10, height-10};
+    physics.param.iterations_collisions = 4;
+    physics.param.iterations_springs    = 0; // no springs in this demo
+   
     createGUI();
 
     background(0);
@@ -246,42 +248,15 @@ public class ParticleCollisionSystem_Verlet extends PApplet {
     }
     
     
+
+
     // Transfer velocity data from the GPU to the host-application
     // This is in general a bad idea because such operations are very slow. So 
     // either do everything in shaders, and avoid memory transfer when possible, 
     // or do it very rarely. however, this is just an example for convenience.
     fluid_velocity = fluid.getVelocity(fluid_velocity);
     
-
-    
-    
-    
-    // add a force to particle[0] with the middle mousebutton
-    if(mousePressed && mouseButton == CENTER){
-      VerletParticle2D particle = particlesystem.particles[0];
-      float dx = mouseX - particle.cx;
-      float dy = mouseY - particle.cy;
-      
-      float damping_pos = 0.3f;
-      particle.cx  += dx * damping_pos;
-      particle.cy  += dy * damping_pos;
-    }
-    
-    
-    
-
-    // collision detection
-    if(COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0){
-      int num_iterations = 4;
-      for(int i = 0; i < num_iterations; i++){  
-        for (VerletParticle2D particle : particlesystem.particles)particle.beforeCollision();
-        collision_grid.updateCollisions(particlesystem.particles, particlesystem.particles.length);
-        for (VerletParticle2D particle : particlesystem.particles) particle.afterCollision(10, 10, width-10, height-10);
-      }
-    }
-    
-
-    // update step: particle motion
+    // add force: FLuid Velocity
     for (VerletParticle2D particle : particlesystem.particles) {
 
       int px_view = Math.round(particle.cx);
@@ -298,10 +273,30 @@ public class ParticleCollisionSystem_Verlet extends PApplet {
       float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.05f * particlesystem.MULT_FLUID; // invert y
       
       particle.addForce(fluid_vx, fluid_vy);
-      particle.addGravity(0, 0.05f * particlesystem.MULT_GRAVITY);
-      particle.updatePosition(10, 10, width-10, height-10, 1);
-      particle.updateShape();
     }
+    
+    
+    //  add force: Middle Mouse Button (MMB) -> particle[0]
+    if(mousePressed && mouseButton == CENTER){
+      VerletParticle2D particle = particlesystem.particles[0];
+      float dx = mouseX - particle.cx;
+      float dy = mouseY - particle.cy;
+      
+      float damping_pos = 0.3f;
+      particle.cx  += dx * damping_pos;
+      particle.cy  += dy * damping_pos;
+    }
+    
+
+    // update physics step
+    boolean collision_detection = COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0;
+    
+    physics.param.GRAVITY[1] = 0.05f * particlesystem.MULT_GRAVITY;
+    physics.param.iterations_collisions = collision_detection ? 4 : 0;
+
+    physics.update(particlesystem.particles, particlesystem.particles.length, 1);
+    
+   
     
 
     // RENDER
