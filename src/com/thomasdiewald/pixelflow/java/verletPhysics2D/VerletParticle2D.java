@@ -34,6 +34,7 @@ public class VerletParticle2D implements CollisionObject{
   Param param = new Param();
 
   // index (must be unique)
+  // must match the position of the array, for indexing
   public int idx;
   
   // pinned to a position
@@ -65,10 +66,10 @@ public class VerletParticle2D implements CollisionObject{
   private PMatrix2D shp_transform = null;
   
 
-  public VerletParticle2D( int idx) {
+  public VerletParticle2D(int idx) {
     this.idx = idx;
   }
-  public VerletParticle2D( int idx, float x, float y, float rad) {
+  public VerletParticle2D(int idx, float x, float y, float rad) {
     this.idx = idx;
     setPosition(x, y);
     setRadius(rad);
@@ -91,7 +92,6 @@ public class VerletParticle2D implements CollisionObject{
   public void setParamByRef(Param param){
     this.param = param;
   }
-  
   
   public void setCollisionGroup(int id){
     collision_group = id;
@@ -119,8 +119,7 @@ public class VerletParticle2D implements CollisionObject{
 
 
   protected void addSpring(SpringConstraint spring){
-    
-    
+
     // make sure we don't have multiple springs to the same vertex.
     //  int pos = 0;
     //  while(pos < spring_count && springs[pos].idx <= spring.idx){
@@ -156,13 +155,17 @@ public class VerletParticle2D implements CollisionObject{
   }
   
   
-  protected void removeSpring(int idx){
+  protected SpringConstraint removeSpring(int idx){
+    SpringConstraint removed = null;
     int pos = 0;
     for(pos = 0; pos < spring_count; pos++){
-      if(springs[pos].idx == idx) break;
+      if(springs[pos].idx == idx){
+        removed = springs[pos];
+        break;
+      }
     }
-    
-    if(pos < spring_count){
+
+    if(removed != null){
       System.arraycopy(springs, pos+1, springs, pos, spring_count-(pos+1));
       spring_count--;
     }
@@ -181,6 +184,8 @@ public class VerletParticle2D implements CollisionObject{
 //    if(found){
 //      spring_count--;
 //    }
+    
+    return removed;
     
   }
   

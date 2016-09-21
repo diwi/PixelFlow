@@ -42,7 +42,7 @@ public class SpringChain extends PApplet {
     
     physics = new VerletPhysics2D();
 
-    physics.param.GRAVITY = new float[]{ 0, 1 };
+    physics.param.GRAVITY = new float[]{ 0, 1f };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
     physics.param.iterations_collisions = 8;
     physics.param.iterations_springs    = 8;
@@ -54,13 +54,13 @@ public class SpringChain extends PApplet {
     param.DAMP_SPRING_decrease = 0.9999999f;
     param.DAMP_SPRING_increase = 0.9999999f;
     
-    randomSeed(1);
-    for(int i = 0; i < 201; i++){
-      build();
-      if(i%50 == 0){
-        particles[particles_count-1].enable(false, false, false);
-      }
-    }
+//    randomSeed(1);
+//    for(int i = 0; i < 201; i++){
+//      build();
+//      if(i%50 == 0){
+//        particles[particles_count-1].enable(false, false, false);
+//      }
+//    }
 
 
     frameRate(60);
@@ -171,13 +171,19 @@ public class SpringChain extends PApplet {
     int idx_curr = particles_count;
     int off = 50;
     float radius = 5;
+    
+    
+    float spawn_x = mouseX + random(-10, 10);
+    float spawn_y = mouseY + random(-10, 10);
+    
+    System.out.println(spawn_x+", "+spawn_y);
 
     VerletParticle2D particle_curr = new VerletParticle2D(idx_curr);
     particle_curr.setCollisionGroup(idx_curr);
     particle_curr.setMass(1);
     particle_curr.setParamByRef(param);
     particle_curr.setRadius(radius);
-    particle_curr.setPosition(random(off, width-off), random(off, height-off));
+    particle_curr.setPosition(spawn_x, spawn_y);
     if(idx_curr == 0) particle_curr.enable(true, true, true);
     addParticle(particle_curr);
     
@@ -185,6 +191,8 @@ public class SpringChain extends PApplet {
       float restlen = radius*2f;
       float rest_len_sq = restlen*restlen;
       
+      particle_curr.px = particle_prev.cx;
+      particle_curr.py = particle_prev.cy;
       SpringConstraint.addSpring(particles, particle_prev.idx, particle_curr.idx, rest_len_sq);
     }
   }

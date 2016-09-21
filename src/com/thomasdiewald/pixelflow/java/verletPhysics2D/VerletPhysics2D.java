@@ -8,6 +8,8 @@
  */
 package com.thomasdiewald.pixelflow.java.verletPhysics2D;
 
+import java.util.Arrays;
+
 import com.thomasdiewald.pixelflow.java.CollisionGridAccelerator;
 
 public class VerletPhysics2D {
@@ -30,6 +32,45 @@ public class VerletPhysics2D {
   CollisionGridAccelerator collision_grid = new CollisionGridAccelerator();
   
   public VerletPhysics2D(){
+  }
+  
+  
+  
+ 
+  
+  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  // the particles, used for simulating
+  //////////////////////////////////////////////////////////////////////////////
+  private int particles_count;
+  private VerletParticle2D[] particles = new VerletParticle2D[0];
+  
+  public VerletParticle2D[] getParticles(){
+    return particles;
+  }
+  public int getParticlesCount(){
+    return particles_count;
+  }
+  
+  public boolean CHECK_PARTICLE_INDEX_WHEN_ADDING = !false;
+  
+  public void addParticles(VerletParticle2D[] particles_add, int particles_add_count){
+    particles = Arrays.copyOf(particles, particles_count + particles_add_count);
+    System.arraycopy(particles_add, 0, particles, particles_count, particles_add_count);
+    particles_count += particles_add_count;
+    
+    if(CHECK_PARTICLE_INDEX_WHEN_ADDING){
+      for(int i = 0; i < particles_count; i++){
+        if(particles[i].idx != i){
+          System.out.println("Particle.idx not matching array index: "+particles[i].idx+" != "+i);
+        }
+      }
+    }
+  }
+  
+  public void update(float timestep){
+    update(particles, particles_count, timestep);
   }
   
 
@@ -62,5 +103,10 @@ public class VerletPhysics2D {
     }
 
   }
+  
+  
+  
+  
+  
   
 }

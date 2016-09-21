@@ -10,6 +10,8 @@
 
 package com.thomasdiewald.pixelflow.java.verletPhysics2D;
 
+import java.util.ArrayList;
+
 public class SpringConstraint {
 
   static public enum TYPE{
@@ -103,23 +105,35 @@ public class SpringConstraint {
     }
   }
   
-  static public void deleteSpring(VerletParticle2D[] particles, int ia, int ib){
+  static public SpringConstraint deleteSpring(VerletParticle2D[] particles, int ia, int ib){
     VerletParticle2D pa = particles[ia];
     VerletParticle2D pb = particles[ib];
     
-    pa.removeSpring(ib);
-    pb.removeSpring(ia);
+    SpringConstraint sa = pa.removeSpring(ib);
+    SpringConstraint sb = pb.removeSpring(ia);
+    
+    if(sa.other != sb && sb.other != sa){
+      System.out.println("error: SpringConstraints not Linked to each other!!");
+    }
+    return sa;
   }
   
-  static public void deleteSprings(VerletParticle2D[] particles, int ia){
+  static public ArrayList<SpringConstraint> deleteSprings(VerletParticle2D[] particles, int ia){
+    return deleteSprings(particles, ia, (ArrayList<SpringConstraint>)null);
+  }
+  
+  static public ArrayList<SpringConstraint> deleteSprings(VerletParticle2D[] particles, int ia, ArrayList<SpringConstraint> removed_springs){
     VerletParticle2D pa = particles[ia];
+    
+    removed_springs = new ArrayList<SpringConstraint>();
 
     while(pa.spring_count > 0){
       int ib = pa.springs[0].idx;
-      deleteSpring(particles, ia, ib);
+      removed_springs.add(deleteSpring(particles, ia, ib));
     }
+    return removed_springs;
+    
   }
-  
   
   
 }

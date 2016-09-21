@@ -1,4 +1,4 @@
-package VerletPhysics_Cloth;
+package VerletPhysics_Cloth2;
 
 
 
@@ -24,7 +24,9 @@ public class VerletPhysics_Cloth extends PApplet {
   int gui_y = 20;
   
   VerletPhysics2D physics;
-
+  
+  VerletParticle2D[] particles = new VerletParticle2D[0];
+  
   VerletParticle2D.Param param_cloth    = new VerletParticle2D.Param();
   VerletParticle2D.Param param_softbody = new VerletParticle2D.Param();
   
@@ -36,6 +38,7 @@ public class VerletPhysics_Cloth extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
+
     physics = new VerletPhysics2D();
 
     physics.param.GRAVITY = new float[]{ 0, 0.1f };
@@ -43,6 +46,7 @@ public class VerletPhysics_Cloth extends PApplet {
     physics.param.iterations_collisions = 8;
     physics.param.iterations_springs    = 8;
     
+    int idx = 0;
 
     // Cloth Parameters
     // Spring contraction is almost 100%, while expansion is very low
@@ -62,61 +66,68 @@ public class VerletPhysics_Cloth extends PApplet {
     
     
     // Cloth / SoftBody objects
-    // in this demo, objects are created just locally
-    // the particles array is stored in the "physics" object, that handles the 
-    // simulation-steps for us.
+    SoftBody cloth;
+
     
     int nodex_x, nodes_y, nodes_r;
     float nodes_start_x, nodes_start_y;
-    {
-      nodex_x = 40;
-      nodes_y = 40;
-      nodes_r = 5;
-      nodes_start_x = 50;
-      nodes_start_y = 40;
-      SoftBody cloth = new SoftBody();
-      cloth.create(physics, param_cloth, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
-      cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-    }
     
-    {
-      nodex_x = 15;
-      nodes_y = 25;
-      nodes_r = 5;
-      nodes_start_x = width/2;
-      nodes_start_y = height/2;
-      SoftBody cloth = new SoftBody();
-      cloth.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-    }
+    nodex_x = 40;
+    nodes_y = 40;
+    nodes_r = 5;
+    nodes_start_x = 50;
+    nodes_start_y = 40;
+    cloth = new SoftBody(idx++);
+    particles = cloth.create(particles, param_cloth, nodex_x, nodes_y, nodes_r,  nodes_start_x, nodes_start_y);
+    cloth.getNode(              0, 0).enable(false, false, false);
+    cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false);
     
-    {
-      nodex_x = 10;
-      nodes_y = 30;
-      nodes_r = 5;
-      nodes_start_x = width - nodex_x*nodes_r*5;
-      nodes_start_y = 200;
-      SoftBody cloth = new SoftBody();
-      cloth.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      cloth.getNode(0, 0).enable(false, false, false); // fix node to current location
-    }
-    
-    {
-      nodex_x = 10;
-      nodes_y = 2;
-      nodes_r = 25;
-      nodes_start_x = 500;
-      nodes_start_y = 100;
-      SoftBody cloth = new SoftBody();
-      cloth.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      cloth.getNode(0, 0).enable(false, false, false); // fix node to current location
-      cloth.getNode(0, 1).enable(false, false, false); // fix node to current location
-    }
+//    nodex_x = 20;
+//    nodes_y = 60;
+//    nodes_r = 5;
+//    nodes_start_x = 160;
+//    nodes_start_y = 60;
+//    particles = cloth.create(particles, param_cloth, nodex_x, nodes_y, nodes_r,  nodes_start_x, nodes_start_y);
+//    cloth.getNode(              0, 0).enable(false, false, false);
+//    cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false);
+
+    nodex_x = 15;
+    nodes_y = 25;
+    nodes_r = 5;
+    nodes_start_x = width/2;
+    nodes_start_y = height/2;
+    cloth = new SoftBody(idx++);
+
+    particles = cloth.create(particles, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
     
     
-//    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles()); // default anyways
-//    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
+    nodex_x = 10;
+    nodes_y = 30;
+    nodes_r = 5;
+    nodes_start_x = width - nodex_x*nodes_r*5;
+    nodes_start_y = 200;
+    cloth = new SoftBody(idx++);
+    particles = cloth.create(particles, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+    cloth.getNode(               0, 0).enable(false, false, false);
+
     
+    
+   
+    
+    nodex_x = 10;
+    nodes_y = 2;
+    nodes_r = 25;
+    nodes_start_x = 500;
+    nodes_start_y = 100;
+    cloth = new SoftBody(idx++);
+    particles = cloth.create(particles, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+    cloth.getNode(               0, 0).enable(false, false, false);
+    cloth.getNode(               0, 1).enable(false, false, false);
+    
+    
+    
+    SpringConstraint.makeAllSpringsUnidirectional(particles); // default anyways
+//    SpringConstraint.makeAllSpringsBidirectional(particles);
     frameRate(600);
   }
   
@@ -124,10 +135,10 @@ public class VerletPhysics_Cloth extends PApplet {
 
   
   public void draw() {
+    
 
     background(255);
       
-    // Mouse Interaction: particles position
     if(!INTERACTION_DELETE_SPRING && particle_mouse != null){
       VerletParticle2D particle = particle_mouse;
       float dx = mouseX - particle.cx;
@@ -140,10 +151,9 @@ public class VerletPhysics_Cloth extends PApplet {
       particle.cy  += dy * damping_pos;
     }
     
-    // Mouse Interaction: deleting springs/constraints between particles
     if(INTERACTION_DELETE_SPRING && mousePressed){
       float radius = 10;
-      VerletParticle2D[] particles = physics.getParticles();
+
       ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, radius*radius);
       for(VerletParticle2D tmp : list){
         SpringConstraint.deleteSprings(particles, tmp.idx);
@@ -157,18 +167,15 @@ public class VerletPhysics_Cloth extends PApplet {
     }
 
     
-    // apply another physics simulation step
-    physics.update(1);
+    physics.update(particles, particles.length, 1);
 
-    
-    // render
     drawParticles();
+    // draw
     draw(SpringConstraint.TYPE.BEND);
     draw(SpringConstraint.TYPE.SHEAR);
     draw(SpringConstraint.TYPE.STRUCT);
 //    draw(null);
 
-    // stats, to the title window
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -176,7 +183,6 @@ public class VerletPhysics_Cloth extends PApplet {
   
 
   public void draw(SpringConstraint.TYPE type){
-    VerletParticle2D[] particles = physics.getParticles();
     beginShape(LINES);
     for(int i = 0; i < particles.length; i++){
       VerletParticle2D pa = particles[i];
@@ -189,8 +195,8 @@ public class VerletPhysics_Cloth extends PApplet {
         
         switch(spring.type){
           case STRUCT: strokeWeight(   1); stroke(  0,  0,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
-          case SHEAR:  strokeWeight(0.9f); stroke( 40,140,255); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
-          case BEND:   strokeWeight(0.6f); stroke(255,180, 40); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
+          case SHEAR:  strokeWeight(0.8f); stroke( 40,140,255); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
+          case BEND:   strokeWeight(0.5f); stroke(255,180,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
           default: break;
         }
       }
@@ -199,7 +205,6 @@ public class VerletPhysics_Cloth extends PApplet {
   }
   
   public void drawParticles(){
-    VerletParticle2D[] particles = physics.getParticles();
     noFill();
     noStroke();
     fill(0, 32);
@@ -222,7 +227,6 @@ public class VerletPhysics_Cloth extends PApplet {
   }
   
   public VerletParticle2D findNearestParticle(float mx, float my, float dd_min){
-    VerletParticle2D[] particles = physics.getParticles();
     VerletParticle2D particle = null;
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
@@ -237,7 +241,6 @@ public class VerletPhysics_Cloth extends PApplet {
   }
   
   public ArrayList<VerletParticle2D> findParticlesWithinRadius(float mx, float my, float dd_min){
-    VerletParticle2D[] particles = physics.getParticles();
     ArrayList<VerletParticle2D> list = new ArrayList<VerletParticle2D>();
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
