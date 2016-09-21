@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint.TYPE;
 
 public class SoftBody{
   int body_idx;
@@ -16,7 +15,7 @@ public class SoftBody{
   int num_nodes;
   int nodes_offset;
   
-  public int dist_bend = 4;
+  public int dist_bend = 2;
   
   VerletParticle2D[] particles;
   
@@ -78,14 +77,6 @@ public class SoftBody{
     }
     
     
-//    int xmin = 0;
-//    int ymin = 0;
-//    int xmax = nodes_x-1;
-//    int ymax = nodes_y-1;
-    
-//    addSpring(xmin, ymin,  xmax, ymax, SpringConstraint.TYPE.SHEAR,true);
-//    addSpring(xmax, ymin, -xmax, ymax, SpringConstraint.TYPE.SHEAR,true);
-    
     // add new particles
     particles_world = Arrays.copyOf(particles_world, nodes_offset + num_nodes);
     System.arraycopy(particles, 0, particles_world, nodes_offset, num_nodes);
@@ -113,8 +104,7 @@ public class SoftBody{
     int ia =  y * nodes_x +  x;
     int ib = ny * nodes_x + nx;
 
-    SpringConstraint.addSpringPair(particles, ia, ib, type);
-
+    SpringConstraint.addSpring(particles, ia, ib, type);
   }
 
 }

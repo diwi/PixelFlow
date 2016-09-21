@@ -120,7 +120,7 @@ public class SoftCircle{
   public void addSpring(VerletParticle2D[] particles, int ia, int ib, SpringConstraint.TYPE type){
     ia += nodes_offset;
     ib += nodes_offset;
-    SpringConstraint.addSpringPair(particles, ia, ib, type);
+    SpringConstraint.addSpring(particles, ia, ib, type);
   }
 
 }

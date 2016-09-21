@@ -115,9 +115,10 @@ public class VerletParticle2D implements CollisionObject{
     this.enable_forces = enable_forces;
   }
   
+  
 
-  public static int count_all = 0;
-  public void addSpring(SpringConstraint spring){
+
+  protected void addSpring(SpringConstraint spring){
     
     
     // make sure we don't have multiple springs to the same vertex.
@@ -147,64 +148,48 @@ public class VerletParticle2D implements CollisionObject{
     springs[pos] = spring;
     
     spring_count++;
-      
-    count_all++;
+
+    // check correct sorting
 //    for(int i = 1; i < spring_count; i++){
 //      if( springs[i].idx <  springs[i-1].idx)System.out.println("ERROR");
 //    }
   }
   
   
-  public void removeSpring(int idx){
+  protected void removeSpring(int idx){
     int pos = 0;
-    while(pos < spring_count){
-      if(springs[pos++].idx == idx) break;
+    for(pos = 0; pos < spring_count; pos++){
+      if(springs[pos].idx == idx) break;
     }
     
-    // TODO
-    System.arraycopy(springs, pos, springs, pos-1, spring_count-pos);
-    spring_count--;
-    
-  }
-  
-  
-
-  
-  // collision force
-  private float collision_x;
-  private float collision_y;
-  
-  public void beforeCollision(){
-    collision_x = collision_y = 0;
-    collision_count = 0;
-  }
-  public void afterCollision(float xmin, float ymin, float xmax, float ymax){
-    // prevent explosions
-    float limit = 1f;
-    float dd_sq = collision_x*collision_x + collision_y*collision_y;
-    float dd_max = rad/(float)(collision_count);
-
-    if( dd_sq > dd_max*dd_max){
-      limit = dd_max / (float)Math.sqrt(dd_sq);
+    if(pos < spring_count){
+      System.arraycopy(springs, pos+1, springs, pos, spring_count-(pos+1));
+      spring_count--;
     }
     
-    cx += collision_x * limit;
-    cy += collision_y * limit;
+//    int pos = 0;
+//    
+//    boolean found = false;
+//    for(pos = 0; pos < spring_count; pos++){
+//      if(!found){
+//        if(springs[pos].idx == idx) found = true;
+//      } else {
+//        springs[pos-1] = springs[pos]; 
+//      }
+//    }
+//    
+//    if(found){
+//      spring_count--;
+//    }
     
-    updateBounds(xmin, ymin, xmax, ymax);
   }
   
+  
+
+  
 
 
 
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -265,6 +250,9 @@ public class VerletParticle2D implements CollisionObject{
    
     for(int i = 0; i < spring_count; i++){
       SpringConstraint spring = springs[i];
+      
+      if(!spring.parent) continue;
+      
       VerletParticle2D pb = particles[spring.idx];
       
       float dx = pb.cx - pa.cx;
@@ -282,21 +270,25 @@ public class VerletParticle2D implements CollisionObject{
  
       force *= (dd_curr_sq < dd_rest_sq) ? param.DAMP_SPRING_increase : param.DAMP_SPRING_decrease;
 
-      // CPU-Version: converges much faster
-//      if(pa.enable_springs){
-//        pa.cx -= dx * force * pa_mass_factor;
-//        pa.cy -= dy * force * pa_mass_factor;  
-//      } 
-//      if(pb.enable_springs){
-//        pb.cx += dx * force * pb_mass_factor;
-//        pb.cy += dy * force * pb_mass_factor;  
-//      }
-      
-      // GPU-Version: converges slower, but result is more accurate
+      // 1) CPU-Version: converges much faster (on the CPU, of course)
       if(pa.enable_springs){
-        pa.spring_x -= dx * force * pa_mass_factor;
-        pa.spring_y -= dy * force * pa_mass_factor;  
+        pa.cx -= dx * force * pa_mass_factor;
+        pa.cy -= dy * force * pa_mass_factor;  
+      } 
+      if(pb.enable_springs){
+        pb.cx += dx * force * pb_mass_factor;
+        pb.cy += dy * force * pb_mass_factor;  
       }
+      
+      
+      // 2) GPU-Version: converges slower, but result is more accurate
+      // >>>>   just used for debugging   <<<<
+      // this requires, to have bidirectional springs
+      // --> SpringConstraint.makeAllSpringsBidirectional(particles);
+//      if(pa.enable_springs){
+//        pa.spring_x -= dx * force * pa_mass_factor;
+//        pa.spring_y -= dy * force * pa_mass_factor;  
+//      }
     }
   }
   
@@ -309,8 +301,10 @@ public class VerletParticle2D implements CollisionObject{
     spring_x = spring_y = 0;
   }
   public void afterSprings(float xmin, float ymin, float xmax, float ymax){
-    cx += spring_x / spring_count;
-    cy += spring_y / spring_count;
+    if(spring_count > 0){
+      cx += spring_x / spring_count;
+      cy += spring_y / spring_count;
+    }
     updateBounds(xmin, ymin, xmax, ymax);
   }
   
@@ -401,6 +395,30 @@ public class VerletParticle2D implements CollisionObject{
   
 
   
+  // collision force
+  private float collision_x;
+  private float collision_y;
+  
+  public void beforeCollision(){
+    collision_x = collision_y = 0;
+    collision_count = 0;
+  }
+  public void afterCollision(float xmin, float ymin, float xmax, float ymax){
+//    if(collision_count == 0) return;
+    // prevent explosions
+    float limit = 1f;
+//    float dd_sq = collision_x*collision_x + collision_y*collision_y;
+//    float dd_max = rad/(float)(collision_count);
+//
+//    if( dd_sq > dd_max*dd_max){
+//      limit = dd_max / (float) Math.sqrt(dd_sq);
+//    }
+    
+    cx += collision_x * limit;
+    cy += collision_y * limit;
+    
+    updateBounds(xmin, ymin, xmax, ymax);
+  }
   
   
   

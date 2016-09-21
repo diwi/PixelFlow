@@ -5,6 +5,9 @@ package VerletPhysics_Cloth;
 
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
+
+import java.util.ArrayList;
+
 import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
 
 import processing.core.*;
@@ -47,19 +50,19 @@ public class VerletPhysics_Cloth extends PApplet {
 
     // Cloth Parameters
     // Spring contraction is almost 100%, while expansion is very low
-    param_cloth.DAMP_BOUNDS          = 0.999f;
-    param_cloth.DAMP_COLLISION       = 1;
+    param_cloth.DAMP_BOUNDS          = 0.90f;
+    param_cloth.DAMP_COLLISION       = 0.90f;
     param_cloth.DAMP_VELOCITY        = 0.991f; 
     param_cloth.DAMP_SPRING_decrease = 0.999999f;    // ~ 100% contraction (... to restlength)
     param_cloth.DAMP_SPRING_increase = 0.00000999999f; // ~ 0% expansion (... to restlength)
     
     // SoftBody Parameters
     // Spring contraction AND expansion is almost 100%
-    param_softbody.DAMP_BOUNDS          = 0.999f;
-    param_softbody.DAMP_COLLISION       = 1;
+    param_softbody.DAMP_BOUNDS          = 0.90f;
+    param_softbody.DAMP_COLLISION       = 0.90f;
     param_softbody.DAMP_VELOCITY        = 0.999999f;
-    param_softbody.DAMP_SPRING_decrease = 0.9999999f; // ~ 100% contraction (... to restlength)
-    param_softbody.DAMP_SPRING_increase = 0.999999f; // ~ 100% expansion (... to restlength)
+    param_softbody.DAMP_SPRING_decrease = 0.1999999f; // ~ 100% contraction (... to restlength)
+    param_softbody.DAMP_SPRING_increase = 0.199999f; // ~ 100% expansion (... to restlength)
     
     
     // Cloth / SoftBody objects
@@ -123,11 +126,8 @@ public class VerletPhysics_Cloth extends PApplet {
     
     
     
-    
-//    System.out.println( VerletParticle2D.count);
-    System.out.println( VerletParticle2D.count_all);
-
-    
+    SpringConstraint.makeAllSpringsUnidirectional(particles); // default anyways
+//    SpringConstraint.makeAllSpringsBidirectional(particles);
     frameRate(600);
   }
   
@@ -139,50 +139,95 @@ public class VerletPhysics_Cloth extends PApplet {
 
     background(255);
       
-    // mouse interaction
-    if(particle_mouse != null){
-      float damping = 0.5f;
-      float dx = mouseX - particle_mouse.cx;
-      float dy = mouseY - particle_mouse.cy;
-      particle_mouse.cx += dx * damping;
-      particle_mouse.cy += dy * damping;
+    if(!INTERACTION_DELETE_SPRING && particle_mouse != null){
+      VerletParticle2D particle = particle_mouse;
+      float dx = mouseX - particle.cx;
+      float dy = mouseY - particle.cy;
+      
+      float damping_pos = 0.2f;
+      particle.px = particle.cx;
+      particle.py = particle.cy;
+      particle.cx  += dx * damping_pos;
+      particle.cy  += dy * damping_pos;
+    }
+    
+    if(INTERACTION_DELETE_SPRING && mousePressed){
+      float radius = 10;
 
-//      System.out.println(particle_mouse.idx);
-    } 
+      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, radius*radius);
+      for(VerletParticle2D tmp : list){
+        SpringConstraint.deleteSprings(particles, tmp.idx);
+        tmp.collision_group = physics.getNewCollisionGroupId();
+      }
+      
+      fill(255,0,0,32);
+      stroke(0);
+      strokeWeight(1);
+      ellipse(mouseX, mouseY, radius*2, radius*2);
+    }
 
     
     physics.update(particles, particles.length, 1);
 
-  
+    drawParticles();
     // draw
-    beginShape(LINES);
-    for(int i = 0; i < particles.length; i++){
-      VerletParticle2D pa = particles[i];
-      for(int j = 0; j < pa.spring_count; j++){
-        SpringConstraint spring = pa.springs[j];
-        VerletParticle2D pb = particles[spring.idx];
-  
-        switch(spring.type){
-          case STRUCT: strokeWeight(   1); stroke(  0,  0,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
-          case SHEAR:  strokeWeight(0.8f); stroke( 40,140,255); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
-//          case BEND:   strokeWeight(0.5f); stroke(255,180,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
-          default: break;
-        }
-      }
-    }
-    endShape();
+    draw(SpringConstraint.TYPE.BEND);
+    draw(SpringConstraint.TYPE.SHEAR);
+    draw(SpringConstraint.TYPE.STRUCT);
+//    draw(null);
 
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
   
+  
+
+  public void draw(SpringConstraint.TYPE type){
+    beginShape(LINES);
+    for(int i = 0; i < particles.length; i++){
+      VerletParticle2D pa = particles[i];
+      for(int j = 0; j < pa.spring_count; j++){
+        SpringConstraint spring = pa.springs[j];
+        if(!spring.parent) continue;
+        VerletParticle2D pb = particles[spring.idx];
+        
+        if(type != null && type != spring.type) continue;
+        
+        switch(spring.type){
+          case STRUCT: strokeWeight(   1); stroke(  0,  0,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
+          case SHEAR:  strokeWeight(0.8f); stroke( 40,140,255); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
+          case BEND:   strokeWeight(0.5f); stroke(255,180,  0); vertex(pa.cx, pa.cy); vertex(pb.cx, pb.cy); break;
+          default: break;
+        }
+      }
+    }
+    endShape();
+  }
+  
+  public void drawParticles(){
+    noFill();
+    noStroke();
+    fill(0, 32);
+    for(int i = 0; i < particles.length; i++){
+      VerletParticle2D pa = particles[i];
+      ellipse(pa.cx, pa.cy, pa.rad*2, pa.rad*2);
+    }
+  }
+  
+  
+  
+  
+  
+  
+  
   VerletParticle2D particle_mouse = null;
   
-  
-  
   public VerletParticle2D findNearestParticle(float mx, float my){
+    return findNearestParticle(mx, my, Float.MAX_VALUE);
+  }
+  
+  public VerletParticle2D findNearestParticle(float mx, float my, float dd_min){
     VerletParticle2D particle = null;
-    float dd_min = Float.MAX_VALUE;
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
       float dy = my - particles[i].cy;
@@ -194,34 +239,57 @@ public class VerletPhysics_Cloth extends PApplet {
     }
     return particle;
   }
+  
+  public ArrayList<VerletParticle2D> findParticlesWithinRadius(float mx, float my, float dd_min){
+    ArrayList<VerletParticle2D> list = new ArrayList<VerletParticle2D>();
+    for(int i = 0; i < particles.length; i++){
+      float dx = mx - particles[i].cx;
+      float dy = my - particles[i].cy;
+      float dd_sq = dx*dx + dy*dy;
+      if( dd_sq < dd_min){
+        list.add(particles[i]);
+      }
+    }
+    return list;
+  }
     
+
+  boolean INTERACTION_DELETE_SPRING = false;
   
   
-  boolean enable_collisions;
-  boolean enable_springs;
-  boolean enable_forces;
+  boolean state_enable_collisions;
+  boolean state_enable_springs;
+  boolean state_enable_forces;
 
   public void mousePressed(){
-    particle_mouse = findNearestParticle(mouseX, mouseY);
-    
-    enable_collisions = particle_mouse.enable_collisions;
-    enable_springs    = particle_mouse.enable_springs   ;
-    enable_forces     = particle_mouse.enable_forces    ;  
-    
-    if(mouseButton == LEFT) particle_mouse.enable(false, false, false);
-//    if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
-//    if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
+    if(!INTERACTION_DELETE_SPRING){
+      particle_mouse = findNearestParticle(mouseX, mouseY);
+      // push states
+      state_enable_collisions = particle_mouse.enable_collisions;
+      state_enable_springs    = particle_mouse.enable_springs   ;
+      state_enable_forces     = particle_mouse.enable_forces    ;  
+      if(mouseButton == LEFT  ) particle_mouse.enable(true, false, !true);
+      if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
+      if(mouseButton == RIGHT ) particle_mouse.enable(false, false, false);
+    }
   }
   
   public void mouseReleased(){
-    if(mouseButton == LEFT) particle_mouse.enable(enable_collisions, enable_springs, enable_forces);
-    if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
-    if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
-    particle_mouse.px = particle_mouse.cx = mouseX;
-    particle_mouse.py = particle_mouse.cy = mouseY;
-    particle_mouse = null;
+    if(particle_mouse != null && !INTERACTION_DELETE_SPRING){
+      if(mouseButton == LEFT  ) particle_mouse.enable(state_enable_collisions, state_enable_springs, state_enable_forces);
+      if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
+      if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
+      particle_mouse = null;
+    }
   }
+  
 
+  public void keyPressed(){
+    if(key ==' ') INTERACTION_DELETE_SPRING = true;
+  }
+  public void keyReleased(){
+    if(key ==' ') INTERACTION_DELETE_SPRING = false;
+  }
   
   public static void main(String args[]) {
     PApplet.main(new String[] { VerletPhysics_Cloth.class.getName() });

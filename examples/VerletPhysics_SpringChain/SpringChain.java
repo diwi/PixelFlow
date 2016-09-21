@@ -185,7 +185,7 @@ public class SpringChain extends PApplet {
       float restlen = radius*2f;
       float rest_len_sq = restlen*restlen;
       
-      SpringConstraint.addSpringPair(particles, particle_prev.idx, particle_curr.idx, rest_len_sq);
+      SpringConstraint.addSpring(particles, particle_prev.idx, particle_curr.idx, rest_len_sq);
     }
   }
   

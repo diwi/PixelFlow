@@ -19,6 +19,11 @@ public class VerletPhysics2D {
     public float[] bounds = new float[4]; // [xmin, ymin, xmax, ymax]
   }
   
+  private int collision_group_id = 0;
+  
+  public int getNewCollisionGroupId(){
+    return collision_group_id++;
+  }
   
   public Param param = new Param();
 

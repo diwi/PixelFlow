@@ -105,9 +105,13 @@ public class OpticalFlow_Basic extends PApplet {
     pg_oflow.endDraw();
     
     // opticalflow visualizations
-    if(mousePressed){
-      opticalflow.renderVelocityShading(pg_oflow);
-    }
+    // 1) velocity is displayed as dense, colored shading
+    if(mousePressed && mouseButton == RIGHT) opticalflow.renderVelocityShading(pg_oflow);
+    
+    // 2) velocity is displayed as vectors
+    //    display_mode = 0 --> lines, along the velocity direction
+    //    display_mode = 1 --> lines, normal to the velocity direction
+    opticalflow.param.display_mode = (mousePressed && mouseButton == CENTER) ? 1 : 0;
     opticalflow.renderVelocityStreams(pg_oflow, 10);
     
     // display result

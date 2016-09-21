@@ -90,7 +90,7 @@ public class SoftBody{
     if(ny < 0) ny = 0; else if(ny > nodes_y-1) ny = nodes_y-1;
     int ia = nodes_offset +  y * nodes_x +  x;
     int ib = nodes_offset + ny * nodes_x + nx;
-    SpringConstraint.addSpringPair(particles, ia, ib, type);
+    SpringConstraint.addSpring(particles, ia, ib, type);
   }
 
 }
