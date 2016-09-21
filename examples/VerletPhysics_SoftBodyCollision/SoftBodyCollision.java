@@ -42,7 +42,7 @@ public class SoftBodyCollision extends PApplet {
     physics.param.GRAVITY = new float[]{ 0, 0.1f };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
     physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 4;
+    physics.param.iterations_springs    = 16;
     
     int idx = 0;
     

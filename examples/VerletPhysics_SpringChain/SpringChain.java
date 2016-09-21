@@ -44,13 +44,12 @@ public class SpringChain extends PApplet {
 
     physics.param.GRAVITY = new float[]{ 0, 1 };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
-    physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 4;
+    physics.param.iterations_collisions = 8;
+    physics.param.iterations_springs    = 8;
     
-    
-    
-    param.DAMP_BOUNDS    = 0.91f;
-    param.DAMP_COLLISION = 0.999999f;
+
+    param.DAMP_BOUNDS    = 0.2491f;
+    param.DAMP_COLLISION = 0.9999999f;
     param.DAMP_VELOCITY  = 0.99f;
     param.DAMP_SPRING_decrease = 0.9999999f;
     param.DAMP_SPRING_increase = 0.9999999f;
@@ -186,8 +185,7 @@ public class SpringChain extends PApplet {
       float restlen = radius*2f;
       float rest_len_sq = restlen*restlen;
       
-      particle_curr.addSpring(new SpringConstraint(particle_prev.idx, rest_len_sq));
-      particle_prev.addSpring(new SpringConstraint(particle_curr.idx, rest_len_sq));
+      SpringConstraint.addSpringPair(particles, particle_prev.idx, particle_curr.idx, rest_len_sq);
     }
   }
   

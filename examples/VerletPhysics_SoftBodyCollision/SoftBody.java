@@ -20,7 +20,7 @@ public class SoftBody{
     this.body_idx = body_idx;
   }
   
-  public VerletParticle2D[] create(VerletParticle2D[] particles, VerletParticle2D.Param param, int nodes_x, int nodes_y, float nodes_radius, int start_x, int start_y){
+  public VerletParticle2D[] create(VerletParticle2D[] particles, VerletParticle2D.Param param, int nodes_x, int nodes_y, float nodes_radius, float start_x, float start_y){
  
     this.nodes_x = nodes_x;
     this.nodes_y = nodes_y;
@@ -56,10 +56,17 @@ public class SoftBody{
         addSpring(particles, x, y, -1,+1, SpringConstraint.TYPE.SHEAR);
         addSpring(particles, x, y, +1,+1, SpringConstraint.TYPE.SHEAR);
         
+        dist_bend = 4;
         addSpring(particles, x, y, -dist_bend,-dist_bend, SpringConstraint.TYPE.BEND);
         addSpring(particles, x, y, +dist_bend,-dist_bend, SpringConstraint.TYPE.BEND);
         addSpring(particles, x, y, -dist_bend,+dist_bend, SpringConstraint.TYPE.BEND);
         addSpring(particles, x, y, +dist_bend,+dist_bend, SpringConstraint.TYPE.BEND);
+        
+//        dist_bend = 8;
+//        addSpring(particles, x, y, -dist_bend,-dist_bend, SpringConstraint.TYPE.BEND);
+//        addSpring(particles, x, y, +dist_bend,-dist_bend, SpringConstraint.TYPE.BEND);
+//        addSpring(particles, x, y, -dist_bend,+dist_bend, SpringConstraint.TYPE.BEND);
+//        addSpring(particles, x, y, +dist_bend,+dist_bend, SpringConstraint.TYPE.BEND);
       }
     }
     
@@ -83,20 +90,7 @@ public class SoftBody{
     if(ny < 0) ny = 0; else if(ny > nodes_y-1) ny = nodes_y-1;
     int ia = nodes_offset +  y * nodes_x +  x;
     int ib = nodes_offset + ny * nodes_x + nx;
-    
-    if(ia != ib){
-      
-      VerletParticle2D pa = particles[ia];
-      VerletParticle2D pb = particles[ib];
-      
-      // compute rest distance (length of spring)
-      float dx = pb.cx - pa.cx;
-      float dy = pb.cy - pa.cy;
-      float dd_rest_sq = dx*dx + dy*dy;
-//      SpringConstraint constraint = new SpringConstraint(ib, SPRING_inc, SPRING_dec, dd_rest_sq, type);
-      SpringConstraint constraint = new SpringConstraint(ib, dd_rest_sq, type);
-      pa.addSpring(constraint);
-    }
+    SpringConstraint.addSpringPair(particles, ia, ib, type);
   }
 
 }

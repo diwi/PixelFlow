@@ -118,21 +118,9 @@ public class SoftCircle{
   
   
   public void addSpring(VerletParticle2D[] particles, int ia, int ib, SpringConstraint.TYPE type){
-    if(ia != ib){
-      ia += nodes_offset;
-      ib += nodes_offset;
-      
-      VerletParticle2D pa = particles[ia];
-      VerletParticle2D pb = particles[ib];
-      
-      // compute rest distance (length of spring)
-      float dx = pb.cx - pa.cx;
-      float dy = pb.cy - pa.cy;
-      float dd_rest_sq = dx*dx + dy*dy;
-//      SpringConstraint constraint = new SpringConstraint(ib, SPRING_inc, SPRING_dec, dd_rest_sq, type);
-      SpringConstraint constraint = new SpringConstraint(ib, dd_rest_sq, type);
-      pa.addSpring(constraint);
-    }
+    ia += nodes_offset;
+    ib += nodes_offset;
+    SpringConstraint.addSpringPair(particles, ia, ib, type);
   }
 
 }
