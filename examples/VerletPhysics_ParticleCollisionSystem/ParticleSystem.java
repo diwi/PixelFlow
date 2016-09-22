@@ -9,7 +9,7 @@
 
 package VerletPhysics_ParticleCollisionSystem;
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -29,6 +29,7 @@ public class ParticleSystem {
     @Override
     public void updateShapeColor(){
       setColor(0xFF020100);
+//      super.updateShapeColor();
     }
     
   }

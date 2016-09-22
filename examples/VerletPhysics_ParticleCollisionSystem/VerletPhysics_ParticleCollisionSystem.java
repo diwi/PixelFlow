@@ -11,8 +11,9 @@
 package VerletPhysics_ParticleCollisionSystem;
 
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -51,8 +52,8 @@ public class VerletPhysics_ParticleCollisionSystem extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-//    PixelFlow context = new PixelFlow(this);
-//    context.print();
+    PixelFlow context = new PixelFlow(this);
+    context.print();
 //    context.printGL();
     
     // particle system object

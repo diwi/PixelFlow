@@ -7,7 +7,7 @@
  * 
  */
 
-package com.thomasdiewald.pixelflow.java.verletPhysics2D;
+package com.thomasdiewald.pixelflow.java.verletphysics;
 
 
 import java.util.Arrays;
@@ -27,30 +27,40 @@ public class VerletParticle2D implements CollisionObject{
     public float DAMP_BOUNDS    = 1;
     public float DAMP_COLLISION = 1;
     public float DAMP_VELOCITY  = 1;
-    public float DAMP_SPRING_increase = 0.99999f;
-    public float DAMP_SPRING_decrease = 0.99999f;
+    
+    // resistance to compression -> strut 
+    // 0.0 ... very squishy
+    // 1.0 ... very springy
+    public float DAMP_SPRING_increase = 0.99999f; 
+    
+    // resistance to expansion -> tie  
+    // 0.0 ... very loose
+    // 1.0 ... very tense
+    public float DAMP_SPRING_decrease = 0.99999f; 
   }
   
   Param param = new Param();
 
+  
   // index (must be unique)
   // must match the position of the array, for indexing
   public int idx;
   
+  
   // pinned to a position
   public boolean enable_collisions = true;
-  public boolean enable_springs = true;
-  public boolean enable_forces  = true;
+  public boolean enable_springs    = true;
+  public boolean enable_forces     = true;
   
 
-  
-  // verlet integration
+    // physics: verlet integration
   public float cx = 0, cy = 0; // current position
   public float px = 0, py = 0; // previous position
   public float ax = 0, ay = 0; // acceleration
   public float rad  = 0;       // radius
   public float mass = 1f;      // mass
 
+  
   // Spring Constraints
   public int spring_count = 0;
   public SpringConstraint[] springs = null;
@@ -121,17 +131,13 @@ public class VerletParticle2D implements CollisionObject{
   protected void addSpring(SpringConstraint spring){
 
     // make sure we don't have multiple springs to the same vertex.
-    //  int pos = 0;
-    //  while(pos < spring_count && springs[pos].idx <= spring.idx){
-    //    if(springs[pos++].idx == spring.idx) return;
-    //  }
-    
     int pos = 0;
-    while(pos < spring_count && springs[pos].idx <= spring.idx) pos++;
+    while(pos < spring_count && springs[pos].pb.idx <= spring.pb.idx) pos++;
     
-    if(pos > 0 && springs[pos-1].idx == spring.idx) return;
+    // already in the list, so return
+    if(pos > 0 && springs[pos-1].pb == spring.pb) return;
     
-    
+    // realloc if necessary
     if(springs == null || spring_count >= springs.length){
       int new_len = (int) Math.max(2, Math.ceil(spring_count*1.5f) );
       if( springs == null){
@@ -141,52 +147,31 @@ public class VerletParticle2D implements CollisionObject{
       }
     }
     
-
-//    for(int i = spring_count; i > pos; i--) springs[i] = springs[i-1];
+    // shift data to the right, by one
     System.arraycopy(springs, pos, springs, pos+1, spring_count-pos);
     springs[pos] = spring;
-    
     spring_count++;
 
     // check correct sorting
 //    for(int i = 1; i < spring_count; i++){
-//      if( springs[i].idx <  springs[i-1].idx)System.out.println("ERROR");
+//      if( springs[i].pb.idx <  springs[i-1].pb.idx) System.out.println("ERROR");
 //    }
   }
   
-  
-  protected SpringConstraint removeSpring(int idx){
+  protected SpringConstraint removeSpring(VerletParticle2D pb){
     SpringConstraint removed = null;
     int pos = 0;
     for(pos = 0; pos < spring_count; pos++){
-      if(springs[pos].idx == idx){
+      if(springs[pos].pb == pb){
         removed = springs[pos];
         break;
       }
     }
-
     if(removed != null){
       System.arraycopy(springs, pos+1, springs, pos, spring_count-(pos+1));
       spring_count--;
     }
-    
-//    int pos = 0;
-//    
-//    boolean found = false;
-//    for(pos = 0; pos < spring_count; pos++){
-//      if(!found){
-//        if(springs[pos].idx == idx) found = true;
-//      } else {
-//        springs[pos-1] = springs[pos]; 
-//      }
-//    }
-//    
-//    if(found){
-//      spring_count--;
-//    }
-    
     return removed;
-    
   }
   
   
@@ -256,24 +241,26 @@ public class VerletParticle2D implements CollisionObject{
     for(int i = 0; i < spring_count; i++){
       SpringConstraint spring = springs[i];
       
-      if(!spring.parent) continue;
+      if(!spring.is_the_good_one) continue;
       
-      VerletParticle2D pb = particles[spring.idx];
+      VerletParticle2D pb = spring.pb;
       
       float dx = pb.cx - pa.cx;
       float dy = pb.cy - pa.cy;
       float dd_curr_sq = dx*dx + dy*dy;
       float dd_rest_sq = spring.dd_rest_sq;
-      float pa_mass_factor = 2f * pb.mass / (pa.mass + pb.mass);
-      float pb_mass_factor = 2f - pa_mass_factor;
-      
       float force = (dd_rest_sq / (dd_curr_sq + dd_rest_sq) - 0.5f);
+      
+      spring.force = force;
       
 //      float dd_rest    = (float) Math.sqrt(dd_rest_sq);
 //      float dd_curr    = (float) Math.sqrt(dd_curr_sq);
 //      float force      = (0.5f * (dd_rest - dd_curr) / (dd_curr + 0.00001f));
  
-      force *= (dd_curr_sq < dd_rest_sq) ? param.DAMP_SPRING_increase : param.DAMP_SPRING_decrease;
+      force *= (dd_curr_sq < dd_rest_sq) ? param.DAMP_SPRING_increase : param.DAMP_SPRING_decrease; 
+      
+      float pa_mass_factor = 2f * pb.mass / (pa.mass + pb.mass);
+      float pb_mass_factor = 2f - pa_mass_factor;
 
       // 1) CPU-Version: converges much faster (on the CPU, of course)
       if(pa.enable_springs){
@@ -580,12 +567,12 @@ public class VerletParticle2D implements CollisionObject{
     float vel  = getVelocity();
     float radn = 1.1f * rad / MAX_RAD;
 
-    getShading(vel * 0.5f, rgb);
+    getShading(vel * 0.05f, rgb);
     int a = 255;
     int r = clamp(rgb[0] * radn) & 0xFF;
     int g = clamp(rgb[1] * radn) & 0xFF;
     int b = clamp(rgb[2] * radn) & 0xFF;
-
+    
     int col = a << 24 | r << 16 | g << 8 | b;
     setColor(col);
   }

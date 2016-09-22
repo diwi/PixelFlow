@@ -3,9 +3,10 @@ package VerletPhysics_SoftBodyCollision;
 
 
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
 import processing.core.*;
 
@@ -36,6 +37,10 @@ public class SoftBodyCollision extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
+    // main library context
+    PixelFlow context = new PixelFlow(this);
+    context.print();
+//    context.printGL();
     
     physics = new VerletPhysics2D();
 
@@ -109,7 +114,7 @@ public class SoftBodyCollision extends PApplet {
       VerletParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
         SpringConstraint spring = pa.springs[j];
-        VerletParticle2D pb = particles[spring.idx];
+        VerletParticle2D pb = spring.pb;
   
         switch(spring.type){
           case STRUCT:

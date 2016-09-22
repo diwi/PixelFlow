@@ -17,8 +17,8 @@ package OpticalFlow_CaptureVerletParticles;
 import com.thomasdiewald.pixelflow.java.OpticalFlow;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.filter.Filter;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
 import controlP5.Accordion;
 

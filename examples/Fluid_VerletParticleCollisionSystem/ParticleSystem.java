@@ -9,7 +9,7 @@
 
 package Fluid_VerletParticleCollisionSystem;
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 
 import processing.core.PApplet;
 import processing.core.PConstants;

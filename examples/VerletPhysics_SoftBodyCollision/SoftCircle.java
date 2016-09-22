@@ -2,8 +2,8 @@ package VerletPhysics_SoftBodyCollision;
 
 import java.util.Arrays;
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 
 public class SoftCircle{
   int body_idx;
@@ -120,7 +120,7 @@ public class SoftCircle{
   public void addSpring(VerletParticle2D[] particles, int ia, int ib, SpringConstraint.TYPE type){
     ia += nodes_offset;
     ib += nodes_offset;
-    SpringConstraint.addSpring(particles, ia, ib, type);
+    SpringConstraint.addSpring(particles[ia], particles[ib], type);
   }
 
 }

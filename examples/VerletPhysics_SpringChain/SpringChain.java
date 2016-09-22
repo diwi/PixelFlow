@@ -3,9 +3,10 @@ package VerletPhysics_SpringChain;
 
 import java.util.Arrays;
 
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.VerletPhysics2D;
-import com.thomasdiewald.pixelflow.java.verletPhysics2D.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
 import processing.core.*;
 
@@ -39,6 +40,10 @@ public class SpringChain extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
+    // main library context
+    PixelFlow context = new PixelFlow(this);
+    context.print();
+//    context.printGL();
     
     physics = new VerletPhysics2D();
 
@@ -96,7 +101,7 @@ public class SpringChain extends PApplet {
       
       for(int j = 0; j < pa.spring_count; j++){
         SpringConstraint spring = pa.springs[j];
-        VerletParticle2D pb = particles[spring.idx];
+        VerletParticle2D pb = spring.pb;
   
         switch(spring.type){
           case STRUCT:
@@ -193,7 +198,7 @@ public class SpringChain extends PApplet {
       
       particle_curr.px = particle_prev.cx;
       particle_curr.py = particle_prev.cy;
-      SpringConstraint.addSpring(particles, particle_prev.idx, particle_curr.idx, rest_len_sq);
+      SpringConstraint.addSpring(particle_prev, particle_curr, rest_len_sq);
     }
   }
   

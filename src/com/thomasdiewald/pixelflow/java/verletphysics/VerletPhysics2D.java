@@ -6,7 +6,7 @@
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-package com.thomasdiewald.pixelflow.java.verletPhysics2D;
+package com.thomasdiewald.pixelflow.java.verletphysics;
 
 import java.util.Arrays;
 
@@ -21,7 +21,8 @@ public class VerletPhysics2D {
     public float[] bounds = new float[4]; // [xmin, ymin, xmax, ymax]
   }
   
-  private int collision_group_id = 0;
+  // 0 ... no collision (or not?)
+  private int collision_group_id = 1;
   
   public int getNewCollisionGroupId(){
     return collision_group_id++;
