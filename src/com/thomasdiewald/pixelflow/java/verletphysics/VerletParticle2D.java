@@ -58,6 +58,7 @@ public class VerletParticle2D implements CollisionObject{
   public float px = 0, py = 0; // previous position
   public float ax = 0, ay = 0; // acceleration
   public float rad  = 0;       // radius
+  public float rad_collision  = 0;  // radius
   public float mass = 1f;      // mass
 
   
@@ -93,6 +94,10 @@ public class VerletParticle2D implements CollisionObject{
   
   public void setRadius(float rad_){
     rad = Math.max(rad_, 0.1f);
+    rad_collision = rad;
+  }
+  public void setRadiusCollision(float rad_collision_){
+    rad_collision = Math.max(rad_collision_, 0.1f);
   }
   
   public void setMass(float mass){
@@ -353,7 +358,7 @@ public class VerletParticle2D implements CollisionObject{
     float dx        = othr.cx - this.cx;
     float dy        = othr.cy - this.cy;
     float dd_cur_sq = dx*dx + dy*dy; // squared distance!
-    float dd_min    = othr.rad + this.rad;
+    float dd_min    = othr.rad_collision + this.rad_collision;
     float dd_min_sq = dd_min*dd_min;
     
     if (dd_cur_sq < dd_min_sq) { 
@@ -480,10 +485,14 @@ public class VerletParticle2D implements CollisionObject{
   @Override
   public float rad() {
     return rad;
+
   }
   
-  
-  
+  @Override
+  public float radCollision() {
+    return rad_collision;
+  }
+
   
   
   

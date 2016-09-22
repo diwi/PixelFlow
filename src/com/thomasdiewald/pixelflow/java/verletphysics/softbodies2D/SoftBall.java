@@ -1,10 +1,13 @@
-package VerletPhysics_Dev;
+package com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D;
+
+import java.util.Random;
 
 import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBody2D;
 
-public class SoftBall extends SoftBody{
+public class SoftBall extends SoftBody2D{
   
   // specific attributes for this body
   float circle_x;
@@ -13,6 +16,9 @@ public class SoftBall extends SoftBody{
   float nodes_r;
   
   public int bend_spring_mode = 0;
+  
+  Random rand;
+  
   
   public SoftBall(){
   }
@@ -31,6 +37,7 @@ public class SoftBall extends SoftBody{
     num_vtx += (num_vtx*0.5f)*2;
     
     // set fields
+    this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
     this.circle_x           = circle_x;
@@ -56,6 +63,7 @@ public class SoftBall extends SoftBody{
       particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
       particles[idx].collision_group = collision_group_id;
       particles[idx].setParamByRef(param);
+      particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
     }
     
  
@@ -67,14 +75,14 @@ public class SoftBall extends SoftBody{
         addSprings(i, 4, SpringConstraint.TYPE.BEND);
       }
       if(bend_spring_mode == 1){
-        addSprings(i, num_nodes / 2, SpringConstraint.TYPE.BEND);
+        addSprings(i, num_nodes/2, SpringConstraint.TYPE.BEND);
       }
       if(bend_spring_mode == 2){
-        addSprings(i, num_nodes / 3, SpringConstraint.TYPE.BEND);
+        addSprings(i, num_nodes/3, SpringConstraint.TYPE.BEND);
       }
       // random, 'kind of' anisotropic
       if(bend_spring_mode == 3){
-        addSprings(i, (int)(1 + Math.random() * (num_nodes-1)) , SpringConstraint.TYPE.BEND);
+        addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), SpringConstraint.TYPE.BEND);
       }
     }
     

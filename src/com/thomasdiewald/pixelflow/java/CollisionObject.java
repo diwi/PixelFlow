@@ -20,4 +20,5 @@ public interface CollisionObject {
   public float x();
   public float y();
   public float rad();
+  public float radCollision();
 }

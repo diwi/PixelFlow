@@ -22,30 +22,17 @@ public class VerletPhysics2D {
   }
   
   // 0 ... no collision (or not?)
-  private int collision_group_id = 1;
-  
-  public int getNewCollisionGroupId(){
-    return collision_group_id++;
-  }
-  
+  private int collision_group_id = 1; 
   public Param param = new Param();
 
-  CollisionGridAccelerator collision_grid = new CollisionGridAccelerator();
+  private CollisionGridAccelerator collision_grid = new CollisionGridAccelerator();
+  private int particles_count;
+  private VerletParticle2D[] particles;
+  
   
   public VerletPhysics2D(){
+    reset();
   }
-  
-  
-  
- 
-  
-  
-  
-  //////////////////////////////////////////////////////////////////////////////
-  // the particles, used for simulating
-  //////////////////////////////////////////////////////////////////////////////
-  private int particles_count;
-  private VerletParticle2D[] particles = new VerletParticle2D[0];
   
   public VerletParticle2D[] getParticles(){
     return particles;
@@ -53,7 +40,7 @@ public class VerletPhysics2D {
   public int getParticlesCount(){
     return particles_count;
   }
-  
+   
   public boolean CHECK_PARTICLE_INDEX_WHEN_ADDING = !false;
   
   public void addParticles(VerletParticle2D[] particles_add, int particles_add_count){
@@ -70,8 +57,19 @@ public class VerletPhysics2D {
     }
   }
   
+  
+  public void reset(){
+    collision_group_id = 1; 
+    particles_count = 0;
+    particles = new VerletParticle2D[particles_count];
+  }
+  
   public void update(float timestep){
     update(particles, particles_count, timestep);
+  }
+  
+  public int getNewCollisionGroupId(){
+    return collision_group_id++;
   }
   
 

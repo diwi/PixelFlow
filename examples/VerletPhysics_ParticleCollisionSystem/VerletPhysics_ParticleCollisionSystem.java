@@ -87,7 +87,7 @@ public class VerletPhysics_ParticleCollisionSystem extends PApplet {
   public void draw() {    
 
     //  add force: Middle Mouse Button (MMB) -> particle[0]
-    if(mousePressed && mouseButton == CENTER){
+    if(mousePressed){
       VerletParticle2D particle = particlesystem.particles[0];
       float dx = mouseX - particle.cx;
       float dy = mouseY - particle.cy;

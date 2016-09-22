@@ -1,24 +1,29 @@
-package VerletPhysics_Dev;
+package com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D;
+
+import java.util.Random;
 
 import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
-public class SoftGrid extends SoftBody{
+public class SoftGrid extends SoftBody2D{
   
   // specific attributes for this body
-  int   nodes_x;
-  int   nodes_y;
-  float nodes_r;
+  public int   nodes_x;
+  public int   nodes_y;
+  public float nodes_r;
   
   public int bend_spring_mode = 0;
   public int bend_spring_dist = 3; // try other values, it affects the objects stiffness
+  
+  Random rand;
   
   public SoftGrid(){
   }
   
   public void create(VerletPhysics2D physics, VerletParticle2D.Param param, int nx, int ny, float nr, float start_x, float start_y){
  
+    this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
     this.nodes_x            = nx;
@@ -44,6 +49,7 @@ public class SoftGrid extends SoftBody{
         particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
         particles[idx].collision_group = collision_group_id;
         particles[idx].setParamByRef(param);
+        particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
       }
     }
     
@@ -69,7 +75,7 @@ public class SoftGrid extends SoftBody{
           addSpring(x, y, +1,+1, SpringConstraint.TYPE.SHEAR);
         }
         
-        if(CREATE_BEND_SPRINGS){
+        if(CREATE_BEND_SPRINGS && bend_spring_dist > 0){
           // diagonal
           if(bend_spring_mode == 0){
             addSpring(x, y, -ox, -oy, SpringConstraint.TYPE.BEND);
@@ -89,8 +95,8 @@ public class SoftGrid extends SoftBody{
           // random, 'kind of' anisotropic
           if(bend_spring_mode == 2){
             for(int i = 0; i < 4; i++){
-              ox = (int) ((Math.random()*2-1)*6);
-              oy = (int) ((Math.random()*2-1)*4);
+              ox = (int) Math.round((rand.nextFloat()*2-1) * bend_spring_dist);
+              oy = (int) Math.round((rand.nextFloat()*2-1) * bend_spring_dist);
               addSpring(x, y, ox, oy, SpringConstraint.TYPE.BEND);
             }
           }

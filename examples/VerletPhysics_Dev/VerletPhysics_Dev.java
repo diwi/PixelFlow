@@ -9,6 +9,9 @@ import com.thomasdiewald.pixelflow.java.PixelFlow;
 import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBall;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBody2D;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftGrid;
 
 import processing.core.*;
 
@@ -23,27 +26,42 @@ public class VerletPhysics_Dev extends PApplet {
   int gui_x = 20;
   int gui_y = 20;
   
-  ArrayList<SoftBody> softbodies = new ArrayList<SoftBody>();
-
+  // physics simulation
   VerletPhysics2D physics;
-
+  
+  // list, that wills store the cloths
+  ArrayList<SoftBody2D> softbodies;
+  
+  
+  // particle behavior, different presets for different bodies
   VerletParticle2D.Param param_cloth    = new VerletParticle2D.Param();
   VerletParticle2D.Param param_softbody = new VerletParticle2D.Param();
   VerletParticle2D.Param param_chain    = new VerletParticle2D.Param();
   VerletParticle2D.Param param_circle   = new VerletParticle2D.Param();
+
+  // 0 ... default: particles, spring
+  // 1 ... tension
+  int DISPLAY_MODE = 0;
+  
+  // entities to display
+  boolean DISPLAY_PARTICLES      = true;
+  boolean DISPLAY_SPRINGS_STRUCT = true;
+  boolean DISPLAY_SPRINGS_SHEAR  = true;
+  boolean DISPLAY_SPRINGS_BEND   = true;
+  
+  // just for the window title-info
+  int NUM_SPRINGS;
+  int NUM_PARTICLES;
+  
+  // first thing to do, inside draw()
+  boolean NEED_REBUILD = true;
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
     smooth(8);
   }
   
-  
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
-  
-  int DISPLAY_MODE = 0;
+
 
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -52,8 +70,7 @@ public class VerletPhysics_Dev extends PApplet {
     PixelFlow context = new PixelFlow(this);
     context.print();
 //    context.printGL();
-
-
+    
     physics = new VerletPhysics2D();
 
     physics.param.GRAVITY = new float[]{ 0, 0.1f };
@@ -61,14 +78,13 @@ public class VerletPhysics_Dev extends PApplet {
     physics.param.iterations_collisions = 4;
     physics.param.iterations_springs    = 4;
     
-   
     // Cloth Parameters
     // Spring contraction is almost 100%, while expansion is very low
     param_cloth.DAMP_BOUNDS          = 0.90f;
     param_cloth.DAMP_COLLISION       = 0.90f;
     param_cloth.DAMP_VELOCITY        = 0.991f; 
-    param_cloth.DAMP_SPRING_decrease = 0.999999f;      // contraction (... to restlength)
-    param_cloth.DAMP_SPRING_increase = 0.00000999999f; // expansion   (... to restlength)
+    param_cloth.DAMP_SPRING_decrease = 0.999999f;     // contraction (... to restlength)
+    param_cloth.DAMP_SPRING_increase = 0.0005999999f; // expansion   (... to restlength)
 
     // grid, almost rigid
     param_softbody.DAMP_BOUNDS          = 0.90f;
@@ -92,14 +108,22 @@ public class VerletPhysics_Dev extends PApplet {
     param_circle.DAMP_SPRING_increase = 0.9999999f;
  
 
+    frameRate(600);
+  }
+  
+  
+  
+  public void initBodies(){
+    
+    physics.reset();
+    
+    softbodies = new ArrayList<SoftBody2D>();
+    
     
     // create some particle-bodies: Cloth / SoftBody
-
     int nodex_x, nodes_y, nodes_r;
     float nodes_start_x, nodes_start_y;
-    
-    
-    
+
     // cloth
     {
       nodex_x = 40;
@@ -108,6 +132,9 @@ public class VerletPhysics_Dev extends PApplet {
       nodes_start_x = 50;
       nodes_start_y = 70;
       SoftGrid body = new SoftGrid();
+      body.CREATE_SHEAR_SPRINGS = true;
+      body.CREATE_BEND_SPRINGS  = true;
+      body.bend_spring_mode     = 2;
       body.create(physics, param_cloth, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(             0, 0).enable(false, false, false); // fix node to current location
       body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
@@ -123,6 +150,9 @@ public class VerletPhysics_Dev extends PApplet {
       nodes_start_x = width/2;
       nodes_start_y = height/2;
       SoftGrid body = new SoftGrid();
+      body.CREATE_SHEAR_SPRINGS = true;
+      body.CREATE_BEND_SPRINGS  = true;
+      body.bend_spring_mode     = 2;
       body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.createShape(this, color(0,128));
       softbodies.add(body);
@@ -136,6 +166,9 @@ public class VerletPhysics_Dev extends PApplet {
       nodes_start_x = 500;
       nodes_start_y = 300;
       SoftGrid body = new SoftGrid();
+      body.CREATE_SHEAR_SPRINGS = true;
+      body.CREATE_BEND_SPRINGS  = true;
+      body.bend_spring_mode     = 0;
       body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.createShape(this, color(0,180,255,160));
@@ -150,6 +183,9 @@ public class VerletPhysics_Dev extends PApplet {
       nodes_start_x = 500;
       nodes_start_y = 100;
       SoftGrid body = new SoftGrid();
+      body.CREATE_SHEAR_SPRINGS = true;
+      body.CREATE_BEND_SPRINGS  = true;
+      body.bend_spring_mode     = 0;
       body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
@@ -160,7 +196,7 @@ public class VerletPhysics_Dev extends PApplet {
 
     // chain
     {
-      nodex_x = 50;
+      nodex_x = 70;
       nodes_y = 1;
       nodes_r = 10;
       nodes_start_x = 500;
@@ -171,6 +207,7 @@ public class VerletPhysics_Dev extends PApplet {
       body.create(physics, param_chain, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.createShape(this, color(0,128));
+      body.getNode(35, 0).enable(false, false, false);
       softbodies.add(body);
     }
     
@@ -202,17 +239,17 @@ public class VerletPhysics_Dev extends PApplet {
     
     NUM_SPRINGS   = SpringConstraint.getSpringCount(physics.getParticles(), true);
     NUM_PARTICLES = physics.getParticlesCount();
-    
-    frameRate(600);
   }
-  
 
 
   
   public void draw() {
 
-    background(DISPLAY_MODE == 0 ? 255 : 92);
-    
+
+    if(NEED_REBUILD){
+      initBodies();
+      NEED_REBUILD = false;
+    }
     
     // Mouse Interaction: particles position
     if(!DELETE_SPRINGS && particle_mouse != null){
@@ -229,45 +266,46 @@ public class VerletPhysics_Dev extends PApplet {
     
     // Mouse Interaction: deleting springs/constraints between particles
     if(DELETE_SPRINGS && mousePressed){
-      float radius = 10;
-      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, radius);
+      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
       for(VerletParticle2D tmp : list){
         SpringConstraint.deleteSprings(tmp);
         tmp.collision_group = physics.getNewCollisionGroupId();
+        tmp.rad_collision = tmp.rad;
       }
-      
-      fill(255,0,0,64);
-      stroke(0);
-      strokeWeight(1);
-      ellipse(mouseX, mouseY, radius*2, radius*2);
     }
 
+    
     
     // update physics simulation
     physics.update(1);
-
-
-    // render
     
-    if(DISPLAY_MODE == 0){
-      // particles
-      for(SoftBody body : softbodies){
+    
+    // render
+    background(DISPLAY_MODE == 0 ?  255 : 92);
+    
+    // 1) particles
+    if(DISPLAY_PARTICLES){
+      for(SoftBody2D body : softbodies){
+        body.use_particles_color = (DISPLAY_MODE == 0);
         body.drawParticles(this.g);
       }
-      
-      // spring types
-      for(SoftBody body : softbodies){
-        body.drawSprings(this.g, SpringConstraint.TYPE.BEND  );
-        body.drawSprings(this.g, SpringConstraint.TYPE.SHEAR );
-        body.drawSprings(this.g, SpringConstraint.TYPE.STRUCT);
-      }
-    } 
-    if(DISPLAY_MODE == 1){
-      // spring tension
-      for(SoftBody body : softbodies){
-        body.drawTension(this.g);
-      }
     }
+    
+    // 2) springs
+    for(SoftBody2D body : softbodies){
+      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint.TYPE.BEND  , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+    }
+
+    // interaction stuff
+    if(DELETE_SPRINGS){
+      fill(255,64);
+      stroke(0);
+      strokeWeight(1);
+      ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
+    }
+
     
     // stats, to the title window
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
@@ -328,6 +366,7 @@ public class VerletPhysics_Dev extends PApplet {
     
 
   boolean DELETE_SPRINGS = false;
+  float   DELETE_RADIUS = 10;
   
   boolean state_enable_collisions;
   boolean state_enable_springs;
@@ -335,14 +374,16 @@ public class VerletPhysics_Dev extends PApplet {
 
   public void mousePressed(){
     if(!DELETE_SPRINGS){
-      particle_mouse = findNearestParticle(mouseX, mouseY);
-      // push states
-      state_enable_collisions = particle_mouse.enable_collisions;
-      state_enable_springs    = particle_mouse.enable_springs   ;
-      state_enable_forces     = particle_mouse.enable_forces    ;  
-      if(mouseButton == LEFT  ) particle_mouse.enable(false, false, false);
-      if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
-      if(mouseButton == RIGHT ) particle_mouse.enable(false, false, false);
+      particle_mouse = findNearestParticle(mouseX, mouseY, 100);
+        if(particle_mouse != null){
+        // push states
+        state_enable_collisions = particle_mouse.enable_collisions;
+        state_enable_springs    = particle_mouse.enable_springs   ;
+        state_enable_forces     = particle_mouse.enable_forces    ;  
+        if(mouseButton == LEFT  ) particle_mouse.enable(false, false, false);
+        if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
+        if(mouseButton == RIGHT ) particle_mouse.enable(false, false, false);
+      }
     }
   }
   
@@ -363,6 +404,13 @@ public class VerletPhysics_Dev extends PApplet {
     if(key ==' ') DELETE_SPRINGS = false;
     
     if(key =='s') SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles());
+    if(key =='r') initBodies();
+    if(key =='1') DISPLAY_MODE = 0;
+    if(key =='2') DISPLAY_MODE = 1;
+
+    if(key =='p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    
+
   }
   
   

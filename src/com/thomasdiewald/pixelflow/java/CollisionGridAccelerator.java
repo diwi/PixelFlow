@@ -63,7 +63,7 @@ public class CollisionGridAccelerator{
 
     for(int i = 0; i < num_particles; i++){
       CollisionObject particle = particles[i];
-      float pr = particle.rad();
+      float pr = particle.radCollision();
       float px = particle.x();
       float py = particle.y();
       
@@ -105,7 +105,7 @@ public class CollisionGridAccelerator{
     for(int i = 0; i < num_particles; i++){
       CollisionObject particle = particles[i];
 
-      float pr = particle.rad();
+      float pr = particle.radCollision();
       float px = particle.x();
       float py = particle.y();
       
@@ -152,7 +152,7 @@ public class CollisionGridAccelerator{
     for(int i = 0; i < num_particles; i++){
       float x = particles[i].x();
       float y = particles[i].y();
-      float r = particles[i].rad();
+      float r = particles[i].radCollision();
       r_sum += r;
       
       if(x-r < x_min) x_min = x-r;
