@@ -22,7 +22,7 @@ and more ...
 
 ## Getting Started
 
-![result](https://github.com/diwi/PixelFlow/blob/master/examples/GetStarted/out/GetStarted.jpg)
+![result](https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg)
 
 ```java
 import com.thomasdiewald.pixelflow.java.Fluid;
