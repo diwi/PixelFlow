@@ -1,4 +1,4 @@
-package VerletPhysics_Softbodies;
+package VerletPhysics_SoftBodyComplex;
 
 
 
@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftGrid;
 
 import processing.core.*;
 
-public class VerletPhysics_Softbodies extends PApplet {
+public class VerletPhysics_SoftBodyComplex extends PApplet {
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -31,19 +31,10 @@ public class VerletPhysics_Softbodies extends PApplet {
   
   // list, that wills store the cloths
   ArrayList<SoftBody2D> softbodies;
-  
-  // particle parameters: same behavior for all
-  VerletParticle2D.Param param_particle = new VerletParticle2D.Param();
-  
-  // spring parameters: different spring behavior for different bodies
-  SpringConstraint.Param param_spring_cloth    = new SpringConstraint.Param();
-  SpringConstraint.Param param_spring_softbody = new SpringConstraint.Param();
-  SpringConstraint.Param param_spring_chain    = new SpringConstraint.Param();
-  SpringConstraint.Param param_spring_circle   = new SpringConstraint.Param();
 
   // 0 ... default: particles, spring
   // 1 ... tension
-  int DISPLAY_MODE = 0;
+  int DISPLAY_MODE = 1;
   
   // entities to display
   boolean DISPLAY_PARTICLES      = true;
@@ -79,7 +70,27 @@ public class VerletPhysics_Softbodies extends PApplet {
     physics.param.GRAVITY = new float[]{ 0, 0.2f };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
     physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 4;
+    physics.param.iterations_springs    = 8;
+    
+    frameRate(60);
+  }
+  
+
+  public void initBodies(){
+   
+    physics.reset();
+    
+    softbodies = new ArrayList<SoftBody2D>();
+    
+  
+    // particle parameters: same behavior for all
+    VerletParticle2D.Param param_particle = new VerletParticle2D.Param();
+    
+    // spring parameters: different spring behavior for different bodies
+    SpringConstraint.Param param_spring_cloth    = new SpringConstraint.Param();
+    SpringConstraint.Param param_spring_softbody = new SpringConstraint.Param();
+    SpringConstraint.Param param_spring_chain    = new SpringConstraint.Param();
+    SpringConstraint.Param param_spring_circle   = new SpringConstraint.Param();
     
     // particle parameters
     param_particle.DAMP_BOUNDS     = 0.40f;
@@ -93,99 +104,35 @@ public class VerletPhysics_Softbodies extends PApplet {
     param_spring_softbody.damp_dec = 0.999999f;
     param_spring_softbody.damp_inc = 0.999999f;
     
-    param_spring_chain   .damp_dec = 0.599999f;
-    param_spring_chain   .damp_inc = 0.599999f;
+    param_spring_chain   .damp_dec = 0.699999f;
+    param_spring_chain   .damp_inc = 0.00099999f;
     
     param_spring_circle  .damp_dec = 0.999999f;
     param_spring_circle  .damp_inc = 0.999999f;
-
-    frameRate(60);
-  }
-  
-  
-  
-  public void initBodies(){
     
-    physics.reset();
-    
-    softbodies = new ArrayList<SoftBody2D>();
     
     
     // create some particle-bodies: Cloth / SoftBody
     int nodex_x, nodes_y, nodes_r;
     float nodes_start_x, nodes_start_y;
 
-    // cloth
-    {
-      nodex_x = 30;
-      nodes_y = 30;
-      nodes_r = 7;
-      nodes_start_x = 50;
-      nodes_start_y = 70;
-      SoftGrid body = new SoftGrid();
-      body.CREATE_SHEAR_SPRINGS = true;
-      body.CREATE_BEND_SPRINGS  = true;
-      body.bend_spring_mode     = 2;
-      body.setParam(param_particle);
-      body.setParam(param_spring_cloth);
-      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.getNode(             0, 0).enable(false, false, false); // fix node to current location
-      body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      body.setParticleColor(color(255,180,0,160));
-      body.createParticlesShape(this);
-      softbodies.add(body);
-    }
-    
-    // grid
-    {
-      nodex_x = 10;
-      nodes_y = 20;
-      nodes_r = 7;
-      nodes_start_x = width/2;
-      nodes_start_y = height/2;
-      SoftGrid body = new SoftGrid();
-      body.CREATE_SHEAR_SPRINGS = true;
-      body.CREATE_BEND_SPRINGS  = true;
-      body.bend_spring_mode     = 2;
-      body.setParam(param_particle);
-      body.setParam(param_spring_softbody);
-      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.setParticleColor(color(0,128));
-      body.createParticlesShape(this);
-      softbodies.add(body);
-    }
-    
-    // grid
-    {
-      nodex_x = 7;
-      nodes_y = 22;
-      nodes_r = 7;
-      nodes_start_x = 500;
-      nodes_start_y = 300;
-      SoftGrid body = new SoftGrid();
-      body.CREATE_SHEAR_SPRINGS = true;
-      body.CREATE_BEND_SPRINGS  = true;
-      body.bend_spring_mode     = 0;
-      body.setParam(param_particle);
-      body.setParam(param_spring_softbody);
-      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.getNode(0, 0).enable(false, false, false); // fix node to current location
-      body.setParticleColor(color(0,180,255,160));
-      body.createParticlesShape(this);
-      softbodies.add(body);
-    }
+    SoftGrid lattice_girder = new SoftGrid();
+    SoftGrid chain          = new SoftGrid();
+    SoftBall circle         = new SoftBall();
+    SoftGrid box            = new SoftGrid();
     
     // lattice girder
     {
       nodex_x = 15;
       nodes_y = 2;
       nodes_r = 20;
-      nodes_start_x = 500;
+      nodes_start_x = 200;
       nodes_start_y = 100;
-      SoftGrid body = new SoftGrid();
+      SoftGrid body = lattice_girder;
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
+      body.bend_spring_dist     = nodex_x;
       body.setParam(param_particle);
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
@@ -198,55 +145,80 @@ public class VerletPhysics_Softbodies extends PApplet {
     
 
     // chain
-    {
-      nodex_x = 70;
-      nodes_y = 1;
+    { 
+      nodes_start_x = nodes_start_x + (nodex_x-1)*nodes_r*2;
+      nodes_start_y = nodes_start_y + (nodes_y-1)*nodes_r*2 +  50;
+      nodex_x = 1;
+      nodes_y = 10;
       nodes_r = 10;
-      nodes_start_x = 500;
-      nodes_start_y = 200;
-      SoftGrid body = new SoftGrid();
-      body.CREATE_BEND_SPRINGS  = false;
-      body.CREATE_SHEAR_SPRINGS = false;
-      body.self_collisions      = true; // particles of this body can collide among themselves
-      body.collision_radius_scale = 1.00f; // funny, if bigger than 1 and self_collisions = true
+      SoftGrid body = chain;
+      body.CREATE_BEND_SPRINGS    = false;
+      body.CREATE_SHEAR_SPRINGS   = false;
+      body.self_collisions        = true; 
+      body.collision_radius_scale = 1.00f; 
       body.setParam(param_particle);
       body.setParam(param_spring_chain);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
       body.createParticlesShape(this);
-      body.getNode(35, 0).enable(false, false, false);
       softbodies.add(body);
     }
+    
+    // spring-constraint: lattice <-> chain
+    {
+      VerletParticle2D pa = lattice_girder.getNode(14, 1);
+      VerletParticle2D pb = chain         .getNode( 0, 0);
+      float rest_len = lattice_girder.nodes_r + chain.nodes_r;
+      SpringConstraint.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint.TYPE.STRUCT);
+    }
+
     
     // circle
     {
       nodes_r = 10;
-      nodes_start_x = 300;
       nodes_start_y = height-150;
-      SoftBall body = new SoftBall();
+      SoftBall body = circle;
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.bend_spring_mode = 3;
       body.setParam(param_particle);
       body.setParam(param_spring_circle);
-      body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
+      body.create(physics, nodes_start_x, nodes_start_y, 60, nodes_r);
       body.setParticleColor(color(0,160));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
     
 
+    // spring-constraint: circle <-> chain
+    {
+      VerletParticle2D pa = circle.getNode(0);
+      VerletParticle2D pb = chain .getNode(0, 9);
+      float rest_len = chain.nodes_r * 5;
+      SpringConstraint.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint.TYPE.STRUCT);
+    }
     
-//    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles()); // default anyways
-//    SpringConstraint.makeAllSpringsBidirectional (physics.getParticles());
-//    int num_of_alll_springs = SpringConstraint.getSpringCount(physics.getParticles(), false);
-//    int num_of_good_springs = SpringConstraint.getSpringCount(physics.getParticles(), true);
-//    System.out.println("springs1: "+ num_of_good_springs);
-//    System.out.println("springs2: "+ num_of_alll_springs);
-//    System.out.println("number of particles = "+physics.getParticlesCount());
-//    System.out.println("springs/particles = "+num_of_good_springs / (float)physics.getParticlesCount());
     
+    //box
+    {
+      nodex_x = 10;
+      nodes_y = 10;
+      nodes_r = 8;
+      nodes_start_x = 100;
+      nodes_start_y = height-450;
+      SoftGrid body = box;
+      body.CREATE_SHEAR_SPRINGS = true;
+      body.CREATE_BEND_SPRINGS  = true;
+      body.bend_spring_mode     = 0;
+      body.bend_spring_dist     = 2;
+      body.setParam(param_particle);
+      body.setParam(param_spring_softbody);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParticleColor(color(0,128));
+      body.createParticlesShape(this);
+      softbodies.add(body);
+    }
+
     
     NUM_SPRINGS   = SpringConstraint.getSpringCount(physics.getParticles(), true);
     NUM_PARTICLES = physics.getParticlesCount();
@@ -419,6 +391,6 @@ public class VerletPhysics_Softbodies extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { VerletPhysics_Softbodies.class.getName() });
+    PApplet.main(new String[] { VerletPhysics_SoftBodyComplex.class.getName() });
   }
 }
