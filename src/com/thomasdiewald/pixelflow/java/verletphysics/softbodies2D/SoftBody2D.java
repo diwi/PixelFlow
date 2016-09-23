@@ -81,7 +81,7 @@ public abstract class SoftBody2D{
     this.particle_color = particle_color;
   }
   
-  public void createShape(PApplet papplet){
+  public void createParticlesShape(PApplet papplet){
     papplet.shapeMode(PConstants.CORNER);
     shp_particles = papplet.createShape(PShape.GROUP);
     for(int i = 0; i < particles.length; i++){
@@ -99,7 +99,9 @@ public abstract class SoftBody2D{
 
   
   public void drawParticles(PGraphics pg){
-    pg.shape(shp_particles);
+    if(shp_particles != null){
+      pg.shape(shp_particles);
+    }
   }
   
   

@@ -121,7 +121,7 @@ public class VerletPhysics_Cloth extends PApplet {
 
     createGUI();
     
-    frameRate(600);
+    frameRate(60);
   }
   
   
@@ -162,10 +162,8 @@ public class VerletPhysics_Cloth extends PApplet {
       cloth.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      cloth.createShape(this);
-      softbodies.add(cloth);
+      cloth.createParticlesShape(this);
     }
-    
 
 //    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
     

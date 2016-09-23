@@ -132,7 +132,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.getNode(             0, 0).enable(false, false, false); // fix node to current location
       body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(255,180,0,160));
-      body.createShape(this);
+      body.createParticlesShape(this);
       softbodies.add(body);
     }
     
@@ -151,7 +151,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.setParticleColor(color(0,128));
-      body.createShape(this);
+      body.createParticlesShape(this);
       softbodies.add(body);
     }
     
@@ -171,7 +171,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,180,255,160));
-      body.createShape(this);
+      body.createParticlesShape(this);
       softbodies.add(body);
     }
     
@@ -192,7 +192,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
-      body.createShape(this);
+      body.createParticlesShape(this);
       softbodies.add(body);
     }
     
@@ -214,7 +214,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
-      body.createShape(this);
+      body.createParticlesShape(this);
       body.getNode(35, 0).enable(false, false, false);
       softbodies.add(body);
     }
@@ -232,7 +232,7 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.setParam(param_spring_circle);
       body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
       body.setParticleColor(color(0,160));
-      body.createShape(this);
+      body.createParticlesShape(this);
       softbodies.add(body);
     }
     
