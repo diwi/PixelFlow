@@ -1,4 +1,4 @@
-package VerletPhysics_Dev;
+package VerletPhysics_Softbodies;
 
 
 
@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftGrid;
 
 import processing.core.*;
 
-public class VerletPhysics_Dev extends PApplet {
+public class VerletPhysics_Softbodies extends PApplet {
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -80,29 +80,29 @@ public class VerletPhysics_Dev extends PApplet {
     
     // Cloth Parameters
     // Spring contraction is almost 100%, while expansion is very low
-    param_cloth.DAMP_BOUNDS          = 0.90f;
-    param_cloth.DAMP_COLLISION       = 0.90f;
+    param_cloth.DAMP_BOUNDS          = 0.40f;
+    param_cloth.DAMP_COLLISION       = 0.9990f;
     param_cloth.DAMP_VELOCITY        = 0.991f; 
     param_cloth.DAMP_SPRING_decrease = 0.999999f;     // contraction (... to restlength)
     param_cloth.DAMP_SPRING_increase = 0.0005999999f; // expansion   (... to restlength)
 
     // grid, almost rigid
-    param_softbody.DAMP_BOUNDS          = 0.90f;
-    param_softbody.DAMP_COLLISION       = 0.90f;
+    param_softbody.DAMP_BOUNDS          = 0.40f;
+    param_softbody.DAMP_COLLISION       = 0.9990f;
     param_softbody.DAMP_VELOCITY        = 0.999999f;
     param_softbody.DAMP_SPRING_decrease = 0.9999999f;
     param_softbody.DAMP_SPRING_increase = 0.9999999f;
     
     // chain, not so rigid
-    param_chain.DAMP_BOUNDS          = 0.90f;
-    param_chain.DAMP_COLLISION       = 0.90f;
+    param_chain.DAMP_BOUNDS          = 0.40f;
+    param_chain.DAMP_COLLISION       = 0.9990f;
     param_chain.DAMP_VELOCITY        = 0.999999f;
     param_chain.DAMP_SPRING_decrease = 0.5999999f;
     param_chain.DAMP_SPRING_increase = 0.5999999f;
     
     // circle, almost rigid
-    param_circle.DAMP_BOUNDS          = 0.90f;
-    param_circle.DAMP_COLLISION       = 0.90f;
+    param_circle.DAMP_BOUNDS          = 0.40f;
+    param_circle.DAMP_COLLISION       = 0.9990f;
     param_circle.DAMP_VELOCITY        = 0.999999f;
     param_circle.DAMP_SPRING_decrease = 0.9999999f;
     param_circle.DAMP_SPRING_increase = 0.9999999f;
@@ -243,6 +243,7 @@ public class VerletPhysics_Dev extends PApplet {
 
 
   
+  
   public void draw() {
 
 
@@ -268,7 +269,7 @@ public class VerletPhysics_Dev extends PApplet {
     if(DELETE_SPRINGS && mousePressed){
       ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
       for(VerletParticle2D tmp : list){
-        SpringConstraint.deleteSprings(tmp);
+        SpringConstraint.deactivateSprings(tmp);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;
       }
@@ -317,9 +318,30 @@ public class VerletPhysics_Dev extends PApplet {
   
   
   
+  // this resets all springs and particles, to some of its initial states
+  // can be used after deactivating springs with the mouse
+  public void repairAllSprings(){
+    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles());
+    for(SoftBody2D body : softbodies){
+      for(VerletParticle2D pa : body.particles){
+        pa.setCollisionGroup(body.collision_group_id);
+        pa.setRadiusCollision(pa.rad());
+      }
+    }
+  }
   
   
-  
+  // update all springs rest-lengths, based on current particle position
+  // the effect is, that the body keeps the current shape
+  public void applySpringMemoryEffect(){
+    for(SoftBody2D body : softbodies){
+      for(VerletParticle2D pa : body.particles){
+        for(int i = 0; i < pa.spring_count; i++){
+          pa.springs[i].updateRestlength();
+        }
+      }
+    }
+  }
   
   //////////////////////////////////////////////////////////////////////////////
   // User Interaction
@@ -336,7 +358,9 @@ public class VerletPhysics_Dev extends PApplet {
     VerletParticle2D[] particles = physics.getParticles();
     VerletParticle2D particle = null;
     for(int i = 0; i < particles.length; i++){
-      float dd_sq = getDistSq(mx, my, particles[i]);
+      float dx = mx - particles[i].cx;
+      float dy = my - particles[i].cy;
+      float dd_sq =  dx*dx + dy*dy;
       if( dd_sq < dd_min_sq){
         dd_min_sq = dd_sq;
         particle = particles[i];
@@ -350,7 +374,9 @@ public class VerletPhysics_Dev extends PApplet {
     VerletParticle2D[] particles = physics.getParticles();
     ArrayList<VerletParticle2D> list = new ArrayList<VerletParticle2D>();
     for(int i = 0; i < particles.length; i++){
-      float dd_sq = getDistSq(mx, my, particles[i]);
+      float dx = mx - particles[i].cx;
+      float dy = my - particles[i].cy;
+      float dd_sq =  dx*dx + dy*dy;
       if(dd_sq < dd_min_sq){
         list.add(particles[i]);
       }
@@ -358,65 +384,42 @@ public class VerletPhysics_Dev extends PApplet {
     return list;
   }
   
-  public float getDistSq(float mx, float my, VerletParticle2D particle){
-    float dx = mx - particle.cx;
-    float dy = my - particle.cy;
-    return dx*dx + dy*dy;
-  }
-    
-
   boolean DELETE_SPRINGS = false;
   float   DELETE_RADIUS = 10;
-  
-  boolean state_enable_collisions;
-  boolean state_enable_springs;
-  boolean state_enable_forces;
 
   public void mousePressed(){
+    if(mouseButton == RIGHT ) DELETE_SPRINGS = true;
+    
     if(!DELETE_SPRINGS){
       particle_mouse = findNearestParticle(mouseX, mouseY, 100);
-        if(particle_mouse != null){
-        // push states
-        state_enable_collisions = particle_mouse.enable_collisions;
-        state_enable_springs    = particle_mouse.enable_springs   ;
-        state_enable_forces     = particle_mouse.enable_forces    ;  
+      if(particle_mouse != null){
         if(mouseButton == LEFT  ) particle_mouse.enable(false, false, false);
         if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
-        if(mouseButton == RIGHT ) particle_mouse.enable(false, false, false);
       }
     }
   }
   
   public void mouseReleased(){
     if(particle_mouse != null && !DELETE_SPRINGS){
-      if(mouseButton == LEFT  ) particle_mouse.enable(state_enable_collisions, state_enable_springs, state_enable_forces);
-      if(mouseButton == CENTER) particle_mouse.enable(true, true, true);
-      if(mouseButton == RIGHT ) particle_mouse.enable(true, false, false);
+      if(mouseButton == LEFT  ) particle_mouse.enable(true, true, true);
+      if(mouseButton == CENTER) particle_mouse.enable(true, false, false);
       particle_mouse = null;
     }
+    if(mouseButton == RIGHT ) DELETE_SPRINGS = false;
   }
   
-
-  public void keyPressed(){
-    if(key ==' ') DELETE_SPRINGS = true;
-  }
   public void keyReleased(){
-    if(key ==' ') DELETE_SPRINGS = false;
-    
-    if(key =='s') SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles());
-    if(key =='r') initBodies();
-    if(key =='1') DISPLAY_MODE = 0;
-    if(key =='2') DISPLAY_MODE = 1;
-
-    if(key =='p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
-    
-
+    if(key == 's') repairAllSprings();
+    if(key == 'r') initBodies();
+    if(key == 'm') applySpringMemoryEffect();
+    if(key == '1') DISPLAY_MODE = 0;
+    if(key == '2') DISPLAY_MODE = 1;
+    if(key == 'p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
   }
-  
   
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { VerletPhysics_Dev.class.getName() });
+    PApplet.main(new String[] { VerletPhysics_Softbodies.class.getName() });
   }
 }

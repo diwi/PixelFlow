@@ -298,10 +298,10 @@ public class VerletParticle2D implements CollisionObject{
     spring_x = spring_y = 0;
   }
   public void afterSprings(float xmin, float ymin, float xmax, float ymax){
-    if(spring_count > 0){
-      cx += spring_x / spring_count;
-      cy += spring_y / spring_count;
-    }
+//    if(spring_count > 0){
+//      cx += spring_x / spring_count;
+//      cy += spring_y / spring_count;
+//    }
     updateBounds(xmin, ymin, xmax, ymax);
   }
   

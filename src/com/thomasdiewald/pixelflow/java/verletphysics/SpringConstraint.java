@@ -50,6 +50,13 @@ public class SpringConstraint {
     this.dd_rest = (float) Math.sqrt(dd_rest_sq);
   }
   
+  public void updateRestlength(){
+    float dx = pb.cx - other.pb.cx;
+    float dy = pb.cy - other.pb.cy;
+    this.dd_rest_sq = dx*dx + dy*dy;
+    this.dd_rest = (float) Math.sqrt(dd_rest_sq);
+  }
+  
   public float computeForce(){
     float dx = pb.cx - other.pb.cx;
     float dy = pb.cy - other.pb.cy;
@@ -158,7 +165,9 @@ public class SpringConstraint {
     return removed_springs;
   }
   
-  
+  static public ArrayList<SpringConstraint> deactivateSprings(VerletParticle2D pa){
+    return deactivateSprings(pa, (ArrayList<SpringConstraint>) null);
+  }
   static public ArrayList<SpringConstraint> deactivateSprings(VerletParticle2D pa, ArrayList<SpringConstraint> deactivated_springs){
     if(deactivated_springs == null) deactivated_springs = new ArrayList<SpringConstraint>();
     for(int j = 0; j < pa.spring_count; j++){
