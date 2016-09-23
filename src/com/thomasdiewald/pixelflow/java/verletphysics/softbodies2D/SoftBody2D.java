@@ -47,9 +47,23 @@ public abstract class SoftBody2D{
   public PShape shp_particles;         // shape for drawing all particles of this body
   
   
+  public VerletParticle2D.Param param_particle = new  VerletParticle2D.Param();
+  public SpringConstraint.Param param_spring   = new  SpringConstraint.Param();
   
   
   public SoftBody2D(){
+  }
+  
+  
+  
+  
+
+  
+  public void setParam(VerletParticle2D.Param param_particle){
+    this.param_particle = param_particle;
+  }
+  public void setParam(SpringConstraint.Param param_spring){
+    this.param_spring = param_spring;
   }
   
   

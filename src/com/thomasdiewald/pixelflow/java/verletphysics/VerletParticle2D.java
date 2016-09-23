@@ -27,16 +27,6 @@ public class VerletParticle2D implements CollisionObject{
     public float DAMP_BOUNDS    = 1;
     public float DAMP_COLLISION = 1;
     public float DAMP_VELOCITY  = 1;
-    
-    // resistance to compression -> strut 
-    // 0.0 ... very squishy
-    // 1.0 ... very springy
-    public float DAMP_SPRING_increase = 0.99999f; 
-    
-    // resistance to expansion -> tie  
-    // 0.0 ... very loose
-    // 1.0 ... very tense
-    public float DAMP_SPRING_decrease = 0.99999f; 
   }
   
   Param param = new Param();
@@ -105,7 +95,9 @@ public class VerletParticle2D implements CollisionObject{
   }
   
   public void setParamByRef(Param param){
-    this.param = param;
+    if(param != null){
+      this.param = param;
+    }
   }
   
   public void setCollisionGroup(int id){
@@ -242,32 +234,17 @@ public class VerletParticle2D implements CollisionObject{
 
   
   public void updateSprings(VerletParticle2D[] particles){
-    
-//    if(!enable_springs) return;
-    
     // sum up force of attached springs
     VerletParticle2D pa = this;
-   
     for(int i = 0; i < spring_count; i++){
       SpringConstraint spring = springs[i];
-      
       if(!spring.is_the_good_one) continue;
-      
       VerletParticle2D pb = spring.pb;
       
       float dx = pb.cx - pa.cx;
       float dy = pb.cy - pa.cy;
-      float dd_curr_sq = dx*dx + dy*dy;
-      float dd_rest_sq = spring.dd_rest_sq;
-      float force = (dd_rest_sq / (dd_curr_sq + dd_rest_sq) - 0.5f);
-      
-      spring.force = force;
-      
-//      float dd_rest    = (float) Math.sqrt(dd_rest_sq);
-//      float dd_curr    = (float) Math.sqrt(dd_curr_sq);
-//      float force      = (0.5f * (dd_rest - dd_curr) / (dd_curr + 0.00001f));
- 
-      force *= (dd_curr_sq < dd_rest_sq) ? param.DAMP_SPRING_increase : param.DAMP_SPRING_decrease; 
+
+      float force = spring.updateForce();
       
       float pa_mass_factor = 2f * pb.mass / (pa.mass + pb.mass);
       float pb_mass_factor = 2f - pa_mass_factor;
@@ -281,8 +258,7 @@ public class VerletParticle2D implements CollisionObject{
         pb.cx += dx * force * pb_mass_factor;
         pb.cy += dy * force * pb_mass_factor;  
       }
-      
-      
+
       // 2) GPU-Version: converges slower, but result is more accurate
       // >>>>   just used for debugging   <<<<
       // this requires, to have bidirectional springs

@@ -23,7 +23,7 @@ public class SoftBall extends SoftBody2D{
   public SoftBall(){
   }
   
-  public void create(VerletPhysics2D physics, VerletParticle2D.Param param, float circle_x, float circle_y, float cirlce_r, float nodes_r){
+  public void create(VerletPhysics2D physics, float circle_x, float circle_y, float cirlce_r, float nodes_r){
     
     // compute number of circle vertices
     float threshold1 = 10;  // radius shortening for arc segments
@@ -61,7 +61,7 @@ public class SoftBall extends SoftBody2D{
       px = circle_x + x * cirlce_r;
       py = circle_y + y * cirlce_r;
       particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
-      particles[idx].setParamByRef(param);
+      particles[idx].setParamByRef(param_particle);
       particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
       particles[idx].collision_group = collision_group_id;
       if(self_collisions){
@@ -107,7 +107,7 @@ public class SoftBall extends SoftBody2D{
   
   
   public void addSpring(int ia, int ib, SpringConstraint.TYPE type){
-    SpringConstraint.addSpring(particles[ia], particles[ib], type);
+    SpringConstraint.addSpring(particles[ia], particles[ib], param_spring, type);
   }
   
 

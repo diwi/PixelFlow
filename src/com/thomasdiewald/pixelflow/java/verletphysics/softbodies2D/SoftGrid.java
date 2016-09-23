@@ -20,8 +20,8 @@ public class SoftGrid extends SoftBody2D{
   
   public SoftGrid(){
   }
-  
-  public void create(VerletPhysics2D physics, VerletParticle2D.Param param, int nx, int ny, float nr, float start_x, float start_y){
+
+  public void create(VerletPhysics2D physics, int nx, int ny, float nr, float start_x, float start_y){
  
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
@@ -47,7 +47,7 @@ public class SoftGrid extends SoftBody2D{
         px             = start_x + x * nodes_r * 2;
         py             = start_y + y * nodes_r * 2;
         particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
-        particles[idx].setParamByRef(param);
+        particles[idx].setParamByRef(param_particle);
         particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
         particles[idx].collision_group = collision_group_id;
         if(self_collisions){
@@ -143,7 +143,7 @@ public class SoftGrid extends SoftBody2D{
     int ia =  y * nodes_x +  x;
     int ib = ny * nodes_x + nx;
 
-    SpringConstraint.addSpring(particles[ia], particles[ib], type);
+    SpringConstraint.addSpring(particles[ia], particles[ib], param_spring, type);
   }
   
 

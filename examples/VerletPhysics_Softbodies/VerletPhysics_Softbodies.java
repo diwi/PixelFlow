@@ -32,12 +32,14 @@ public class VerletPhysics_Softbodies extends PApplet {
   // list, that wills store the cloths
   ArrayList<SoftBody2D> softbodies;
   
+  // particle parameters: same behavior for all
+  VerletParticle2D.Param param_particle = new VerletParticle2D.Param();
   
-  // particle behavior, different presets for different bodies
-  VerletParticle2D.Param param_cloth    = new VerletParticle2D.Param();
-  VerletParticle2D.Param param_softbody = new VerletParticle2D.Param();
-  VerletParticle2D.Param param_chain    = new VerletParticle2D.Param();
-  VerletParticle2D.Param param_circle   = new VerletParticle2D.Param();
+  // spring parameters: different spring behavior for different bodies
+  SpringConstraint.Param param_spring_cloth    = new SpringConstraint.Param();
+  SpringConstraint.Param param_spring_softbody = new SpringConstraint.Param();
+  SpringConstraint.Param param_spring_chain    = new SpringConstraint.Param();
+  SpringConstraint.Param param_spring_circle   = new SpringConstraint.Param();
 
   // 0 ... default: particles, spring
   // 1 ... tension
@@ -73,40 +75,29 @@ public class VerletPhysics_Softbodies extends PApplet {
     
     physics = new VerletPhysics2D();
 
+    // global physics parameters
     physics.param.GRAVITY = new float[]{ 0, 0.2f };
     physics.param.bounds  = new float[]{ 0, 0, width, height };
     physics.param.iterations_collisions = 4;
     physics.param.iterations_springs    = 4;
     
-    // Cloth Parameters
-    // Spring contraction is almost 100%, while expansion is very low
-    param_cloth.DAMP_BOUNDS          = 0.40f;
-    param_cloth.DAMP_COLLISION       = 0.9990f;
-    param_cloth.DAMP_VELOCITY        = 0.991f; 
-    param_cloth.DAMP_SPRING_decrease = 0.999999f;     // contraction (... to restlength)
-    param_cloth.DAMP_SPRING_increase = 0.0005999999f; // expansion   (... to restlength)
-
-    // grid, almost rigid
-    param_softbody.DAMP_BOUNDS          = 0.40f;
-    param_softbody.DAMP_COLLISION       = 0.9990f;
-    param_softbody.DAMP_VELOCITY        = 0.999999f;
-    param_softbody.DAMP_SPRING_decrease = 0.9999999f;
-    param_softbody.DAMP_SPRING_increase = 0.9999999f;
+    // particle parameters
+    param_particle.DAMP_BOUNDS     = 0.40f;
+    param_particle.DAMP_COLLISION  = 0.9990f;
+    param_particle.DAMP_VELOCITY   = 0.991f; 
     
-    // chain, not so rigid
-    param_chain.DAMP_BOUNDS          = 0.40f;
-    param_chain.DAMP_COLLISION       = 0.9990f;
-    param_chain.DAMP_VELOCITY        = 0.999999f;
-    param_chain.DAMP_SPRING_decrease = 0.5999999f;
-    param_chain.DAMP_SPRING_increase = 0.5999999f;
+    // spring parameters
+    param_spring_cloth   .damp_dec = 0.999999f;
+    param_spring_cloth   .damp_inc = 0.000599f;
     
-    // circle, almost rigid
-    param_circle.DAMP_BOUNDS          = 0.40f;
-    param_circle.DAMP_COLLISION       = 0.9990f;
-    param_circle.DAMP_VELOCITY        = 0.999999f;
-    param_circle.DAMP_SPRING_decrease = 0.9999999f;
-    param_circle.DAMP_SPRING_increase = 0.9999999f;
- 
+    param_spring_softbody.damp_dec = 0.999999f;
+    param_spring_softbody.damp_inc = 0.999999f;
+    
+    param_spring_chain   .damp_dec = 0.599999f;
+    param_spring_chain   .damp_inc = 0.599999f;
+    
+    param_spring_circle  .damp_dec = 0.999999f;
+    param_spring_circle  .damp_inc = 0.999999f;
 
     frameRate(60);
   }
@@ -135,7 +126,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 2;
-      body.create(physics, param_cloth, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParam(param_particle);
+      body.setParam(param_spring_cloth);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(             0, 0).enable(false, false, false); // fix node to current location
       body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(255,180,0,160));
@@ -154,7 +147,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 2;
-      body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParam(param_particle);
+      body.setParam(param_spring_softbody);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.setParticleColor(color(0,128));
       body.createShape(this);
       softbodies.add(body);
@@ -171,7 +166,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
-      body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParam(param_particle);
+      body.setParam(param_spring_softbody);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,180,255,160));
       body.createShape(this);
@@ -189,7 +186,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
-      body.create(physics, param_softbody, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParam(param_particle);
+      body.setParam(param_spring_softbody);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
@@ -210,7 +209,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_SHEAR_SPRINGS = false;
       body.self_collisions      = true; // particles of this body can collide among themselves
       body.collision_radius_scale = 1.00f; // funny, if bigger than 1 and self_collisions = true
-      body.create(physics, param_chain, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      body.setParam(param_particle);
+      body.setParam(param_spring_chain);
+      body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
       body.createShape(this);
@@ -227,7 +228,9 @@ public class VerletPhysics_Softbodies extends PApplet {
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.bend_spring_mode = 3;
-      body.create(physics, param_circle, nodes_start_x, nodes_start_y, 70, nodes_r);
+      body.setParam(param_particle);
+      body.setParam(param_spring_circle);
+      body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
       body.setParticleColor(color(0,160));
       body.createShape(this);
       softbodies.add(body);

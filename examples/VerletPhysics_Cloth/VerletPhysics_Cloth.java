@@ -31,9 +31,13 @@ public class VerletPhysics_Cloth extends PApplet {
   // physics simulation
   VerletPhysics2D physics;
   
-  // cloth parameters
-  VerletParticle2D.Param param_cloth1 = new VerletParticle2D.Param();
-  VerletParticle2D.Param param_cloth2 = new VerletParticle2D.Param();
+  // particle parameters
+  VerletParticle2D.Param param_particle_cloth1 = new VerletParticle2D.Param();
+  VerletParticle2D.Param param_particle_cloth2 = new VerletParticle2D.Param();
+  
+  // spring parameters
+  SpringConstraint.Param param_spring_cloth1 = new SpringConstraint.Param();
+  SpringConstraint.Param param_spring_cloth2 = new SpringConstraint.Param();
   
   // cloth objects
   SoftGrid cloth1 = new SoftGrid();
@@ -83,19 +87,24 @@ public class VerletPhysics_Cloth extends PApplet {
     physics.param.iterations_collisions = 4;
     physics.param.iterations_springs    = 4;
     
-    // Parameters for Cloth1 particles
-    param_cloth1.DAMP_BOUNDS          = 0.40f;
-    param_cloth1.DAMP_COLLISION       = 0.99999f;
-    param_cloth1.DAMP_VELOCITY        = 0.991f; 
-    param_cloth1.DAMP_SPRING_decrease = 0.999999f;    
-    param_cloth1.DAMP_SPRING_increase = 0.0005999999f;
+    // particle parameters for Cloth1
+    param_particle_cloth1.DAMP_BOUNDS          = 0.40f;
+    param_particle_cloth1.DAMP_COLLISION       = 0.99999f;
+    param_particle_cloth1.DAMP_VELOCITY        = 0.991f; 
     
-    // Parameters for Cloth2 particles
-    param_cloth2.DAMP_BOUNDS          = 0.40f;
-    param_cloth2.DAMP_COLLISION       = 0.99999f;
-    param_cloth2.DAMP_VELOCITY        = 0.991f; 
-    param_cloth2.DAMP_SPRING_decrease = 0.999999f;    
-    param_cloth2.DAMP_SPRING_increase = 0.0005999999f;
+    // particle parameters for Cloth2
+    param_particle_cloth2.DAMP_BOUNDS          = 0.40f;
+    param_particle_cloth2.DAMP_COLLISION       = 0.99999f;
+    param_particle_cloth2.DAMP_VELOCITY        = 0.991f; 
+
+    // spring parameters for Cloth1
+    param_spring_cloth1.damp_dec = 0.999999f;
+    param_spring_cloth1.damp_inc = 0.000599f;
+    
+    // spring parameters for Cloth2  
+    param_spring_cloth2.damp_dec = 0.999999f;
+    param_spring_cloth2.damp_inc = 0.000599f;
+    
     
     // initial cloth building parameters, both cloth start the same
     cloth1.CREATE_STRUCT_SPRINGS = true;
@@ -129,8 +138,12 @@ public class VerletPhysics_Cloth extends PApplet {
     cloth1.setParticleColor(color(255, 180,   0, 128));
     cloth2.setParticleColor(color(  0, 180, 255, 128));
     
-    VerletParticle2D.Param[] cloth_params = {param_cloth1, param_cloth2};
+    cloth1.setParam(param_particle_cloth1);
+    cloth2.setParam(param_particle_cloth2);
     
+    cloth1.setParam(param_spring_cloth1);
+    cloth2.setParam(param_spring_cloth2);
+
     // both cloth are of the same size
     int nodex_x = 30;
     int nodes_y = 30;
@@ -146,7 +159,7 @@ public class VerletPhysics_Cloth extends PApplet {
     for(int i = 0; i < num_cloth; i++){
       nodes_start_x += spacing + cloth_width * i;
       SoftGrid cloth = (SoftGrid) softbodies.get(i);
-      cloth.create(physics, cloth_params[i], nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      cloth.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
       cloth.createShape(this);
@@ -471,13 +484,13 @@ public class VerletPhysics_Cloth extends PApplet {
       px = 10; py = 15;
        
       cp5.addSlider("C1.velocity").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py)
-          .setRange(0, 1).setValue(param_cloth1.DAMP_VELOCITY).plugTo(param_cloth1, "DAMP_VELOCITY");
+          .setRange(0, 1).setValue(param_particle_cloth1.DAMP_VELOCITY).plugTo(param_particle_cloth1, "DAMP_VELOCITY");
       
       cp5.addSlider("C1.contraction").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_cloth1.DAMP_SPRING_decrease).plugTo(param_cloth1, "DAMP_SPRING_decrease");
+          .setRange(0, 1).setValue(param_spring_cloth1.damp_dec).plugTo(param_spring_cloth1, "damp_dec");
       
       cp5.addSlider("C1.expansion").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_cloth1.DAMP_SPRING_increase).plugTo(param_cloth1, "DAMP_SPRING_increase");
+          .setRange(0, 1).setValue(param_spring_cloth1.damp_inc).plugTo(param_spring_cloth1, "damp_inc");
 
       cp5.addCheckBox("cloth1_CREATE_SPRING_TYPE").setGroup(group_cloth).setSize(sy,sy).setPosition(px, py+=oy)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
@@ -512,13 +525,13 @@ public class VerletPhysics_Cloth extends PApplet {
       px = 10; py = 15;
        
       cp5.addSlider("C2.velocity").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py)
-          .setRange(0, 1).setValue(param_cloth2.DAMP_VELOCITY).plugTo(param_cloth2, "DAMP_VELOCITY");
+          .setRange(0, 1).setValue(param_particle_cloth2.DAMP_VELOCITY).plugTo(param_particle_cloth2, "DAMP_VELOCITY");
       
       cp5.addSlider("C2.contraction").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_cloth2.DAMP_SPRING_decrease).plugTo(param_cloth2, "DAMP_SPRING_decrease");
+          .setRange(0, 1).setValue(param_spring_cloth2.damp_dec).plugTo(param_spring_cloth2, "damp_dec");
       
       cp5.addSlider("C2.expansion").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_cloth2.DAMP_SPRING_increase).plugTo(param_cloth2, "DAMP_SPRING_increase");
+          .setRange(0, 1).setValue(param_spring_cloth2.damp_inc).plugTo(param_spring_cloth2, "damp_inc");
 
       cp5.addCheckBox("cloth2_CREATE_SPRING_TYPE").setGroup(group_cloth).setSize(sy,sy).setPosition(px, py+=oy)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)

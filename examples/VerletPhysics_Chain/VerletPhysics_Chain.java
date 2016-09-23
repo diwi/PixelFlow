@@ -24,6 +24,8 @@ public class VerletPhysics_Chain extends PApplet {
  
   // particle behavior, different presets for different bodies
   VerletParticle2D.Param param_chain = new VerletParticle2D.Param();
+  SpringConstraint.Param param_spring_chain = new SpringConstraint.Param();
+
   
   // all we need is an array of particles
   int particles_count = 0;
@@ -62,8 +64,11 @@ public class VerletPhysics_Chain extends PApplet {
     param_chain.DAMP_BOUNDS          = 0.50f;
     param_chain.DAMP_COLLISION       = 0.9990f;
     param_chain.DAMP_VELOCITY        = 0.991f; 
-    param_chain.DAMP_SPRING_decrease = 0.999999f; // contraction (... to restlength)
-    param_chain.DAMP_SPRING_increase = 0.999999f; // expansion   (... to restlength)
+//    param_chain.DAMP_SPRING_decrease = 0.999999f; // contraction (... to restlength)
+//    param_chain.DAMP_SPRING_increase = 0.999999f; // expansion   (... to restlength)
+    
+    param_spring_chain.damp_dec = 0.99999f;
+    param_spring_chain.damp_inc = 0.99999f;
     
     // create 200 particles at start
     for(int i = 0; i < 200; i++){
@@ -108,7 +113,7 @@ public class VerletPhysics_Chain extends PApplet {
       VerletParticle2D pb = particles[idx_prev];
       pa.px = pb.cx;
       pa.py = pb.cy;
-      SpringConstraint.addSpring(pb, pa, rest_len*rest_len);
+      SpringConstraint.addSpring(pb, pa, rest_len*rest_len, param_spring_chain);
       NUM_SPRINGS++;
     }
   }

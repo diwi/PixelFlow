@@ -13,6 +13,8 @@ package com.thomasdiewald.pixelflow.java.verletphysics;
 import java.util.ArrayList;
 
 public class SpringConstraint {
+  
+  
 
   static public enum TYPE{
     STRUCT,
@@ -20,6 +22,20 @@ public class SpringConstraint {
     BEND
   }
   
+  static public class Param{
+    // resistance to compression -> strut 
+    // 0.0 ... very squishy
+    // 1.0 ... very springy
+    public float damp_inc = 1.0f;
+    
+    // resistance to expansion -> tie  
+    // 0.0 ... very loose
+    // 1.0 ... very tense
+    public float damp_dec = 1.0f;
+  }
+  
+  
+  Param param = new Param();
 
   
   // if true, then this spring is used for rendering/constraints relaxation etc ...
@@ -39,42 +55,56 @@ public class SpringConstraint {
   public float dd_rest;
   public float force;
   
-  private SpringConstraint(VerletParticle2D particle, float spring_len_sq){
-    this(particle, spring_len_sq, TYPE.STRUCT);
+  private SpringConstraint(VerletParticle2D particle, float spring_len_sq, Param param){
+    this(particle, spring_len_sq, param, TYPE.STRUCT);
   }
 
-  private SpringConstraint(VerletParticle2D particle, float spring_len_sq, TYPE type){
-    this.pb = particle;
-    this.type = type;
+  private SpringConstraint(VerletParticle2D particle, float spring_len_sq, Param param, TYPE type){
+    this.pb         = particle;
+    this.param      = param;
+    this.type       = type;
     this.dd_rest_sq = spring_len_sq;
-    this.dd_rest = (float) Math.sqrt(dd_rest_sq);
+    this.dd_rest    = (float) Math.sqrt(dd_rest_sq);
   }
   
   public void updateRestlength(){
-    float dx = pb.cx - other.pb.cx;
-    float dy = pb.cy - other.pb.cy;
+    float dx        = pb.cx - other.pb.cx;
+    float dy        = pb.cy - other.pb.cy;
     this.dd_rest_sq = dx*dx + dy*dy;
-    this.dd_rest = (float) Math.sqrt(dd_rest_sq);
+    this.dd_rest    = (float) Math.sqrt(dd_rest_sq);
   }
   
-  public float computeForce(){
-    float dx = pb.cx - other.pb.cx;
-    float dy = pb.cy - other.pb.cy;
-    float dd_curr_sq = dx*dx + dy*dy;
-    float force = (dd_rest_sq / (dd_curr_sq + dd_rest_sq) - 0.5f);
-        
-//    float dd_rest    = (float) Math.sqrt(dd_rest_sq);
-//    float dd_curr    = (float) Math.sqrt(dd_curr_sq);
-//    float force      = (0.5f * (dd_rest - dd_curr) / (dd_curr + 0.00001f));
-
+  
+  public float updateForce(){
+    if(is_the_good_one){
+      float dx    = pb.cx - other.pb.cx;
+      float dy    = pb.cy - other.pb.cy;
+      float dd_sq = dx*dx + dy*dy;
+//      float dd    = (float) Math.sqrt(dd_sq);
+//      force       = (0.5f * (dd_rest - dd) / (dd + 0.00001f));
+      force       = (dd_rest_sq / (dd_sq + dd_rest_sq) - 0.5f);
+      force      *= (dd_sq < dd_rest_sq) ? param.damp_inc: param.damp_dec; 
+      other.force = force;
+    }
     return force;
   }
   
-  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, float rest_len_sq, TYPE type){
+  
+  public float computeForce(){
+    float dx    = pb.cx - other.pb.cx;
+    float dy    = pb.cy - other.pb.cy;
+    float dd_sq = dx*dx + dy*dy;
+//    float dd    = (float) Math.sqrt(dd_sq);
+//    float force = (0.5f * (dd_rest - dd) / (dd + 0.00001f));
+    float force = (dd_rest_sq / (dd_sq + dd_rest_sq) - 0.5f);
+    return force;
+  }
+  
+  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, float rest_len_sq, Param param, TYPE type){
     if(pa == pb) return;
     
-    SpringConstraint spring_pa_pb = new SpringConstraint(pb, rest_len_sq, type);
-    SpringConstraint spring_pb_pa = new SpringConstraint(pa, rest_len_sq, type);
+    SpringConstraint spring_pa_pb = new SpringConstraint(pb, rest_len_sq, param, type);
+    SpringConstraint spring_pb_pa = new SpringConstraint(pa, rest_len_sq, param, type);
     
     spring_pa_pb.other = spring_pb_pa;
     spring_pb_pa.other = spring_pa_pb;
@@ -86,19 +116,20 @@ public class SpringConstraint {
     pb.addSpring(spring_pb_pa);
   }
 
-  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, float rest_len_sq){
-    addSpring(pa, pb, rest_len_sq, TYPE.STRUCT);
+  // TODO error checking
+  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, float rest_len_sq, Param param){
+    addSpring(pa, pb, rest_len_sq, param, TYPE.STRUCT);
   }
 
-  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb){
-    addSpring(pa, pb, TYPE.STRUCT);
+  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, Param param){
+    addSpring(pa, pb, param, TYPE.STRUCT);
   }
 
-  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, TYPE type){
+  static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, Param param, TYPE type){
     float dx = pb.cx - pa.cx;
     float dy = pb.cy - pa.cy;
     float rest_len_sq = dx*dx + dy*dy;
-    addSpring(pa, pb, rest_len_sq, type);
+    addSpring(pa, pb, rest_len_sq, param, type);
   }
   
   static public int getSpringCount(VerletParticle2D[] particles, boolean only_good_ones){
