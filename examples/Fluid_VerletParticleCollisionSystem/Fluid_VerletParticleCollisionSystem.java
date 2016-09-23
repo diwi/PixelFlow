@@ -277,15 +277,14 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     
     
     //  add force: Middle Mouse Button (MMB) -> particle[0]
-    if(mousePressed && mouseButton == CENTER){
-      VerletParticle2D particle = particlesystem.particles[0];
-      float dx = mouseX - particle.cx;
-      float dy = mouseY - particle.cy;
-      
-      float damping_pos = 0.3f;
-      particle.cx  += dx * damping_pos;
-      particle.cy  += dy * damping_pos;
+    if(mousePressed){
+      particlesystem.particles[0].moveTo(mouseX, mouseY, 0.3f);
+      particlesystem.particles[0].enableCollisions(false);
+    } else {
+      particlesystem.particles[0].enableCollisions(true);
     }
+    
+    
     
 
     // update physics step
@@ -293,8 +292,9 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     
     physics.param.GRAVITY[1] = 0.05f * particlesystem.MULT_GRAVITY;
     physics.param.iterations_collisions = collision_detection ? 4 : 0;
-
-    physics.update(particlesystem.particles, particlesystem.particles.length, 1);
+    
+    physics.setParticles(particlesystem.particles, particlesystem.particles.length);
+    physics.update(1);
     
    
     

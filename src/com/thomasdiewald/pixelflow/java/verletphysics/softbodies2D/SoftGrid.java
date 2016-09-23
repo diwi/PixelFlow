@@ -47,9 +47,12 @@ public class SoftGrid extends SoftBody2D{
         px             = start_x + x * nodes_r * 2;
         py             = start_y + y * nodes_r * 2;
         particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
-        particles[idx].collision_group = collision_group_id;
         particles[idx].setParamByRef(param);
         particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
+        particles[idx].collision_group = collision_group_id;
+        if(self_collisions){
+          particles[idx].collision_group = physics.getNewCollisionGroupId();
+        }
       }
     }
     
@@ -94,9 +97,17 @@ public class SoftGrid extends SoftBody2D{
           
           // random, 'kind of' anisotropic
           if(bend_spring_mode == 2){
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < 8; i++){
               ox = (int) Math.round((rand.nextFloat()*2-1) * bend_spring_dist);
               oy = (int) Math.round((rand.nextFloat()*2-1) * bend_spring_dist);
+              
+//              float ra = (float)(rand.nextFloat() * Math.PI * 2);
+//              float rx = (float)(Math.cos(ra));
+//              float ry = (float)(Math.sin(ra));
+//              
+//              float rand_rad = 1.5f + bend_spring_dist * rand.nextFloat();
+//              ox = (int) Math.round(rx * rand_rad);
+//              oy = (int) Math.round(ry * rand_rad);
               addSpring(x, y, ox, oy, SpringConstraint.TYPE.BEND);
             }
           }

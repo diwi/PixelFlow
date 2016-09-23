@@ -15,8 +15,6 @@ import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftGrid;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.RadioButton;
-import controlP5.Toggle;
 import processing.core.*;
 
 public class VerletPhysics_Cloth extends PApplet {
@@ -42,7 +40,7 @@ public class VerletPhysics_Cloth extends PApplet {
   SoftGrid cloth2 = new SoftGrid();
   
   // list, that wills store the cloths
-  ArrayList<SoftBody2D> softbodies;
+  ArrayList<SoftBody2D> softbodies = new ArrayList<SoftBody2D>();
 
   // 0 ... default: particles, spring
   // 1 ... tension
@@ -80,19 +78,19 @@ public class VerletPhysics_Cloth extends PApplet {
     
     physics = new VerletPhysics2D();
 
-    physics.param.GRAVITY = new float[]{ 0, 0.1f };
+    physics.param.GRAVITY = new float[]{ 0, 0.2f };
     physics.param.bounds  = new float[]{ 0, 0, viewport_w-gui_w, height };
     physics.param.iterations_collisions = 4;
     physics.param.iterations_springs    = 4;
     
-    // Cloth1 Parameters
+    // Parameters for Cloth1 particles
     param_cloth1.DAMP_BOUNDS          = 0.40f;
     param_cloth1.DAMP_COLLISION       = 0.99999f;
     param_cloth1.DAMP_VELOCITY        = 0.991f; 
     param_cloth1.DAMP_SPRING_decrease = 0.999999f;    
     param_cloth1.DAMP_SPRING_increase = 0.0005999999f;
     
-    // Cloth1 Parameters
+    // Parameters for Cloth2 particles
     param_cloth2.DAMP_BOUNDS          = 0.40f;
     param_cloth2.DAMP_COLLISION       = 0.99999f;
     param_cloth2.DAMP_VELOCITY        = 0.991f; 
@@ -123,48 +121,39 @@ public class VerletPhysics_Cloth extends PApplet {
     
     physics.reset();
     
-    softbodies = new ArrayList<SoftBody2D>();
+    softbodies.clear();
     
-    // create some particle-bodies: Cloth / SoftBody
-    int nodex_x, nodes_y, nodes_r, color;
-    float nodes_start_x, nodes_start_y;
+    softbodies.add(cloth1);
+    softbodies.add(cloth2);
+    
+    cloth1.setParticleColor(color(255, 180,   0, 128));
+    cloth2.setParticleColor(color(  0, 180, 255, 128));
+    
+    VerletParticle2D.Param[] cloth_params = {param_cloth1, param_cloth2};
     
     // both cloth are of the same size
-    nodex_x = 30;
-    nodes_y = 30;
-    nodes_r = 8;
-    nodes_start_y = 80;
+    int nodex_x = 30;
+    int nodes_y = 30;
+    int nodes_r = 8;
+    int nodes_start_x = 0;
+    int nodes_start_y = 80;
     
-    int   num_cloth = 2;
+    int   num_cloth = softbodies.size();
     float cloth_width = 2 * nodes_r * (nodex_x-1);
-    float spacing = ((viewport_w-gui_w) - num_cloth * cloth_width) / (float)(num_cloth+1);  
+    float spacing = ((viewport_w - gui_w) - num_cloth * cloth_width) / (float)(num_cloth+1);  
     
+    // create all cloth in the list
+    for(int i = 0; i < num_cloth; i++){
+      nodes_start_x += spacing + cloth_width * i;
+      SoftGrid cloth = (SoftGrid) softbodies.get(i);
+      cloth.create(physics, cloth_params[i], nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
+      cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
+      cloth.createShape(this);
+      softbodies.add(cloth);
+    }
     
-    // cloth 1
-    {
 
-      nodes_start_x = spacing;
-      color = color(255,180,0,128);
-   
-      cloth1.create(physics, param_cloth1, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      cloth1.getNode(               0, 0).enable(false, false, false); // fix node to current location
-      cloth1.getNode(cloth1.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      cloth1.createShape(this, color);
-      softbodies.add(cloth1);
-    }
-    
-    // cloth 2
-    {
-      nodes_start_x += cloth_width + spacing;
-      color = color(0,180,255,128);
-//      color = color(0,64);
-      cloth2.create(physics, param_cloth2, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      cloth2.getNode(               0, 0).enable(false, false, false); // fix node to current location
-      cloth2.getNode(cloth2.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      cloth2.createShape(this, color);
-      softbodies.add(cloth2);
-    }
-    
 //    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
     
     NUM_SPRINGS   = SpringConstraint.getSpringCount(physics.getParticles(), true);
@@ -182,37 +171,10 @@ public class VerletPhysics_Cloth extends PApplet {
       NEED_REBUILD = false;
     }
     
-    boolean mouseInteraction = !cp5.isMouseOver();
+    updateMouseInteractions();
 
-    // Mouse Interaction: particles position
-    if(mouseInteraction && !DELETE_SPRINGS && particle_mouse != null){
-      VerletParticle2D particle = particle_mouse;
-      float dx = mouseX - particle.cx;
-      float dy = mouseY - particle.cy;
-      
-      float damping_pos = 0.2f;
-      particle.px = particle.cx;
-      particle.py = particle.cy;
-      particle.cx  += dx * damping_pos;
-      particle.cy  += dy * damping_pos;
-    }
-    
-    // Mouse Interaction: deleting springs/constraints between particles
-    if(mouseInteraction && DELETE_SPRINGS && mousePressed){
-      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
-      for(VerletParticle2D tmp : list){
-        SpringConstraint.deactivateSprings(tmp);
-        tmp.collision_group = physics.getNewCollisionGroupId();
-        tmp.rad_collision = tmp.rad;
-      }
-    }
-
-    
-    
     // update physics simulation
     physics.update(1);
-    
-    
     
     // render
     background(DISPLAY_MODE == 0 ?  255 : 92);
@@ -240,7 +202,7 @@ public class VerletPhysics_Cloth extends PApplet {
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
     }
 
-    
+
     // some info, windows title
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
@@ -321,27 +283,40 @@ public class VerletPhysics_Cloth extends PApplet {
     return list;
   }
   
+  
+  public void updateMouseInteractions(){
+    if(cp5.isMouseOver()) return; 
+    
+    // deleting springs/constraints between particles
+    if(DELETE_SPRINGS){
+      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
+      for(VerletParticle2D tmp : list){
+        SpringConstraint.deactivateSprings(tmp);
+        tmp.collision_group = physics.getNewCollisionGroupId();
+        tmp.rad_collision = tmp.rad;
+      }
+    } else {
+      if(particle_mouse != null) particle_mouse.moveTo(mouseX, mouseY, 0.2f);
+    }
+  }
+  
+  
   boolean DELETE_SPRINGS = false;
   float   DELETE_RADIUS = 20;
 
   public void mousePressed(){
     boolean mouseInteraction = !cp5.isMouseOver();
-    
     if(mouseInteraction){
-      if(mouseButton == RIGHT ) DELETE_SPRINGS = true;
-      
+      if(mouseButton == RIGHT ) DELETE_SPRINGS = true; 
       if(!DELETE_SPRINGS){
         particle_mouse = findNearestParticle(mouseX, mouseY, 100);
-        if(particle_mouse != null){
-          if(mouseButton == LEFT  ) particle_mouse.enable(false, false, false);
-          if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
-        }
+        if(particle_mouse != null) particle_mouse.enable(false, false, false);
       }
     }
   }
   
   public void mouseReleased(){
-    if(particle_mouse != null && !DELETE_SPRINGS){
+    if(!DELETE_SPRINGS && particle_mouse != null){
       if(mouseButton == LEFT  ) particle_mouse.enable(true, true, true);
       if(mouseButton == CENTER) particle_mouse.enable(true, false, false);
       particle_mouse = null;
@@ -350,8 +325,8 @@ public class VerletPhysics_Cloth extends PApplet {
   }
   
   public void keyReleased(){
-    if(key == 's') repairAllSprings();
     if(key == 'r') initBodies();
+    if(key == 's') repairAllSprings();
     if(key == 'm') applySpringMemoryEffect();
     if(key == '1') DISPLAY_MODE = 0;
     if(key == '2') DISPLAY_MODE = 1;
@@ -461,7 +436,7 @@ public class VerletPhysics_Cloth extends PApplet {
           .setRange(0, 7).setValue(physics.param.GRAVITY[1]).plugTo(this, "setGravity");
       
       cp5.addSlider("iter: springs").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 30).setValue(physics.param.iterations_springs).plugTo( physics.param, "iterations_springs");
+          .setRange(0, 50).setValue(physics.param.iterations_springs).plugTo( physics.param, "iterations_springs");
       
       cp5.addSlider("iter: collisions").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 10).setValue(physics.param.iterations_collisions).plugTo( physics.param, "iterations_collisions");

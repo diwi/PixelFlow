@@ -57,6 +57,11 @@ public class VerletPhysics2D {
     }
   }
   
+  public void setParticles(VerletParticle2D[] particles_set, int particles_set_count){
+    this.particles = particles_set;
+    this.particles_count = particles_set_count;
+  }
+  
   
   public void reset(){
     collision_group_id = 1; 
@@ -73,7 +78,7 @@ public class VerletPhysics2D {
   }
   
 
-  public void update(VerletParticle2D[] particles, int particles_count, float timestep){
+  private void update(VerletParticle2D[] particles, int particles_count, float timestep){
     
     float xmin = param.bounds[0];
     float ymin = param.bounds[1];

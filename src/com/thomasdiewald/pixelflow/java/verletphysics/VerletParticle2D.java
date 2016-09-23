@@ -195,40 +195,45 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // VERLET INTEGRATION
   //////////////////////////////////////////////////////////////////////////////
+  public void moveTo(float cx_new, float cy_new, float damping){
+    px  = cx;
+    py  = cy;
+    cx += (cx_new - cx) * damping;
+    cy += (cy_new - cy) * damping;
+  }
+  
+  
   public void addForce(float ax, float ay){
     this.ax += ax / mass;
     this.ay += ay / mass;
   }
   
   public void addGravity(float gx, float gy){
+    
     this.ax += gx;
     this.ay += gy;
   }
   
   
   public void updatePosition(float xmin, float ymin, float xmax, float ymax, float timestep) {
-    if(!enable_forces) return;
-    
-    float vx = (cx - px) * param.DAMP_VELOCITY;
-    float vy = (cy - py) * param.DAMP_VELOCITY;
- 
-    px = cx;
-    py = cy;
-
-    // verlet integration
-    cx += vx + ax * 0.5 * timestep * timestep;
-    cy += vy + ay * 0.5 * timestep * timestep;
-    
+    if(enable_forces){
+      // velocity
+      float vx = (cx - px) * param.DAMP_VELOCITY;
+      float vy = (cy - py) * param.DAMP_VELOCITY;
+   
+      px = cx;
+      py = cy;
+  
+      // verlet integration
+      cx += vx + ax * 0.5 * timestep * timestep;
+      cy += vy + ay * 0.5 * timestep * timestep;
+      
+      // constrain bounds
+      updateBounds(xmin, ymin, xmax, ymax);
+    }
     ax = ay = 0;
-    
-    
-    // constrain bounds
-    updateBounds(xmin, ymin, xmax, ymax);
   }
-  
 
-  
-  int save = -1;
   
   
   //////////////////////////////////////////////////////////////////////////////
@@ -576,7 +581,7 @@ public class VerletParticle2D implements CollisionObject{
     float vel  = getVelocity();
     float radn = 1.1f * rad / MAX_RAD;
 
-    getShading(vel * 0.05f, rgb);
+    getShading(vel, rgb);
     int a = 255;
     int r = clamp(rgb[0] * radn) & 0xFF;
     int g = clamp(rgb[1] * radn) & 0xFF;
@@ -587,8 +592,8 @@ public class VerletParticle2D implements CollisionObject{
   }
   
   public float getVelocity(){
-    float vx = cx-px;
-    float vy = cy-py;
+    float vx = cx - px;
+    float vy = cy - py;
     return (float) Math.sqrt(vx*vx + vy*vy);
   }
   

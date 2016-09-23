@@ -61,9 +61,12 @@ public class SoftBall extends SoftBody2D{
       px = circle_x + x * cirlce_r;
       py = circle_y + y * cirlce_r;
       particles[idx] = new CustomVerletParticle2D(idx_world, px, py, nodes_r);
-      particles[idx].collision_group = collision_group_id;
       particles[idx].setParamByRef(param);
       particles[idx].setRadiusCollision(nodes_r * collision_radius_scale);
+      particles[idx].collision_group = collision_group_id;
+      if(self_collisions){
+        particles[idx].collision_group = physics.getNewCollisionGroupId();
+      }
     }
     
  

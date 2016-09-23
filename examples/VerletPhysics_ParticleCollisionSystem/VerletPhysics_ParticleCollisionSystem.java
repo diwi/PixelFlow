@@ -12,7 +12,6 @@ package VerletPhysics_ParticleCollisionSystem;
 
 
 import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
 import controlP5.Accordion;
@@ -88,24 +87,20 @@ public class VerletPhysics_ParticleCollisionSystem extends PApplet {
 
     //  add force: Middle Mouse Button (MMB) -> particle[0]
     if(mousePressed){
-      VerletParticle2D particle = particlesystem.particles[0];
-      float dx = mouseX - particle.cx;
-      float dy = mouseY - particle.cy;
-      
-      float damping_pos = 0.3f;
-      particle.cx  += dx * damping_pos;
-      particle.cy  += dy * damping_pos;
+      particlesystem.particles[0].moveTo(mouseX, mouseY, 0.3f);
+      particlesystem.particles[0].enableCollisions(false);
+    } else {
+      particlesystem.particles[0].enableCollisions(true);
     }
     
-
     // update physics step
     boolean collision_detection = COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0;
     
     physics.param.GRAVITY[1] = 0.05f * particlesystem.MULT_GRAVITY;
     physics.param.iterations_collisions = collision_detection ? 4 : 0;
 
-    physics.update(particlesystem.particles, particlesystem.particles.length, 1);
-    
+    physics.setParticles(particlesystem.particles, particlesystem.particles.length);
+    physics.update(1);
 
     // RENDER
     background(BACKGROUND_COLOR);
