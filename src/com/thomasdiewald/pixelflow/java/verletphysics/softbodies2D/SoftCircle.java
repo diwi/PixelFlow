@@ -2,12 +2,12 @@ package com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D;
 
 import java.util.Random;
 
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBody2D;
 
-public class SoftBall extends SoftBody2D{
+public class SoftCircle extends SoftBody2D{
   
   // specific attributes for this body
   float circle_x;
@@ -20,7 +20,7 @@ public class SoftBall extends SoftBody2D{
   Random rand;
   
   
-  public SoftBall(){
+  public SoftCircle(){
   }
   
   public void create(VerletPhysics2D physics, float circle_x, float circle_y, float cirlce_r, float nodes_r){
@@ -72,20 +72,20 @@ public class SoftBall extends SoftBody2D{
  
     // 2) create springs
     for(int i = 0; i < num_nodes; i++){
-      addSprings(i, 1, SpringConstraint.TYPE.STRUCT);
+      addSprings(i, 1, SpringConstraint2D.TYPE.STRUCT);
       
       if(bend_spring_mode == 0){
-        addSprings(i, 4, SpringConstraint.TYPE.BEND);
+        addSprings(i, 4, SpringConstraint2D.TYPE.BEND);
       }
       if(bend_spring_mode == 1){
-        addSprings(i, num_nodes/2, SpringConstraint.TYPE.BEND);
+        addSprings(i, num_nodes/2, SpringConstraint2D.TYPE.BEND);
       }
       if(bend_spring_mode == 2){
-        addSprings(i, num_nodes/3, SpringConstraint.TYPE.BEND);
+        addSprings(i, num_nodes/3, SpringConstraint2D.TYPE.BEND);
       }
       // random, 'kind of' anisotropic
       if(bend_spring_mode == 3){
-        addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), SpringConstraint.TYPE.BEND);
+        addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), SpringConstraint2D.TYPE.BEND);
       }
     }
     
@@ -94,11 +94,11 @@ public class SoftBall extends SoftBody2D{
   }
   
  
-  public VerletParticle2D getNode(VerletParticle2D[] particles, int idx){
+  public VerletParticle2D getNode(int idx){
     return particles[idx];
   }
   
-  public void addSprings(int ia, int off, SpringConstraint.TYPE type){
+  public void addSprings(int ia, int off, SpringConstraint2D.TYPE type){
     int ib_L = (num_nodes + ia + off) % num_nodes;
     int ib_R = (num_nodes + ia - off) % num_nodes;
     addSpring(ia, ib_L, type);
@@ -106,8 +106,8 @@ public class SoftBall extends SoftBody2D{
   }
   
   
-  public void addSpring(int ia, int ib, SpringConstraint.TYPE type){
-    SpringConstraint.addSpring(particles[ia], particles[ib], param_spring, type);
+  public void addSpring(int ia, int ib, SpringConstraint2D.TYPE type){
+    SpringConstraint2D.addSpring(particles[ia], particles[ib], param_spring, type);
   }
   
 

@@ -17,7 +17,6 @@ import com.thomasdiewald.pixelflow.java.ParticleSystem;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 
 import controlP5.Accordion;
-import controlP5.Button;
 import controlP5.ControlP5;
 import controlP5.Group;
 import controlP5.RadioButton;

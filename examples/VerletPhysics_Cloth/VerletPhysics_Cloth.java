@@ -1,3 +1,12 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * 
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
 package VerletPhysics_Cloth;
 
 
@@ -6,7 +15,7 @@ package VerletPhysics_Cloth;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBody2D;
@@ -36,8 +45,8 @@ public class VerletPhysics_Cloth extends PApplet {
   VerletParticle2D.Param param_particle_cloth2 = new VerletParticle2D.Param();
   
   // spring parameters
-  SpringConstraint.Param param_spring_cloth1 = new SpringConstraint.Param();
-  SpringConstraint.Param param_spring_cloth2 = new SpringConstraint.Param();
+  SpringConstraint2D.Param param_spring_cloth1 = new SpringConstraint2D.Param();
+  SpringConstraint2D.Param param_spring_cloth2 = new SpringConstraint2D.Param();
   
   // cloth objects
   SoftGrid cloth1 = new SoftGrid();
@@ -167,7 +176,7 @@ public class VerletPhysics_Cloth extends PApplet {
 
 //    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
     
-    NUM_SPRINGS   = SpringConstraint.getSpringCount(physics.getParticles(), true);
+    NUM_SPRINGS   = SpringConstraint2D.getSpringCount(physics.getParticles(), true);
     NUM_PARTICLES = physics.getParticlesCount();
   }
 
@@ -200,9 +209,9 @@ public class VerletPhysics_Cloth extends PApplet {
     
     // 2) springs
     for(SoftBody2D body : softbodies){
-      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint.TYPE.BEND  , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint2D.TYPE.BEND  , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint2D.TYPE.SHEAR , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint2D.TYPE.STRUCT, DISPLAY_MODE);
     }
 
     // interaction stuff
@@ -229,7 +238,7 @@ public class VerletPhysics_Cloth extends PApplet {
   // this resets all springs and particles, to some of its initial states
   // can be used after deactivating springs with the mouse
   public void repairAllSprings(){
-    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles());
+    SpringConstraint2D.makeAllSpringsUnidirectional(physics.getParticles());
     for(SoftBody2D body : softbodies){
       for(VerletParticle2D pa : body.particles){
         pa.setCollisionGroup(body.collision_group_id);
@@ -302,7 +311,7 @@ public class VerletPhysics_Cloth extends PApplet {
     if(DELETE_SPRINGS){
       ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
       for(VerletParticle2D tmp : list){
-        SpringConstraint.deactivateSprings(tmp);
+        SpringConstraint2D.deactivateSprings(tmp);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;
       }

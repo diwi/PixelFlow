@@ -1,3 +1,12 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * 
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
 package VerletPhysics_SoftBodyComplex;
 
 
@@ -6,10 +15,10 @@ package VerletPhysics_SoftBodyComplex;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
-import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBall;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftCircle;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftBody2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D.SoftGrid;
 
@@ -87,10 +96,10 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
     VerletParticle2D.Param param_particle = new VerletParticle2D.Param();
     
     // spring parameters: different spring behavior for different bodies
-    SpringConstraint.Param param_spring_cloth    = new SpringConstraint.Param();
-    SpringConstraint.Param param_spring_softbody = new SpringConstraint.Param();
-    SpringConstraint.Param param_spring_chain    = new SpringConstraint.Param();
-    SpringConstraint.Param param_spring_circle   = new SpringConstraint.Param();
+    SpringConstraint2D.Param param_spring_cloth    = new SpringConstraint2D.Param();
+    SpringConstraint2D.Param param_spring_softbody = new SpringConstraint2D.Param();
+    SpringConstraint2D.Param param_spring_chain    = new SpringConstraint2D.Param();
+    SpringConstraint2D.Param param_spring_circle   = new SpringConstraint2D.Param();
     
     // particle parameters
     param_particle.DAMP_BOUNDS     = 0.40f;
@@ -118,7 +127,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
 
     SoftGrid lattice_girder = new SoftGrid();
     SoftGrid chain          = new SoftGrid();
-    SoftBall circle         = new SoftBall();
+    SoftCircle circle         = new SoftCircle();
     SoftGrid box            = new SoftGrid();
     
     // lattice girder
@@ -169,7 +178,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
       VerletParticle2D pa = lattice_girder.getNode(14, 1);
       VerletParticle2D pb = chain         .getNode( 0, 0);
       float rest_len = lattice_girder.nodes_r + chain.nodes_r;
-      SpringConstraint.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint.TYPE.STRUCT);
+      SpringConstraint2D.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint2D.TYPE.STRUCT);
     }
 
     
@@ -177,7 +186,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
     {
       nodes_r = 10;
       nodes_start_y = height-150;
-      SoftBall body = circle;
+      SoftCircle body = circle;
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.bend_spring_mode = 3;
@@ -195,7 +204,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
       VerletParticle2D pa = circle.getNode(0);
       VerletParticle2D pb = chain .getNode(0, 9);
       float rest_len = chain.nodes_r * 5;
-      SpringConstraint.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint.TYPE.STRUCT);
+      SpringConstraint2D.addSpring(pa, pb, rest_len*rest_len, param_spring_chain, SpringConstraint2D.TYPE.STRUCT);
     }
     
     
@@ -220,7 +229,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
     }
 
     
-    NUM_SPRINGS   = SpringConstraint.getSpringCount(physics.getParticles(), true);
+    NUM_SPRINGS   = SpringConstraint2D.getSpringCount(physics.getParticles(), true);
     NUM_PARTICLES = physics.getParticlesCount();
   }
 
@@ -252,9 +261,9 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
     
     // 2) springs
     for(SoftBody2D body : softbodies){
-      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint.TYPE.BEND  , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint2D.TYPE.BEND  , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint2D.TYPE.SHEAR , DISPLAY_MODE);
+      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint2D.TYPE.STRUCT, DISPLAY_MODE);
     }
 
     // interaction stuff
@@ -278,7 +287,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
   // this resets all springs and particles, to some of its initial states
   // can be used after deactivating springs with the mouse
   public void repairAllSprings(){
-    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles());
+    SpringConstraint2D.makeAllSpringsUnidirectional(physics.getParticles());
     for(SoftBody2D body : softbodies){
       for(VerletParticle2D pa : body.particles){
         pa.setCollisionGroup(body.collision_group_id);
@@ -348,7 +357,7 @@ public class VerletPhysics_SoftBodyComplex extends PApplet {
     if(DELETE_SPRINGS){
       ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
       for(VerletParticle2D tmp : list){
-        SpringConstraint.deactivateSprings(tmp);
+        SpringConstraint2D.deactivateSprings(tmp);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;
       }

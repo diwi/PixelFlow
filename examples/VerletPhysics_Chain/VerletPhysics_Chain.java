@@ -1,3 +1,12 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * 
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
 package VerletPhysics_Chain;
 
 
@@ -7,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 import processing.core.*;
@@ -24,9 +33,8 @@ public class VerletPhysics_Chain extends PApplet {
  
   // particle behavior, different presets for different bodies
   VerletParticle2D.Param param_chain = new VerletParticle2D.Param();
-  SpringConstraint.Param param_spring_chain = new SpringConstraint.Param();
+  SpringConstraint2D.Param param_spring_chain = new SpringConstraint2D.Param();
 
-  
   // all we need is an array of particles
   int particles_count = 0;
   VerletParticle2D[] particles = new VerletParticle2D[particles_count];
@@ -64,9 +72,7 @@ public class VerletPhysics_Chain extends PApplet {
     param_chain.DAMP_BOUNDS          = 0.50f;
     param_chain.DAMP_COLLISION       = 0.9990f;
     param_chain.DAMP_VELOCITY        = 0.991f; 
-//    param_chain.DAMP_SPRING_decrease = 0.999999f; // contraction (... to restlength)
-//    param_chain.DAMP_SPRING_increase = 0.999999f; // expansion   (... to restlength)
-    
+
     param_spring_chain.damp_dec = 0.99999f;
     param_spring_chain.damp_inc = 0.99999f;
     
@@ -113,7 +119,7 @@ public class VerletPhysics_Chain extends PApplet {
       VerletParticle2D pb = particles[idx_prev];
       pa.px = pb.cx;
       pa.py = pb.cy;
-      SpringConstraint.addSpring(pb, pa, rest_len*rest_len, param_spring_chain);
+      SpringConstraint2D.addSpring(pb, pa, rest_len*rest_len, param_spring_chain);
       NUM_SPRINGS++;
     }
   }
@@ -155,7 +161,7 @@ public class VerletPhysics_Chain extends PApplet {
     for(int i = 0; i < particles_count; i++){
       VerletParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        SpringConstraint spring = pa.springs[j];
+        SpringConstraint2D spring = pa.springs[j];
         if(spring.is_the_good_one){
           VerletParticle2D pb = spring.pb;
           float force = Math.abs(spring.force);
@@ -239,7 +245,7 @@ public class VerletPhysics_Chain extends PApplet {
     if(DELETE_SPRINGS){
       ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
       for(VerletParticle2D tmp : list){
-        SpringConstraint.deactivateSprings(tmp);
+        SpringConstraint2D.deactivateSprings(tmp);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;
       }

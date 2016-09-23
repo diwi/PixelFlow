@@ -103,7 +103,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       fluid.tex_density.swap();
     }
     
-    
+    /*
     // custom shader, to add temperature from a texture (PGraphics2D) to the fluid.
     public void addTemperatureTexture(Fluid fluid, OpticalFlow opticalflow){
       context.begin();
@@ -122,6 +122,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       context.end("app.addTemperatureTexture");
       fluid.tex_temperature.swap();
     }
+    */
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
     public void addVelocityTexture(Fluid fluid, OpticalFlow opticalflow){

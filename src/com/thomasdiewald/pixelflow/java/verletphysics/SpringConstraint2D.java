@@ -12,7 +12,7 @@ package com.thomasdiewald.pixelflow.java.verletphysics;
 
 import java.util.ArrayList;
 
-public class SpringConstraint {
+public class SpringConstraint2D {
   
   
 
@@ -46,7 +46,7 @@ public class SpringConstraint {
   // other.pb returns the origin of this spring
   // this  spring: pa -> pb
   // other spring: pa <- pb
-  public SpringConstraint other;
+  public SpringConstraint2D other;
   
   // other end of this spring. pa -> pb
   public VerletParticle2D pb;
@@ -55,11 +55,11 @@ public class SpringConstraint {
   public float dd_rest;
   public float force;
   
-  private SpringConstraint(VerletParticle2D particle, float spring_len_sq, Param param){
+  private SpringConstraint2D(VerletParticle2D particle, float spring_len_sq, Param param){
     this(particle, spring_len_sq, param, TYPE.STRUCT);
   }
 
-  private SpringConstraint(VerletParticle2D particle, float spring_len_sq, Param param, TYPE type){
+  private SpringConstraint2D(VerletParticle2D particle, float spring_len_sq, Param param, TYPE type){
     this.pb         = particle;
     this.param      = param;
     this.type       = type;
@@ -103,8 +103,8 @@ public class SpringConstraint {
   static public void addSpring(VerletParticle2D pa, VerletParticle2D pb, float rest_len_sq, Param param, TYPE type){
     if(pa == pb) return;
     
-    SpringConstraint spring_pa_pb = new SpringConstraint(pb, rest_len_sq, param, type);
-    SpringConstraint spring_pb_pa = new SpringConstraint(pa, rest_len_sq, param, type);
+    SpringConstraint2D spring_pa_pb = new SpringConstraint2D(pb, rest_len_sq, param, type);
+    SpringConstraint2D spring_pb_pa = new SpringConstraint2D(pa, rest_len_sq, param, type);
     
     spring_pa_pb.other = spring_pb_pa;
     spring_pb_pa.other = spring_pa_pb;
@@ -139,7 +139,7 @@ public class SpringConstraint {
       for(int i = 0; i < particles.length; i++){
         VerletParticle2D pa = particles[i];
         for(int j = 0; j < pa.spring_count; j++){
-          SpringConstraint pa_spring = pa.springs[j];
+          SpringConstraint2D pa_spring = pa.springs[j];
           if(pa_spring.is_the_good_one) spring_count++;
         }
       }
@@ -156,7 +156,7 @@ public class SpringConstraint {
     for(int i = 0; i < particles.length; i++){
       VerletParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        SpringConstraint pa_spring = pa.springs[j];
+        SpringConstraint2D pa_spring = pa.springs[j];
         pa_spring.other.is_the_good_one = !pa_spring.is_the_good_one;
       }
     }
@@ -167,15 +167,15 @@ public class SpringConstraint {
     for(int i = 0; i < particles.length; i++){
       VerletParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        SpringConstraint pa_spring = pa.springs[j];
+        SpringConstraint2D pa_spring = pa.springs[j];
         pa_spring.other.is_the_good_one = pa_spring.is_the_good_one = true;
       }
     }
   }
   
-  static public SpringConstraint deleteSpring(VerletParticle2D pa, VerletParticle2D pb){
-    SpringConstraint sa = pa.removeSpring(pb);
-    SpringConstraint sb = pb.removeSpring(pa);
+  static public SpringConstraint2D deleteSpring(VerletParticle2D pa, VerletParticle2D pb){
+    SpringConstraint2D sa = pa.removeSpring(pb);
+    SpringConstraint2D sb = pb.removeSpring(pa);
     
     if(sa.other != sb && sb.other != sa){
       System.out.println("error: SpringConstraints not Linked to each other!!");
@@ -183,12 +183,12 @@ public class SpringConstraint {
     return sa;
   }
   
-  static public ArrayList<SpringConstraint> deleteSprings(VerletParticle2D pa){
-    return deleteSprings(pa, (ArrayList<SpringConstraint>) null);
+  static public ArrayList<SpringConstraint2D> deleteSprings(VerletParticle2D pa){
+    return deleteSprings(pa, (ArrayList<SpringConstraint2D>) null);
   }
   
-  static public ArrayList<SpringConstraint> deleteSprings(VerletParticle2D pa, ArrayList<SpringConstraint> removed_springs){
-    if(removed_springs == null) removed_springs = new ArrayList<SpringConstraint>();
+  static public ArrayList<SpringConstraint2D> deleteSprings(VerletParticle2D pa, ArrayList<SpringConstraint2D> removed_springs){
+    if(removed_springs == null) removed_springs = new ArrayList<SpringConstraint2D>();
     while(pa.spring_count > 0){
       VerletParticle2D pb = pa.springs[0].pb;
       removed_springs.add(deleteSpring(pa, pb));
@@ -196,13 +196,13 @@ public class SpringConstraint {
     return removed_springs;
   }
   
-  static public ArrayList<SpringConstraint> deactivateSprings(VerletParticle2D pa){
-    return deactivateSprings(pa, (ArrayList<SpringConstraint>) null);
+  static public ArrayList<SpringConstraint2D> deactivateSprings(VerletParticle2D pa){
+    return deactivateSprings(pa, (ArrayList<SpringConstraint2D>) null);
   }
-  static public ArrayList<SpringConstraint> deactivateSprings(VerletParticle2D pa, ArrayList<SpringConstraint> deactivated_springs){
-    if(deactivated_springs == null) deactivated_springs = new ArrayList<SpringConstraint>();
+  static public ArrayList<SpringConstraint2D> deactivateSprings(VerletParticle2D pa, ArrayList<SpringConstraint2D> deactivated_springs){
+    if(deactivated_springs == null) deactivated_springs = new ArrayList<SpringConstraint2D>();
     for(int j = 0; j < pa.spring_count; j++){
-      SpringConstraint pa_spring = pa.springs[j];
+      SpringConstraint2D pa_spring = pa.springs[j];
       pa_spring.is_the_good_one       = false;
       pa_spring.other.is_the_good_one = false;
       deactivated_springs.add(pa_spring);

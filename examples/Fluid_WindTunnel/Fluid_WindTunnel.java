@@ -300,7 +300,7 @@ public class Fluid_WindTunnel extends PApplet {
     int argb = Velocity.Polar.encode_vX_vY(vx, vy);
     float[] vam = Velocity.Polar.getArc(vx, vy);
     
-    float vA = vam[0]; // velocity direction (angle)
+//    float vA = vam[0]; // velocity direction (angle)
     float vM = vam[1]; // velocity magnitude
     
     if(vM == 0){
