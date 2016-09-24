@@ -1,22 +1,24 @@
-package com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D;
+package com.thomasdiewald.pixelflow.java.verletphysics.softbodies3D;
 
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint3D;
+import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle3D;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PShape;
 
-public abstract class SoftBody2D{
+public abstract class SoftBody3D{
   
   
   // for customizing the particle we just extends the original class and
   // Override what we want to customize
-  public class CustomVerletParticle2D extends VerletParticle2D{
+  public class CustomVerletParticle3D extends VerletParticle3D{
     
     
-    public CustomVerletParticle2D(int idx, float x, float y, float rad) {
-      super(idx, x, y, rad);
+    public CustomVerletParticle3D(int idx, float x, float y, float z, float rad) {
+      super(idx, x, y, z, rad);
     }
     
     @Override
@@ -43,15 +45,15 @@ public abstract class SoftBody2D{
   public int collision_group_id;       // particles that share the same id, are ignored during collision tests
   public int num_nodes;                // number of particles for this object
   public int nodes_offset;             // offset in the global array, used for creating a unique id
-  public VerletParticle2D[] particles; // particles of this body
+  public VerletParticle3D[] particles; // particles of this body
   public PShape shp_particles;         // shape for drawing all particles of this body
   
   
-  public VerletParticle2D.Param param_particle = new  VerletParticle2D.Param();
-  public SpringConstraint2D.Param param_spring   = new  SpringConstraint2D.Param();
+  public VerletParticle3D.Param   param_particle = new VerletParticle3D.Param();
+  public SpringConstraint3D.Param param_spring   = new SpringConstraint3D.Param();
   
   
-  public SoftBody2D(){
+  public SoftBody3D(){
   }
   
   
@@ -59,10 +61,10 @@ public abstract class SoftBody2D{
   
 
   
-  public void setParam(VerletParticle2D.Param param_particle){
+  public void setParam(VerletParticle3D.Param param_particle){
     this.param_particle = param_particle;
   }
-  public void setParam(SpringConstraint2D.Param param_spring){
+  public void setParam(SpringConstraint3D.Param param_spring){
     this.param_spring = param_spring;
   }
   
@@ -86,15 +88,16 @@ public abstract class SoftBody2D{
     shp_particles = papplet.createShape(PShape.GROUP);
     for(int i = 0; i < particles.length; i++){
       float rad = particles[i].rad;
-      PShape shp_pa = papplet.createShape(PConstants.ELLIPSE, 0, 0, rad*2, rad*2);
-      shp_pa.setStroke(false);
-      shp_pa.setFill(true);
+      PShape shp_pa = papplet.createShape(PConstants.POINT, 0, 0);
+      shp_pa.setStroke(true);
+      shp_pa.setStrokeWeight(5);
+      
 //      shp_pa.setFill(particle_color);
       
       particles[i].setShape(shp_pa);
       shp_particles.addChild(shp_pa);
     }
-    shp_particles.getTessellation();
+//    shp_particles.getTessellation();
   }
 
   
@@ -105,7 +108,7 @@ public abstract class SoftBody2D{
   }
   
   
-  public void drawSprings(PGraphics pg, SpringConstraint2D.TYPE type, int display_mode){
+  public void drawSprings(PGraphics pg, SpringConstraint3D.TYPE type, int display_mode){
     if(display_mode == -1) return;
     if(type == null) return;
     
@@ -114,10 +117,10 @@ public abstract class SoftBody2D{
 
     pg.beginShape(PConstants.LINES);
     for(int i = 0; i < particles.length; i++){
-      VerletParticle2D pa = particles[i];
+      VerletParticle3D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        SpringConstraint2D spring = pa.springs[j];
-        VerletParticle2D pb = spring.pb;
+        SpringConstraint3D spring = pa.springs[j];
+        VerletParticle3D pb = spring.pb;
         if(!spring.is_the_good_one) continue;
         if(type != spring.type) continue;
               
@@ -144,14 +147,14 @@ public abstract class SoftBody2D{
       
         pg.strokeWeight(strokeweight);
         pg.stroke(r,g,b);
-        pg.vertex(pa.cx, pa.cy); 
-        pg.vertex(pb.cx, pb.cy);
+        pg.vertex(pa.cx, pa.cy, pa.cz); 
+        pg.vertex(pb.cx, pb.cy, pb.cz);
       }
     }
     pg.endShape();
     
   }
-  
+
   
 
 

@@ -14,11 +14,12 @@ import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.CollisionObject;
 
-import processing.core.PMatrix2D;
+
+import processing.core.PMatrix3D;
 import processing.core.PShape;
 
 
-public class VerletParticle2D implements CollisionObject{
+public class VerletParticle3D implements CollisionObject{
   
   // max radius among all particles, can be used for normalization, ...
   static public float MAX_RAD = 0; 
@@ -44,17 +45,17 @@ public class VerletParticle2D implements CollisionObject{
   
 
     // physics: verlet integration
-  public float cx = 0, cy = 0; // current position
-  public float px = 0, py = 0; // previous position
-  public float ax = 0, ay = 0; // acceleration
-  public float rad  = 0;       // radius
-  public float rad_collision  = 0;  // collision radius
-  public float mass = 1f;      // mass
+  public float cx = 0, cy = 0, cz = 0; // current position
+  public float px = 0, py = 0, pz = 0; // previous position
+  public float ax = 0, ay = 0, az = 0; // acceleration
+  public float rad  = 0;           // radius
+  public float rad_collision  = 0; // collision radius
+  public float mass = 1f;          // mass
 
   
   // Spring Constraints
   public int spring_count = 0;
-  public SpringConstraint2D[] springs = null;
+  public SpringConstraint3D[] springs = null;
   
   
   // don'd apply collision on particles within the same group
@@ -64,29 +65,28 @@ public class VerletParticle2D implements CollisionObject{
   
   // display shape
   private PShape    shp_particle  = null;
-  private PMatrix2D shp_transform = null;
+  private PMatrix3D shp_transform = null;
   
 
-  public VerletParticle2D(int idx) {
+  public VerletParticle3D(int idx) {
     this.idx = idx;
     this.collision_group = idx;
   }
-  public VerletParticle2D(int idx, float x, float y, float rad) {
+  public VerletParticle3D(int idx, float x, float y, float z, float rad) {
     this(idx);
-    setPosition(x, y);
+    setPosition(x, y, z);
     setRadius(rad);
   }
-  public VerletParticle2D(int idx, float x, float y, float rad, Param param) {
+  public VerletParticle3D(int idx, float x, float y, float z, float rad, Param param) {
     this(idx);
-    setPosition(x, y);
+    setPosition(x, y, z);
     setRadius(rad);
     setParamByRef(param);
   }
-  public void setPosition(float x, float y){
-    this.cx = x;
-    this.cy = y;
-    this.px = x;
-    this.py = y;
+  public void setPosition(float x, float y, float z){
+    this.cx = this.px = x;
+    this.cy = this.py = y;
+    this.cz = this.pz = z;
   }
   
   public void setRadius(float rad_){
@@ -132,7 +132,7 @@ public class VerletParticle2D implements CollisionObject{
   
 
 
-  protected void addSpring(SpringConstraint2D spring){
+  protected void addSpring(SpringConstraint3D spring){
 
     // make sure we don't have multiple springs to the same vertex.
     int pos = 0;
@@ -145,7 +145,7 @@ public class VerletParticle2D implements CollisionObject{
     if(springs == null || spring_count >= springs.length){
       int new_len = (int) Math.max(2, Math.ceil(spring_count*1.5f) );
       if( springs == null){
-        springs = new SpringConstraint2D[new_len];
+        springs = new SpringConstraint3D[new_len];
       } else {
         springs = Arrays.copyOf(springs, new_len);
       }
@@ -162,8 +162,8 @@ public class VerletParticle2D implements CollisionObject{
 //    }
   }
   
-  protected SpringConstraint2D removeSpring(VerletParticle2D pb){
-    SpringConstraint2D removed = null;
+  protected SpringConstraint3D removeSpring(VerletParticle3D pb){
+    SpringConstraint3D removed = null;
     int pos = 0;
     for(pos = 0; pos < spring_count; pos++){
       if(springs[pos].pb == pb){
@@ -194,43 +194,49 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // VERLET INTEGRATION
   //////////////////////////////////////////////////////////////////////////////
-  public void moveTo(float cx_new, float cy_new, float damping){
+  public void moveTo(float cx_new, float cy_new, float cz_new, float damping){
     px  = cx;
     py  = cy;
+    pz  = cz;
     cx += (cx_new - cx) * damping;
     cy += (cy_new - cy) * damping;
+    cz += (cz_new - cz) * damping;
   }
   
   
-  public void addForce(float ax, float ay){
+  public void addForce(float ax, float ay, float az){
     this.ax += ax / mass;
     this.ay += ay / mass;
+    this.az += az / mass;
   }
   
-  public void addGravity(float gx, float gy){
-    
+  public void addGravity(float gx, float gy, float gz){
     this.ax += gx;
     this.ay += gy;
+    this.az += gz;
   }
   
   
-  public void updatePosition(float xmin, float ymin, float xmax, float ymax, float timestep) {
+  public void updatePosition(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax, float timestep) {
     if(enable_forces){
       // velocity
       float vx = (cx - px) * param.DAMP_VELOCITY;
       float vy = (cy - py) * param.DAMP_VELOCITY;
-   
+      float vz = (cz - pz) * param.DAMP_VELOCITY;
+      
       px = cx;
       py = cy;
+      pz = cz;
   
       // verlet integration
       cx += vx + ax * 0.5 * timestep * timestep;
       cy += vy + ay * 0.5 * timestep * timestep;
+      cz += vz + az * 0.5 * timestep * timestep;
       
       // constrain bounds
-      updateBounds(xmin, ymin, xmax, ymax);
+      updateBounds(xmin, ymin, zmin, xmax, ymax, zmax);
     }
-    ax = ay = 0;
+    ax = ay = az = 0;
   }
 
   
@@ -240,17 +246,18 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
 
   
-  public void updateSprings(VerletParticle2D[] particles){
+  public void updateSprings(VerletParticle3D[] particles){
     // sum up force of attached springs
-    VerletParticle2D pa = this;
+    VerletParticle3D pa = this;
     for(int i = 0; i < spring_count; i++){
-      SpringConstraint2D spring = springs[i];
+      SpringConstraint3D spring = springs[i];
       if(!spring.is_the_good_one) continue;
-      VerletParticle2D pb = spring.pb;
+      VerletParticle3D pb = spring.pb;
       
       float dx = pb.cx - pa.cx;
       float dy = pb.cy - pa.cy;
-
+      float dz = pb.cz - pa.cz;
+      
       float force = spring.updateForce();
       
       float pa_mass_factor = 2f * pb.mass / (pa.mass + pb.mass);
@@ -260,10 +267,12 @@ public class VerletParticle2D implements CollisionObject{
       if(pa.enable_springs){
         pa.cx -= dx * force * pa_mass_factor;
         pa.cy -= dy * force * pa_mass_factor;  
+        pa.cz -= dz * force * pa_mass_factor;  
       } 
       if(pb.enable_springs){
         pb.cx += dx * force * pb_mass_factor;
-        pb.cy += dy * force * pb_mass_factor;  
+        pb.cy += dy * force * pb_mass_factor; 
+        pb.cz += dz * force * pb_mass_factor; 
       }
 
       // 2) GPU-Version: converges slower, but result is more accurate
@@ -273,6 +282,7 @@ public class VerletParticle2D implements CollisionObject{
 //      if(pa.enable_springs){
 //        pa.spring_x -= dx * force * pa_mass_factor;
 //        pa.spring_y -= dy * force * pa_mass_factor;  
+//        pa.spring_z -= dz * force * pa_mass_factor;  
 //      }
     }
   }
@@ -281,16 +291,18 @@ public class VerletParticle2D implements CollisionObject{
   // spring force
   public float spring_x = 0;
   public float spring_y = 0;
+  public float spring_z = 0;
   
   public void beforeSprings(){
-    spring_x = spring_y = 0;
+    spring_x = spring_y = spring_z = 0;
   }
-  public void afterSprings(float xmin, float ymin, float xmax, float ymax){
+  public void afterSprings(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax){
 //    if(spring_count > 0){
 //      cx += spring_x / spring_count;
 //      cy += spring_y / spring_count;
+//      cz += spring_z / spring_count;
 //    }
-    updateBounds(xmin, ymin, xmax, ymax);
+    updateBounds(xmin, ymin, zmin, xmax, ymax, zmax);
   }
   
   
@@ -334,7 +346,7 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // PARTICLE COLLISION
   //////////////////////////////////////////////////////////////////////////////
-  public void updateCollision(VerletParticle2D othr) {
+  public void updateCollision(VerletParticle3D othr) {
 
     if(!enable_collisions) return;
     if(othr.collision_group == this.collision_group) return; // particles are of the same group
@@ -345,7 +357,8 @@ public class VerletParticle2D implements CollisionObject{
       
     float dx        = othr.cx - this.cx;
     float dy        = othr.cy - this.cy;
-    float dd_cur_sq = dx*dx + dy*dy; // squared distance!
+    float dz        = othr.cz - this.cz;
+    float dd_cur_sq = dx*dx + dy*dy + dz*dz;
     float dd_min    = othr.rad_collision + this.rad_collision;
     float dd_min_sq = dd_min*dd_min;
     
@@ -357,23 +370,27 @@ public class VerletParticle2D implements CollisionObject{
 //      float force      = (0.5f * (dd_min - dd_cur) / (dd_cur + 0.00001f)) * param.DAMP_COLLISION;
 //      this.collision_x = dx * force * this_mass_factor;
 //      this.collision_y = dy * force * this_mass_factor;
-
+//      this.collision_z = dz * force * this_mass_factor;
+      
       // http://www.gotoandplay.it/_articles/2005/08/advCharPhysics.php
       float force   = (dd_min_sq / (dd_cur_sq + dd_min_sq) - 0.5f) * param.DAMP_COLLISION;
 
       this.collision_x -= dx * force * this_mass_factor;
       this.collision_y -= dy * force * this_mass_factor;
-
+      this.collision_z -= dz * force * this_mass_factor;
+      
       this.collision_count++;
 //      if(this.enable_collisions)
 //      {
 //        this.cx -= dx * force * this_mass_factor;
 //        this.cy -= dy * force * this_mass_factor;
+//        this.cz -= dz * force * this_mass_factor;
 //      }
 //      if(othr.enable_collisions)
 //      {
 //        othr.cx += dx * force * othr_mass_factor;
 //        othr.cy += dy * force * othr_mass_factor;
+//        othr.cz += dz * force * othr_mass_factor;
 //      }
     }
   }
@@ -383,16 +400,17 @@ public class VerletParticle2D implements CollisionObject{
   // collision force
   private float collision_x;
   private float collision_y;
+  private float collision_z;
   
   public void beforeCollision(){
-    collision_x = collision_y = 0;
+    collision_x = collision_y = collision_z = 0;
     collision_count = 0;
   }
-  public void afterCollision(float xmin, float ymin, float xmax, float ymax){
+  public void afterCollision(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax){
 //    if(collision_count == 0) return;
     // prevent explosions
     float limit = 1f;
-//    float dd_sq = collision_x*collision_x + collision_y*collision_y;
+//    float dd_sq = collision_x*collision_x + collision_y*collision_y + collision_z*collision_z;
 //    float dd_max = rad/(float)(collision_count);
 //
 //    if( dd_sq > dd_max*dd_max){
@@ -401,8 +419,8 @@ public class VerletParticle2D implements CollisionObject{
     
     cx += collision_x * limit;
     cy += collision_y * limit;
-    
-    updateBounds(xmin, ymin, xmax, ymax);
+    cz += collision_z * limit;
+    updateBounds(xmin, ymin, zmin, xmax, ymax, zmax);
   }
   
   
@@ -414,23 +432,16 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   // BOUNDARY COLLISION
   //////////////////////////////////////////////////////////////////////////////
-  public void updateBounds(float xmin, float ymin, float xmax, float ymax){
-    if(!enable_collisions){
-      return;
-    }
-    float vx, vy;
+  public void updateBounds(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax){
+    if(!enable_collisions) return;
+    float vx, vy, vz;
     float damping = param.DAMP_BOUNDS;
-    if ((cx - rad) < xmin) { vx = cx - px; vy = cy - py; cx = xmin + rad; px = cx + vx * damping; py = cy - vy * damping; }
-    if ((cx + rad) > xmax) { vx = cx - px; vy = cy - py; cx = xmax - rad; px = cx + vx * damping; py = cy - vy * damping; }
-    if ((cy - rad) < ymin) { vx = cx - px; vy = cy - py; cy = ymin + rad; px = cx - vx * damping; py = cy + vy * damping; }
-    if ((cy + rad) > ymax) { vx = cx - px; vy = cy - py; cy = ymax - rad; px = cx - vx * damping; py = cy + vy * damping; }
-    
-
-    // causes damping in both axis, friction
-//    if ((cx - rad) < xmin) { cx = xmin + rad; px = cx; py = cy; }
-//    if ((cx + rad) > xmax) { cx = xmax - rad; px = cx; py = cy; }
-//    if ((cy - rad) < ymin) { cy = ymin + rad; px = cx; py = cy; }
-//    if ((cy + rad) > ymax) { cy = ymax - rad; px = cx; py = cy; }
+    if ((cx - rad) < xmin) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=xmin+rad;px=cx+vx*damping;py=cy-vy*damping;pz=cz-vz*damping;}
+    if ((cx + rad) > xmax) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=xmax-rad;px=cx+vx*damping;py=cy-vy*damping;pz=cz-vz*damping;}
+    if ((cy - rad) < ymin) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=ymin+rad;px=cx-vx*damping;py=cy+vy*damping;pz=cz-vz*damping;}
+    if ((cy + rad) > ymax) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=ymax-rad;px=cx-vx*damping;py=cy+vy*damping;pz=cz-vz*damping;}
+    if ((cz - rad) < zmin) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=zmin+rad;px=cx-vx*damping;py=cy-vy*damping;pz=cz+vz*damping;}
+    if ((cz + rad) > zmax) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=zmax-rad;px=cx-vx*damping;py=cy-vy*damping;pz=cz+vz*damping; }
   }
   
   
@@ -448,7 +459,7 @@ public class VerletParticle2D implements CollisionObject{
   
   
   
-  private VerletParticle2D collision_ptr = null;
+  private VerletParticle3D collision_ptr = null;
 
   @Override
   public final void resetCollisionPtr() {
@@ -457,7 +468,7 @@ public class VerletParticle2D implements CollisionObject{
   
   @Override
   public final void update(CollisionObject othr) {
-    updateCollision((VerletParticle2D)othr);
+    updateCollision((VerletParticle3D)othr);
   }
 
   @Override
@@ -469,9 +480,10 @@ public class VerletParticle2D implements CollisionObject{
   public final float y() {
     return cy;
   }
+  
   @Override
   public final float z() {
-    return 0;
+    return cz;
   }
 
 
@@ -505,7 +517,7 @@ public class VerletParticle2D implements CollisionObject{
   //////////////////////////////////////////////////////////////////////////////
   public void setShape(PShape shape){
     shp_particle = shape;
-    shp_transform = new PMatrix2D();
+    shp_transform = new PMatrix3D();
     updateShapePosition();
   }
 
@@ -525,8 +537,8 @@ public class VerletParticle2D implements CollisionObject{
     // build transformation matrix
     if(shp_transform != null){
       shp_transform.reset();
-      shp_transform.translate(cx, cy);
-      shp_transform.rotate((float)Math.atan2(cy-py, cx-px));
+      shp_transform.translate(cx, cy, cz);
+//      shp_transform.rotate((float)Math.atan2(cy-py, cx-px));
     }
 
     // update shape position
@@ -582,7 +594,8 @@ public class VerletParticle2D implements CollisionObject{
   public float getVelocity(){
     float vx = cx - px;
     float vy = cy - py;
-    return (float) Math.sqrt(vx*vx + vy*vy);
+    float vz = cz - pz;
+    return (float) Math.sqrt(vx*vx + vy*vy + vz*vz);
   }
   
   

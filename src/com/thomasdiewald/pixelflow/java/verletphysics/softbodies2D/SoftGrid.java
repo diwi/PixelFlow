@@ -2,7 +2,7 @@ package com.thomasdiewald.pixelflow.java.verletphysics.softbodies2D;
 
 import java.util.Random;
 
-import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint;
+import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
 
@@ -65,34 +65,34 @@ public class SoftGrid extends SoftBody2D{
       for(x = 0; x < nodes_x; x++){
         
         if(CREATE_STRUCT_SPRINGS){
-          addSpring(x, y, -1, 0, SpringConstraint.TYPE.STRUCT);
-          addSpring(x, y,  0,-1, SpringConstraint.TYPE.STRUCT);
-          addSpring(x, y, +1, 0, SpringConstraint.TYPE.STRUCT);
-          addSpring(x, y,  0,+1, SpringConstraint.TYPE.STRUCT);
+          addSpring(x, y, -1, 0, SpringConstraint2D.TYPE.STRUCT);
+          addSpring(x, y,  0,-1, SpringConstraint2D.TYPE.STRUCT);
+          addSpring(x, y, +1, 0, SpringConstraint2D.TYPE.STRUCT);
+          addSpring(x, y,  0,+1, SpringConstraint2D.TYPE.STRUCT);
         }
                   
         if(CREATE_SHEAR_SPRINGS){
-          addSpring(x, y, -1,-1, SpringConstraint.TYPE.SHEAR);
-          addSpring(x, y, +1,-1, SpringConstraint.TYPE.SHEAR);
-          addSpring(x, y, -1,+1, SpringConstraint.TYPE.SHEAR);
-          addSpring(x, y, +1,+1, SpringConstraint.TYPE.SHEAR);
+          addSpring(x, y, -1,-1, SpringConstraint2D.TYPE.SHEAR);
+          addSpring(x, y, +1,-1, SpringConstraint2D.TYPE.SHEAR);
+          addSpring(x, y, -1,+1, SpringConstraint2D.TYPE.SHEAR);
+          addSpring(x, y, +1,+1, SpringConstraint2D.TYPE.SHEAR);
         }
         
         if(CREATE_BEND_SPRINGS && bend_spring_dist > 0){
           // diagonal
           if(bend_spring_mode == 0){
-            addSpring(x, y, -ox, -oy, SpringConstraint.TYPE.BEND);
-            addSpring(x, y, +ox, -oy, SpringConstraint.TYPE.BEND);
-            addSpring(x, y, -ox, +oy, SpringConstraint.TYPE.BEND);
-            addSpring(x, y, +ox, +oy, SpringConstraint.TYPE.BEND);
+            addSpring(x, y, -ox, -oy, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, +ox, -oy, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, -ox, +oy, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, +ox, +oy, SpringConstraint2D.TYPE.BEND);
           }
           
           // orthogonal
           if(bend_spring_mode == 1){
-            addSpring(x, y, -ox,   0, SpringConstraint.TYPE.BEND);
-            addSpring(x, y, +ox,   0, SpringConstraint.TYPE.BEND);
-            addSpring(x, y,   0, +oy, SpringConstraint.TYPE.BEND);
-            addSpring(x, y,   0, -oy, SpringConstraint.TYPE.BEND);
+            addSpring(x, y, -ox,   0, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, +ox,   0, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y,   0, +oy, SpringConstraint2D.TYPE.BEND);
+            addSpring(x, y,   0, -oy, SpringConstraint2D.TYPE.BEND);
           }
           
           // random, 'kind of' anisotropic
@@ -108,7 +108,7 @@ public class SoftGrid extends SoftBody2D{
 //              float rand_rad = 1.5f + bend_spring_dist * rand.nextFloat();
 //              ox = (int) Math.round(rx * rand_rad);
 //              oy = (int) Math.round(ry * rand_rad);
-              addSpring(x, y, ox, oy, SpringConstraint.TYPE.BEND);
+              addSpring(x, y, ox, oy, SpringConstraint2D.TYPE.BEND);
             }
           }
         }
@@ -132,18 +132,18 @@ public class SoftGrid extends SoftBody2D{
   }
   
   
-  public void addSpring(int x, int y, int offx, int offy, SpringConstraint.TYPE type){
-    int nx = x + offx;
-    int ny = y + offy;
+  public void addSpring(int ax, int ay, int offx, int offy, SpringConstraint2D.TYPE type){
+    int bx = ax + offx;
+    int by = ay + offy;
     
     // clamp offset to grid-bounds
-    if(nx < 0) nx = 0; else if(nx > nodes_x-1) nx = nodes_x-1;
-    if(ny < 0) ny = 0; else if(ny > nodes_y-1) ny = nodes_y-1;
+    if(bx < 0) bx = 0; else if(bx > nodes_x-1) bx = nodes_x-1;
+    if(by < 0) by = 0; else if(by > nodes_y-1) by = nodes_y-1;
 
-    int ia =  y * nodes_x +  x;
-    int ib = ny * nodes_x + nx;
+    int ia = ay * nodes_x + ax;
+    int ib = by * nodes_x + bx;
 
-    SpringConstraint.addSpring(particles[ia], particles[ib], param_spring, type);
+    SpringConstraint2D.addSpring(particles[ia], particles[ib], param_spring, type);
   }
   
 

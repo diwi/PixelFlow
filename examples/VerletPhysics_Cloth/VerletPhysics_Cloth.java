@@ -97,14 +97,14 @@ public class VerletPhysics_Cloth extends PApplet {
     physics.param.iterations_springs    = 4;
     
     // particle parameters for Cloth1
-    param_particle_cloth1.DAMP_BOUNDS          = 0.40f;
-    param_particle_cloth1.DAMP_COLLISION       = 0.99999f;
-    param_particle_cloth1.DAMP_VELOCITY        = 0.991f; 
+    param_particle_cloth1.DAMP_BOUNDS    = 0.50000f;
+    param_particle_cloth1.DAMP_COLLISION = 0.99999f;
+    param_particle_cloth1.DAMP_VELOCITY  = 0.99100f; 
     
     // particle parameters for Cloth2
-    param_particle_cloth2.DAMP_BOUNDS          = 0.40f;
-    param_particle_cloth2.DAMP_COLLISION       = 0.99999f;
-    param_particle_cloth2.DAMP_VELOCITY        = 0.991f; 
+    param_particle_cloth2.DAMP_BOUNDS    = 0.50000f;
+    param_particle_cloth2.DAMP_COLLISION = 0.99999f;
+    param_particle_cloth2.DAMP_VELOCITY  = 0.99100f; 
 
     // spring parameters for Cloth1
     param_spring_cloth1.damp_dec = 0.999999f;
@@ -113,7 +113,6 @@ public class VerletPhysics_Cloth extends PApplet {
     // spring parameters for Cloth2  
     param_spring_cloth2.damp_dec = 0.999999f;
     param_spring_cloth2.damp_inc = 0.000599f;
-    
     
     // initial cloth building parameters, both cloth start the same
     cloth1.CREATE_STRUCT_SPRINGS = true;
