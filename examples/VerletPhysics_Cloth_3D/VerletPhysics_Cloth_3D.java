@@ -66,9 +66,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   // entities to display
   boolean DISPLAY_PARTICLES      = !true;
+  boolean DISPLAY_MESH           = true;
+  boolean DISPLAY_SRPINGS        = true;
   boolean DISPLAY_SPRINGS_STRUCT = true;
   boolean DISPLAY_SPRINGS_SHEAR  = true;
-  boolean DISPLAY_SPRINGS_BEND   = !true;
+  boolean DISPLAY_SPRINGS_BEND   = true;
+  boolean UPDATE_PHYSICS         = true;
   
   // first thing to do, inside draw()
   boolean NEED_REBUILD = true;
@@ -145,7 +148,13 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     cube.CREATE_SHEAR_SPRINGS  = true;
     cube.CREATE_BEND_SPRINGS   = true;
     cube.bend_spring_mode      = 0;
-    cube.bend_spring_dist      = 8;
+    cube.bend_spring_dist      = 2;
+    
+    cube2.CREATE_STRUCT_SPRINGS = true;
+    cube2.CREATE_SHEAR_SPRINGS  = true;
+    cube2.CREATE_BEND_SPRINGS   = true;
+    cube2.bend_spring_mode      = 0;
+    cube2.bend_spring_dist      = 2;
 
 //    createGUI();
 
@@ -171,7 +180,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     int nodes_start_y = 0;
     int nodes_start_z = nodes_y * nodes_r*2-200;
     
-    cloth.setParticleColor(color(255, 180,   0, 128));
+    cloth.setParticleColor(color(64));
     cloth.setParam(param_particle_cloth);
     cloth.setParam(param_spring_cloth);
     cloth.self_collisions = true;
@@ -190,10 +199,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     nodes_start_y = 300;
     nodes_start_z = nodes_y * nodes_r*2+200;
     
-    cube.setParticleColor(color(255, 180,   0, 128));
+    cube.setParticleColor(color(255, 180,   0));
     cube.setParam(param_particle_cube);
     cube.setParam(param_spring_cube);
     cube.self_collisions = false;
+    cube.self_collisions = true;
+    cube.collision_radius_scale = 1f;
     cube.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
 //    cube.getNode(              0, 0, 0).enable(false, false, false); // fix node to current location
     cube.createParticlesShape(this);
@@ -208,10 +219,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     nodes_start_y = -nodex_x * nodes_r * 4;
     nodes_start_z = nodes_y * nodes_r*2+200;
     
-    cube2.setParticleColor(color(255, 180,   0, 128));
+    cube2.setParticleColor(color(40, 180, 255));
     cube2.setParam(param_particle_cube);
     cube2.setParam(param_spring_cube);
     cube2.self_collisions = false;
+    cube2.self_collisions = true;
+    cube2.collision_radius_scale = 1f;
     cube2.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
 //    cube.getNode(              0, 0, 0).enable(false, false, false); // fix node to current location
     cube2.createParticlesShape(this);
@@ -226,127 +239,192 @@ public class VerletPhysics_Cloth_3D extends PApplet {
 
 
   
-  // vec4-buffers, for transformation
-  public float SNAP_RADIUS = 60;
-  PMatrix3D pg_projmodelview = new PMatrix3D();
-  float[] particle_world  = new float[4];
-  float[] particle_screen = new float[4];
-  float[] mouse_world     = new float[4];
-  float[] mouse_screen    = new float[4];
-  float particle_screen_z;
+
   
-  public void draw() {
-    
-    if(NEED_REBUILD){
-      initBodies();
-      NEED_REBUILD = false;
-    }
-    
+  // transformation matrices
+  PMatrix3D pg_projmodelview     = new PMatrix3D();
+  PMatrix3D pg_projmodelview_inv = new PMatrix3D();
+  // vec4-buffers, for transformation
+  float[]   mouse_world     = new float[4];
+  float[]   mouse_screen    = new float[4];
+  float[]   particle_world  = new float[4];
+  float[]   particle_screen = new float[4];
+  float     particle_screen_z;
+  
+  // this transforms a coordinate (vec4) from model-space to screen-space
+  
+  public void transformToScreen(VerletParticle3D particle, float[] buf_world, float[] buf_screen){
+    buf_world[0] = particle.cx;
+    buf_world[1] = particle.cy;
+    buf_world[2] = particle.cz;
+    buf_world[3] = 1;
+    transformToScreen(buf_world, buf_screen);
+  }
+  public void transformToScreen(float[] buf_world, float[] buf_screen){
+    buf_world[3] = 1;
+    pg_projmodelview.mult(buf_world, buf_screen);
+    float w_inv = 1f/buf_screen[3];
+    buf_screen[0] = ((buf_screen[0] * w_inv) * +0.5f + 0.5f) * width;
+    buf_screen[1] = ((buf_screen[1] * w_inv) * -0.5f + 0.5f) * height;
+    buf_screen[2] = ((buf_screen[2] * w_inv) * +0.5f + 0.5f);
+  }
+  
+  // this transforms a coordinate (vec4) from screen-space to model-space
+  public void transformToWorld(float[] buf_screen, float[] buf_world){
+    buf_screen[0] = ((buf_screen[0]/(float)width ) * 2 - 1) * +1;
+    buf_screen[1] = ((buf_screen[1]/(float)height) * 2 - 1) * -1;
+    buf_screen[2] = ((buf_screen[2]              ) * 2 - 1) * +1;
+    buf_screen[3] = 1;
+    pg_projmodelview_inv.mult(buf_screen, buf_world);
+    float w_inv = 1f/buf_world[3];
+    buf_world[0] *= w_inv;
+    buf_world[1] *= w_inv;
+    buf_world[2] *= w_inv;
+  }
+  
+  
+  
+  
+  VerletParticle3D particle_nearest = null;
+  
+  
+  void findNearestParticle(float mx, float my, float radius){
     int particles_count = physics.getParticlesCount();
     VerletParticle3D[] particles = physics.getParticles();
     
-    // wind
-//    for(int i = 0; i < particles_count; i++){
-//      VerletParticle3D pa = particles[i];
-//      pa.addForce(0, noise(i) *0.5f, 0);
-//    }
-    
-    
-    
-    pg_projmodelview.set(((PGraphics3D) this.g).projmodelview);
-    
-    boolean TRY_SNAPPING = !(keyPressed && keyCode == ALT);
-    if(TRY_SNAPPING && !mousePressed){
-      particle_mouse = null;
-      
-      float dd_min = SNAP_RADIUS * SNAP_RADIUS;
+    float dd_min = SNAP_RADIUS * radius;
 
-      // transform Particles: world -> screen
-      for(int i = 0; i < particles_count; i++){
-        VerletParticle3D pa = particles[i];
-        particle_world[0] = pa.cx;
-        particle_world[1] = pa.cy;
-        particle_world[2] = pa.cz;
-        particle_world[3] = 1;
-        pg_projmodelview.mult(particle_world, particle_screen);
-        float w_inv = 1f/particle_screen[3];
-        particle_screen[0] = ((particle_screen[0] * w_inv) * +0.5f + 0.5f) * width;
-        particle_screen[1] = ((particle_screen[1] * w_inv) * -0.5f + 0.5f) * height;
-        particle_screen[2] = ((particle_screen[2] * w_inv) * +0.5f + 0.5f);
-        
-        float dx = particle_screen[0] - mouseX;
-        float dy = particle_screen[1] - mouseY;
-        float dd_sq = dx*dx + dy*dy;
-        if(dd_sq < dd_min){
-          dd_min = dd_sq;
-          particle_mouse = pa;
-          particle_screen_z = particle_screen[2];
-        }
-      }  
+    particle_nearest = null;
+    // transform Particles: world -> screen
+    for(int i = 0; i < particles_count; i++){
+      VerletParticle3D pa = particles[i];
+      transformToScreen(pa, particle_world, particle_screen);
+      float dx = particle_screen[0] - mx;
+      float dy = particle_screen[1] - my;
+      float dd_sq = dx*dx + dy*dy;
+      if(dd_sq < dd_min){
+        dd_min = dd_sq;
+        particle_nearest = pa;
+        particle_screen_z = particle_screen[2];
+      }
+    }  
+  }
+  
+  ArrayList<VerletParticle3D> particles_within_radius = new ArrayList<VerletParticle3D>();
+  void findParticlesWithinRadius(float mx, float my, float radius){
+    int particles_count = physics.getParticlesCount();
+    VerletParticle3D[] particles = physics.getParticles();
+    
+    float dd_min = radius * radius;
+    particles_within_radius.clear();
+
+    // transform Particles: world -> screen
+    for(int i = 0; i < particles_count; i++){
+      VerletParticle3D pa = particles[i];
+      transformToScreen(pa, particle_world, particle_screen);
+      float dx = particle_screen[0] - mx;
+      float dy = particle_screen[1] - my;
+      float dd_sq = dx*dx + dy*dy;
+      if(dd_sq < dd_min){
+        particles_within_radius.add(pa);
+      }
+    }  
+  }
+  
+  boolean APPLY_WIND     = false;
+  boolean MOVE_CAM       = false;
+  boolean MOVE_PARTICLE  = false;
+  boolean SNAP_PARTICLE  = false;
+  float   SNAP_RADIUS    = 60;
+  boolean DELETE_SPRINGS = false;
+  float   DELETE_RADIUS  = 15;
+
+  public void mousePressed(){
+    if((mouseButton == LEFT || mouseButton == CENTER) && !MOVE_CAM){
+      MOVE_PARTICLE = true;
     }
-    
-    boolean SNAP_PARTICLE = TRY_SNAPPING && particle_mouse != null;
-    boolean MOVE_PARTICLE = SNAP_PARTICLE && mousePressed && mouseButton != RIGHT;
-    
-    if(SNAP_PARTICLE){
-      // transform Mouse-Position: screen -> world
-      mouse_screen[0] = ((mouseX/(float)width ) * 2 - 1) * +1;
-      mouse_screen[1] = ((mouseY/(float)height) * 2 - 1) * -1;
-      mouse_screen[2] = (particle_screen_z      * 2 - 1) * +1;
-      mouse_screen[3] = 1;
-      pg_projmodelview.invert();
-      pg_projmodelview.mult(mouse_screen, mouse_world);
-      float w_inv = 1f/mouse_world[3];
-      mouse_world[0] *= w_inv;
-      mouse_world[1] *= w_inv;
-      mouse_world[2] *= w_inv;
-
-      if(MOVE_PARTICLE){
-        particle_mouse.enable(false, false, false);
-        particle_mouse.moveTo(mouse_world[0], mouse_world[1], mouse_world[2], 0.1f);
+    if(mouseButton == RIGHT && !MOVE_CAM){
+      DELETE_SPRINGS = true;
+    }
+  }
+  
+  public void mouseReleased(){
+    if(!MOVE_CAM){
+      if(!DELETE_SPRINGS && particle_nearest != null){
+        if(mouseButton == LEFT  ) particle_nearest.enable(true, true, true);
+        if(mouseButton == CENTER) particle_nearest.enable(true, false, false);
+        particle_nearest = null;
+      }
+      if(mouseButton == RIGHT) DELETE_SPRINGS = false;
+    }
+   
+    MOVE_PARTICLE  = false;
+    DELETE_SPRINGS = false;
+  }
+  
+  public void keyPressed(){
+    if(key == CODED){
+      if(keyCode == ALT){
+        MOVE_CAM = true;
       }
     }
+  }
+  
+  public void keyReleased(){
+    if(key == 'r') initBodies();
+    if(key == 's') repairAllSprings();
+    if(key == 'm') applySpringMemoryEffect();
+    if(key == '1') DISPLAY_MODE = 0;
+    if(key == '2') DISPLAY_MODE = 1;
     
+    if(key == '3') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    if(key == '4') DISPLAY_MESH      = !DISPLAY_MESH;
+    if(key == '5') DISPLAY_SRPINGS   = !DISPLAY_SRPINGS;
+    
+    if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
+    if(key == 'c') printCam();
+    if(key == 'v') peasycam.setState(cam_state_0, 700);
+    
+    MOVE_CAM = false; 
+  }
 
+  
+  
+  public void updateMouseInteractions(){
     
-    // update physics simulation
-    physics.update(1);
+    // deleting springs/constraints between particles
+    if(DELETE_SPRINGS){
+      findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
+      for(VerletParticle3D particle : particles_within_radius){
+        SpringConstraint3D.deactivateSprings(particle);
+        particle.collision_group = physics.getNewCollisionGroupId();
+        particle.rad_collision = particle.rad;
+      }
+    } 
     
+    if(!MOVE_PARTICLE){
+      findNearestParticle(mouseX, mouseY, SNAP_RADIUS);
+      SNAP_PARTICLE = particle_nearest != null;
+    }
+    
+    if(SNAP_PARTICLE){
+      mouse_screen[0] = mouseX;
+      mouse_screen[1] = mouseY;
+      mouse_screen[2] = particle_screen_z;
+      transformToWorld(mouse_screen, mouse_world);
 
-    // disable peasycam-interaction while we edit the model
-    peasycam.setActive(!SNAP_PARTICLE);
-    
-    
-    
-    ////////////////////////////////////////////////////////////////////////////
-    // RENDER this madness
-    ////////////////////////////////////////////////////////////////////////////
-    background(92);
-    strokeWeight(2);
-    displayGridXY(20, 100);
-    displayGizmo(1000);
-    displayAABB(physics.param.bounds);
-//    lights();
-//    directionalLight(255,255,255, 500, 200, 300);
-//    specular(255,0,0);
-//    shininess(5);
-  lights();
-//  pointLight(255, 255, 255,  500,  500,  1000);
-//    pointLight(200, 200, 200, -1000, -1000, -10);
-  //  directionalLight(255, 255, 255, -1, -1, -1);
-    
-//    ambientLight(128, 128, 128);
-//    directionalLight(200, 200, 200, -1, -1, -1);
-//    lightFalloff(1.0f, 0.001f, 0.0f);
-//    lightSpecular(204, 204, 204);
-//    specular(255, 255, 255);
-//    shininess(64);
-    
-
-
+      if(MOVE_PARTICLE){
+        particle_nearest.enable(false, false, false);
+        particle_nearest.moveTo(mouse_world, 0.1f);
+      }
+    }
+  }
+  
+  
+  public void displayMouseInteraction(){
     if(SNAP_PARTICLE){
       int col_snap         = color(255, 100, 200);
-      int col_move_release = color(125, 255, 0);
+      int col_move_release = color(64, 180, 0);
       int col_move_fixed   = color(255, 30, 10); 
       
       int col = col_snap;
@@ -359,11 +437,11 @@ public class VerletPhysics_Cloth_3D extends PApplet {
        
       strokeWeight(1);
       stroke(col);
-      line(particle_mouse.cx, particle_mouse.cy, particle_mouse.cz, mouse_world[0], mouse_world[1], mouse_world[2]);
+      line(particle_nearest.cx, particle_nearest.cy, particle_nearest.cz, mouse_world[0], mouse_world[1], mouse_world[2]);
     
       strokeWeight(10);
       stroke(col);
-      point(particle_mouse.cx, particle_mouse.cy, particle_mouse.cz);
+      point(particle_nearest.cx, particle_nearest.cy, particle_nearest.cz);
       
       peasycam.beginHUD();
       stroke(col);
@@ -374,38 +452,121 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     }
     
     
+    if(DELETE_SPRINGS){
+      peasycam.beginHUD();
+      strokeWeight(2);
+      stroke(255,0,0);
+      fill(255, 0, 0, 64);
+ 
+      ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
+      peasycam.endHUD();
+    }
+  }
+  
+  
+  public void draw() {
+    
+    
+    if(NEED_REBUILD){
+      initBodies();
+      NEED_REBUILD = false;
+    }
+    
+    pg_projmodelview    .set(((PGraphics3D) this.g).projmodelview);
+    pg_projmodelview_inv.set(((PGraphics3D) this.g).projmodelview);
+    pg_projmodelview_inv.invert();
+    
+    int particles_count = physics.getParticlesCount();
+    VerletParticle3D[] particles = physics.getParticles();
+    
+    
+    if(APPLY_WIND){
+      for(int i = 0; i < particles_count; i++){
+        VerletParticle3D pa = particles[i];
+        pa.addForce(0, noise(i) *0.5f, 0);
+      }
+    }
+
+ 
+    updateMouseInteractions();
+    
+    // disable peasycam-interaction while we edit the model
+
+    peasycam.setActive(MOVE_CAM || (!SNAP_PARTICLE));
+ 
+    // update physics simulation
+    if(UPDATE_PHYSICS){
+      physics.update(1);
+    }
+    
+
+    
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // RENDER this madness
+    ////////////////////////////////////////////////////////////////////////////
+    background(92);
+    
+    strokeWeight(2);
+    displayGridXY(20, 100);
+    displayGizmo(1000);
+    displayAABB(physics.param.bounds);
+    
+//    lights();
+//    directionalLight(92,64,64, 1, 0, 1);
+//    specular(255,0,0);
+//    shininess(5);
+//    lights();
+//    pointLight(255, 255, 255,  500,  500,  1000);
+    pointLight(220, 180, 140, -1000, -1000, -10);
+  //  directionalLight(255, 255, 255, -1, -1, -1);
+    
+    ambientLight(128, 128, 128);
+    directionalLight(200, 200, 200, -1, -1, -1);
+    lightFalloff(1.0f, 0.001f, 0.0f);
+//    lightSpecular(204, 204, 204);
+//    specular(128, 128, 128);
+//    shininess(64);
+    
+
+
+
     // 1) particles
-    if(DISPLAY_PARTICLES){
+    if(DISPLAY_PARTICLES)
+    {
       for(SoftBody3D body : softbodies){
-        body.use_particles_color = (DISPLAY_MODE == 0);
+//        body.use_particles_color = (DISPLAY_MODE == 0);
+        body.use_particles_color = true;
         body.drawParticles(this.g);
       }
     }
     
-    
-    // 2) springs
-    for(SoftBody3D body : softbodies){
-      if(body != cloth || DISPLAY_MODE == 1){
-        if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, SpringConstraint3D.TYPE.BEND  , DISPLAY_MODE);
-        if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, SpringConstraint3D.TYPE.SHEAR , DISPLAY_MODE);
-        if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, SpringConstraint3D.TYPE.STRUCT, DISPLAY_MODE);
+    if(DISPLAY_SRPINGS){
+      // 2) springs
+      for(SoftBody3D body : softbodies){
+        if(body != cloth || DISPLAY_MODE == 1){
+          body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+          body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+          body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+          
+  //        body.drawSprings(this.g, SpringConstraint3D.TYPE.BEND  , DISPLAY_MODE);
+  //        body.drawSprings(this.g, SpringConstraint3D.TYPE.SHEAR , DISPLAY_MODE);
+  //        body.drawSprings(this.g, SpringConstraint3D.TYPE.STRUCT, DISPLAY_MODE);
+  
+          body.displaySprings(this.g, DISPLAY_MODE);
+        }
+      }
+    }
+    if(DISPLAY_MESH){
+      if(DISPLAY_MODE == 0){
+        displayCloth((SoftCube) softbodies.get(0));
       }
     }
     
-
-    if(DISPLAY_MODE == 0){
-      drawCloth((SoftCube) softbodies.get(0));
-    }
     
-    
-
     // interaction stuff
-//    if(DELETE_SPRINGS){
-//      fill(255,64);
-//      stroke(0);
-//      strokeWeight(1);
-//      ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
-//    }
+    displayMouseInteraction();
 
 
     // some info, windows title
@@ -417,7 +578,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   
   
-  public void drawCloth(SoftCube cloth){
+  public void displayCloth(SoftCube cloth){
     boolean DRAW_NORMALS = false;
     
 
@@ -620,7 +781,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       plane_zmin.beginShape(QUAD);
       plane_zmin.stroke(0);
       plane_zmin.strokeWeight(1);
-      plane_zmin.fill(200);
+      plane_zmin.fill(192);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmin, ymin, zmin);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmax, ymin, zmin);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmax, ymax, zmin);
@@ -711,95 +872,10 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   // User Interaction
   //////////////////////////////////////////////////////////////////////////////
  
-  VerletParticle3D particle_mouse = null;
-  
-//  public VerletParticle2D findNearestParticle(float mx, float my){
-//    return findNearestParticle(mx, my, Float.MAX_VALUE);
-//  }
-//  
-//  public VerletParticle2D findNearestParticle(float mx, float my, float search_radius){
-//    float dd_min_sq = search_radius * search_radius;
-//    VerletParticle2D[] particles = physics.getParticles();
-//    VerletParticle2D particle = null;
-//    for(int i = 0; i < particles.length; i++){
-//      float dx = mx - particles[i].cx;
-//      float dy = my - particles[i].cy;
-//      float dd_sq =  dx*dx + dy*dy;
-//      if( dd_sq < dd_min_sq){
-//        dd_min_sq = dd_sq;
-//        particle = particles[i];
-//      }
-//    }
-//    return particle;
-//  }
-//  
-//  public ArrayList<VerletParticle2D> findParticlesWithinRadius(float mx, float my, float search_radius){
-//    float dd_min_sq = search_radius * search_radius;
-//    VerletParticle2D[] particles = physics.getParticles();
-//    ArrayList<VerletParticle2D> list = new ArrayList<VerletParticle2D>();
-//    for(int i = 0; i < particles.length; i++){
-//      float dx = mx - particles[i].cx;
-//      float dy = my - particles[i].cy;
-//      float dd_sq =  dx*dx + dy*dy;
-//      if(dd_sq < dd_min_sq){
-//        list.add(particles[i]);
-//      }
-//    }
-//    return list;
-//  }
-//  
-//  
-//  public void updateMouseInteractions(){
-//    // deleting springs/constraints between particles
-//    if(DELETE_SPRINGS){
-//      ArrayList<VerletParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
-//      for(VerletParticle2D tmp : list){
-//        SpringConstraint2D.deactivateSprings(tmp);
-//        tmp.collision_group = physics.getNewCollisionGroupId();
-//        tmp.rad_collision = tmp.rad;
-//      }
-//    } else {
-//      if(particle_mouse != null) particle_mouse.moveTo(mouseX, mouseY, 0.2f);
-//    }
-//  }
-//  
-  
-  boolean DELETE_SPRINGS = false;
-  float   DELETE_RADIUS = 20;
 
-  public void mousePressed(){
-//    boolean mouseInteraction = true;
-//    if(mouseInteraction){
-//      if(mouseButton == RIGHT ) DELETE_SPRINGS = true; 
-//      if(!DELETE_SPRINGS){
-//        particle_mouse = findNearestParticle(mouseX, mouseY, 100);
-//        if(particle_mouse != null) particle_mouse.enable(false, false, false);
-//      }
-//    }
-  }
-  
-  public void mouseReleased(){
-    if(!DELETE_SPRINGS && particle_mouse != null){
-      if(mouseButton == LEFT  ) particle_mouse.enable(true, true, true);
-      if(mouseButton == CENTER) particle_mouse.enable(true, false, false);
-      particle_mouse = null;
-    }
-    if(mouseButton == RIGHT ) DELETE_SPRINGS = false;
-  }
-  
-  public void keyReleased(){
-    if(key == 'r') initBodies();
-    if(key == 's') repairAllSprings();
-    if(key == 'm') applySpringMemoryEffect();
-    if(key == '1') DISPLAY_MODE = 0;
-    if(key == '2') DISPLAY_MODE = 1;
-    if(key == 'p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
-    
-    if(key == 'c') printCam();
-    if(key == 'v') peasycam.setState(cam_state_0, 700);
-  }
 
-  
+
+
   void printCam(){
     float[] pos = peasycam.getPosition();
     float[] rot = peasycam.getRotations();

@@ -203,6 +203,15 @@ public class VerletParticle3D implements CollisionObject{
     cz += (cz_new - cz) * damping;
   }
   
+  public void moveTo(float[] cnew, float damping){
+    px  = cx;
+    py  = cy;
+    pz  = cz;
+    cx += (cnew[0] - cx) * damping;
+    cy += (cnew[1] - cy) * damping;
+    cz += (cnew[2] - cz) * damping;
+  }
+  
   
   public void addForce(float ax, float ay, float az){
     this.ax += ax / mass;
