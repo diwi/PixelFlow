@@ -99,10 +99,14 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
-    peasycam = new PeasyCam(this, 2.181, -116.050, 293.648, 1518.898);
+    double   distance = 1518.898;
+    double[] look_at  = {69.042,  26.385,   5.913};
+    double[] rotation = {-0.652,   0.894,  -0.814};
+    
+    peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
     peasycam.setMaximumDistance(10000);
     peasycam.setMinimumDistance(0.1f);
-    peasycam.setRotations( -1.014,   0.858,  -0.461);
+    peasycam.setRotations(rotation[0], rotation[1], rotation[2]);
     
     cam_state_0 = peasycam.getState();
     

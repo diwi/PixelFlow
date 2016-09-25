@@ -3,11 +3,11 @@ package com.thomasdiewald.pixelflow.java.verletphysics.softbodies3D;
 
 import java.util.ArrayList;
 
+import com.thomasdiewald.pixelflow.java.geometry.IcosahedronBuilder;
+import com.thomasdiewald.pixelflow.java.geometry.TetrahedronBuilder;
 import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle3D;
 
-import Icosahedron.Icosahedron;
-import Icosahedron.Tetrahedron;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -107,8 +107,8 @@ public abstract class SoftBody3D{
   }
 
   
-  Tetrahedron tetrahedron;
-  Icosahedron icosahedron;
+  TetrahedronBuilder tetrahedron;
+  IcosahedronBuilder icosahedron;
   PShape createShape(PApplet papplet, VerletParticle3D particle){
     PShape shape;
     
