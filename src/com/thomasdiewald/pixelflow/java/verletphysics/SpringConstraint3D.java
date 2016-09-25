@@ -103,6 +103,16 @@ public class SpringConstraint3D {
     return force;
   }
   
+//  public float computeTearDist(){
+//    float dx    = pb.cx - other.pb.cx;
+//    float dy    = pb.cy - other.pb.cy;
+//    float dz    = pb.cz - other.pb.cz;
+//    float dd_sq = dx*dx + dy*dy + dz*dz;
+//    float dd    = (float) Math.sqrt(dd_sq);
+//    float force = dd_rest - dd;
+//    return force;
+//  }
+  
   static public void addSpring(VerletParticle3D pa, VerletParticle3D pb, float rest_len_sq, Param param, TYPE type){
     if(pa == pb) return;
     

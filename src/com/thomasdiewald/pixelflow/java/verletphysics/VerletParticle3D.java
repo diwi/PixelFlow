@@ -56,6 +56,7 @@ public class VerletParticle3D implements CollisionObject{
   // Spring Constraints
   public int spring_count = 0;
   public SpringConstraint3D[] springs = null;
+  public boolean all_springs_deactivated = false;
   
   
   // don'd apply collision on particles within the same group
@@ -64,8 +65,8 @@ public class VerletParticle3D implements CollisionObject{
 
   
   // display shape
-  private PShape    shp_particle  = null;
-  private PMatrix3D shp_transform = null;
+  protected PShape    shp_particle  = null;
+  protected PMatrix3D shp_transform = null;
   
 
   public VerletParticle3D(int idx) {
@@ -611,4 +612,27 @@ public class VerletParticle3D implements CollisionObject{
   
   
 
+  
+  
+  
+  
+  
+  
+  // TODO, move to some Utils class
+  static public int cross(VerletParticle3D p, VerletParticle3D pA, VerletParticle3D pB, float[] cross){
+    if(pA == null || pA.all_springs_deactivated) return 0;
+    if(pB == null || pB.all_springs_deactivated) return 0;
+    float dxA = pA.cx - p.cx;
+    float dyA = pA.cy - p.cy;
+    float dzA = pA.cz - p.cz;
+    
+    float dxB = pB.cx - p.cx;
+    float dyB = pB.cy - p.cy;
+    float dzB = pB.cz - p.cz;
+    
+    cross[0] = dyA * dzB - dyB * dzA;
+    cross[1] = dzA * dxB - dzB * dxA;
+    cross[2] = dxA * dyB - dxB * dyA;
+    return 1;
+  }
 }
