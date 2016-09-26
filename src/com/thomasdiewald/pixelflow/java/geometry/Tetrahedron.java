@@ -3,8 +3,8 @@ package com.thomasdiewald.pixelflow.java.geometry;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
-public class TetrahedronBuilder{
+// TODO
+public class Tetrahedron{
 
   private int index;
   public ArrayList<int[]>   faces    = new ArrayList<int[]>();
@@ -67,9 +67,6 @@ public class TetrahedronBuilder{
     addFace(faces, 0,  1,  3);
 
    
-//    System.out.println("tetrahedron, level: "+0+", "+faces.size()+", "+vertices.size());
-
-
     // refine triangles
     for (int i = 0; i < subdivisions; i++){
       ArrayList<int[]> faces_tmp = new ArrayList<int[]>();
@@ -93,7 +90,6 @@ public class TetrahedronBuilder{
       }
       
       faces = faces_tmp;
-//      System.out.println("tetrahedron, level: "+i+", "+faces.size()+", "+vertices.size());
     }
   }
 }
