@@ -216,7 +216,8 @@ public abstract class SoftBody3D{
   
   
   
-  public float normal_length = 20;
+//  public 
+  public float display_normal_length = 20;
 
   public abstract void computeNormals();
   public abstract void displayMesh(PGraphics pg);

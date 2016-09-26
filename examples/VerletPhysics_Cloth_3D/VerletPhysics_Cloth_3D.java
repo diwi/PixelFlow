@@ -20,6 +20,7 @@ import com.thomasdiewald.pixelflow.java.filter.Filter;
 import com.thomasdiewald.pixelflow.java.verletphysics.SpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle3D;
 import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics3D;
+import com.thomasdiewald.pixelflow.java.verletphysics.softbodies3D.SoftBall;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies3D.SoftBody3D;
 import com.thomasdiewald.pixelflow.java.verletphysics.softbodies3D.SoftCube;
 
@@ -40,30 +41,40 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   int gui_x = viewport_w - gui_w;
   int gui_y = 0;
   
+  // main library context
   PixelFlow context;
   
-  // physics simulation
-  VerletPhysics3D physics;
+  // // physics simulation object
+  VerletPhysics3D physics = new VerletPhysics3D();
   
-  // particle parameters
-  VerletParticle3D.Param param_particle_cloth = new VerletParticle3D.Param();
-  VerletParticle3D.Param param_particle_cube  = new VerletParticle3D.Param();
-  
-  // spring parameters
-  SpringConstraint3D.Param param_spring_cloth = new SpringConstraint3D.Param();
-  SpringConstraint3D.Param param_spring_cube  = new SpringConstraint3D.Param();
-
-
   // cloth objects
   SoftCube cloth = new SoftCube();
-  SoftCube cube  = new SoftCube();
+  SoftCube cube1 = new SoftCube();
   SoftCube cube2 = new SoftCube();
-  PeasyCam peasycam;
+  SoftBall ball  = new SoftBall();
 
-  
-  // list, that wills store the cloths
+  // list, that wills store the softbody objects (cloths, cubes, balls, ...)
   ArrayList<SoftBody3D> softbodies = new ArrayList<SoftBody3D>();
+  
+  // particle parameters
+  VerletParticle3D.Param param_cloth_particle = new VerletParticle3D.Param();
+  VerletParticle3D.Param param_cube_particle  = new VerletParticle3D.Param();
+  VerletParticle3D.Param param_ball_particle  = new VerletParticle3D.Param();
+  
+  // spring parameters
+  SpringConstraint3D.Param param_cloth_spring = new SpringConstraint3D.Param();
+  SpringConstraint3D.Param param_cube_spring  = new SpringConstraint3D.Param();
+  SpringConstraint3D.Param param_ball_spring  = new SpringConstraint3D.Param();
+  
 
+  // camera
+  PeasyCam peasycam;
+  CameraState cam_state_0;
+  
+  // cloth texture
+  PGraphics2D texture;
+  
+  
   // 0 ... default: particles, spring
   // 1 ... tension
   int DISPLAY_MODE = 0;
@@ -81,15 +92,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   boolean UPDATE_PHYSICS         = true;
   
   // first thing to do, inside draw()
-  boolean NEED_REBUILD = true;
+  boolean NEED_REBUILD = false;
   
   // just for the window title-info
   int NUM_SPRINGS;
   int NUM_PARTICLES;
   
-  CameraState cam_state_0;
-  
-  PGraphics2D texture;
 
   public void settings(){
     size(viewport_w, viewport_h, P3D); 
@@ -98,82 +106,102 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
-    
-    double   distance = 1518.898;
-    double[] look_at  = {69.042,  26.385,   5.913};
-    double[] rotation = {-0.652,   0.894,  -0.814};
-    
-    peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
-    peasycam.setMaximumDistance(10000);
-    peasycam.setMinimumDistance(0.1f);
-    peasycam.setRotations(rotation[0], rotation[1], rotation[2]);
-    
-    cam_state_0 = peasycam.getState();
-    
-    float fov = PI/3.0f;
-    float cameraZ = (height/2.0f) / tan(fov/2.0f);
-    perspective(fov, width/(float)(height), cameraZ/100.0f, cameraZ*20.0f);
-    
 
     // main library context
     context = new PixelFlow(this);
     context.print();
     context.printGL();
     
-    physics = new VerletPhysics3D();
+    // modelview/projection
+    createCamera();
 
+    ////////////////////////////////////////////////////////////////////////////
+    // PARAMETER settings
+    // ... to control behavior of particles, springs, etc...
+    ////////////////////////////////////////////////////////////////////////////
+    
+    // physics world parameters
     int cs = 1500;
     physics.param.GRAVITY = new float[]{ 0, 0, -0.1f};
     physics.param.bounds  = new float[]{ -cs, -cs, 0, +cs, +cs, +cs };
     physics.param.iterations_collisions = 2;
     physics.param.iterations_springs    = 8;
     
-    // particle parameters for Cloth
-    param_particle_cloth.DAMP_BOUNDS    = 0.49999f;
-    param_particle_cloth.DAMP_COLLISION = 0.99999f;
-    param_particle_cloth.DAMP_VELOCITY  = 0.99991f; 
+    // particle parameters (for simulation)
+    param_cloth_particle.DAMP_BOUNDS    = 0.49999f;
+    param_cloth_particle.DAMP_COLLISION = 0.99999f;
+    param_cloth_particle.DAMP_VELOCITY  = 0.99991f; 
     
-    // particle parameters for the cube
-    param_particle_cube.DAMP_BOUNDS    = 0.89999f;
-    param_particle_cube.DAMP_COLLISION = 0.99999f;
-    param_particle_cube.DAMP_VELOCITY  = 0.99991f; 
+    param_cube_particle.DAMP_BOUNDS    = 0.89999f;
+    param_cube_particle.DAMP_COLLISION = 0.99999f;
+    param_cube_particle.DAMP_VELOCITY  = 0.99991f; 
+    
+    param_ball_particle.DAMP_BOUNDS    = 0.89999f;
+    param_ball_particle.DAMP_COLLISION = 0.99999f;
+    param_ball_particle.DAMP_VELOCITY  = 0.99991f; 
    
-   
-    // spring parameters for Cloth
-    param_spring_cloth.damp_dec = 0.999999f;
-    param_spring_cloth.damp_inc = 0.059999f;
+    // spring parameters (for simulation)
+    param_cloth_spring.damp_dec = 0.999999f;
+    param_cloth_spring.damp_inc = 0.059999f;
     
-    // spring parameters for cube
-    param_spring_cube.damp_dec = 0.089999f;
-    param_spring_cube.damp_inc = 0.089999f;
+    param_cube_spring.damp_dec = 0.089999f;
+    param_cube_spring.damp_inc = 0.089999f;
+
+    param_ball_spring.damp_dec = 0.999999999f;
+    param_ball_spring.damp_inc = 0.0599999f;
     
-    // initial cloth building parameters, both cloth start the same
+    // soft-body parameters (for building)
     cloth.CREATE_STRUCT_SPRINGS = true;
     cloth.CREATE_SHEAR_SPRINGS  = true;
     cloth.CREATE_BEND_SPRINGS   = true;
     cloth.bend_spring_mode      = 0;
     cloth.bend_spring_dist      = 2;
     
-    
-    cube.CREATE_STRUCT_SPRINGS = true;
-    cube.CREATE_SHEAR_SPRINGS  = true;
-    cube.CREATE_BEND_SPRINGS   = true;
-    cube.bend_spring_mode      = 0;
-    cube.bend_spring_dist      = 2;
+    cube1.CREATE_STRUCT_SPRINGS = true;
+    cube1.CREATE_SHEAR_SPRINGS  = true;
+    cube1.CREATE_BEND_SPRINGS   = true;
+    cube1.bend_spring_mode      = 0;
+    cube1.bend_spring_dist      = 2;
     
     cube2.CREATE_STRUCT_SPRINGS = true;
     cube2.CREATE_SHEAR_SPRINGS  = true;
     cube2.CREATE_BEND_SPRINGS   = true;
     cube2.bend_spring_mode      = 0;
     cube2.bend_spring_dist      = 2;
+
+    ball.CREATE_STRUCT_SPRINGS = true;
+    ball.CREATE_SHEAR_SPRINGS  = true;
+    ball.CREATE_BEND_SPRINGS   = true;
+    ball.bend_spring_mode      = 0;
+    ball.bend_spring_dist      = 3;
     
-    createClothTexture();
 
-    cloth.texture_XYp = texture;
-
-//    createGUI();
+    createBodies();
+    
+//  createGUI();
 
     frameRate(600);
+  }
+  
+  
+  public void createCamera(){
+    // camera - modelview
+    double   distance = 1518.898;
+    double[] look_at  = {69.042,  26.385,   5.913};
+    double[] rotation = {-0.652,   0.894,  -0.814};
+    peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
+    peasycam.setMaximumDistance(10000);
+    peasycam.setMinimumDistance(0.1f);
+    peasycam.setRotations(rotation[0], rotation[1], rotation[2]);
+    cam_state_0 = peasycam.getState();
+    
+    // camera - projection
+    float fovy    = PI/3.0f;
+    float aspect  = width/(float)(height);
+    float cameraZ = (height*0.5f) / tan(fovy*0.5f);
+    float zNear   = cameraZ/100.0f;
+    float zFar    = cameraZ*20.0f;
+    perspective(fovy, aspect, zNear, zFar);
   }
   
   
@@ -258,34 +286,44 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   
   
-  public void initBodies(){
+  public void createBodies(){
     
+    // first thing to do!
     physics.reset();
     
-    softbodies.clear();
-    softbodies.add(cloth);
-    softbodies.add(cube);
-    softbodies.add(cube2);
+    // create textures, in this case, only for the cloth
+    createClothTexture();
     
-    int nodex_x = 40;
-    int nodes_y = 40;
-    int nodes_z = 1;
-    int nodes_r = 10;
-    int nodes_start_x = 0;
-    int nodes_start_y = 0;
-    int nodes_start_z = nodes_y * nodes_r*2-200;
+     
+    int nodex_x, nodes_y, nodes_z, nodes_r;
+    int nodes_start_x, nodes_start_y, nodes_start_z;
+    int ball_subdivisions, ball_radius;
+    float r,g,b,s;
     
-    cloth.setParticleColor(color(200,150,50));
-    cloth.setMaterialColor(color(255,200,100));
-    cloth.setParam(param_particle_cloth);
-    cloth.setParam(param_spring_cloth);
-    cloth.self_collisions = true;
-    cloth.collision_radius_scale = 1f;
+    
+    ///////////////////// CLOTH ////////////////////////////////////////////////
+    nodex_x = 40;
+    nodes_y = 40;
+    nodes_z = 1;
+    nodes_r = 10;
+    nodes_start_x = 0;
+    nodes_start_y = 0;
+    nodes_start_z = nodes_y * nodes_r*2-200;
+    r = 255;
+    g = 200;
+    b = 100;
+    s = 1f;
+    cloth.setMaterialColor(color(r  ,g  ,b  ));
+    cloth.setParticleColor(color(r*s,g*s,b*s));
+    cloth.setParam(param_cloth_particle);
+    cloth.setParam(param_cloth_spring);
     cloth.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cloth.getNode(              0, 0, 0).enable(false, false, false); // fix node to current location
-    cloth.getNode(cloth.nodes_x-1, 0, 0).enable(false, false, false); // fix node to current location
-    cloth.createParticlesShape(this);
+    cloth.getNode(              0, 0, 0).enable(false, false, false);
+    cloth.getNode(cloth.nodes_x-1, 0, 0).enable(false, false, false);
+    cloth.texture_XYp = texture;
     
+    
+    //////////////////// CUBE //////////////////////////////////////////////////
     nodex_x = 30;
     nodes_y = 2;
     nodes_z = 15;
@@ -293,18 +331,18 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     nodes_start_x = 300;
     nodes_start_y = 300;
     nodes_start_z = nodes_y * nodes_r*2+200;
-    
-    cube.setParticleColor(color(64));
-    cube.setMaterialColor(color(96));
-    cube.setParam(param_particle_cube);
-    cube.setParam(param_spring_cube);
-    cube.self_collisions = false;
-    cube.self_collisions = true;
-    cube.collision_radius_scale = 1f;
-    cube.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cube.createParticlesShape(this);
-    
+    r = 96;
+    g = 96;
+    b = 96;
+    s = 1f;
+    cube1.setMaterialColor(color(r  ,g  ,b  ));
+    cube1.setParticleColor(color(r*s,g*s,b*s));
+    cube1.setParam(param_cube_particle);
+    cube1.setParam(param_cube_spring);
+    cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
 
+    
+    //////////////////// CUBE //////////////////////////////////////////////////
     nodex_x = 3;
     nodes_y = 3;
     nodes_z = 25;
@@ -312,17 +350,49 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     nodes_start_x = 500;
     nodes_start_y = -nodex_x * nodes_r * 4;
     nodes_start_z = nodes_y * nodes_r*2+200;
-    
-    cube2.setParticleColor(color(10, 100, 120));
-    cube2.setMaterialColor(color(40, 180, 255));
-    cube2.setParam(param_particle_cube);
-    cube2.setParam(param_spring_cube);
-    cube2.self_collisions = false;
-    cube2.self_collisions = true;
-    cube2.collision_radius_scale = 1f;
+    r =  40;
+    g = 180;
+    b = 255;
+    s = 1f;
+    cube2.setMaterialColor(color(r  ,g  ,b  ));
+    cube2.setParticleColor(color(r*s,g*s,b*s));
+    cube2.setParam(param_cube_particle);
+    cube2.setParam(param_cube_spring);
     cube2.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cube2.createParticlesShape(this);
+ 
     
+    //////////////////// BALL //////////////////////////////////////////////////
+    ball_subdivisions = 3;
+    ball_radius = 140;
+    nodes_start_x = 400;
+    nodes_start_y = 100;
+    nodes_start_z = 800;
+    r = 100;
+    g = 150;
+    b = 0;
+    s = 1f;
+    ball.setMaterialColor(color(r  ,g  ,b  ));
+    ball.setParticleColor(color(r*s,g*s,b*s));
+    ball.setParam(param_ball_particle);
+    ball.setParam(param_ball_spring);
+    ball.create(physics, ball_subdivisions, ball_radius, nodes_start_x, nodes_start_y, nodes_start_z);
+
+    
+    
+    // add to global list
+    softbodies.clear();
+    softbodies.add(cloth);
+    softbodies.add(cube1);
+    softbodies.add(cube2);
+    softbodies.add(ball);
+    
+    // set some commong things
+    for(SoftBody3D body : softbodies){
+      body.self_collisions = true;
+      body.collision_radius_scale = 1f;
+      body.createParticlesShape(this);
+    }
+
 //    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
     
     NUM_SPRINGS   = SpringConstraint3D.getSpringCount(physics.getParticles(), true);
@@ -341,12 +411,11 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   public void draw() {
     
-    
     if(NEED_REBUILD){
-      initBodies();
+      createBodies();
       NEED_REBUILD = false;
     }
-    
+  
     pg_projmodelview    .set(((PGraphics3D) this.g).projmodelview);
     pg_projmodelview_inv.set(((PGraphics3D) this.g).projmodelview);
     pg_projmodelview_inv.invert();
@@ -355,6 +424,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     VerletParticle3D[] particles = physics.getParticles();
     
     
+    // add additional force, e.g. Wind, ...
     if(APPLY_WIND){
       for(int i = 0; i < particles_count; i++){
         VerletParticle3D pa = particles[i];
@@ -362,31 +432,27 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       }
     }
 
- 
-    
+    // update interactions, like moving particles, deleting springs, etc...
     updateMouseInteractions();
     
-    // disable peasycam-interaction while we edit the model
-    peasycam.setActive(MOVE_CAM);
- 
     // update physics simulation
     if(UPDATE_PHYSICS){
       physics.update(1);
     }
     
-    
-    // update normals of the body surfaces
+    // update softbody surface normals
     for(SoftBody3D body : softbodies){
       body.computeNormals();
     }
     
-
-    
-    
+  
     ////////////////////////////////////////////////////////////////////////////
     // RENDER this madness
     ////////////////////////////////////////////////////////////////////////////
     background(92);
+    
+    // disable peasycam-interaction while we edit the model
+    peasycam.setActive(MOVE_CAM);
     
     
     // XY-grid, gizmo, scene-bounds
@@ -407,15 +473,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     
     
     // 1) particles
-    if(DISPLAY_PARTICLES)
-    {
+    if(DISPLAY_PARTICLES){
       for(SoftBody3D body : softbodies){
-//        body.use_particles_color = (DISPLAY_MODE == 0);
         body.use_particles_color = true;
         body.drawParticles(this.g);
       }
     }
-    
     
     // 2) springs
     if(DISPLAY_SRPINGS){
@@ -427,7 +490,6 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       }
     }
     
-    
     // 3) mesh, solid
     if(DISPLAY_MESH){
       stroke(0);
@@ -438,7 +500,6 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       }
     }
     
-    
     // 4) normals
     if(DISPLAY_NORMALS){
       stroke(0);
@@ -448,10 +509,8 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       }
     }
     
-
     // 5) interaction stuff
     displayMouseInteraction();
-
 
     // some info, windows title
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
@@ -617,7 +676,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   }
   
   public void keyReleased(){
-    if(key == 'r') initBodies();
+    if(key == 'r') createBodies();
     if(key == 's') repairAllSprings();
     if(key == 'm') applySpringMemoryEffect();
     if(key == '1') DISPLAY_MODE = 0;
@@ -742,7 +801,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   
 
-  void printCam(){
+  public void printCam(){
     float[] pos = peasycam.getPosition();
     float[] rot = peasycam.getRotations();
     float[] lat = peasycam.getLookAt();

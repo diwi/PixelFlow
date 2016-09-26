@@ -618,21 +618,50 @@ public class VerletParticle3D implements CollisionObject{
   
   
   
+//  // TODO, move to some Utils class
+//  static public int cross(VerletParticle3D p, VerletParticle3D pA, VerletParticle3D pB, float[] cross){
+//    if(pA == null || pA.all_springs_deactivated ||
+//       pB == null || pB.all_springs_deactivated)
+//    {
+//      cross[0] = cross[1] = cross[2] = 0;
+//      return 0;
+//    } else {
+//      float dxA = pA.cx - p.cx;
+//      float dyA = pA.cy - p.cy;
+//      float dzA = pA.cz - p.cz;
+//      
+//      float dxB = pB.cx - p.cx;
+//      float dyB = pB.cy - p.cy;
+//      float dzB = pB.cz - p.cz;
+//      
+//      cross[0] = (dyA * dzB) - (dyB * dzA);
+//      cross[1] = (dzA * dxB) - (dzB * dxA);
+//      cross[2] = (dxA * dyB) - (dxB * dyA);
+//      return 1;
+//    }
+//  }
+  
   // TODO, move to some Utils class
-  static public int cross(VerletParticle3D p, VerletParticle3D pA, VerletParticle3D pB, float[] cross){
-    if(pA == null || pA.all_springs_deactivated) return 0;
-    if(pB == null || pB.all_springs_deactivated) return 0;
-    float dxA = pA.cx - p.cx;
-    float dyA = pA.cy - p.cy;
-    float dzA = pA.cz - p.cz;
-    
-    float dxB = pB.cx - p.cx;
-    float dyB = pB.cy - p.cy;
-    float dzB = pB.cz - p.cz;
-    
-    cross[0] = dyA * dzB - dyB * dzA;
-    cross[1] = dzA * dxB - dzB * dxA;
-    cross[2] = dxA * dyB - dxB * dyA;
-    return 1;
+  static public int crossAccum(VerletParticle3D p, VerletParticle3D pA, VerletParticle3D pB, float[] cross){
+    if(pA == null || pA.all_springs_deactivated ||
+       pB == null || pB.all_springs_deactivated)
+    {
+      return 0;
+    } else {
+      float dxA = pA.cx - p.cx;
+      float dyA = pA.cy - p.cy;
+      float dzA = pA.cz - p.cz;
+      
+      float dxB = pB.cx - p.cx;
+      float dyB = pB.cy - p.cy;
+      float dzB = pB.cz - p.cz;
+      
+      cross[0] += (dyA * dzB) - (dyB * dzA);
+      cross[1] += (dzA * dxB) - (dzB * dxA);
+      cross[2] += (dxA * dyB) - (dxB * dyA);
+      return 1;
+    }
   }
+  
+  
 }

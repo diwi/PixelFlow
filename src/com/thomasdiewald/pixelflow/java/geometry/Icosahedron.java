@@ -15,6 +15,10 @@ public class Icosahedron implements IFSgetter{
   private HashMap<Integer, Integer> verts_cache = new HashMap<Integer, Integer>();
 
   
+  public Icosahedron(int subdivisions){
+    create(subdivisions);
+  }
+  
   
   // Euler formula for closed, 2-manifold meshes:  
   // V - E + F = 2*(1-g)

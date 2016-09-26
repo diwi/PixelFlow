@@ -11,4 +11,7 @@ public interface IFSgetter{
   float[][] getVerts();
   int  [][] getFaces(); 
   
+//  TODO:
+//  float[][] getNormals();
+//  float[][] getTextcoords();
 }

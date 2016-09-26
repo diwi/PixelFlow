@@ -8,7 +8,6 @@ import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics3D;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.core.PShape;
 import processing.opengl.PGraphics2D;
 
 
@@ -51,6 +50,21 @@ public class SoftCube extends SoftBody3D{
     this.num_nodes          = nodes_x * nodes_y * nodes_z;
     this.particles          = new VerletParticle3D[num_nodes];
     
+    
+
+    int normal_count_XY = nodes_x * nodes_y;
+    int normal_count_YZ = nodes_y * nodes_z;
+    int normal_count_XZ = nodes_x * nodes_z;
+      
+    normals = new float[6][][];
+    normals[0] = new float[normal_count_XY][3];
+    normals[1] = new float[normal_count_XY][3];
+    normals[2] = new float[normal_count_YZ][3];
+    normals[3] = new float[normal_count_YZ][3];
+    normals[4] = new float[normal_count_XZ][3];
+    normals[5] = new float[normal_count_XZ][3];
+ 
+    
     // for textcoord normalization
     this.tx_inv = 1f/(float)(nodes_x-1);
     this.ty_inv = 1f/(float)(nodes_y-1);
@@ -62,7 +76,7 @@ public class SoftCube extends SoftBody3D{
     int idx, idx_world;
     int x, y, z, ox, oy, oz;
     float px, py, pz;
-    float rand_scale = 1f;
+    float rand_scale = 0;
   
     // 1) init particles
     for(z = 0; z < nodes_z; z++){
@@ -216,7 +230,7 @@ public class SoftCube extends SoftBody3D{
         VerletParticle3D pB = getNode(ix  , iy+1, iz  );
         VerletParticle3D pL = getNode(ix-1, iy  , iz  );
         VerletParticle3D pR = getNode(ix+1, iy  , iz  );
-        computeNormals(normals_ref[idx], pC, pT, pB, pL, pR);
+        computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
   }
@@ -230,7 +244,7 @@ public class SoftCube extends SoftBody3D{
         VerletParticle3D pB = getNode(ix  , iy  , iz+1);
         VerletParticle3D pL = getNode(ix  , iy-1, iz  );
         VerletParticle3D pR = getNode(ix  , iy+1, iz  );
-        computeNormals(normals_ref[idx], pC, pT, pB, pL, pR);
+        computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
   }
@@ -244,7 +258,7 @@ public class SoftCube extends SoftBody3D{
         VerletParticle3D pB = getNode(ix  , iy  , iz+1);
         VerletParticle3D pL = getNode(ix-1, iy  , iz  );
         VerletParticle3D pR = getNode(ix+1, iy  , iz  );
-        computeNormals(normals_ref[idx], pC, pT, pB, pL, pR);
+        computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
   }
@@ -252,53 +266,48 @@ public class SoftCube extends SoftBody3D{
 
   public float[][][] normals;
   public float normal_dir = -1f;
-  private float[][] cross = new float[4][3];
   
-  private void computeNormals(float[] normal, VerletParticle3D pC, 
-                                              VerletParticle3D pT,
-                                              VerletParticle3D pB,
-                                              VerletParticle3D pL,
-                                              VerletParticle3D pR)
-  {
-    int count = 0;
-    count  = VerletParticle3D.cross(pC, pT, pR, cross[0]);
-    count += VerletParticle3D.cross(pC, pR, pB, cross[count]);
-    count += VerletParticle3D.cross(pC, pB, pL, cross[count]);
-    count += VerletParticle3D.cross(pC, pL, pT, cross[count]);
-
-    int nx = 0, ny = 0, nz = 0;
-    for(int k = 0; k < count; k++){
-      nx += cross[k][0];
-      ny += cross[k][1];
-      nz += cross[k][2];
+//  private void computeNormals(float[] n, VerletParticle3D pC, 
+//                                         VerletParticle3D pT,
+//                                         VerletParticle3D pR,
+//                                         VerletParticle3D pB,
+//                                         VerletParticle3D pL)
+//  {
+//    n[0] = n[1] = n[2] = 0;
+//    VerletParticle3D.crossAccum(pC, pT, pR, n);
+//    VerletParticle3D.crossAccum(pC, pR, pB, n);
+//    VerletParticle3D.crossAccum(pC, pB, pL, n);
+//    VerletParticle3D.crossAccum(pC, pL, pT, n);
+//
+//    float dd_sq  = n[0]*n[0] +  n[1]*n[1] +  n[2]*n[2];
+//    float dd_inv = normal_dir * 1f/(float)(Math.sqrt(dd_sq)+0.000001f);
+//
+//    n[0] *= dd_inv;
+//    n[1] *= dd_inv;
+//    n[2] *= dd_inv;  
+//  }
+  
+  private void computeNormals(float[] n, VerletParticle3D pC, VerletParticle3D ... pN){
+    n[0] = n[1] = n[2] = 0;
+    
+    for(int i = 0; i < pN.length-1; i++){
+      VerletParticle3D.crossAccum(pC, pN[i], pN[i+1], n);
     }
+    VerletParticle3D.crossAccum(pC, pN[pN.length-1], pN[0], n);
     
-    float dd_sq  = nx*nx + ny*ny + nz*nz;
-    float dd_inv = normal_dir * 1f/(float)(Math.sqrt(dd_sq)+0.000001f);
+    float dd_sq  = n[0]*n[0] +  n[1]*n[1] +  n[2]*n[2];
+    float dd_inv = normal_dir/(float)(Math.sqrt(dd_sq)+0.000001f);
     
-    normal[0] = nx * dd_inv;
-    normal[1] = ny * dd_inv;
-    normal[2] = nz * dd_inv;  
+    n[0] *= dd_inv;
+    n[1] *= dd_inv;
+    n[2] *= dd_inv;  
   }
+  
   
   
 
   @Override
   public void computeNormals(){
-    if(normals == null){
-      int num_XY = nodes_x * nodes_y;
-      int num_YZ = nodes_y * nodes_z;
-      int num_XZ = nodes_x * nodes_z;
-      
-      normals = new float[6][][];
-      normals[0] = new float[num_XY][3];
-      normals[1] = new float[num_XY][3];
-      normals[2] = new float[num_YZ][3];
-      normals[3] = new float[num_YZ][3];
-      normals[4] = new float[num_XZ][3];
-      normals[5] = new float[num_XZ][3];
-    }
-
     computeNormalsXY(normals[0],         0);
     computeNormalsXY(normals[1], nodes_z-1);
     computeNormalsYZ(normals[2],         0);
@@ -441,12 +450,8 @@ public class SoftCube extends SoftBody3D{
     }
     pg.endShape();
   }
-//  public PGraphics2D texture_XYp = null;
-//  public PGraphics2D texture_XYn = null;
-//  public PGraphics2D texture_YZp = null;
-//  public PGraphics2D texture_YZn = null;
-//  public PGraphics2D texture_XZp = null;
-//  public PGraphics2D texture_XZn = null;
+
+  
   @Override
   public void displayMesh(PGraphics pg){
     pg.fill(material_color);
@@ -459,8 +464,6 @@ public class SoftCube extends SoftBody3D{
     
   }
   
-  
-  public float display_normal_length = 20;
    
   @Override
   public void displayNormals(PGraphics pg){
