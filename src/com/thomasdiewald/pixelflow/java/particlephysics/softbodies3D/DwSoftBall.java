@@ -8,11 +8,10 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
+import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.core.PShape;
-import processing.opengl.PGraphics2D;
 
 
 public class DwSoftBall extends DwSoftBody3D{
@@ -34,8 +33,8 @@ public class DwSoftBall extends DwSoftBody3D{
 
   public void create(DwPhysics3D physics, int subdivisions, float radius,float start_x, float start_y, float start_z){
     
-    DwIcosahedron icosahedron = new DwIcosahedron(subdivisions);
-    mesh = new DwHalfEdge.Mesh(icosahedron);
+    DwIndexedFaceSetAble ifs = new DwIcosahedron(subdivisions);
+    mesh = new DwHalfEdge.Mesh(ifs);
 
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
@@ -107,14 +106,7 @@ public class DwSoftBall extends DwSoftBody3D{
     
     // 2) create BEND springs
     for(int ia = 0, ib = 0; ia < num_nodes; ia++){
-//      ib = (int) (rand.nextFloat() * num_nodes);
-//      addSpring(ia, ib, SpringConstraint3D.TYPE.BEND);
-//      
-//      ib = (int) (rand.nextFloat() * num_nodes);
-//      addSpring(ia, ib, SpringConstraint3D.TYPE.BEND);
-      
-      
-      
+
       int edge_count = mesh.getVertexEdges(ia, edges);
       
       for(int j = 0; j < edge_count; j++){
@@ -177,36 +169,6 @@ public class DwSoftBall extends DwSoftBody3D{
 
   public float[][] normals;
   public float normal_dir = -1f;
-  private float[][] cross = new float[4][3];
-  
-  private void computeNormals(float[] normal, DwParticle3D pC, 
-                                              DwParticle3D pT,
-                                              DwParticle3D pB,
-                                              DwParticle3D pL,
-                                              DwParticle3D pR)
-  {
-    int count = 0;
-//    count  = VerletParticle3D.cross(pC, pT, pR, cross[0]);
-//    count += VerletParticle3D.cross(pC, pR, pB, cross[count]);
-//    count += VerletParticle3D.cross(pC, pB, pL, cross[count]);
-//    count += VerletParticle3D.cross(pC, pL, pT, cross[count]);
-
-    int nx = 0, ny = 0, nz = 0;
-    for(int k = 0; k < count; k++){
-      nx += cross[k][0];
-      ny += cross[k][1];
-      nz += cross[k][2];
-    }
-    
-    float dd_sq  = nx*nx + ny*ny + nz*nz;
-    float dd_inv = normal_dir/(float)(Math.sqrt(dd_sq)+0.000001f);
-    
-    normal[0] = nx * dd_inv;
-    normal[1] = ny * dd_inv;
-    normal[2] = nz * dd_inv;  
-  }
-  
-  
 
   @Override
   public void computeNormals(){

@@ -24,12 +24,17 @@ import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBall;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftCube;
 
+import controlP5.Accordion;
+import controlP5.ControlP5;
+import controlP5.Group;
 import peasy.CameraState;
 import peasy.PeasyCam;
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PFont;
 import processing.core.PMatrix3D;
 import processing.core.PShape;
+import processing.opengl.PGL;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
 
@@ -186,7 +191,7 @@ public class Softbody3D_Playground extends PApplet {
 
     createBodies();
     
-//  createGUI();
+    createGUI();
 
     frameRate(600);
   }
@@ -195,8 +200,8 @@ public class Softbody3D_Playground extends PApplet {
   public void createCamera(){
     // camera - modelview
     double   distance = 1518.898;
-    double[] look_at  = {69.042,  26.385,   5.913};
-    double[] rotation = {-0.652,   0.894,  -0.814};
+    double[] look_at  = { 58.444, -48.939, 167.661};
+    double[] rotation = { -0.744,   0.768,  -0.587};
     peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
     peasycam.setMaximumDistance(10000);
     peasycam.setMinimumDistance(0.1f);
@@ -216,7 +221,6 @@ public class Softbody3D_Playground extends PApplet {
   public void createClothTexture(){
    
     PFont font = createFont("Calibri", 200);
-    long timer = System.currentTimeMillis();
 
     int tex_w = 1024;
     int tex_h = 1024;
@@ -293,10 +297,6 @@ public class Softbody3D_Playground extends PApplet {
     
     texture.endDraw();
     
-
-    
-    timer = System.currentTimeMillis() -timer;
-    System.out.println("timer: "+timer);
   }
   
   
@@ -529,6 +529,9 @@ public class Softbody3D_Playground extends PApplet {
     
     // 5) interaction stuff
     displayMouseInteraction();
+    
+    
+    displayGUI();
 
     // some info, windows title
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
@@ -538,7 +541,7 @@ public class Softbody3D_Playground extends PApplet {
   
   
   
-  
+ 
   
   
   
@@ -712,16 +715,14 @@ public class Softbody3D_Playground extends PApplet {
     if(key == '5') DISPLAY_SRPINGS   = !DISPLAY_SRPINGS;
     if(key == '6') DISPLAY_NORMALS   = !DISPLAY_NORMALS;
 
-    
     if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
     if(key == 'c') printCam();
-    if(key == 'v') peasycam.setState(cam_state_0, 700);
+    if(key == 'v') resetCam();
     
     MOVE_CAM = false; 
   }
 
-  
-  
+
   public void updateMouseInteractions(){
     
     // deleting springs/constraints between particles
@@ -818,7 +819,10 @@ public class Softbody3D_Playground extends PApplet {
   }
   
   
-
+  public void resetCam(){
+    peasycam.setState(cam_state_0, 700);
+  }
+  
   public void printCam(){
     float[] pos = peasycam.getPosition();
     float[] rot = peasycam.getRotations();
@@ -968,6 +972,170 @@ public class Softbody3D_Playground extends PApplet {
 
   
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  public void setDisplayMode(int val){
+    DISPLAY_MODE = val;
+  }
+  
+  public void setDisplayTypes(float[] val){
+    DISPLAY_PARTICLES = (val[0] > 0);
+    DISPLAY_MESH      = (val[1] > 0);
+    DISPLAY_SRPINGS   = (val[2] > 0);
+    DISPLAY_NORMALS   = (val[3] > 0);
+  }
+  
+  public void setGravity(float val){
+    physics.param.GRAVITY[2] = -val;
+  }
+  
+  public void togglePause(){
+    UPDATE_PHYSICS = !UPDATE_PHYSICS;
+  }
+  
+  ControlP5 cp5;
+  
+  public void displayGUI(){
+    noLights();
+    peasycam.beginHUD();
+    cp5.draw();
+    peasycam.endHUD();
+  }
+  
+  
+  public void createGUI(){
+    cp5 = new ControlP5(this);
+    cp5.setAutoDraw(false);
+ 
+    
+    int sx, sy, px, py, oy;
+    
+    sx = 100; sy = 14; oy = (int)(sy*1.4f);
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - CLOTH1
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_physics = cp5.addGroup("global");
+    {
+      group_physics.setHeight(20).setSize(gui_w, height)
+      .setBackgroundColor(color(0, 204)).setColorBackground(color(0, 204));
+      group_physics.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      int bsx = (gui_w-40)/3;
+      cp5.addButton("rebuild").setGroup(group_physics).plugTo(this, "createBodies").setSize(bsx, 18).setPosition(px, py);
+      cp5.addButton("pause")  .setGroup(group_physics).plugTo(this, "togglePause").setSize(bsx, 18).setPosition(px+=bsx+10, py);
+      cp5.addButton("cam_0")   .setGroup(group_physics).plugTo(this, "resetCam").setSize(bsx, 18).setPosition(px+=bsx+10, py);
+      
+      px = 10; 
+      cp5.addSlider("gravity").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
+          .setRange(0, 1).setValue(physics.param.GRAVITY[1]).plugTo(this, "setGravity");
+      
+      cp5.addSlider("iter: springs").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 50).setValue(physics.param.iterations_springs).plugTo( physics.param, "iterations_springs");
+      
+      cp5.addSlider("iter: collisions").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 10).setValue(physics.param.iterations_collisions).plugTo( physics.param, "iterations_collisions");
+      
+      cp5.addRadio("setDisplayMode").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*1.4f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("colored",0)
+          .addItem("tension",1)
+          .activate(DISPLAY_MODE);
+      
+      cp5.addCheckBox("setDisplayTypes").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES ? 0 : 5)
+          .addItem("MESH "    , 1).activate(DISPLAY_MESH      ? 1 : 5)
+          .addItem("SRPINGS"  , 2).activate(DISPLAY_SRPINGS   ? 2 : 5)
+          .addItem("NORMALS"  , 3).activate(DISPLAY_NORMALS   ? 3 : 5);
+    }
+    
+    
+    
+//    if(key == '1') DISPLAY_MODE = 0;
+//    if(key == '2') DISPLAY_MODE = 1;
+//    
+//    if(key == '3') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+//    if(key == '4') DISPLAY_MESH      = !DISPLAY_MESH;
+//    if(key == '5') DISPLAY_SRPINGS   = !DISPLAY_SRPINGS;
+//    if(key == '6') DISPLAY_NORMALS   = !DISPLAY_NORMALS;
+//
+//    if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
+    
+    
+    
+
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - SPRINGS
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_springs = cp5.addGroup("springs");
+    {
+      Group group_cloth = group_springs;
+      
+      group_cloth.setHeight(20).setSize(gui_w, 210)
+      .setBackgroundColor(color(0, 204)).setColorBackground(color(0, 204));
+      group_cloth.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+
+      cp5.addSlider("Cloth.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_cloth_spring.damp_dec).plugTo(param_cloth_spring, "damp_dec");
+      
+      cp5.addSlider("Cloth.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_cloth_spring.damp_inc).plugTo(param_cloth_spring, "damp_inc");
+
+      cp5.addSlider("Cube.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=(int)(oy*2))
+          .setRange(0.01f, 1).setValue(param_cube_spring.damp_dec).plugTo(param_cube_spring, "damp_dec");
+  
+      cp5.addSlider("Cube.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_cube_spring.damp_inc).plugTo(param_cube_spring, "damp_inc");
+  
+      cp5.addSlider("Ball.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=(int)(oy*2))
+          .setRange(0.01f, 1).setValue(param_ball_spring.damp_dec).plugTo(param_ball_spring, "damp_dec");
+
+      cp5.addSlider("Ball.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_ball_spring.damp_inc).plugTo(param_ball_spring, "damp_inc");
+
+    }
+   
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_springs)
+      .addItem(group_physics)
+      .open(0, 1, 2);
+   
+  }
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 
   public static void main(String args[]) {

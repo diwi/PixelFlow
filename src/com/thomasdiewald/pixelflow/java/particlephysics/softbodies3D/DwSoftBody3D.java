@@ -3,7 +3,6 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
 
 import java.util.ArrayList;
 
-import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
 
