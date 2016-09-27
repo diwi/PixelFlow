@@ -14,9 +14,10 @@ package Fluid_StreamLines;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.StreamLines;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluidStreamLines2D;
+
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -28,11 +29,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_StreamLines extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
     @Override
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, temperature;
       
@@ -102,13 +103,13 @@ public class Fluid_StreamLines extends PApplet {
   
 
   // library
-  PixelFlow context;
+  DwPixelFlow context;
   
   // Fluid simulation
-  Fluid fluid;
+  DwFluid2D fluid;
   
   // streamline visualization
-  StreamLines streamlines;
+  DwFluidStreamLines2D streamlines;
 
   // render targets
   PGraphics2D pg_fluid;
@@ -135,15 +136,15 @@ public class Fluid_StreamLines extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // visualization of the velocity field
-    streamlines = new StreamLines(context);
+    streamlines = new DwFluidStreamLines2D(context);
     
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
     
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.999f;

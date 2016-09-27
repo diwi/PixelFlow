@@ -16,11 +16,11 @@ package OpticalFlow_MovieFluid;
 
 import java.util.Locale;
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -35,12 +35,12 @@ import processing.video.Movie;
 public class OpticalFlow_MovieFluid extends PApplet {
  
   
- private class MyFluidData implements Fluid.FluidData{
+ private class MyFluidData implements DwFluid2D.FluidData{
     
     
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale;
 
@@ -74,7 +74,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     }
     
 
-    public void addDensityTexture_cam(Fluid fluid, OpticalFlow opticalflow){
+    public void addDensityTexture_cam(DwFluid2D fluid, DwOpticalFlow opticalflow){
       int[] pg_tex_handle = new int[1];
       
       if( !pg_movie_a.getTexture().available() ) {
@@ -125,7 +125,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     */
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
-    public void addVelocityTexture(Fluid fluid, OpticalFlow opticalflow){
+    public void addVelocityTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
       context.begin();
       context.beginDraw(fluid.tex_velocity.dst);
       DwGLSLProgram shader = context.createShader("data/addVelocity.frag");
@@ -166,15 +166,15 @@ public class OpticalFlow_MovieFluid extends PApplet {
   
 
   //main library context
-  PixelFlow context;
+  DwPixelFlow context;
   
   // optical flow
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   
   
   // fluid stuff
   int fluidgrid_scale = 1;
-  Fluid fluid;
+  DwFluid2D fluid;
   MyFluidData cb_fluid_data;
   
   
@@ -221,18 +221,18 @@ public class OpticalFlow_MovieFluid extends PApplet {
     surface.setLocation(view_x, view_y);
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
       
     // optical flow object
-    opticalflow = new OpticalFlow(context, pg_movie_w, pg_movie_h);
+    opticalflow = new DwOpticalFlow(context, pg_movie_w, pg_movie_h);
     
     // initial optical flow parameters
     opticalflow.param.display_mode = 1;
     
     // fluid sobject
-    fluid = new Fluid(context, pg_movie_w, pg_movie_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, pg_movie_w, pg_movie_h, fluidgrid_scale);
     
     // initial fluid parameters
     fluid.param.dissipation_density     = 0.95f;
@@ -305,10 +305,10 @@ public class OpticalFlow_MovieFluid extends PApplet {
       
       // apply filters (not necessary)
       if(APPLY_GRAYSCALE){
-        Filter.get(context).luminance.apply(pg_movie_a, pg_movie_a);
+        DwFilter.get(context).luminance.apply(pg_movie_a, pg_movie_a);
       }
       if(APPLY_BILATERAL){
-        Filter.get(context).bilateral.apply(pg_movie_a, pg_movie_b, 5, 0.10f, 4);
+        DwFilter.get(context).bilateral.apply(pg_movie_a, pg_movie_b, 5, 0.10f, 4);
         swapCamBuffer();
       }
       

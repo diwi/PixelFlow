@@ -19,13 +19,13 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 public class DwGLTexture{
   
   static private int TEX_COUNT = 0;
 
-  public PixelFlow context;
+  public DwPixelFlow context;
   private GL2ES2 gl;
 
   public int[] HANDLE = null;
@@ -101,7 +101,7 @@ public class DwGLTexture{
   }
   
   
-  public boolean resize(PixelFlow context, DwGLTexture othr){
+  public boolean resize(DwPixelFlow context, DwGLTexture othr){
     return resize(context, 
         othr.internalFormat, 
         othr.w, 
@@ -114,7 +114,7 @@ public class DwGLTexture{
         );
   }
 
-  public boolean resize(PixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
 
     if(w <= 0 || h <= 0) return false;
     if(    this.w == w 
@@ -159,7 +159,7 @@ public class DwGLTexture{
     gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, null);
     gl.glBindTexture  (target, 0);   
     
-    GL_ERROR.debug(gl, "DwGLTexture.resize");
+    DwGLError.debug(gl, "DwGLTexture.resize");
     
     
     framebuffer = new DwGLFrameBuffer();
@@ -172,7 +172,7 @@ public class DwGLTexture{
     gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, null, GL2ES3.GL_DYNAMIC_READ);
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
     
-    GL_ERROR.debug(gl, "DwGLTexture.resize");
+    DwGLError.debug(gl, "DwGLTexture.resize");
 
 //    this.clear(0);
     
@@ -233,7 +233,7 @@ public class DwGLTexture{
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
     context.endDraw();
     
-    GL_ERROR.debug(gl, "DwGLTexture.getData_GL2ES3");
+    DwGLError.debug(gl, "DwGLTexture.getData_GL2ES3");
     return bbuffer;
   }
   
@@ -251,7 +251,7 @@ public class DwGLTexture{
     gl23.glGetTexImage(target, 0, format, type, buffer);
     gl23.glBindTexture(target, 0);
     
-    GL_ERROR.debug(gl, "DwGLTexture.getData_GL2GL3");
+    DwGLError.debug(gl, "DwGLTexture.getData_GL2GL3");
   }
   
 
@@ -286,7 +286,7 @@ public class DwGLTexture{
     gl.glBindTexture(target, 0);
     context.endDraw();
     
-    GL_ERROR.debug(gl, "DwGLTexture.createTexSubImage");
+    DwGLError.debug(gl, "DwGLTexture.createTexSubImage");
     return texsub;
   }
   
@@ -438,7 +438,7 @@ public class DwGLTexture{
     public TexturePingPong(){
     }
 
-    public void resize(PixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int  num_channel, int byte_per_channel){
+    public void resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int  num_channel, int byte_per_channel){
       src.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
       dst.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
     }

@@ -9,8 +9,8 @@
 
 package Fluid_GetStarted;
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
@@ -19,7 +19,7 @@ public class Fluid_GetStarted extends PApplet {
   
 
   // fluid simulation
-  Fluid fluid;
+  DwFluid2D fluid;
   
   // render targets
   PGraphics2D pg_fluid;
@@ -31,18 +31,18 @@ public class Fluid_GetStarted extends PApplet {
   public void setup() {
        
     // library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     
     // fluid simulation
-    fluid = new Fluid(context, width, height, 1);
+    fluid = new DwFluid2D(context, width, height, 1);
     
     // some fluid parameters
     fluid.param.dissipation_velocity = 0.70f;
     fluid.param.dissipation_density  = 0.99f;
 
     // adding data to the fluid simulation
-    fluid.addCallback_FluiData(new  Fluid.FluidData(){
-      public void update(Fluid fluid) {
+    fluid.addCallback_FluiData(new  DwFluid2D.FluidData(){
+      public void update(DwFluid2D fluid) {
         if(mousePressed){
           float px     = mouseX;
           float py     = height-mouseY;

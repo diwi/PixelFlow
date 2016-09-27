@@ -14,9 +14,9 @@ package OpticalFlow_CaptureSettings;
 
 
 
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -42,10 +42,10 @@ public class OpticalFlow_CaptureSettings extends PApplet {
   int gui_y = 0;
   
   //main library context
-  PixelFlow context;
+  DwPixelFlow context;
   
   // optical flow
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   
   // buffer for the capture-image
   PGraphics2D pg_cam_a, pg_cam_b; 
@@ -75,12 +75,12 @@ public class OpticalFlow_CaptureSettings extends PApplet {
     surface.setLocation(view_x, view_y);
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
       
     //optical flow object
-    opticalflow = new OpticalFlow(context, cam_w, cam_h);
+    opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
 
     // webcam capture
     cam = new Capture(this, cam_w, cam_h, 30);
@@ -117,10 +117,10 @@ public class OpticalFlow_CaptureSettings extends PApplet {
       
       // apply filters (not necessary)
       if(APPLY_GRAYSCALE){
-        Filter.get(context).luminance.apply(pg_cam_a, pg_cam_a);
+        DwFilter.get(context).luminance.apply(pg_cam_a, pg_cam_a);
       }
       if(APPLY_BILATERAL){
-        Filter.get(context).bilateral.apply(pg_cam_a, pg_cam_b, 5, 0.10f, 4);
+        DwFilter.get(context).bilateral.apply(pg_cam_a, pg_cam_b, 5, 0.10f, 4);
         swapCamBuffer();
       }
       

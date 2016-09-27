@@ -9,7 +9,7 @@
 
 package OpticalFlow_CaptureVerletParticles;
 
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -28,11 +28,11 @@ public class ParticleSystem {
   public float MULT_FLUID    = 0.50f;
   public float MULT_GRAVITY  = 0.50f;
   
-  VerletParticle2D.Param particle_param = new VerletParticle2D.Param();
+  DwParticle2D.Param particle_param = new DwParticle2D.Param();
   
   public PApplet papplet;
   
-  public VerletParticle2D[] particles;
+  public DwParticle2D[] particles;
   public PShape shp_particlesystem;
   
   public int size_x;
@@ -71,9 +71,9 @@ public class ParticleSystem {
   }
   
   public void initParticles(){
-    particles = new VerletParticle2D[PARTICLE_COUNT];
+    particles = new DwParticle2D[PARTICLE_COUNT];
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      particles[i] = new VerletParticle2D(i);
+      particles[i] = new DwParticle2D(i);
       particles[i].setCollisionGroup(i);
       particles[i].setParamByRef(particle_param);
     }
@@ -90,7 +90,7 @@ public class ParticleSystem {
     float r_min = radius * (1.0f - rand_range);
     float r_max = radius * (1.0f + rand_range);
     
-    VerletParticle2D.MAX_RAD = r_max;
+    DwParticle2D.MAX_RAD = r_max;
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       float pr = papplet.random(r_min, r_max);
@@ -128,7 +128,7 @@ public class ParticleSystem {
   
   
   // just some shape presets
-  public PShape createParticleShape(VerletParticle2D particle, PImage sprite_img){
+  public PShape createParticleShape(DwParticle2D particle, PImage sprite_img){
     
     final float rad = particle.rad;
 
@@ -203,7 +203,7 @@ public class ParticleSystem {
   // create sprite on the fly
   PImage createSprite(){
     
-    int size = (int)(VerletParticle2D.MAX_RAD * 1.5f);
+    int size = (int)(DwParticle2D.MAX_RAD * 1.5f);
     size = Math.max(9, size);
     
     PImage pimg = papplet.createImage(size, size, PConstants.ARGB);

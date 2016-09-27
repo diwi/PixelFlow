@@ -11,10 +11,10 @@
 package Fluid_VerletParticleCollisionSystem;
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -28,11 +28,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_VerletParticleCollisionSystem extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
     @Override
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, r, g, b, intensity, temperature;
       
@@ -120,7 +120,7 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
 
   
   // Fluid simulation
-  Fluid fluid;
+  DwFluid2D fluid;
 
   // render targets
   PGraphics2D pg_fluid;
@@ -131,7 +131,7 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
   ParticleSystem particlesystem;
 
   // verlet physics, handles the update-step
-  VerletPhysics2D physics;
+  DwPhysics2D physics;
   
   
   // some state variables for the GUI/display
@@ -152,12 +152,12 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
     
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.999f;
@@ -206,7 +206,7 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     
     particlesystem.initParticles();
     
-    physics = new VerletPhysics2D();
+    physics = new DwPhysics2D();
     physics.param.GRAVITY = new float[]{0, 0.1f};
     physics.param.bounds  = new float[]{10, 10, width-10, height-10};
     physics.param.iterations_collisions = 4;
@@ -257,7 +257,7 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     fluid_velocity = fluid.getVelocity(fluid_velocity);
     
     // add force: FLuid Velocity
-    for (VerletParticle2D particle : particlesystem.particles) {
+    for (DwParticle2D particle : particlesystem.particles) {
 
       int px_view = Math.round(particle.cx);
       int py_view = Math.round(height - 1 - particle.cy); // invert y

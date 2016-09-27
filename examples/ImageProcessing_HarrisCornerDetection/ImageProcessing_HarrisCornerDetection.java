@@ -12,9 +12,9 @@ package ImageProcessing_HarrisCornerDetection;
 
 
 
-import com.thomasdiewald.pixelflow.java.HarrisCorner;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwHarrisCorner;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -31,10 +31,10 @@ public class ImageProcessing_HarrisCornerDetection extends PApplet {
   PGraphics2D pg_src_C; // just another buffer for temporary results
   
   // library
-  PixelFlow context;
+  DwPixelFlow context;
   
   // Harris Corner Detection
-  HarrisCorner harris;
+  DwHarrisCorner harris;
   
   // display states
   public boolean DISPLAY_IMAGE    = true;
@@ -68,13 +68,13 @@ public class ImageProcessing_HarrisCornerDetection extends PApplet {
   public void setup() {
 
     // main linbrary context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     
     // Harris Corner detection
-    harris = new HarrisCorner(context, view_w, view_h);
+    harris = new DwHarrisCorner(context, view_w, view_h);
     
     // draw buffers
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
@@ -224,7 +224,7 @@ public class ImageProcessing_HarrisCornerDetection extends PApplet {
 
     // grayscale, for better contrast
     if(DISPLAY_GRAYSCALE){
-      Filter.get(context).luminance.apply(pg_src_A, pg_src_A);
+      DwFilter.get(context).luminance.apply(pg_src_A, pg_src_A);
     }
     
     // render harris corners

@@ -12,9 +12,9 @@ package Fluid_FirstBlood;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.ParticleSystem;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluidParticleSystem2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -26,11 +26,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_FirstBlood extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
     @Override
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, intensity, temperature;
       
@@ -87,10 +87,10 @@ public class Fluid_FirstBlood extends PApplet {
   
   
   // fluid simulation
-  Fluid fluid;
+  DwFluid2D fluid;
   
   // particle system
-  ParticleSystem particle_system;
+  DwFluidParticleSystem2D particle_system;
 
   // render targets
   PGraphics2D pg_fluid;
@@ -118,15 +118,15 @@ public class Fluid_FirstBlood extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
 
     // particle
-    particle_system = new ParticleSystem(context, viewport_w/3, viewport_h/3);
+    particle_system = new DwFluidParticleSystem2D(context, viewport_w/3, viewport_h/3);
     
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.99f;

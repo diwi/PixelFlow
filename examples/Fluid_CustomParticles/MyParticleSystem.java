@@ -11,10 +11,10 @@
 package Fluid_CustomParticles;
 
 import com.jogamp.opengl.GL2ES2;
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;
@@ -28,7 +28,7 @@ public class MyParticleSystem{
   
   public DwGLTexture.TexturePingPong tex_particles = new DwGLTexture.TexturePingPong();
   
-  PixelFlow context;
+  DwPixelFlow context;
   
   public int particles_x;
   public int particles_y;
@@ -52,7 +52,7 @@ public class MyParticleSystem{
   public MyParticleSystem(){
   }
   
-  public MyParticleSystem(PixelFlow context, int MAX_PARTICLES){
+  public MyParticleSystem(DwPixelFlow context, int MAX_PARTICLES){
     context.papplet.registerMethod("dispose", this);
     this.resize(context, MAX_PARTICLES);
   }
@@ -67,13 +67,13 @@ public class MyParticleSystem{
     tex_particles.release();
   }
   
-  public void resize(PixelFlow context, int MAX_PARTICLES_WANTED){
+  public void resize(DwPixelFlow context, int MAX_PARTICLES_WANTED){
     particles_x = (int) Math.ceil(Math.sqrt(MAX_PARTICLES_WANTED));
     particles_y = particles_x;
     resize(context, particles_x, particles_y);
   }
   
-  public void resize(PixelFlow context, int num_particels_x, int num_particels_y){
+  public void resize(DwPixelFlow context, int num_particels_x, int num_particels_y){
     this.context = context;
     
     context.begin();
@@ -123,7 +123,7 @@ public class MyParticleSystem{
    * @param py_norm normalized y spawn-position [0, 1]
    * @param count
    */
-  public void spawn(Fluid fluid, float px, float py, float radius, int count){
+  public void spawn(DwFluid2D fluid, float px, float py, float radius, int count){
     
     count = Math.round(count * spwan_scale);
     
@@ -159,7 +159,7 @@ public class MyParticleSystem{
     ALIVE_PARTICLES = Math.max(ALIVE_PARTICLES, ALIVE_HI - ALIVE_LO);
   }
   
-  public void update(Fluid fluid){
+  public void update(DwFluid2D fluid){
     context.begin();
     context.beginDraw(tex_particles.dst);
     shader_particelUpdate.begin();

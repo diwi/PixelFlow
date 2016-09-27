@@ -21,11 +21,11 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES1;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 public class DwGLSLProgram {
   
-  public PixelFlow context;
+  public DwPixelFlow context;
   public GL2ES2 gl;
   public int HANDLE;
 
@@ -35,7 +35,7 @@ public class DwGLSLProgram {
   public String name;
   
   //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
-  public DwGLSLProgram(PixelFlow context, String vert_path, String frag_path) {
+  public DwGLSLProgram(DwPixelFlow context, String vert_path, String frag_path) {
     if(vert_path != null) {
       this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER, vert_path);
     } else {
@@ -69,7 +69,7 @@ public class DwGLSLProgram {
     DwGLSLProgram.getProgramValidateStatus(gl, HANDLE);
     DwGLSLProgram.getProgramInfoLog(gl, HANDLE, ">> PROGRAM_INFOLOG: "+vert+" / "+frag+":\n");
 
-    GL_ERROR.debug(gl, "DwGLSLProgram.build");
+    DwGLError.debug(gl, "DwGLSLProgram.build");
     return this;
   }
 

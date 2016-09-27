@@ -13,9 +13,9 @@ package OpticalFlow_Capture;
 
 
 
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
@@ -23,9 +23,9 @@ import processing.video.Capture;
 
 public class OpticalFlow_Capture extends PApplet {
  
-  PixelFlow context;
+  DwPixelFlow context;
   
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   
   PGraphics2D pg_cam;
   PGraphics2D pg_oflow;
@@ -46,12 +46,12 @@ public class OpticalFlow_Capture extends PApplet {
   public void setup() {
    
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // optical flow
-    opticalflow = new OpticalFlow(context, cam_w, cam_h);
+    opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
 
 //    String[] cameras = Capture.list();
 //    printArray(cameras);
@@ -87,7 +87,7 @@ public class OpticalFlow_Capture extends PApplet {
     }
     
     // rgba -> luminance (just for display)
-    Filter.get(context).luminance.apply(pg_cam, pg_cam);
+    DwFilter.get(context).luminance.apply(pg_cam, pg_cam);
     
     // render Optical Flow
     pg_oflow.beginDraw();

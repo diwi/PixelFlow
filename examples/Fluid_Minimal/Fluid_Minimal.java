@@ -11,19 +11,19 @@ package Fluid_Minimal;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 public class Fluid_Minimal extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
     @Override
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, intensity, temperature;
       
@@ -66,7 +66,7 @@ public class Fluid_Minimal extends PApplet {
   int BACKGROUND_COLOR = 255;
   
   // fluid simulation
-  public Fluid fluid;
+  public DwFluid2D fluid;
   
   // render targets
   PGraphics2D pg_fluid;
@@ -85,12 +85,12 @@ public class Fluid_Minimal extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
        
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
 
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.98f;

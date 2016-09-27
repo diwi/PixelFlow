@@ -10,9 +10,9 @@
 
 package Fluid_SlowBuoyancy;
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.ParticleSystem;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluidParticleSystem2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -24,11 +24,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_SlowBuoyancy extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
      
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, temperature;
 
@@ -87,11 +87,11 @@ public class Fluid_SlowBuoyancy extends PApplet {
   int fluidgrid_scale = 1;
   
 
-  Fluid fluid;
+  DwFluid2D fluid;
   MyFluidData cb_fluid_data;
   
   // default particle system
-  ParticleSystem particle_system;
+  DwFluidParticleSystem2D particle_system;
   
   // fluid rendertarget
   PGraphics2D pg_fluid;
@@ -118,12 +118,12 @@ public class Fluid_SlowBuoyancy extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
 
     fluid.param.dissipation_density     = 0.99f;
     fluid.param.dissipation_velocity    = 0.85f;
@@ -158,7 +158,7 @@ public class Fluid_SlowBuoyancy extends PApplet {
     
  
     // particles
-    particle_system = new ParticleSystem();
+    particle_system = new DwFluidParticleSystem2D();
     particle_system.resize(context, viewport_w/3, viewport_h/3);
     
     createGUI();

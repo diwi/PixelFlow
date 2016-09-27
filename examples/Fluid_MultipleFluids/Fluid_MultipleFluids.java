@@ -12,8 +12,8 @@ package Fluid_MultipleFluids;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
@@ -41,7 +41,7 @@ public class Fluid_MultipleFluids extends PApplet {
     
     surface.setLocation(viewport_x, viewport_y);
       
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
@@ -82,21 +82,21 @@ public class Fluid_MultipleFluids extends PApplet {
     int w, h, fluidgrid_scale;
     int BACKGROUND_COLOR = 0;
     
-    PixelFlow glscope;
-    Fluid fluid;
+    DwPixelFlow glscope;
+    DwFluid2D fluid;
     MyFluidData cb_fluid_data;
 
     PGraphics2D pg_fluid;
     PGraphics2D pg_obstacles;
     
-    FLuidSystem(int IDX, PixelFlow glscope, int w, int h, int fluidgrid_scale){
+    FLuidSystem(int IDX, DwPixelFlow glscope, int w, int h, int fluidgrid_scale){
       this.IDX = IDX;
       this.glscope = glscope;
       this.w = w;
       this.h = h;
       this.fluidgrid_scale = fluidgrid_scale;
      
-      fluid = new Fluid(glscope, w, h, fluidgrid_scale);
+      fluid = new DwFluid2D(glscope, w, h, fluidgrid_scale);
       
       fluid.param.dissipation_density     = 0.99f;
       fluid.param.dissipation_velocity    = 0.85f;
@@ -147,7 +147,7 @@ public class Fluid_MultipleFluids extends PApplet {
   
   
   
-  class MyFluidData implements Fluid.FluidData{
+  class MyFluidData implements DwFluid2D.FluidData{
     
     FLuidSystem system;
     
@@ -157,7 +157,7 @@ public class Fluid_MultipleFluids extends PApplet {
     
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
 
       float px, py, vx, vy, radius, vscale, temperature;
 

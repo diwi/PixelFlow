@@ -11,8 +11,8 @@ package OpticalFlow_Basic;
 
 
 
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
@@ -24,7 +24,7 @@ public class OpticalFlow_Basic extends PApplet {
   int viewport_x = 230;
   int viewport_y = 0;
 
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   PGraphics2D pg_oflow;
   PGraphics2D pg_src;
   
@@ -38,12 +38,12 @@ public class OpticalFlow_Basic extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // opticalflow
-    opticalflow = new OpticalFlow(context, width, height);
+    opticalflow = new DwOpticalFlow(context, width, height);
     
     // some flow parameters
     opticalflow.param.flow_scale         = 100;

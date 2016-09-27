@@ -11,10 +11,10 @@
 package Fluid_LiquidText;
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.ParticleSystem;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluidParticleSystem2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -27,11 +27,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_LiquidText extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale;
 
@@ -60,7 +60,7 @@ public class Fluid_LiquidText extends PApplet {
     }
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
-    public void addDensityTexture(Fluid fluid, PGraphics2D pg){
+    public void addDensityTexture(DwFluid2D fluid, PGraphics2D pg){
       int[] pg_tex_handle = new int[1];
 //      pg_tex_handle[0] = pg.getTexture().glName;
       context.begin();
@@ -83,7 +83,7 @@ public class Fluid_LiquidText extends PApplet {
     }
     
     // custom shader, to add temperature from a texture (PGraphics2D) to the fluid.
-    public void addTemperatureTexture(Fluid fluid, PGraphics2D pg){
+    public void addTemperatureTexture(DwFluid2D fluid, PGraphics2D pg){
       int[] pg_tex_handle = new int[1];
 //      pg_tex_handle[0] = pg.getTexture().glName;
       context.begin();
@@ -117,10 +117,10 @@ public class Fluid_LiquidText extends PApplet {
   
   int fluidgrid_scale = 1;
   
-  PixelFlow context;
-  Fluid fluid;
+  DwPixelFlow context;
+  DwFluid2D fluid;
   MyFluidData cb_fluid_data;
-  ParticleSystem particle_system;
+  DwFluidParticleSystem2D particle_system;
   
 
   PGraphics2D pg_fluid;       // render target
@@ -152,12 +152,12 @@ public class Fluid_LiquidText extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
     
     // fuild simulation parameters
     fluid.param.dissipation_density     = 0.90f;
@@ -176,7 +176,7 @@ public class Fluid_LiquidText extends PApplet {
     pg_fluid.smooth(4);
 
     // particles
-    particle_system = new ParticleSystem();
+    particle_system = new DwFluidParticleSystem2D();
     particle_system.resize(context, viewport_w/3, viewport_h/3);
     
     // obstacles buffer

@@ -14,11 +14,11 @@ package OpticalFlow_CaptureVerletParticles;
 
 
 
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletParticle2D;
-import com.thomasdiewald.pixelflow.java.verletphysics.VerletPhysics2D;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
 
 import controlP5.Accordion;
 
@@ -47,10 +47,10 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
   int gui_y = 0;
   
   //main library context
-  PixelFlow context;
+  DwPixelFlow context;
   
   // optical flow
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   
   // buffer for the capture-image
   PGraphics2D pg_cam_a, pg_cam_b; 
@@ -72,7 +72,7 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
   ParticleSystem particlesystem;
   
   // verlet physics, handles the update-step
-  VerletPhysics2D physics;
+  DwPhysics2D physics;
   
 
   public void settings() {
@@ -85,12 +85,12 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
     surface.setLocation(view_x, view_y);
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // optical flow
-    opticalflow = new OpticalFlow(context, cam_w, cam_h);
+    opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
     
     // optical flow parameters
     opticalflow.param.display_mode = 3;
@@ -126,7 +126,7 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
     
     particlesystem.initParticles();
     
-    physics = new VerletPhysics2D();
+    physics = new DwPhysics2D();
     physics.param.GRAVITY = new float[]{0, 0.1f};
     physics.param.bounds  = new float[]{0, 0, view_w, view_h};
     physics.param.iterations_collisions = 4;
@@ -158,10 +158,10 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
       
       // apply filters (not necessary)
       if(APPLY_GRAYSCALE){
-        Filter.get(context).luminance.apply(pg_cam_a, pg_cam_a);
+        DwFilter.get(context).luminance.apply(pg_cam_a, pg_cam_a);
       }
       if(APPLY_BILATERAL){
-        Filter.get(context).bilateral.apply(pg_cam_a, pg_cam_b, 5, 0.10f, 4);
+        DwFilter.get(context).bilateral.apply(pg_cam_a, pg_cam_b, 5, 0.10f, 4);
         swapCamBuffer();
       }
       
@@ -195,7 +195,7 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
     
     
     // add force: Optical Flow
-    for (VerletParticle2D particle : particlesystem.particles) {
+    for (DwParticle2D particle : particlesystem.particles) {
       int px_view = Math.round(particle.cx);
       int py_view = Math.round(height - 1 - particle.cy); // invert y
       

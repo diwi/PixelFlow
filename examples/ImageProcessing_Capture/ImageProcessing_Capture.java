@@ -12,12 +12,12 @@ package ImageProcessing_Capture;
 
 
 
-import com.thomasdiewald.pixelflow.java.HarrisCorner;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
-import com.thomasdiewald.pixelflow.java.filter.Laplace;
-import com.thomasdiewald.pixelflow.java.filter.MedianFilter;
-import com.thomasdiewald.pixelflow.java.filter.SobelFilter;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwHarrisCorner;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MedianFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
 
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -39,10 +39,10 @@ public class ImageProcessing_Capture extends PApplet {
   PGraphics2D pg_src_C; // just another buffer for temporary results
   
   // filters
-  Filter filter;
+  DwFilter filter;
   
   // Harris Corner Detection 
-  HarrisCorner harris;
+  DwHarrisCorner harris;
   
 
   int CONVOLUTION_KERNEL_INDEX = 0;
@@ -156,15 +156,15 @@ public class ImageProcessing_Capture extends PApplet {
   public void setup() {
 
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // library filters
-    filter = new Filter(context);
+    filter = new DwFilter(context);
     
     // harris corner detection
-    harris = new HarrisCorner(context, view_w, view_h);
+    harris = new DwHarrisCorner(context, view_w, view_h);
     
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_A.smooth(0);

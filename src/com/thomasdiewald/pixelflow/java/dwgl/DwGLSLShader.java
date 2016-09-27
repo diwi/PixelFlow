@@ -16,11 +16,12 @@ import java.nio.IntBuffer;
 import java.nio.charset.Charset;
 
 import com.jogamp.opengl.GL2ES2;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 public class DwGLSLShader{
   
-  public PixelFlow context;
+  public DwPixelFlow context;
   public GL2ES2 gl;
   public int type;
   public int HANDLE;
@@ -30,7 +31,7 @@ public class DwGLSLShader{
 
   
   //  vertex shader (fullscreenquad) will be generated automatically.
-  public DwGLSLShader(PixelFlow context, int type){
+  public DwGLSLShader(DwPixelFlow context, int type){
 
     this.context = context;
     this.gl = context.gl;
@@ -64,7 +65,7 @@ public class DwGLSLShader{
     build();
   }
 
-  public DwGLSLShader(PixelFlow context, int type, String path){
+  public DwGLSLShader(DwPixelFlow context, int type, String path){
     this.context = context;
     this.gl = context.gl;
     this.type = type;
@@ -92,7 +93,7 @@ public class DwGLSLShader{
     gl.glCompileShader(HANDLE);
     DwGLSLShader.getShaderInfoLog (gl, HANDLE, type_str+" ("+path+")");
 
-    GL_ERROR.debug(gl, "DwGLSLShader.build");
+    DwGLError.debug(gl, "DwGLSLShader.build");
   }
 
 

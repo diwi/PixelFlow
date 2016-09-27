@@ -13,9 +13,9 @@ package Fluid_VelocityEncoding;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import controlP5.Button;
 import controlP5.ControlP5;
@@ -30,12 +30,12 @@ public class Fluid_VelocityEncoding extends PApplet {
   
 
 
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale;
 
@@ -67,7 +67,7 @@ public class Fluid_VelocityEncoding extends PApplet {
     
     
     // custom shader, to add velocity from a texture (PGraphics2D) to the fluid.
-    public void addVelocityTexture(Fluid fluid, PGraphics2D pg, float mix){
+    public void addVelocityTexture(DwFluid2D fluid, PGraphics2D pg, float mix){
       int[] pg_tex_handle = new int[1]; 
 //    pg_tex_handle[0] = pg.getTexture().glName
       context.begin();
@@ -89,7 +89,7 @@ public class Fluid_VelocityEncoding extends PApplet {
     }
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
-    public void addDensityTexture(Fluid fluid, PGraphics2D pg, float mix){
+    public void addDensityTexture(DwFluid2D fluid, PGraphics2D pg, float mix){
       int[] pg_tex_handle = new int[1]; 
 //      pg_tex_handle[0] = pg.getTexture().glName
       context.begin();
@@ -119,8 +119,8 @@ public class Fluid_VelocityEncoding extends PApplet {
   
   int BACKGROUND_COLOR = 255;
   
-  public PixelFlow context;
-  public Fluid fluid;
+  public DwPixelFlow context;
+  public DwFluid2D fluid;
   MyFluidData cb_fluid_data;
 
   PGraphics2D pg_fluid;       // render target
@@ -138,12 +138,12 @@ public class Fluid_VelocityEncoding extends PApplet {
   public void setup() {
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
     
     // some fluid parameters
     fluid.param.dissipation_density     = 0.95f;

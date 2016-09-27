@@ -12,8 +12,8 @@ package Fluid_Basic;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -25,11 +25,11 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_Basic extends PApplet {
   
-  private class MyFluidData implements Fluid.FluidData{
+  private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
     @Override
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale, r, g, b, intensity, temperature;
       
@@ -100,7 +100,7 @@ public class Fluid_Basic extends PApplet {
   int gui_x = 20;
   int gui_y = 20;
   
-  Fluid fluid;
+  DwFluid2D fluid;
   ObstaclePainter obstacle_painter;
  
   // render targets
@@ -123,12 +123,12 @@ public class Fluid_Basic extends PApplet {
   public void setup() {
    
     // main library context
-    PixelFlow context = new PixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
     // fluid simulation
-    fluid = new Fluid(context, viewport_w, viewport_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, viewport_w, viewport_h, fluidgrid_scale);
     
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.999f;

@@ -13,11 +13,11 @@ package OpticalFlow_CaptureFluid;
 
 
 
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.OpticalFlow;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.filter.Filter;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -32,12 +32,12 @@ import processing.video.Capture;
 public class OpticalFlow_CaptureFluid extends PApplet {
  
   
- private class MyFluidData implements Fluid.FluidData{
+ private class MyFluidData implements DwFluid2D.FluidData{
     
     
     @Override
     // this is called during the fluid-simulation update step.
-    public void update(Fluid fluid) {
+    public void update(DwFluid2D fluid) {
     
       float px, py, vx, vy, radius, vscale;
 
@@ -82,7 +82,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     }
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
-    public void addDensityTexture(Fluid fluid, OpticalFlow opticalflow){
+    public void addDensityTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
       context.begin();
       context.beginDraw(fluid.tex_density.dst);
       DwGLSLProgram shader = context.createShader("data/addDensity.frag");
@@ -101,7 +101,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     }
     
  
-    public void addDensityTexture_cam(Fluid fluid, OpticalFlow opticalflow){
+    public void addDensityTexture_cam(DwFluid2D fluid, DwOpticalFlow opticalflow){
       int[] pg_tex_handle = new int[1];
       
       if( !pg_cam_a.getTexture().available() ) return;
@@ -130,7 +130,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     
     
     // custom shader, to add temperature from a texture (PGraphics2D) to the fluid.
-    public void addTemperatureTexture(Fluid fluid, OpticalFlow opticalflow){
+    public void addTemperatureTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
       context.begin();
       context.beginDraw(fluid.tex_temperature.dst);
       DwGLSLProgram shader = context.createShader("data/addTemperature.frag");
@@ -149,7 +149,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     }
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
-    public void addVelocityTexture(Fluid fluid, OpticalFlow opticalflow){
+    public void addVelocityTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
       context.begin();
       context.beginDraw(fluid.tex_velocity.dst);
       DwGLSLProgram shader = context.createShader("data/addVelocity.frag");
@@ -187,18 +187,18 @@ public class OpticalFlow_CaptureFluid extends PApplet {
   
   
   // main library context
-  PixelFlow context;
+  DwPixelFlow context;
   
   // collection of imageprocessing filters
-  Filter filter;
+  DwFilter filter;
   
   // fluid solver
-  Fluid fluid;
+  DwFluid2D fluid;
   
   MyFluidData cb_fluid_data;
   
   // optical flow
-  OpticalFlow opticalflow;
+  DwOpticalFlow opticalflow;
   
   // buffer for the capture-image
   PGraphics2D pg_cam_a, pg_cam_b; 
@@ -236,14 +236,14 @@ public class OpticalFlow_CaptureFluid extends PApplet {
   public void setup() {
     
     // main library context
-    context = new PixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
-    filter = new Filter(context);
+    filter = new DwFilter(context);
     
     // fluid object
-    fluid = new Fluid(context, view_w, view_h, fluidgrid_scale);
+    fluid = new DwFluid2D(context, view_w, view_h, fluidgrid_scale);
     
     // some fluid parameters
     fluid.param.dissipation_density     = 0.90f;
@@ -256,7 +256,7 @@ public class OpticalFlow_CaptureFluid extends PApplet {
     fluid.addCallback_FluiData(cb_fluid_data);
     
     // optical flow object
-    opticalflow = new OpticalFlow(context, cam_w, cam_h);
+    opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
     
     // optical flow parameters    
     opticalflow.param.display_mode = 1;
