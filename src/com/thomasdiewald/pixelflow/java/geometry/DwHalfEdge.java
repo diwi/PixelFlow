@@ -12,6 +12,7 @@ package com.thomasdiewald.pixelflow.java.geometry;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwStack;
+import com.thomasdiewald.pixelflow.java.accelerationstructures.IntegerPair;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics3D;
@@ -20,49 +21,31 @@ import processing.opengl.PGraphics3D;
 public class DwHalfEdge {
 
   static public class Edge{
-    public int  FLAG; // can be used for anything. e.g. bitmask, pointer, boolean etc...
     public Edge pair;
     public Edge next;
     public int  vert;
-
+    public int  FLAG; // can be used for anything. e.g. bitmask, pointer, boolean etc...
+    public int  indx; // can be used for anything.
     public Edge(int vert){
       this.vert = vert;
     }
-       
-    public int keyThis(){ return this.vert << 16 | next.vert; }
-    public int keyPair(){ return next.vert << 16 | this.vert; }
-    
-    
-    
-    public void put(HashMap<Integer, Edge> edgemap){
-      edgemap.put(this.keyThis(), this);
-    }
-    
-    public void getPair(HashMap<Integer, Edge> edgemap){
-      pair = edgemap.get(this.keyPair());
-    }
   }
-  
-  
 
   static public class Face{
-    public int  FLAG;
     public Edge edge;
+    public int  FLAG;
     public Face(Edge edge){
       this.edge = edge;
     }
   }
 
-
   static public class Vert{
-    public int  FLAG;
     public Edge edge;
+    public int  FLAG;
     public Vert(Edge edge){
       this.edge = edge;
     }
   }
-  
-  
   
   static public class Mesh{
     
@@ -71,139 +54,81 @@ public class DwHalfEdge {
     public Vert[] verts; // not really needed
     public Face[] faces; // not really needed
     
-    public int verts_per_face;
+    public int verts_per_face = -1;
     
     public Mesh(DwIndexedFaceSetAble ifs){
-      int     faces_count = ifs.getFacesCount();
+      this.ifs = ifs;
+      create();
+    }
+    
+    private void create(){
+
+      // IFS data
       int[][] faces       = ifs.getFaces();
+      int     faces_count = ifs.getFacesCount();
+      int     verts_count = ifs.getVertsCount();
+      int     edges_count = 0;
       
-      int verts_per_face = faces[0].length;
-      
+      // - count number of required edges
+      // - check if all faces have the same amount of vertices
+      //   e.g. all triangles, quads, or just polygons
+      verts_per_face = faces[0].length;
       for(int i = 0; i < faces_count; i++){
+        edges_count += faces[i].length;
         if(verts_per_face != faces[i].length) { 
           verts_per_face = -1; 
-          break;
         }
       }
-      if(verts_per_face == -1){
-        // mixed: faces have all a different vertexcount
-      }
-      if(verts_per_face == 3){
-        createFromTriangleMesh(ifs, verts_per_face);
-      }
-      if(verts_per_face == 4){
-        createFromQuadMesh(ifs, verts_per_face);
-      }
-    }
-    
-    private void createFromQuadMesh(DwIndexedFaceSetAble ifs, int verts_per_face){
-      this.ifs = ifs;
-      this.verts_per_face = verts_per_face;
-      
-      int[][] faces       = ifs.getFaces();
-      int     faces_count = ifs.getFacesCount();
-      int     verts_count = ifs.getVertsCount();
-      int     edges_count = ifs.getFacesCount() * verts_per_face;
-      
+
+      // allocate
       this.edges = new DwHalfEdge.Edge[edges_count];
       this.faces = new DwHalfEdge.Face[faces_count];
       this.verts = new DwHalfEdge.Vert[verts_count];
       
-      HashMap<Integer, DwHalfEdge.Edge> edgemap = new HashMap<Integer, DwHalfEdge.Edge>();
+      // edgemap, for finding edge-pairs
+      HashMap<IntegerPair, DwHalfEdge.Edge> edgemap = new HashMap<IntegerPair, DwHalfEdge.Edge>();
       
       // setup edges/faces
       for(int i = 0, edge_id = 0; i < faces_count; i++){
+        int num_edges = faces[i].length;
+        
         // create face-edges
-        DwHalfEdge.Edge e01 = new DwHalfEdge.Edge(faces[i][0]); 
-        DwHalfEdge.Edge e12 = new DwHalfEdge.Edge(faces[i][1]);
-        DwHalfEdge.Edge e23 = new DwHalfEdge.Edge(faces[i][2]);
-        DwHalfEdge.Edge e30 = new DwHalfEdge.Edge(faces[i][3]);
+        for(int j = 0; j < num_edges; j++){
+          edges[edge_id + j] = new DwHalfEdge.Edge(faces[i][j]); 
+        }
         
         // link face-edges
-        e01.next = e12;
-        e12.next = e23;
-        e23.next = e30;
-        e30.next = e01;
+        for(int j = 0; j < num_edges; j++){
+          int j0 = edge_id + (j+0) % num_edges;
+          int j1 = edge_id + (j+1) % num_edges;
+          edges[j0].next = edges[j1];
+        }
         
         // put face-edges into map
-        e01.put(edgemap);
-        e12.put(edgemap);
-        e23.put(edgemap);
-        e30.put(edgemap);
-        
-        // add to list
-        edges[edge_id++] = e01;
-        edges[edge_id++] = e12;
-        edges[edge_id++] = e23;
-        edges[edge_id++] = e30;
-        
+        for(int j = 0; j < num_edges; j++){
+          Edge e0 = edges[edge_id + j];
+          edgemap.put(IntegerPair.AB(e0), e0);
+        }
+
         // link: edge <-> face
-        this.faces[i] = new DwHalfEdge.Face(e01); 
+        this.faces[i] = new DwHalfEdge.Face(edges[edge_id]);
+        
+        // increase index
+        edge_id += num_edges;
       }
 
       // setup edge-pairs
       for(DwHalfEdge.Edge edge : edges){
         // link: edge <-> edge
-        edge.getPair(edgemap);
-        // link: edge <-> vertex
-        verts[edge.vert] = new DwHalfEdge.Vert(edge);
-      }
-      
-      
-    }
-    
-    private void createFromTriangleMesh(DwIndexedFaceSetAble ifs, int verts_per_face){
-      this.ifs = ifs;
-      this.verts_per_face = verts_per_face;
-      int[][] faces       = ifs.getFaces();
-      int     faces_count = ifs.getFacesCount();
-      int     verts_count = ifs.getVertsCount();
-      int     edges_count = ifs.getFacesCount() * verts_per_face;
-      
-      this.edges = new DwHalfEdge.Edge[edges_count];
-      this.faces = new DwHalfEdge.Face[faces_count];
-      this.verts = new DwHalfEdge.Vert[verts_count];
-
-      HashMap<Integer, DwHalfEdge.Edge> edgemap = new HashMap<Integer, DwHalfEdge.Edge>();
-      
-      // setup edges/faces
-      for(int i = 0, edge_id = 0; i < faces_count; i++){
-        
-        // create face-edges
-        DwHalfEdge.Edge e01 = new DwHalfEdge.Edge(faces[i][0]); 
-        DwHalfEdge.Edge e12 = new DwHalfEdge.Edge(faces[i][1]);
-        DwHalfEdge.Edge e20 = new DwHalfEdge.Edge(faces[i][2]);
-        
-        // link face-edges
-        e01.next = e12;
-        e12.next = e20;
-        e20.next = e01;
-        
-        // put face-edges into map
-        e01.put(edgemap);
-        e12.put(edgemap);
-        e20.put(edgemap);
-        
-        // add to list
-        edges[edge_id++] = e01;
-        edges[edge_id++] = e12;
-        edges[edge_id++] = e20;
-        
-        // link: edge <-> face
-        this.faces[i] = new DwHalfEdge.Face(e01); 
-      }
-
-      // setup edge-pairs
-      for(DwHalfEdge.Edge edge : edges){
-        // link: edge <-> edge
-        edge.getPair(edgemap);
+        edge.pair = edgemap.get(IntegerPair.BA(edge));
         // link: edge <-> vertex
         verts[edge.vert] = new DwHalfEdge.Vert(edge);
       }
     }
     
     
-   
+    
+
     public int getNumberOfVertexEdges(int vertex_id){
       DwHalfEdge.Vert vert = verts[vertex_id];
       DwHalfEdge.Edge edge = vert.edge;  
@@ -334,21 +259,14 @@ public class DwHalfEdge {
     private void setFLAG_display(DwHalfEdge.Edge edge){
       edge.FLAG = ((edge.FLAG & ~DISPLAY_BIT_MASK) | DISPLAY_BIT);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
      
   }
+  
+  
+  
+  
+
+  
   
   
  

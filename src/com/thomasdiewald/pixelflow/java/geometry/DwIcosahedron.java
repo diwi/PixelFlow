@@ -2,6 +2,8 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.HashMap;
 
+import com.thomasdiewald.pixelflow.java.accelerationstructures.IntegerPair;
+
 public class DwIcosahedron implements DwIndexedFaceSetAble{
   // https://en.wikipedia.org/wiki/Regular_icosahedron
   // golden ratio: 1.618034
@@ -12,7 +14,7 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   public int  [][] faces;
   public float[][] verts;
   private int      verts_idx;
-  private HashMap<Integer, Integer> verts_cache = new HashMap<Integer, Integer>();
+  private HashMap<IntegerPair, Integer> verts_cache = new HashMap<IntegerPair, Integer>();
 
   
   public DwIcosahedron(int subdivisions){
@@ -48,7 +50,7 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
     return ++verts_idx;
   }
   
-  public int addFace(int[][] faces, int face_idx, int a, int b, int c){
+  private int addFace(int[][] faces, int face_idx, int a, int b, int c){
     faces[face_idx][0] = a;
     faces[face_idx][1] = b;
     faces[face_idx][2] = c;
@@ -56,8 +58,9 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   }
 
   private int getCenter(int ia, int ib){
-    Integer key = (ia<ib) ? (ib<<16)|ia : (ia<<16)|ib;
-    Integer val = verts_cache.get(key);
+    if(ib<ia){int it=ia;ia=ib;ib=it;}
+    IntegerPair key = new IntegerPair(ia, ib);
+    Integer     val = verts_cache.get(key);
     if (val == null) {
       float mx = (verts[ia][0] + verts[ib][0]) * 0.5f;
       float my = (verts[ia][1] + verts[ib][1]) * 0.5f;
