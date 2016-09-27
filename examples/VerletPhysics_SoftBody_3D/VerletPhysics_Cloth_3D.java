@@ -7,7 +7,7 @@
  * 
  */
 
-package VerletPhysics_Cloth_3D;
+package VerletPhysics_SoftBody_3D;
 
 
 
@@ -74,6 +74,8 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   // cloth texture
   PGraphics2D texture;
   
+  // global states
+  int BACKGROUND_COLOR = 92;
   
   // 0 ... default: particles, spring
   // 1 ... tension
@@ -175,6 +177,8 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     ball.bend_spring_mode      = 0;
     ball.bend_spring_dist      = 3;
     
+    // create textures, in this case, only for the cloth
+    createClothTexture();
 
     createBodies();
     
@@ -206,13 +210,15 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   
   public void createClothTexture(){
+   
     PFont font = createFont("Calibri", 200);
+    long timer = System.currentTimeMillis();
 
     int tex_w = 1024;
     int tex_h = 1024;
 
     // create texture for text shadow
-    PGraphics2D pg_tmp = (PGraphics2D) createGraphics(tex_w, tex_h, P2D);
+    PGraphics2D pg_tmp    = (PGraphics2D) createGraphics(tex_w, tex_h, P2D);
     PGraphics2D pg_shadow = (PGraphics2D) createGraphics(tex_w, tex_h, P2D);
     pg_shadow.smooth(8);
     pg_shadow.beginDraw();
@@ -233,36 +239,36 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     Filter.get(context).multiply .apply(pg_shadow, pg_shadow, new float[]{1,1,1,3});
     Filter.get(context).gaussblur.apply(pg_shadow, pg_shadow, pg_tmp, 15);
 
-
     // now create the real texture
     texture = (PGraphics2D) createGraphics(tex_w, tex_h, P2D);
     texture.smooth(8);
     texture.beginDraw();
     texture.background(255,200,50);
-
+    
     // grid, for better contrast
-    int num_lines = 40;
-    float dx = tex_w/(float)(num_lines-1);
-    float dy = tex_h/(float)(num_lines-1);
-    texture.strokeWeight(1f);
-    texture.stroke(0);
-    for(int ix = 0; ix < num_lines; ix++){
-      texture.line((int)(dx*ix), 0,(int)(dx*ix), tex_h);
-      texture.line(0, (int)(dy*ix), tex_w, (int)(dy*ix));
-    }
+//    int num_lines = 40;
+//    float dx = tex_w/(float)(num_lines-1);
+//    float dy = tex_h/(float)(num_lines-1);
+//    texture.strokeWeight(2f);
+//    texture.stroke(0, 100);
+//    for(int ix = 0; ix < num_lines; ix++){
+//      texture.line((int)(dx*ix), 0,(int)(dx*ix), tex_h);
+//      texture.line(0, (int)(dy*ix), tex_w, (int)(dy*ix));
+//    }
+   
 
     // some random rectangles
-    texture.stroke(0);
-    texture.strokeWeight(1f);
-    texture.rectMode(CENTER);
-    for(int i = 0; i < 256; i++){
-      float rx      = random(tex_w);
-      float ry      = random(tex_h);
-      float rad     = random(10, 64);
-      float shading = random(0, 255);
-      texture.fill(shading*1.0f, shading*0.6f, shading*0.2f);
-      texture.rect((int)rx, (int)ry, (int)rad, (int)rad, 3);
-    }
+//    texture.stroke(0);
+//    texture.strokeWeight(1f);
+//    texture.rectMode(CENTER);
+//    for(int i = 0; i < 256; i++){
+//      float rx      = random(tex_w);
+//      float ry      = random(tex_h);
+//      float rad     = random(10, 64);
+//      float shading = random(0, 255);
+//      texture.fill(shading*1.0f, shading*0.6f, shading*0.2f);
+//      texture.rect((int)rx, (int)ry, (int)rad, (int)rad, 3);
+//    }
     
     // text-shadow
     texture.image(pg_shadow, 0, 0, tex_w, tex_h);
@@ -282,6 +288,11 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     texture.rect(0, 0, tex_w, tex_h);
     
     texture.endDraw();
+    
+
+    
+    timer = System.currentTimeMillis() -timer;
+    System.out.println("timer: "+timer);
   }
   
   
@@ -291,14 +302,24 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     // first thing to do!
     physics.reset();
     
-    // create textures, in this case, only for the cloth
-    createClothTexture();
-    
-     
     int nodex_x, nodes_y, nodes_z, nodes_r;
     int nodes_start_x, nodes_start_y, nodes_start_z;
     int ball_subdivisions, ball_radius;
     float r,g,b,s;
+    
+    
+    // add to global list
+    softbodies.clear();
+    softbodies.add(cloth);
+    softbodies.add(cube1);
+    softbodies.add(cube2);
+    softbodies.add(ball);
+    
+    // set some common things, like collision behavior
+    for(SoftBody3D body : softbodies){
+      body.self_collisions = true;
+      body.collision_radius_scale = 1f;
+    }
     
     
     ///////////////////// CLOTH ////////////////////////////////////////////////
@@ -313,14 +334,16 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     g = 200;
     b = 100;
     s = 1f;
+    cloth.texture_XYp = texture;
     cloth.setMaterialColor(color(r  ,g  ,b  ));
     cloth.setParticleColor(color(r*s,g*s,b*s));
     cloth.setParam(param_cloth_particle);
     cloth.setParam(param_cloth_spring);
     cloth.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
+    cloth.createParticlesShape(this);
     cloth.getNode(              0, 0, 0).enable(false, false, false);
     cloth.getNode(cloth.nodes_x-1, 0, 0).enable(false, false, false);
-    cloth.texture_XYp = texture;
+
     
     
     //////////////////// CUBE //////////////////////////////////////////////////
@@ -331,16 +354,19 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     nodes_start_x = 300;
     nodes_start_y = 300;
     nodes_start_z = nodes_y * nodes_r*2+200;
-    r = 96;
-    g = 96;
+    r = 180;
+    g = 32;
     b = 96;
+    r = 128;
+    g = 64;
+    b = 64;
     s = 1f;
     cube1.setMaterialColor(color(r  ,g  ,b  ));
     cube1.setParticleColor(color(r*s,g*s,b*s));
     cube1.setParam(param_cube_particle);
     cube1.setParam(param_cube_spring);
     cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-
+    cube1.createParticlesShape(this);
     
     //////////////////// CUBE //////////////////////////////////////////////////
     nodex_x = 3;
@@ -359,7 +385,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     cube2.setParam(param_cube_particle);
     cube2.setParam(param_cube_spring);
     cube2.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
- 
+    cube2.createParticlesShape(this);
     
     //////////////////// BALL //////////////////////////////////////////////////
     ball_subdivisions = 3;
@@ -376,22 +402,10 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     ball.setParam(param_ball_particle);
     ball.setParam(param_ball_spring);
     ball.create(physics, ball_subdivisions, ball_radius, nodes_start_x, nodes_start_y, nodes_start_z);
+    ball.createParticlesShape(this);
+    
+    
 
-    
-    
-    // add to global list
-    softbodies.clear();
-    softbodies.add(cloth);
-    softbodies.add(cube1);
-    softbodies.add(cube2);
-    softbodies.add(ball);
-    
-    // set some commong things
-    for(SoftBody3D body : softbodies){
-      body.self_collisions = true;
-      body.collision_radius_scale = 1f;
-      body.createParticlesShape(this);
-    }
 
 //    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
     
@@ -445,11 +459,11 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       body.computeNormals();
     }
     
-  
+
     ////////////////////////////////////////////////////////////////////////////
     // RENDER this madness
     ////////////////////////////////////////////////////////////////////////////
-    background(92);
+    background(BACKGROUND_COLOR);
     
     // disable peasycam-interaction while we edit the model
     peasycam.setActive(MOVE_CAM);
@@ -465,7 +479,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     // lights();
     pointLight(220, 180, 140, -1000, -1000, -100);
     ambientLight(96, 96, 96);
-    directionalLight(210, 210, 210, -1, -1, -1);
+    directionalLight(210, 210, 210, -1, -1.5f, -2);
     lightFalloff(1.0f, 0.001f, 0.0f);
     lightSpecular(255, 0, 0);
     specular(255, 0, 0);
@@ -594,7 +608,10 @@ public class VerletPhysics_Cloth_3D extends PApplet {
     int particles_count = physics.getParticlesCount();
     VerletParticle3D[] particles = physics.getParticles();
     
-    float dd_min = SNAP_RADIUS * radius;
+    float radius_sq = radius * radius;
+    float dd_min = radius_sq;
+    
+    float dz_min = 1;
 
     particle_nearest = null;
     // transform Particles: world -> screen
@@ -603,11 +620,15 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       transformToScreen(pa, particle_world, particle_screen);
       float dx = particle_screen[0] - mx;
       float dy = particle_screen[1] - my;
+      float dz = particle_screen[2];
       float dd_sq = dx*dx + dy*dy;
-      if(dd_sq < dd_min){
-        dd_min = dd_sq;
-        particle_nearest = pa;
-        particle_screen_z = particle_screen[2];
+      if(dd_min > dd_sq){
+        if(dz_min > dz){
+          dz_min = dz;
+          dd_min = dd_sq;
+          particle_nearest  = pa;
+          particle_screen_z = dz;
+        }
       }
     }  
   }
@@ -627,7 +648,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       float dx = particle_screen[0] - mx;
       float dy = particle_screen[1] - my;
       float dd_sq = dx*dx + dy*dy;
-      if(dd_sq < dd_min){
+      if(dd_min > dd_sq){
         particles_within_radius.add(pa);
       }
     }  
@@ -637,7 +658,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   boolean MOVE_CAM       = false;
   boolean MOVE_PARTICLE  = false;
   boolean SNAP_PARTICLE  = false;
-  float   SNAP_RADIUS    = 60;
+  float   SNAP_RADIUS    = 30;
   boolean DELETE_SPRINGS = false;
   float   DELETE_RADIUS  = 15;
 
@@ -731,18 +752,12 @@ public class VerletPhysics_Cloth_3D extends PApplet {
   
   public void displayMouseInteraction(){
     if(SNAP_PARTICLE){
-      int col_snap         = color(255, 100, 200);
-      int col_move_release = color(64, 180, 0);
+
+      int col_move_release = color(64, 200, 0);
       int col_move_fixed   = color(255, 30, 10); 
       
-      int col = col_snap;
-      if(MOVE_PARTICLE){
-        col = col_move_release;
-        if(mouseButton == CENTER){
-          col = col_move_fixed;
-        }
-      }
-       
+      int col = (mouseButton == CENTER) ? col_move_fixed : col_move_release;
+
       strokeWeight(1);
       stroke(col);
       line(particle_nearest.cx, particle_nearest.cy, particle_nearest.cz, mouse_world[0], mouse_world[1], mouse_world[2]);
@@ -758,8 +773,7 @@ public class VerletPhysics_Cloth_3D extends PApplet {
       ellipse(mouseX, mouseY, 15, 15);
       peasycam.endHUD();
     }
-    
-    
+
     if(DELETE_SPRINGS){
       peasycam.beginHUD();
       strokeWeight(2);

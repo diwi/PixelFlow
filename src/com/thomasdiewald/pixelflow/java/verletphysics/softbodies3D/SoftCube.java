@@ -76,7 +76,7 @@ public class SoftCube extends SoftBody3D{
     int idx, idx_world;
     int x, y, z, ox, oy, oz;
     float px, py, pz;
-    float rand_scale = 0;
+    float rand_scale = 0.1f;
   
     // 1) init particles
     for(z = 0; z < nodes_z; z++){
