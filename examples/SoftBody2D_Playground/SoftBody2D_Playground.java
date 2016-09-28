@@ -112,7 +112,7 @@ public class SoftBody2D_Playground extends PApplet {
     param_spring_circle  .damp_dec = 0.999999f;
     param_spring_circle  .damp_inc = 0.999999f;
 
-    frameRate(60);
+    frameRate(600);
   }
   
   

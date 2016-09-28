@@ -3,6 +3,9 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
 
 import java.util.ArrayList;
 
+import com.thomasdiewald.pixelflow.java.geometry.DwCube;
+import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
+import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
@@ -109,8 +112,9 @@ public abstract class DwSoftBody3D{
   }
 
   
-//  DwTetrahedron tetrahedron;
-//  DwIcosahedron icosahedron;
+
+  DwIndexedFaceSetAble ifs;
+  
   PShape createShape(PApplet papplet, DwParticle3D particle){
     PShape shape;
     
@@ -118,46 +122,63 @@ public abstract class DwSoftBody3D{
     shape.setStroke(true);
     shape.setStrokeWeight(6);
 
-//    if(tetrahedron == null){
-//      tetrahedron = new Tetrahedron();
-//      tetrahedron.create(0);
+//    if(ifs == null){
+//      ifs = new DwIcosahedron(1);
+////      ifs = new DwCube(1);
 //    }
-//    
-//    if(icosahedron == null){
-//      icosahedron = new Icosahedron();
-//      icosahedron.create(0);
-//    }
-    
 //    shape = papplet.createShape(PShape.GEOMETRY);
-//    createPolyhedronShape(shape, tetrahedron.faces, tetrahedron.vertices, particle.rad);
-//    createPolyhedronShape(shape, icosahedron.faces, icosahedron.vertices, particle.rad);
+//    createPolyhedronShape(shape, ifs, particle.rad, 3, true);
 
     return shape;
   }
   
   
-  public void createPolyhedronShape(PShape shape, ArrayList<int[]> faces, ArrayList<float[]> vertices, float scale){
-    shape.beginShape(PConstants.TRIANGLES);
-    shape.noStroke();
-    for(int[] face : faces){
-      float[] v0 = vertices.get(face[0]);
-      float[] v1 = vertices.get(face[1]);
-      float[] v2 = vertices.get(face[2]);
+  public void createPolyhedronShape(PShape shape, DwIndexedFaceSetAble ifs, float scale, int verts_per_face, boolean smooth){
+    
 
-      // flat shading
-      float nx = (v0[0] + v1[0] + v2[0])/3f;
-      float ny = (v0[1] + v1[1] + v2[1])/3f;
-      float nz = (v0[2] + v1[2] + v2[2])/3f;
-      shape.normal(nx, ny, nz); 
-      
-//      shape.normal(v0[0], v0[1], v0[2]); 
-      shape.vertex(v0[0]*scale, v0[1]*scale, v0[2]*scale);
-//      shape.normal(v1[0], v1[1], v1[2]); 
-      shape.vertex(v1[0]*scale, v1[1]*scale, v1[2]*scale);
-//      shape.normal(v2[0], v2[1], v2[2]); 
-      shape.vertex(v2[0]*scale, v2[1]*scale, v2[2]*scale);
+    
+    int type = -1;
+    
+    switch(verts_per_face){
+      case 3: type = PConstants.TRIANGLES; break;
+      case 4: type = PConstants.QUADS; break;
+      default: return;
     }
-    shape.endShape();
+   
+    shape.beginShape(type);
+    shape.noStroke();
+    
+    int  [][] faces = ifs.getFaces();
+    float[][] verts = ifs.getVerts();
+    
+    for(int[] face : faces){
+      float nx = 0, ny = 0, nz = 0;
+
+      int num_verts = face.length;
+      
+      // compute face normal
+      if(!smooth){
+        for(int i = 0; i < num_verts; i++){
+          int vi = face[i];
+          nx += verts[vi][0];
+          ny += verts[vi][1];
+          nz += verts[vi][2];
+        }
+        nx /= num_verts;
+        ny /= num_verts;
+        nz /= num_verts;
+        shape.normal(nx, ny, nz); 
+      }
+      
+      for(int i = 0; i < num_verts; i++){
+        float[] v = verts[face[i]];
+        if(smooth){
+          shape.normal(v[0], v[1], v[2]); 
+        }
+        shape.vertex(v[0]*scale, v[1]*scale, v[2]*scale);
+      }
+    }
+    shape.endShape(PConstants.CLOSE);
   }
   
 
