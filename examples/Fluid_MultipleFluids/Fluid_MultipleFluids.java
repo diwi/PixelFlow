@@ -21,6 +21,14 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_MultipleFluids extends PApplet {
   
+  // A setup of two independent Fluid Simulations.
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // MMB: add Density
+  // RMB: add Temperature
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;

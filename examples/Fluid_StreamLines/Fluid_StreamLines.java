@@ -29,6 +29,30 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_StreamLines extends PApplet {
   
+  // Fluid_StreamLines is an experiment, to visualize streamlines of the fluid.
+  // At regular gridpoints polylines are placed and their vertices are aligned 
+  // to the fluid vectors.
+  //
+  // This is pretty critical for performance. So the real challenge is to handle
+  // the amount of data to render but even more its realtime updates.
+  // A software solution turned out to be way to insufficient.
+  //
+  // The trick is, to allocate one ping-pong-texture, GL_RG32F, that stores
+  // for each line one vertex position (x,y).
+  // 
+  // The rendering pass is then an iterative execution of an update/render step.
+  //
+  // e.g. 500 x 500 streamlines a 30 vertices:
+  // the ping-pong-texture has a size of 500 x 500.
+  // the update/render-step is executed 30 times, each frame.
+  //
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // RMB: add Density
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.

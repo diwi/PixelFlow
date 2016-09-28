@@ -24,6 +24,16 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_SlowBuoyancy extends PApplet {
   
+  // Experiment to demonstrate Buoyancy.
+  // The top emitter adds negative temperature + density, while the bottom
+  // emitter adds positive temperature + density.
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // MMB: add Density
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
      
     @Override

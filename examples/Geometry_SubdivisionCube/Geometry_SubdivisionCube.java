@@ -7,21 +7,30 @@
  * 
  */
 
-package Geometry_Icosahedron;
+package Geometry_SubdivisionCube;
 
+import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge;
-import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 
 import peasy.PeasyCam;
 import processing.core.*;
 import processing.opengl.PGraphics3D;
 
-public class Geometry_Icosahedron extends PApplet {
+public class Geometry_SubdivisionCube extends PApplet {
 
+  
+  // Demo to create a Subdivision Cube, and either render it by as usual, 
+  // or convert it to a HalfEdge representation and use that for rendering and
+  // more complex mesh operations/iterations.
+  //
+  // Controls:
+  // key '1'-'7' ... subdivisions
+  // key 's        ... toggle stroke display
+  
   PeasyCam cam;
   
-  DwIcosahedron icosahedron;
+  DwCube cube;
   DwHalfEdge.Mesh mesh;
   
   float radius = 200;
@@ -37,9 +46,10 @@ public class Geometry_Icosahedron extends PApplet {
     createMesh(3);
   }
   
+  
   public void createMesh(int subdivisions){
-    icosahedron = new DwIcosahedron(subdivisions);
-    mesh = new DwHalfEdge.Mesh(icosahedron);
+    cube = new DwCube(subdivisions);
+    mesh = new DwHalfEdge.Mesh(cube);
   }
   
   public void draw() {
@@ -61,7 +71,7 @@ public class Geometry_Icosahedron extends PApplet {
     // display the IFS-mesh (Indexed Face set)
     pushMatrix();
       translate(-1.5f, 0);
-      displayMesh(icosahedron);
+      displayMesh(cube);
     popMatrix();
     
     // display the HalfEdge mesh
@@ -120,7 +130,7 @@ public class Geometry_Icosahedron extends PApplet {
   PShape shp_gizmo;
   public void displayGizmo(float s){
     if(shp_gizmo == null){
-      strokeWeight(2);
+      strokeWeight(1);
       shp_gizmo = createShape();
       shp_gizmo.beginShape(LINES);
       shp_gizmo.stroke(255,0,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(s,0,0);
@@ -139,6 +149,6 @@ public class Geometry_Icosahedron extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Geometry_Icosahedron.class.getName() });
+    PApplet.main(new String[] { Geometry_SubdivisionCube.class.getName() });
   }
 }

@@ -25,6 +25,21 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_Basic extends PApplet {
   
+  // This example shows a very basic fluid simulation setup. 
+  // Multiple emitters add velocity/temperature/density each iteration.
+  // Obstacles are added at startup, by just drawing into a usual PGraphics object.
+  // The same way, obstacles can be added/removed dynamically.
+  //
+  // additionally some locations add temperature to the scene, to show how
+  // buoyancy works.
+  //
+  //
+  // controls:
+  //
+  // LMB: add Density + Velocity
+  // MMB: draw obstacles
+  // RMB: clear obstacles
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.

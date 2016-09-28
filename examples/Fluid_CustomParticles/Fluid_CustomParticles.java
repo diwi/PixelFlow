@@ -26,6 +26,21 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_CustomParticles extends PApplet {
   
+  // Fluid_CustomParticles show how to setup a completely customized particle
+  // system that is interacting with the fluid simulation.
+  // The particle data (positions) is stored in an OpenGL texture (GL_RGBA32F) 
+  // and gets updated each frame using GLSL shaders.
+  // No Data transfer (application <-> device), is required.
+  //
+  //
+  // controls:
+  //
+  // LMB: add Particles + Velocity
+  // MMB: add Particles
+  // RMB: add Particles
+  
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.

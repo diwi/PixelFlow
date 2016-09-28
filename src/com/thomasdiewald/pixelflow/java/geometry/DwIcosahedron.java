@@ -2,7 +2,7 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.HashMap;
 
-import com.thomasdiewald.pixelflow.java.accelerationstructures.IntegerPair;
+import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 
 public class DwIcosahedron implements DwIndexedFaceSetAble{
   // https://en.wikipedia.org/wiki/Regular_icosahedron
@@ -14,7 +14,7 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   public int  [][] faces;
   public float[][] verts;
   private int      verts_idx;
-  private HashMap<IntegerPair, Integer> verts_cache = new HashMap<IntegerPair, Integer>();
+  private HashMap<DwPair<Integer>, Integer> verts_cache = new HashMap<DwPair<Integer>, Integer>();
 
   
   public DwIcosahedron(int subdivisions){
@@ -59,8 +59,8 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
 
   private int getCenter(int ia, int ib){
     if(ib<ia){int it=ia;ia=ib;ib=it;}
-    IntegerPair key = new IntegerPair(ia, ib);
-    Integer     val = verts_cache.get(key);
+    DwPair<Integer> key = new DwPair<Integer>(ia, ib);
+    Integer         val = verts_cache.get(key);
     if (val == null) {
       float mx = (verts[ia][0] + verts[ib][0]) * 0.5f;
       float my = (verts[ia][1] + verts[ib][1]) * 0.5f;

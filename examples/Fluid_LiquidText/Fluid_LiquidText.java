@@ -27,6 +27,19 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_LiquidText extends PApplet {
   
+  // Fluid_LiquidText is more or less the same as Fluid_LiquidPainting.
+  // 
+  // The density source is a PGraphics object, which at program-start got some 
+  // text drawn to it.
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // MMB: add Density
+  // RMB: add Temperature
+  
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     @Override

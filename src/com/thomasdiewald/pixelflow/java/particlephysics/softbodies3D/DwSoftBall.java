@@ -5,7 +5,8 @@ import java.util.Random;
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge;
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge.Edge;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics3D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
@@ -16,7 +17,8 @@ import processing.core.PGraphics;
 
 public class DwSoftBall extends DwSoftBody3D{
   
-  DwHalfEdge.Mesh mesh;
+
+  public DwHalfEdge.Mesh mesh;
   
   // specific attributes for this body
   public float nodes_r;
@@ -31,11 +33,12 @@ public class DwSoftBall extends DwSoftBody3D{
   public DwSoftBall(){
   }
 
-  public void create(DwPhysics3D physics, int subdivisions, float radius,float start_x, float start_y, float start_z){
+  public void create(DwPhysics<DwParticle3D> physics, int subdivisions, float radius,float start_x, float start_y, float start_z){
     
     DwIndexedFaceSetAble ifs = new DwIcosahedron(subdivisions);
-    mesh = new DwHalfEdge.Mesh(ifs);
-
+    
+    this.mesh               = new DwHalfEdge.Mesh(ifs);
+    this.physics            = physics;
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
@@ -73,26 +76,31 @@ public class DwSoftBall extends DwSoftBody3D{
 
     // 2) create STRUCT springs
     // an icosahedron has a t most 6 edges per vertex
+    float nodes_r_tmp = Float.MAX_VALUE;
     DwHalfEdge.Edge[] edges = new DwHalfEdge.Edge[6];
     for(int ia = 0; ia < num_nodes; ia++){
       int edge_count = mesh.getVertexEdges(ia, edges);
       
       for(int j = 0; j < edge_count; j++){
         int ib = edges[j].pair.vert;     
-        addSpring(ia, ib, DwSpringConstraint3D.TYPE.STRUCT);
+        DwSpringConstraint spring = addSpring(ia, ib, DwSpringConstraint.TYPE.STRUCT);
+        if(spring != null && spring.dd_rest < nodes_r_tmp){
+          nodes_r_tmp = spring.dd_rest;
+        }
+        
       }
     }
 
     // 3) compute best nodes radius
-    float nodes_r_tmp = Float.MAX_VALUE;
-    for(int ia = 0; ia < num_nodes; ia++){
-      DwParticle3D pa = particles[ia];
-      for(int j = 0; j < pa.spring_count; j++){
-        if(pa.springs[j].dd_rest < nodes_r_tmp){
-          nodes_r_tmp = pa.springs[j].dd_rest;
-        }
-      }   
-    }
+//    float nodes_r_tmp = Float.MAX_VALUE;
+//    for(int ia = 0; ia < num_nodes; ia++){
+//      DwParticle3D pa = particles[ia];
+//      for(int j = 0; j < pa.spring_count; j++){
+//        if(pa.springs[j].dd_rest < nodes_r_tmp){
+//          nodes_r_tmp = pa.springs[j].dd_rest;
+//        }
+//      }   
+//    }
     
     // 4) update nodes radius
     nodes_r = nodes_r_tmp * 0.5f;
@@ -120,7 +128,7 @@ public class DwSoftBall extends DwSoftBody3D{
         }
 
         ib = edge.vert;     
-        addSpring(ia, ib, DwSpringConstraint3D.TYPE.BEND);
+        addSpring(ia, ib, DwSpringConstraint.TYPE.BEND);
       } 
     }
     
@@ -137,10 +145,12 @@ public class DwSoftBall extends DwSoftBody3D{
   }
   
   
-  public void addSpring(int ia, int ib, DwSpringConstraint3D.TYPE type){
-    DwSpringConstraint3D.addSpring(particles[ia], particles[ib], param_spring, type);
+  public DwSpringConstraint addSpring(int ia, int ib, DwSpringConstraint.TYPE type){
+//    DwSpringConstraint3D.addSpring(particles[ia], particles[ib], param_spring, type);
+//    return null;
+    return DwSpringConstraint3D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
   }
-  
+
   
   
   

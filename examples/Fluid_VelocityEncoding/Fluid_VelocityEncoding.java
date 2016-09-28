@@ -28,6 +28,23 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_VelocityEncoding extends PApplet {
   
+  // A more abstract example that shows how to add velocity to the fluid-solver
+  // by encoding it in a PGraphics.
+  //
+  // Similar to the density-examples (Fluid_LiquidPainting), where the density
+  // source comes from an image, it is possible to add velocity from a texture.
+  //
+  // The challenge is to interpret + encode the PGraphics drawing as a 
+  // 2d-direction (velocity-vector).
+  //
+  // As a result we can draw to a PGraphics canvas and use that drawing as any
+  // kind of source, density, temperature, velocity.
+  //
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // RMB: add Density
 
 
   private class MyFluidData implements DwFluid2D.FluidData{

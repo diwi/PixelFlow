@@ -2,8 +2,10 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
 
 import java.util.Random;
 
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics3D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
 
 import processing.core.PConstants;
@@ -38,8 +40,9 @@ public class DwSoftCube extends DwSoftBody3D{
   public DwSoftCube(){
   }
 
-  public void create(DwPhysics3D physics, int nx, int ny, int nz, float nr, float start_x, float start_y, float start_z){
+  public void create(DwPhysics<DwParticle3D> physics, int nx, int ny, int nz, float nr, float start_x, float start_y, float start_z){
  
+    this.physics            = physics;
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
@@ -108,38 +111,38 @@ public class DwSoftCube extends DwSoftBody3D{
       for(y = 0; y < nodes_y; y++){
         for(x = 0; x < nodes_x; x++){
           if(CREATE_STRUCT_SPRINGS){
-            addSpring(x, y, z, -1, 0, 0, DwSpringConstraint3D.TYPE.STRUCT);
-            addSpring(x, y, z, +1, 0, 0, DwSpringConstraint3D.TYPE.STRUCT);
-            addSpring(x, y, z,  0,-1, 0, DwSpringConstraint3D.TYPE.STRUCT);
-            addSpring(x, y, z,  0,+1, 0, DwSpringConstraint3D.TYPE.STRUCT);
-            addSpring(x, y, z,  0, 0,-1, DwSpringConstraint3D.TYPE.STRUCT);
-            addSpring(x, y, z,  0, 0,+1, DwSpringConstraint3D.TYPE.STRUCT);
+            addSpring(x, y, z, -1, 0, 0, DwSpringConstraint.TYPE.STRUCT);
+            addSpring(x, y, z, +1, 0, 0, DwSpringConstraint.TYPE.STRUCT);
+            addSpring(x, y, z,  0,-1, 0, DwSpringConstraint.TYPE.STRUCT);
+            addSpring(x, y, z,  0,+1, 0, DwSpringConstraint.TYPE.STRUCT);
+            addSpring(x, y, z,  0, 0,-1, DwSpringConstraint.TYPE.STRUCT);
+            addSpring(x, y, z,  0, 0,+1, DwSpringConstraint.TYPE.STRUCT);
           }
                     
           if(CREATE_SHEAR_SPRINGS){
-            addSpring(x, y, z, -1,-1, -1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, +1,-1, -1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, -1,+1, -1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, +1,+1, -1, DwSpringConstraint3D.TYPE.SHEAR);
+            addSpring(x, y, z, -1,-1, -1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, +1,-1, -1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, -1,+1, -1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, +1,+1, -1, DwSpringConstraint.TYPE.SHEAR);
             
-            addSpring(x, y, z, -1,-1, +1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, +1,-1, +1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, -1,+1, +1, DwSpringConstraint3D.TYPE.SHEAR);
-            addSpring(x, y, z, +1,+1, +1, DwSpringConstraint3D.TYPE.SHEAR);
+            addSpring(x, y, z, -1,-1, +1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, +1,-1, +1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, -1,+1, +1, DwSpringConstraint.TYPE.SHEAR);
+            addSpring(x, y, z, +1,+1, +1, DwSpringConstraint.TYPE.SHEAR);
           }
           
           if(CREATE_BEND_SPRINGS && bend_spring_dist > 0){
             // diagonal
             if(bend_spring_mode == 0){
-              addSpring(x, y, z, -ox, -oy, -oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, +ox, -oy, -oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, -ox, +oy, -oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, +ox, +oy, -oz, DwSpringConstraint3D.TYPE.BEND);
+              addSpring(x, y, z, -ox, -oy, -oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, +ox, -oy, -oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, -ox, +oy, -oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, +ox, +oy, -oz, DwSpringConstraint.TYPE.BEND);
               
-              addSpring(x, y, z, -ox, -oy, +oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, +ox, -oy, +oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, -ox, +oy, +oz, DwSpringConstraint3D.TYPE.BEND);
-              addSpring(x, y, z, +ox, +oy, +oz, DwSpringConstraint3D.TYPE.BEND);
+              addSpring(x, y, z, -ox, -oy, +oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, +ox, -oy, +oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, -ox, +oy, +oz, DwSpringConstraint.TYPE.BEND);
+              addSpring(x, y, z, +ox, +oy, +oz, DwSpringConstraint.TYPE.BEND);
             }
             
 //            // orthogonal
@@ -171,7 +174,15 @@ public class DwSoftCube extends DwSoftBody3D{
   }
   
  
-  public DwParticle3D getNode(int x, int y, int z){
+  public DwParticle getNode(int x, int y, int z){
+    if(x <        0 || y <        0 || z <        0) return null;
+    if(x >= nodes_x || y >= nodes_y || z >= nodes_z) return null;
+
+    int idx = (z * nodes_x * nodes_y) + (y * nodes_x) + x;
+    return particles[idx];
+  }
+  
+  public DwParticle3D getNode3D(int x, int y, int z){
     if(x <        0 || y <        0 || z <        0) return null;
     if(x >= nodes_x || y >= nodes_y || z >= nodes_z) return null;
 
@@ -180,7 +191,7 @@ public class DwSoftCube extends DwSoftBody3D{
   }
   
   
-  public void addSpring(int ax, int ay, int az, int offx, int offy, int offz, DwSpringConstraint3D.TYPE type){
+  public void addSpring(int ax, int ay, int az, int offx, int offy, int offz, DwSpringConstraint.TYPE type){
     int bx = ax + offx;
     int by = ay + offy;
     int bz = az + offz;
@@ -193,7 +204,8 @@ public class DwSoftCube extends DwSoftBody3D{
     int ia = (az * nodes_x * nodes_y) + (ay * nodes_x) + ax;
     int ib = (bz * nodes_x * nodes_y) + (by * nodes_x) + bx;
 
-    DwSpringConstraint3D.addSpring(particles[ia], particles[ib], param_spring, type);
+//    DwSpringConstraint3D.addSpring(particles[ia], particles[ib], param_spring, type);
+    DwSpringConstraint3D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
   }
   
   
@@ -225,11 +237,11 @@ public class DwSoftCube extends DwSoftBody3D{
     for(int iy = 0; iy < nodes_y; iy++){
       for(int ix = 0; ix < nodes_x; ix++){
         int idx = iy * nodes_x + ix;
-        DwParticle3D pC = getNode(ix  , iy  , iz  );
-        DwParticle3D pT = getNode(ix  , iy-1, iz  );
-        DwParticle3D pB = getNode(ix  , iy+1, iz  );
-        DwParticle3D pL = getNode(ix-1, iy  , iz  );
-        DwParticle3D pR = getNode(ix+1, iy  , iz  );
+        DwParticle3D pC = getNode3D(ix  , iy  , iz  );
+        DwParticle3D pT = getNode3D(ix  , iy-1, iz  );
+        DwParticle3D pB = getNode3D(ix  , iy+1, iz  );
+        DwParticle3D pL = getNode3D(ix-1, iy  , iz  );
+        DwParticle3D pR = getNode3D(ix+1, iy  , iz  );
         computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
@@ -239,11 +251,11 @@ public class DwSoftCube extends DwSoftBody3D{
     for(int iz = 0; iz < nodes_z; iz++){
       for(int iy = 0; iy < nodes_y; iy++){
         int idx = iz * nodes_y + iy;
-        DwParticle3D pC = getNode(ix  , iy  , iz  );
-        DwParticle3D pT = getNode(ix  , iy  , iz-1);
-        DwParticle3D pB = getNode(ix  , iy  , iz+1);
-        DwParticle3D pL = getNode(ix  , iy-1, iz  );
-        DwParticle3D pR = getNode(ix  , iy+1, iz  );
+        DwParticle3D pC = getNode3D(ix  , iy  , iz  );
+        DwParticle3D pT = getNode3D(ix  , iy  , iz-1);
+        DwParticle3D pB = getNode3D(ix  , iy  , iz+1);
+        DwParticle3D pL = getNode3D(ix  , iy-1, iz  );
+        DwParticle3D pR = getNode3D(ix  , iy+1, iz  );
         computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
@@ -253,11 +265,11 @@ public class DwSoftCube extends DwSoftBody3D{
     for(int iz = 0; iz < nodes_z; iz++){
       for(int ix= 0; ix < nodes_x; ix++){
         int idx = iz * nodes_x + ix;
-        DwParticle3D pC = getNode(ix  , iy  , iz  );
-        DwParticle3D pT = getNode(ix  , iy  , iz-1);
-        DwParticle3D pB = getNode(ix  , iy  , iz+1);
-        DwParticle3D pL = getNode(ix-1, iy  , iz  );
-        DwParticle3D pR = getNode(ix+1, iy  , iz  );
+        DwParticle3D pC = getNode3D(ix  , iy  , iz  );
+        DwParticle3D pT = getNode3D(ix  , iy  , iz-1);
+        DwParticle3D pB = getNode3D(ix  , iy  , iz+1);
+        DwParticle3D pL = getNode3D(ix-1, iy  , iz  );
+        DwParticle3D pR = getNode3D(ix+1, iy  , iz  );
         computeNormals(normals_ref[idx], pC, pT, pR, pB, pL);
       }
     }
@@ -371,11 +383,11 @@ public class DwSoftCube extends DwSoftBody3D{
     int ix, iy;
     for(iy = 0; iy < nodes_y-1; iy++){
       for(ix = 0; ix < nodes_x; ix++){
-        vertex(pg, getNode(ix, iy+0, iz), normals[(iy+0)*nodes_x+ix], ix * tx_inv, (iy+0) * ty_inv);
-        vertex(pg, getNode(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], ix * tx_inv, (iy+1) * ty_inv);
+        vertex(pg, getNode3D(ix, iy+0, iz), normals[(iy+0)*nodes_x+ix], ix * tx_inv, (iy+0) * ty_inv);
+        vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], ix * tx_inv, (iy+1) * ty_inv);
       }
-      ix -= 1; vertex(pg, getNode(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
-      ix  = 0; vertex(pg, getNode(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+      ix -= 1; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+      ix  = 0; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
     }
     pg.endShape();
   }
@@ -388,11 +400,11 @@ public class DwSoftCube extends DwSoftBody3D{
     int iz, iy;
     for(iz = 0; iz < nodes_z-1; iz++){
       for(iy = 0; iy < nodes_y; iy++){
-        vertex(pg, getNode(ix, iy, iz+0), normals[(iz+0)*nodes_y+iy], iy * ty_inv, (iz+0) * tz_inv);
-        vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], iy * ty_inv, (iz+1) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_y+iy], iy * ty_inv, (iz+0) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], iy * ty_inv, (iz+1) * tz_inv);
       }
-      iy -= 1; vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
-      iy  = 0; vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+      iy -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+      iy  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
     }
     pg.endShape();
   }
@@ -405,11 +417,11 @@ public class DwSoftCube extends DwSoftBody3D{
     int iz, ix;
     for(iz = 0; iz < nodes_z-1; iz++){
       for(ix = 0; ix < nodes_x; ix++){
-        vertex(pg, getNode(ix, iy, iz+0), normals[(iz+0)*nodes_x+ix], ix * tx_inv, (iz+0) * tz_inv);
-        vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], ix * tx_inv, (iz+1) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_x+ix], ix * tx_inv, (iz+0) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], ix * tx_inv, (iz+1) * tz_inv);
       }
-      ix -= 1; vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
-      ix  = 0; vertex(pg, getNode(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+      ix -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+      ix  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
     }
     pg.endShape();
   }
@@ -425,7 +437,7 @@ public class DwSoftCube extends DwSoftBody3D{
     pg.beginShape(PConstants.LINES);
     for(int iy = 0; iy < nodes_y; iy++){
       for(int ix = 0; ix < nodes_x; ix++){
-        normal(pg, getNode(ix, iy, iz), normals[iy * nodes_x + ix], nlen);
+        normal(pg, getNode3D(ix, iy, iz), normals[iy * nodes_x + ix], nlen);
       }
     }
     pg.endShape();
@@ -435,7 +447,7 @@ public class DwSoftCube extends DwSoftBody3D{
     pg.beginShape(PConstants.LINES);
     for(int iz = 0; iz < nodes_z; iz++){
       for(int iy = 0; iy < nodes_y; iy++){
-        normal(pg, getNode(ix, iy, iz), normals[iz * nodes_y + iy], nlen);
+        normal(pg, getNode3D(ix, iy, iz), normals[iz * nodes_y + iy], nlen);
       }
     }
     pg.endShape();
@@ -445,7 +457,7 @@ public class DwSoftCube extends DwSoftBody3D{
     pg.beginShape(PConstants.LINES);
     for(int iz = 0; iz < nodes_z; iz++){
       for(int ix = 0; ix < nodes_x; ix++){
-        normal(pg, getNode(ix, iy, iz), normals[iz * nodes_x + ix], nlen);
+        normal(pg, getNode3D(ix, iy, iz), normals[iz * nodes_x + ix], nlen);
       }
     }
     pg.endShape();

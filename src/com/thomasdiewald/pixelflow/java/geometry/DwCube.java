@@ -2,7 +2,7 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.HashMap;
 
-import com.thomasdiewald.pixelflow.java.accelerationstructures.IntegerPair;
+import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 
 
 
@@ -15,7 +15,7 @@ public class DwCube implements DwIndexedFaceSetAble{
   public int  [][] faces;
   public float[][] verts;
   private int      verts_idx;
-  private HashMap<IntegerPair, Integer> verts_cache = new HashMap<IntegerPair, Integer>();
+  private HashMap<DwPair<Integer>, Integer> verts_cache = new HashMap<DwPair<Integer>, Integer>();
 
   
   public DwCube(int subdivisions){
@@ -70,7 +70,7 @@ public class DwCube implements DwIndexedFaceSetAble{
   
   private int getCenter(int ia, int ib){
     if(ib<ia){int it=ia;ia=ib;ib=it;}
-    IntegerPair key = new IntegerPair(ia, ib);
+    DwPair<Integer> key = new DwPair<Integer>(ia, ib);
     Integer     val = verts_cache.get(key);
     if (val == null) {
       float mx = (verts[ia][0] + verts[ib][0]) * 0.5f;

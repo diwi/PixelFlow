@@ -14,7 +14,7 @@ package Fluid_VerletParticleCollisionSystem;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -27,6 +27,22 @@ import processing.opengl.PGraphics2D;
 
 
 public class Fluid_VerletParticleCollisionSystem extends PApplet {
+  
+  // VerletParticles, motion driven by the fluid-velocity.
+  //
+  // The particle positions are updated by the physics object, which also
+  // handles the collisions.
+  // To add fluid-velocity (simulated on the GPU) to particles (simulated on the
+  // CPU) the velocity data needs to be transfered, which is a rather expensive 
+  // thing to do.
+  //
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // RMB: add Density
+  
+  
   
   private class MyFluidData implements DwFluid2D.FluidData{
     
@@ -129,9 +145,11 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
 
   // particle system, cpu
   ParticleSystem particlesystem;
+  
+  DwPhysics.Param param_physics = new DwPhysics.Param();
 
   // verlet physics, handles the update-step
-  DwPhysics2D physics;
+  DwPhysics<DwParticle2D> physics;
   
   
   // some state variables for the GUI/display
@@ -187,7 +205,21 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     pg_obstacles.endDraw();
     
     fluid.addObstacles(pg_obstacles);
-
+    
+    
+    
+    
+    
+    
+    param_physics.GRAVITY = new float[]{0, 0.1f};
+    param_physics.bounds  = new float[]{10, 10, width-10, height-10};
+    param_physics.iterations_collisions = 4;
+    param_physics.iterations_springs    = 0; // no springs in this demo
+    
+    physics = new DwPhysics<DwParticle2D>(param_physics);
+    
+    
+   
     // particle system object
     particlesystem = new ParticleSystem(this, width, height);
     
@@ -205,12 +237,6 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     
     
     particlesystem.initParticles();
-    
-    physics = new DwPhysics2D();
-    physics.param.GRAVITY = new float[]{0, 0.1f};
-    physics.param.bounds  = new float[]{10, 10, width-10, height-10};
-    physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 0; // no springs in this demo
    
     createGUI();
 
@@ -257,6 +283,7 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
     fluid_velocity = fluid.getVelocity(fluid_velocity);
     
     // add force: FLuid Velocity
+    float[] fluid_vxy = new float[2];
     for (DwParticle2D particle : particlesystem.particles) {
 
       int px_view = Math.round(particle.cx);
@@ -269,16 +296,17 @@ public class Fluid_VerletParticleCollisionSystem extends PApplet {
 
       int PIDX    = py_grid * w_grid + px_grid;
 
-      float fluid_vx = +fluid_velocity[PIDX * 2 + 0] * 0.05f * particlesystem.MULT_FLUID;
-      float fluid_vy = -fluid_velocity[PIDX * 2 + 1] * 0.05f * particlesystem.MULT_FLUID; // invert y
+      fluid_vxy[0] = +fluid_velocity[PIDX * 2 + 0] * 0.05f * particlesystem.MULT_FLUID;
+      fluid_vxy[1] = -fluid_velocity[PIDX * 2 + 1] * 0.05f * particlesystem.MULT_FLUID; // invert y
       
-      particle.addForce(fluid_vx, fluid_vy);
+      particle.addForce(fluid_vxy);
     }
     
     
     //  add force: Middle Mouse Button (MMB) -> particle[0]
-    if(mousePressed){
-      particlesystem.particles[0].moveTo(mouseX, mouseY, 0.3f);
+    if(mousePressed && mouseButton == CENTER){
+      float[] mouse = {mouseX, mouseY};
+      particlesystem.particles[0].moveTo(mouse, 0.3f);
       particlesystem.particles[0].enableCollisions(false);
     } else {
       particlesystem.particles[0].enableCollisions(true);

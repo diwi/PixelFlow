@@ -28,6 +28,20 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_LiquidPainting extends PApplet {
 
+  // Fluid_LiquidPainting loads an image and uses it as a density source by
+  // copying each pixels rgb data to the density map of the fluid solver.
+  //
+  // addDensityTexture()
+  // The key to control the result is in the GLSL shader "data/addDensity.frag".
+  // Here the new data (image pixels) are added to the existing density.
+  //
+  // controls:
+  //
+  // LMB: add Velocity
+  // MMB: add Density
+  // RMB: add Temperature
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     @Override

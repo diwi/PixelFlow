@@ -10,12 +10,12 @@ import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge;
  * 
  * @author thomas diewald
  */
-public class IntegerPair {
+public class DwPair<T> {
   
-  private final Integer a, b;
+  private final T a, b;
   private final int hashcode;
   
-  public IntegerPair(final Integer a, final Integer b) { 
+  public DwPair(final T a, final T b) { 
     this.a = a; 
     this.b = b; 
     this.hashcode = a.hashCode() + b.hashCode()*31;
@@ -26,14 +26,15 @@ public class IntegerPair {
   
   @Override
   public final boolean equals(Object o) {
-    return equals((IntegerPair)o);
+    return equals((DwPair<?>)o);
   }
-  public final boolean equals(final IntegerPair e){
+  public final boolean equals(final DwPair<?> e){
     return  (a.equals(e.a) && b.equals(e.b));
   }
   
   
   // comfort methods
-  public static final IntegerPair AB(final DwHalfEdge.Edge e){  return new IntegerPair( e.vert, e.next.vert ); }
-  public static final IntegerPair BA(final DwHalfEdge.Edge e){  return new IntegerPair( e.next.vert, e.vert ); }
+  public static final DwPair<Integer> AB(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.vert, e.next.vert ); }
+  public static final DwPair<Integer> BA(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.next.vert, e.vert ); }
+  
 }

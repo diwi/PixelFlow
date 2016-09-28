@@ -3,11 +3,13 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D;
 import java.util.Random;
 
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 
 public class DwSoftGrid extends DwSoftBody2D{
   
+
   // specific attributes for this body
   public int   nodes_x;
   public int   nodes_y;
@@ -21,8 +23,9 @@ public class DwSoftGrid extends DwSoftBody2D{
   public DwSoftGrid(){
   }
 
-  public void create(DwPhysics2D physics, int nx, int ny, float nr, float start_x, float start_y){
+  public void create(DwPhysics<DwParticle2D> physics, int nx, int ny, float nr, float start_x, float start_y){
  
+    this.physics            = physics;
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
@@ -65,34 +68,34 @@ public class DwSoftGrid extends DwSoftBody2D{
       for(x = 0; x < nodes_x; x++){
         
         if(CREATE_STRUCT_SPRINGS){
-          addSpring(x, y, -1, 0, DwSpringConstraint2D.TYPE.STRUCT);
-          addSpring(x, y,  0,-1, DwSpringConstraint2D.TYPE.STRUCT);
-          addSpring(x, y, +1, 0, DwSpringConstraint2D.TYPE.STRUCT);
-          addSpring(x, y,  0,+1, DwSpringConstraint2D.TYPE.STRUCT);
+          addSpring(x, y, -1, 0, DwSpringConstraint.TYPE.STRUCT);
+          addSpring(x, y,  0,-1, DwSpringConstraint.TYPE.STRUCT);
+          addSpring(x, y, +1, 0, DwSpringConstraint.TYPE.STRUCT);
+          addSpring(x, y,  0,+1, DwSpringConstraint.TYPE.STRUCT);
         }
                   
         if(CREATE_SHEAR_SPRINGS){
-          addSpring(x, y, -1,-1, DwSpringConstraint2D.TYPE.SHEAR);
-          addSpring(x, y, +1,-1, DwSpringConstraint2D.TYPE.SHEAR);
-          addSpring(x, y, -1,+1, DwSpringConstraint2D.TYPE.SHEAR);
-          addSpring(x, y, +1,+1, DwSpringConstraint2D.TYPE.SHEAR);
+          addSpring(x, y, -1,-1, DwSpringConstraint.TYPE.SHEAR);
+          addSpring(x, y, +1,-1, DwSpringConstraint.TYPE.SHEAR);
+          addSpring(x, y, -1,+1, DwSpringConstraint.TYPE.SHEAR);
+          addSpring(x, y, +1,+1, DwSpringConstraint.TYPE.SHEAR);
         }
         
         if(CREATE_BEND_SPRINGS && bend_spring_dist > 0){
           // diagonal
           if(bend_spring_mode == 0){
-            addSpring(x, y, -ox, -oy, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y, +ox, -oy, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y, -ox, +oy, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y, +ox, +oy, DwSpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, -ox, -oy, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y, +ox, -oy, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y, -ox, +oy, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y, +ox, +oy, DwSpringConstraint.TYPE.BEND);
           }
           
           // orthogonal
           if(bend_spring_mode == 1){
-            addSpring(x, y, -ox,   0, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y, +ox,   0, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y,   0, +oy, DwSpringConstraint2D.TYPE.BEND);
-            addSpring(x, y,   0, -oy, DwSpringConstraint2D.TYPE.BEND);
+            addSpring(x, y, -ox,   0, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y, +ox,   0, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y,   0, +oy, DwSpringConstraint.TYPE.BEND);
+            addSpring(x, y,   0, -oy, DwSpringConstraint.TYPE.BEND);
           }
           
           // random, 'kind of' anisotropic
@@ -108,7 +111,7 @@ public class DwSoftGrid extends DwSoftBody2D{
 //              float rand_rad = 1.5f + bend_spring_dist * rand.nextFloat();
 //              ox = (int) Math.round(rx * rand_rad);
 //              oy = (int) Math.round(ry * rand_rad);
-              addSpring(x, y, ox, oy, DwSpringConstraint2D.TYPE.BEND);
+              addSpring(x, y, ox, oy, DwSpringConstraint.TYPE.BEND);
             }
           }
         }
@@ -132,7 +135,7 @@ public class DwSoftGrid extends DwSoftBody2D{
   }
   
   
-  public void addSpring(int ax, int ay, int offx, int offy, DwSpringConstraint2D.TYPE type){
+  public void addSpring(int ax, int ay, int offx, int offy, DwSpringConstraint.TYPE type){
     int bx = ax + offx;
     int by = ay + offy;
     
@@ -143,7 +146,7 @@ public class DwSoftGrid extends DwSoftBody2D{
     int ia = ay * nodes_x + ax;
     int ib = by * nodes_x + bx;
 
-    DwSpringConstraint2D.addSpring(particles[ia], particles[ib], param_spring, type);
+    DwSpringConstraint2D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
   }
   
 

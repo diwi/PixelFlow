@@ -1,8 +1,9 @@
 package com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D;
 
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
-
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -34,6 +35,7 @@ public abstract class DwSoftBody2D{
 
   
   // general attributes
+  public DwPhysics<DwParticle2D> physics;
   
   // can be used for sub-classes
   public boolean CREATE_STRUCT_SPRINGS = true;
@@ -48,8 +50,8 @@ public abstract class DwSoftBody2D{
   public PShape shp_particles;         // shape for drawing all particles of this body
   
   
-  public DwParticle2D.Param param_particle = new  DwParticle2D.Param();
-  public DwSpringConstraint2D.Param param_spring   = new  DwSpringConstraint2D.Param();
+  public DwParticle2D.Param       param_particle = new  DwParticle2D.Param();
+  public DwSpringConstraint.Param param_spring   = new  DwSpringConstraint.Param();
   
   
   public DwSoftBody2D(){
@@ -63,7 +65,7 @@ public abstract class DwSoftBody2D{
   public void setParam(DwParticle2D.Param param_particle){
     this.param_particle = param_particle;
   }
-  public void setParam(DwSpringConstraint2D.Param param_spring){
+  public void setParam(DwSpringConstraint.Param param_spring){
     this.param_spring = param_spring;
   }
   
@@ -106,7 +108,7 @@ public abstract class DwSoftBody2D{
   }
   
   
-  public void drawSprings(PGraphics pg, DwSpringConstraint2D.TYPE type, int display_mode){
+  public void drawSprings(PGraphics pg, DwSpringConstraint.TYPE type, int display_mode){
     if(display_mode == -1) return;
     if(type == null) return;
     
@@ -117,10 +119,10 @@ public abstract class DwSoftBody2D{
     for(int i = 0; i < particles.length; i++){
       DwParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        DwSpringConstraint2D spring = pa.springs[j];
+        DwSpringConstraint2D spring = (DwSpringConstraint2D) pa.springs[j];
+        if(!spring.enabled) continue;
+        if(spring.pa != pa) continue;
         DwParticle2D pb = spring.pb;
-        if(!spring.is_the_good_one) continue;
-        if(type != spring.type) continue;
               
         switch(spring.type){
           case STRUCT:  strokeweight = 1.00f; r =   0; g =   0; b =   0; break;
@@ -136,11 +138,6 @@ public abstract class DwSoftBody2D{
           r = force * 10000;
           g = force * 1000;
           b = 0;
-          
-//          force_curr *= 10000f;
-//          r = force_curr;
-//          g = 0;
-//          b = -force_curr;
         } 
       
         pg.strokeWeight(strokeweight);

@@ -12,8 +12,8 @@ package SoftBody2D_ParticleCollisionSystem;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
-
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -35,8 +35,12 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
   // particle system, cpu
   ParticleSystem particlesystem;
 
+  
+  // physics parameters
+  DwPhysics.Param param_physics = new DwPhysics.Param();
+  
   // verlet physics, handles the update-step
-  DwPhysics2D physics;
+  DwPhysics<DwParticle2D> physics;
   
   // some state variables for the GUI/display
   int     BACKGROUND_COLOR    = 255;
@@ -70,11 +74,11 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
     
     particlesystem.initParticles();
     
-    physics = new DwPhysics2D();
-    physics.param.GRAVITY = new float[]{0, 0.1f};
-    physics.param.bounds  = new float[]{0, 0, width, height};
-    physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 0; // no springs in this demo
+    physics = new DwPhysics<DwParticle2D>(param_physics);
+    param_physics.GRAVITY = new float[]{0, 0.1f};
+    param_physics.bounds  = new float[]{0, 0, width, height};
+    param_physics.iterations_collisions = 4;
+    param_physics.iterations_springs    = 0; // no springs in this demo
    
     createGUI();
 
@@ -87,7 +91,8 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
 
     //  add force: Middle Mouse Button (MMB) -> particle[0]
     if(mousePressed){
-      particlesystem.particles[0].moveTo(mouseX, mouseY, 0.3f);
+      float[] mouse = {mouseX, mouseY};
+      particlesystem.particles[0].moveTo(mouse, 0.3f);
       particlesystem.particles[0].enableCollisions(false);
     } else {
       particlesystem.particles[0].enableCollisions(true);

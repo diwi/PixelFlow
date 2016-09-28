@@ -32,6 +32,7 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_WindTunnel extends PApplet {
   
+  // Windtunnel, combining most of the other examples.
 
   private class MyFluidData implements DwFluid2D.FluidData{
     

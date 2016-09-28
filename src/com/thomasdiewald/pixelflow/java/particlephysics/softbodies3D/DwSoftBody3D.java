@@ -3,7 +3,10 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
 
 import java.util.ArrayList;
 
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
 
 import processing.core.PApplet;
@@ -39,6 +42,7 @@ public abstract class DwSoftBody3D{
 
   
   // general attributes
+  public DwPhysics<DwParticle3D> physics;
   
   // can be used for sub-classes
   public boolean CREATE_STRUCT_SPRINGS = true;
@@ -53,8 +57,8 @@ public abstract class DwSoftBody3D{
   public PShape shp_particles;         // shape for drawing all particles of this body
   
   
-  public DwParticle3D.Param   param_particle = new DwParticle3D.Param();
-  public DwSpringConstraint3D.Param param_spring   = new DwSpringConstraint3D.Param();
+  public DwParticle.Param         param_particle = new DwParticle.Param();
+  public DwSpringConstraint.Param param_spring   = new DwSpringConstraint.Param();
   
   
   public DwSoftBody3D(){
@@ -65,10 +69,10 @@ public abstract class DwSoftBody3D{
   
 
   
-  public void setParam(DwParticle3D.Param param_particle){
+  public void setParam(DwParticle.Param param_particle){
     this.param_particle = param_particle;
   }
-  public void setParam(DwSpringConstraint3D.Param param_spring){
+  public void setParam(DwSpringConstraint.Param param_spring){
     this.param_spring = param_spring;
   }
   
@@ -180,10 +184,11 @@ public abstract class DwSoftBody3D{
     for(int i = 0; i < particles.length; i++){
       DwParticle3D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        DwSpringConstraint3D spring = pa.springs[j];
+        DwSpringConstraint3D spring = (DwSpringConstraint3D) pa.springs[j];
+        if(!spring.enabled) continue;
+        if(spring.pa != pa) continue;
         DwParticle3D pb = spring.pb;
-        if(!spring.is_the_good_one) continue;
-        
+
         if(display_mode == 0){
           switch(spring.type){
             case STRUCT:  if(!DISPLAY_SPRINGS_STRUCT) continue; strokeweight = 1.00f; r =   0; g =   0; b =   0; break;

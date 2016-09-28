@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftCube;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
@@ -42,8 +43,10 @@ public class Softbody3D_Cloth extends PApplet {
   // main library context
   DwPixelFlow context;
   
+  DwPhysics.Param param_physics = new DwPhysics.Param();
+  
   // // physics simulation object
-  DwPhysics3D physics = new DwPhysics3D();
+  DwPhysics<DwParticle3D> physics = new DwPhysics<DwParticle3D>(param_physics);
   
   // cloth objects
   DwSoftCube cloth = new DwSoftCube();
@@ -53,12 +56,12 @@ public class Softbody3D_Cloth extends PApplet {
   ArrayList<DwSoftBody3D> softbodies = new ArrayList<DwSoftBody3D>();
   
   // particle parameters
-  DwParticle3D.Param param_cloth_particle = new DwParticle3D.Param();
-  DwParticle3D.Param param_cube_particle  = new DwParticle3D.Param();
+  DwParticle.Param param_cloth_particle = new DwParticle.Param();
+  DwParticle.Param param_cube_particle  = new DwParticle.Param();
   
   // spring parameters
-  DwSpringConstraint3D.Param param_cloth_spring = new DwSpringConstraint3D.Param();
-  DwSpringConstraint3D.Param param_cube_spring  = new DwSpringConstraint3D.Param();
+  DwSpringConstraint.Param param_cloth_spring = new DwSpringConstraint.Param();
+  DwSpringConstraint.Param param_cube_spring  = new DwSpringConstraint.Param();
 
   // camera
   PeasyCam peasycam;
@@ -111,10 +114,10 @@ public class Softbody3D_Cloth extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     
     // physics world parameters
-    physics.param.GRAVITY = new float[]{ 0, 0, -0.1f};
-    physics.param.bounds  = new float[]{ -400, -400, 0, +1200, +1200, +1200 };
-    physics.param.iterations_collisions = 2;
-    physics.param.iterations_springs    = 8;
+    param_physics.GRAVITY = new float[]{ 0, 0, -0.1f};
+    param_physics.bounds  = new float[]{ -400, -400, 0, +1200, +1200, +1200 };
+    param_physics.iterations_collisions = 2;
+    param_physics.iterations_springs    = 8;
     
     // particle parameters (for simulation)
     param_cloth_particle.DAMP_BOUNDS    = 0.49999f;
@@ -151,7 +154,7 @@ public class Softbody3D_Cloth extends PApplet {
     // modelview/projection
     createCam();
     
-    frameRate(60);
+    frameRate(600);
   }
   
 
@@ -225,7 +228,7 @@ public class Softbody3D_Cloth extends PApplet {
     cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
     cube1.createParticlesShape(this);
     
-    NUM_SPRINGS   = DwSpringConstraint3D.getSpringCount(physics.getParticles(), true);
+    NUM_SPRINGS   = physics.getSpringCount();
     NUM_PARTICLES = physics.getParticlesCount();
   }
 
@@ -374,13 +377,13 @@ public class Softbody3D_Cloth extends PApplet {
   ParticleTransform pnearest;
   
   class ParticleTransform{
-    DwParticle3D particle = null;
-    float[]      screen = new float[4];
+    DwParticle particle = null;
+    float[]    screen = new float[4];
 
-    public ParticleTransform(DwParticle3D particle, float[] screen){
+    public ParticleTransform(DwParticle particle, float[] screen){
       set(particle, screen);
     }
-    public void set(DwParticle3D particle, float[] screen){
+    public void set(DwParticle particle, float[] screen){
       this.particle = particle;
       this.screen[0] = screen[0];
       this.screen[1] = screen[1];
@@ -392,7 +395,7 @@ public class Softbody3D_Cloth extends PApplet {
 
   void findNearestParticle(float mx, float my, float radius){
     int particles_count = physics.getParticlesCount();
-    DwParticle3D[] particles = physics.getParticles();
+    DwParticle3D[] particles = (DwParticle3D[]) physics.getParticles();
     
     float radius_sq = radius * radius;
     float dd_min = radius_sq;
@@ -418,10 +421,10 @@ public class Softbody3D_Cloth extends PApplet {
     }  
   }
   
-  ArrayList<DwParticle3D> particles_within_radius = new ArrayList<DwParticle3D>();
+  ArrayList<DwParticle> particles_within_radius = new ArrayList<DwParticle>();
   void findParticlesWithinRadius(float mx, float my, float radius){
     int particles_count = physics.getParticlesCount();
-    DwParticle3D[] particles = physics.getParticles();
+    DwParticle3D[] particles = (DwParticle3D[]) physics.getParticles();
     
     float dd_min = radius * radius;
     particles_within_radius.clear();
@@ -449,8 +452,8 @@ public class Softbody3D_Cloth extends PApplet {
     // deleting springs/constraints between particles
     if(DELETE_SPRINGS){
       findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
-      for(DwParticle3D particle : particles_within_radius){
-        DwSpringConstraint3D.deactivateSprings(particle);
+      for(DwParticle particle : particles_within_radius){
+        particle.enableAllSprings(false);
         particle.collision_group = physics.getNewCollisionGroupId();
         particle.rad_collision = particle.rad;
         particle.all_springs_deactivated = true;
@@ -484,15 +487,15 @@ public class Softbody3D_Cloth extends PApplet {
       
       int col = (mouseButton == CENTER) ? col_move_fixed : col_move_release;
       
-      DwParticle3D particle = pnearest.particle;
+      DwParticle particle = pnearest.particle;
 
       strokeWeight(1);
       stroke(col);
-      line(particle.cx, particle.cy, particle.cz, mouse_world[0], mouse_world[1], mouse_world[2]);
+      line(particle.x(), particle.y(), particle.z(), mouse_world[0], mouse_world[1], mouse_world[2]);
     
       strokeWeight(10);
       stroke(col);
-      point(particle.cx, particle.cy, particle.cz);
+      point(particle.x(), particle.y(), particle.z());
       
       peasycam.beginHUD();
       stroke(col);

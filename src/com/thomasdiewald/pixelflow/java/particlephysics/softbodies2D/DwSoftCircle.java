@@ -3,7 +3,8 @@ package com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D;
 import java.util.Random;
 
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
 
@@ -23,7 +24,8 @@ public class DwSoftCircle extends DwSoftBody2D{
   public DwSoftCircle(){
   }
   
-  public void create(DwPhysics2D physics, float circle_x, float circle_y, float cirlce_r, float nodes_r){
+  public void create(DwPhysics<DwParticle2D> physics, float circle_x, float circle_y, float cirlce_r, float nodes_r){
+    
     
     // compute number of circle vertices
     float threshold1 = 10;  // radius shortening for arc segments
@@ -37,6 +39,7 @@ public class DwSoftCircle extends DwSoftBody2D{
     num_vtx += (num_vtx*0.5f)*2;
     
     // set fields
+    this.physics            = physics;
     this.rand               = new Random(0);
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.nodes_offset       = physics.getParticlesCount();
@@ -72,20 +75,20 @@ public class DwSoftCircle extends DwSoftBody2D{
  
     // 2) create springs
     for(int i = 0; i < num_nodes; i++){
-      addSprings(i, 1, DwSpringConstraint2D.TYPE.STRUCT);
+      addSprings(i, 1, DwSpringConstraint.TYPE.STRUCT);
       
       if(bend_spring_mode == 0){
-        addSprings(i, 4, DwSpringConstraint2D.TYPE.BEND);
+        addSprings(i, 4, DwSpringConstraint.TYPE.BEND);
       }
       if(bend_spring_mode == 1){
-        addSprings(i, num_nodes/2, DwSpringConstraint2D.TYPE.BEND);
+        addSprings(i, num_nodes/2, DwSpringConstraint.TYPE.BEND);
       }
       if(bend_spring_mode == 2){
-        addSprings(i, num_nodes/3, DwSpringConstraint2D.TYPE.BEND);
+        addSprings(i, num_nodes/3, DwSpringConstraint.TYPE.BEND);
       }
       // random, 'kind of' anisotropic
       if(bend_spring_mode == 3){
-        addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), DwSpringConstraint2D.TYPE.BEND);
+        addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), DwSpringConstraint.TYPE.BEND);
       }
     }
     
@@ -98,7 +101,7 @@ public class DwSoftCircle extends DwSoftBody2D{
     return particles[idx];
   }
   
-  public void addSprings(int ia, int off, DwSpringConstraint2D.TYPE type){
+  public void addSprings(int ia, int off, DwSpringConstraint.TYPE type){
     int ib_L = (num_nodes + ia + off) % num_nodes;
     int ib_R = (num_nodes + ia - off) % num_nodes;
     addSpring(ia, ib_L, type);
@@ -106,8 +109,8 @@ public class DwSoftCircle extends DwSoftBody2D{
   }
   
   
-  public void addSpring(int ia, int ib, DwSpringConstraint2D.TYPE type){
-    DwSpringConstraint2D.addSpring(particles[ia], particles[ib], param_spring, type);
+  public void addSpring(int ia, int ib, DwSpringConstraint.TYPE type){
+    DwSpringConstraint2D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
   }
   
 

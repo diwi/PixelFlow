@@ -26,6 +26,15 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_FirstBlood extends PApplet {
   
+  // A simple example to get started.
+  // Fluid viscosity is set via parameters like *.dissipation_velocity
+  //
+  // controls:
+  //
+  // LMB: add Density + Velocity
+  // MMB: add Velocity
+  // RMB:add Density + Temperature
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.

@@ -7,23 +7,29 @@
  * 
  */
 
-package Geometry_Cube;
+package Geometry_SubdivisionIcosahedron;
 
-import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge;
+import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 
 import peasy.PeasyCam;
 import processing.core.*;
 import processing.opengl.PGraphics3D;
 
-public class Geometry_Cube extends PApplet {
+public class Geometry_SubdivisionIcosahedron extends PApplet {
 
-  
+  // Demo to create a Subdivision Icosahedron, and either render it by as usual, 
+  // or convert it to a HalfEdge representation and use that for rendering and
+  // more complex mesh operations/iterations.
+  //
+  // Controls:
+  // key '1'-'7' ... subdivisions
+  // key 's        ... toggle stroke display
   
   PeasyCam cam;
   
-  DwCube cube;
+  DwIcosahedron icosahedron;
   DwHalfEdge.Mesh mesh;
   
   float radius = 200;
@@ -39,10 +45,9 @@ public class Geometry_Cube extends PApplet {
     createMesh(3);
   }
   
-  
   public void createMesh(int subdivisions){
-    cube = new DwCube(subdivisions);
-    mesh = new DwHalfEdge.Mesh(cube);
+    icosahedron = new DwIcosahedron(subdivisions);
+    mesh = new DwHalfEdge.Mesh(icosahedron);
   }
   
   public void draw() {
@@ -64,7 +69,7 @@ public class Geometry_Cube extends PApplet {
     // display the IFS-mesh (Indexed Face set)
     pushMatrix();
       translate(-1.5f, 0);
-      displayMesh(cube);
+      displayMesh(icosahedron);
     popMatrix();
     
     // display the HalfEdge mesh
@@ -142,6 +147,6 @@ public class Geometry_Cube extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Geometry_Cube.class.getName() });
+    PApplet.main(new String[] { Geometry_SubdivisionIcosahedron.class.getName() });
   }
 }

@@ -12,7 +12,9 @@ package SoftBody2D_GetStarted;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+
+import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 
 import processing.core.*;
@@ -24,8 +26,13 @@ public class SoftBody2D_GetStarted extends PApplet {
   int viewport_x = 230;
   int viewport_y = 0;
   
+  
+  
+  // physics parameters
+  DwPhysics.Param param_physics = new DwPhysics.Param();
+  
   // physics simulation
-  DwPhysics2D physics;
+  DwPhysics<DwParticle2D> physics;
  
   DwParticle2D[] particles = new DwParticle2D[15];
 
@@ -43,13 +50,13 @@ public class SoftBody2D_GetStarted extends PApplet {
 //    context.printGL();
     
     // physics object
-    physics = new DwPhysics2D();
+    physics = new DwPhysics<DwParticle2D>(param_physics);
 
     // global physics parameters
-    physics.param.GRAVITY = new float[]{ 0, 0.5f };
-    physics.param.bounds  = new float[]{ 0, 0, width, height };
-    physics.param.iterations_collisions = 4;
-    physics.param.iterations_springs    = 4;
+    param_physics.GRAVITY = new float[]{ 0, 0.5f };
+    param_physics.bounds  = new float[]{ 0, 0, width, height };
+    param_physics.iterations_collisions = 4;
+    param_physics.iterations_springs    = 4;
     
     // particle parameters
     DwParticle2D.Param param_particle = new DwParticle2D.Param();
@@ -58,7 +65,7 @@ public class SoftBody2D_GetStarted extends PApplet {
     param_particle.DAMP_VELOCITY        = 0.9999991f; 
 
     // spring parameters
-    DwSpringConstraint2D.Param param_spring = new DwSpringConstraint2D.Param();
+    DwSpringConstraint.Param param_spring = new DwSpringConstraint.Param();
     param_spring.damp_dec = 0.899999f;
     param_spring.damp_inc = 0.000099999f;
 
@@ -69,7 +76,7 @@ public class SoftBody2D_GetStarted extends PApplet {
       float py = 100 + i * radius * 3;
       particles[i] = new DwParticle2D(i, px, py, radius, param_particle);
       
-      if(i > 0) DwSpringConstraint2D.addSpring(particles[i-1], particles[i], param_spring);
+      if(i > 0) DwSpringConstraint2D.addSpring(physics, particles[i-1], particles[i], param_spring);
     }
     
     // add all particles to the physics simulation
@@ -98,17 +105,20 @@ public class SoftBody2D_GetStarted extends PApplet {
     for(int i = 0; i < particles.length; i++){
       DwParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
-        DwSpringConstraint2D spring = pa.springs[j];
-        if(spring.is_the_good_one){
-          DwParticle2D pb = spring.pb;
-          float force = Math.abs(spring.force);
-          float r = force*5000f;
-          float g = r/10;
-          float b = 0;
-          stroke(r,g,b);
-          vertex(pa.cx, pa.cy);
-          vertex(pb.cx, pb.cy);
-        }
+        
+        DwSpringConstraint2D spring = (DwSpringConstraint2D) pa.springs[j];
+        if(!spring.enabled) continue;
+        if(spring.pa != pa) continue;
+        DwParticle2D pb = spring.pb;
+      
+        float force = Math.abs(spring.force);
+        float r = force*5000f;
+        float g = r/10;
+        float b = 0;
+        stroke(r,g,b);
+        vertex(pa.cx, pa.cy);
+        vertex(pb.cx, pb.cy);
+        
       }
     }
     endShape();
@@ -152,7 +162,8 @@ public class SoftBody2D_GetStarted extends PApplet {
 
   public void updateMouseInteractions(){
     if(particle_mouse != null){
-      particle_mouse.moveTo(mouseX, mouseY, 0.2f);
+      float[] mouse = {mouseX, mouseY};
+      particle_mouse.moveTo(mouse, 0.2f);
     }
   }
   

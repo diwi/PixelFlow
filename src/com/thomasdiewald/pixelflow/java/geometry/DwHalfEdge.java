@@ -12,7 +12,7 @@ package com.thomasdiewald.pixelflow.java.geometry;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwStack;
-import com.thomasdiewald.pixelflow.java.accelerationstructures.IntegerPair;
+import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics3D;
@@ -86,7 +86,7 @@ public class DwHalfEdge {
       verts = new DwHalfEdge.Vert[verts_count];
       
       // edgemap, for finding edge-pairs
-      HashMap<IntegerPair, DwHalfEdge.Edge> edgemap = new HashMap<IntegerPair, DwHalfEdge.Edge>();
+      HashMap<DwPair<Integer>, DwHalfEdge.Edge> edgemap = new HashMap<DwPair<Integer>, DwHalfEdge.Edge>();
       
       // setup edges/faces
       for(int i = 0, edge_id = 0; i < faces_count; i++){
@@ -102,7 +102,7 @@ public class DwHalfEdge {
           int j0 = edge_id + (j+0) % num_edges;
           int j1 = edge_id + (j+1) % num_edges;
           edges[j0].next = edges[j1]; // next-link
-          edgemap.put(IntegerPair.AB(edges[j0]), edges[j0]); // put edge into map
+          edgemap.put(DwPair.AB(edges[j0]), edges[j0]); // put edge into map
         }
         
         faces[i] = new DwHalfEdge.Face(edges[edge_id]); // face-link
@@ -111,7 +111,7 @@ public class DwHalfEdge {
 
       // setup edge-pairs
       for(DwHalfEdge.Edge edge : edges){
-        edge.pair = edgemap.get(IntegerPair.BA(edge)); // pair-link
+        edge.pair = edgemap.get(DwPair.BA(edge)); // pair-link
         verts[edge.vert] = new DwHalfEdge.Vert(edge);  // vertex-link
       }
     }

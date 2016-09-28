@@ -17,7 +17,14 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_GetStarted extends PApplet {
   
-
+  // Hello World Example for fluid simulations.
+  //
+  // Controls:
+  // LMB/MMB/RMB: add density + Velocity
+  //
+  
+  
+  
   // fluid simulation
   DwFluid2D fluid;
   

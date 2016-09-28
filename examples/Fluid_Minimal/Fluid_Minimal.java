@@ -19,6 +19,15 @@ import processing.opengl.PGraphics2D;
 
 public class Fluid_Minimal extends PApplet {
   
+  // Simple example that shows how to add Data (density, velocity) to the fluid.
+  //
+  // controls:
+  //
+  // LMB: add Density + Velocity
+  // MMB: add Velocity
+  // RMB: add Velocity
+  
+  
   private class MyFluidData implements DwFluid2D.FluidData{
     
     // update() is called during the fluid-simulation update step.
