@@ -81,7 +81,7 @@ public class Geometry_SubdivisionCube extends PApplet {
     popMatrix();
     
 
-    // info, title window
+    // info
     int num_faces = mesh.ifs.getFacesCount();
     int num_verts = mesh.ifs.getVertsCount();
     int num_edges = mesh.edges.length;

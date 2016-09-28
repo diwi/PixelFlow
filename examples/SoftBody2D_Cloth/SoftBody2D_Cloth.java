@@ -41,9 +41,6 @@ public class SoftBody2D_Cloth extends PApplet {
   // physics parameters
   DwPhysics.Param param_physics = new DwPhysics.Param();
   
-  // physics simulation
-  DwPhysics<DwParticle2D> physics;
-  
   // particle parameters
   DwParticle.Param param_particle_cloth1 = new DwParticle.Param();
   DwParticle.Param param_particle_cloth2 = new DwParticle.Param();
@@ -51,6 +48,9 @@ public class SoftBody2D_Cloth extends PApplet {
   // spring parameters
   DwSpringConstraint.Param param_spring_cloth1 = new DwSpringConstraint.Param();
   DwSpringConstraint.Param param_spring_cloth2 = new DwSpringConstraint.Param();
+  
+  // physics simulation
+  DwPhysics<DwParticle2D> physics;
   
   // cloth objects
   DwSoftGrid cloth1 = new DwSoftGrid();
@@ -72,11 +72,6 @@ public class SoftBody2D_Cloth extends PApplet {
   // first thing to do, inside draw()
   boolean NEED_REBUILD = true;
   
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
-
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
@@ -176,11 +171,6 @@ public class SoftBody2D_Cloth extends PApplet {
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
       cloth.createParticlesShape(this);
     }
-
-//    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
-    
-    NUM_SPRINGS   = physics.getSpringCount();
-    NUM_PARTICLES = physics.getParticlesCount();
   }
 
 
@@ -226,7 +216,9 @@ public class SoftBody2D_Cloth extends PApplet {
     }
 
 
-    // some info, windows title
+    // info
+    int NUM_SPRINGS   = physics.getSpringCount();
+    int NUM_PARTICLES = physics.getParticlesCount();
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -245,6 +237,7 @@ public class SoftBody2D_Cloth extends PApplet {
       for(DwParticle pa : body.particles){
         pa.setCollisionGroup(body.collision_group_id);
         pa.setRadiusCollision(pa.rad());
+        pa.enableAllSprings(true);
       }
     }
   }
@@ -253,12 +246,9 @@ public class SoftBody2D_Cloth extends PApplet {
   // update all springs rest-lengths, based on current particle position
   // the effect is, that the body keeps the current shape
   public void applySpringMemoryEffect(){
-    for(DwSoftBody2D body : softbodies){
-      for(DwParticle pa : body.particles){
-        for(int i = 0; i < pa.spring_count; i++){
-          pa.springs[i].updateRestlength();
-        }
-      }
+    ArrayList<DwSpringConstraint> springs = physics.getSprings();
+    for(DwSpringConstraint spring : springs){
+      spring.updateRestlength();
     }
   }
   
@@ -276,7 +266,7 @@ public class SoftBody2D_Cloth extends PApplet {
   
   public DwParticle findNearestParticle(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
-    DwParticle2D[] particles = (DwParticle2D[]) physics.getParticles();
+    DwParticle2D[] particles = physics.getParticles();
     DwParticle particle = null;
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
@@ -292,7 +282,7 @@ public class SoftBody2D_Cloth extends PApplet {
   
   public ArrayList<DwParticle> findParticlesWithinRadius(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
-    DwParticle2D[] particles = (DwParticle2D[]) physics.getParticles();
+    DwParticle2D[] particles = physics.getParticles();
     ArrayList<DwParticle> list = new ArrayList<DwParticle>();
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
@@ -393,7 +383,6 @@ public class SoftBody2D_Cloth extends PApplet {
   }
   
   
-  
   public void cloth2_CREATE_SPRING_TYPE  (float[] val){
     cloth2.CREATE_STRUCT_SPRINGS = (val[0] > 0);
     cloth2.CREATE_SHEAR_SPRINGS  = (val[1] > 0);
@@ -404,7 +393,6 @@ public class SoftBody2D_Cloth extends PApplet {
     cloth2.bend_spring_mode = val;
     NEED_REBUILD = true;
   }
-
   public void cloth2_BEND_SPRING_LEN(int val){
     cloth2.bend_spring_dist = val;
     NEED_REBUILD = true;
@@ -436,9 +424,7 @@ public class SoftBody2D_Cloth extends PApplet {
     cp5 = new ControlP5(this);
     
     int sx, sy, px, py, oy;
-    
     sx = 100; sy = 14; oy = (int)(sy*1.4f);
-    
     
     ////////////////////////////////////////////////////////////////////////////
     // GUI - CLOTH1
@@ -577,13 +563,6 @@ public class SoftBody2D_Cloth extends PApplet {
   }
   
 
-  
-  
-  
-  
-  
-  
-  
   
   
   

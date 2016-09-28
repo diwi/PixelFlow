@@ -150,7 +150,6 @@ public class OpticalFlow_CaptureSettings extends PApplet {
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", cam_w, cam_h, opticalflow.UPDATE_STEP, frameRate);
     surface.setTitle(txt_fps);
-   
   }
   
   

@@ -104,15 +104,12 @@ public class Softbody3D_Playground extends PApplet {
   // first thing to do, inside draw()
   boolean NEED_REBUILD = false;
   
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
 
   public void settings(){
     size(viewport_w, viewport_h, P3D); 
     smooth(8);
   }
+  
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -389,13 +386,6 @@ public class Softbody3D_Playground extends PApplet {
     ball.create(physics, ball_subdivisions, ball_radius, nodes_start_x, nodes_start_y, nodes_start_z);
     ball.createParticlesShape(this);
     
-    
-
-
-//    SpringConstraint.makeAllSpringsBidirectional(physics.getParticles());
-    
-    NUM_SPRINGS   = physics.getSpringCount();
-    NUM_PARTICLES = physics.getParticlesCount();
   }
 
 
@@ -509,7 +499,9 @@ public class Softbody3D_Playground extends PApplet {
     
     displayGUI();
 
-    // some info, windows title
+    // info
+    int NUM_SPRINGS   = physics.getSpringCount();
+    int NUM_PARTICLES = physics.getParticlesCount();
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }

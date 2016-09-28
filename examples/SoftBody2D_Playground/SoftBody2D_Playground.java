@@ -17,6 +17,7 @@ package SoftBody2D_Playground;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
@@ -41,20 +42,21 @@ public class SoftBody2D_Playground extends PApplet {
   // physics parameters
   DwPhysics.Param param_physics = new DwPhysics.Param();
   
-  // physics simulation
-  DwPhysics<DwParticle2D> physics;
-  
-  // list, that wills store the cloths
-  ArrayList<DwSoftBody2D> softbodies;
-  
   // particle parameters: same behavior for all
-  DwParticle2D.Param param_particle = new DwParticle2D.Param();
+  DwParticle.Param param_particle = new DwParticle.Param();
   
   // spring parameters: different spring behavior for different bodies
   DwSpringConstraint.Param param_spring_cloth    = new DwSpringConstraint.Param();
   DwSpringConstraint.Param param_spring_softbody = new DwSpringConstraint.Param();
   DwSpringConstraint.Param param_spring_chain    = new DwSpringConstraint.Param();
   DwSpringConstraint.Param param_spring_circle   = new DwSpringConstraint.Param();
+  
+  // physics simulation
+  DwPhysics<DwParticle2D> physics;
+  
+  // list, that wills store the cloths
+  ArrayList<DwSoftBody2D> softbodies;
+  
 
   // 0 ... default: particles, spring
   // 1 ... tension
@@ -66,19 +68,15 @@ public class SoftBody2D_Playground extends PApplet {
   boolean DISPLAY_SPRINGS_SHEAR  = true;
   boolean DISPLAY_SPRINGS_BEND   = true;
   
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
   // first thing to do, inside draw()
   boolean NEED_REBUILD = true;
+  
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
     smooth(8);
   }
   
-
 
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -250,21 +248,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.createParticlesShape(this);
       softbodies.add(body);
     }
-    
 
-    
-//    SpringConstraint.makeAllSpringsUnidirectional(physics.getParticles()); // default anyways
-//    SpringConstraint.makeAllSpringsBidirectional (physics.getParticles());
-//    int num_of_alll_springs = SpringConstraint.getSpringCount(physics.getParticles(), false);
-//    int num_of_good_springs = SpringConstraint.getSpringCount(physics.getParticles(), true);
-//    System.out.println("springs1: "+ num_of_good_springs);
-//    System.out.println("springs2: "+ num_of_alll_springs);
-//    System.out.println("number of particles = "+physics.getParticlesCount());
-//    System.out.println("springs/particles = "+num_of_good_springs / (float)physics.getParticlesCount());
-    
-    
-    NUM_SPRINGS   = physics.getSpringCount();
-    NUM_PARTICLES = physics.getParticlesCount();
   }
 
 
@@ -308,7 +292,9 @@ public class SoftBody2D_Playground extends PApplet {
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
     }
 
-    // stats, to the title window
+    // info
+    int NUM_SPRINGS   = physics.getSpringCount();
+    int NUM_PARTICLES = physics.getParticlesCount();
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -317,14 +303,14 @@ public class SoftBody2D_Playground extends PApplet {
   
   
   
-  
   // this resets all springs and particles, to some of its initial states
   // can be used after deactivating springs with the mouse
   public void repairAllSprings(){
     for(DwSoftBody2D body : softbodies){
-      for(DwParticle2D pa : body.particles){
+      for(DwParticle pa : body.particles){
         pa.setCollisionGroup(body.collision_group_id);
         pa.setRadiusCollision(pa.rad());
+        pa.enableAllSprings(true);
       }
     }
   }
@@ -333,12 +319,9 @@ public class SoftBody2D_Playground extends PApplet {
   // update all springs rest-lengths, based on current particle position
   // the effect is, that the body keeps the current shape
   public void applySpringMemoryEffect(){
-    for(DwSoftBody2D body : softbodies){
-      for(DwParticle2D pa : body.particles){
-        for(int i = 0; i < pa.spring_count; i++){
-          pa.springs[i].updateRestlength();
-        }
-      }
+    ArrayList<DwSpringConstraint> springs = physics.getSprings();
+    for(DwSpringConstraint spring : springs){
+      spring.updateRestlength();
     }
   }
   
@@ -347,16 +330,16 @@ public class SoftBody2D_Playground extends PApplet {
   // User Interaction
   //////////////////////////////////////////////////////////////////////////////
  
-  DwParticle2D particle_mouse = null;
+  DwParticle particle_mouse = null;
   
-  public DwParticle2D findNearestParticle(float mx, float my){
+  public DwParticle findNearestParticle(float mx, float my){
     return findNearestParticle(mx, my, Float.MAX_VALUE);
   }
   
-  public DwParticle2D findNearestParticle(float mx, float my, float search_radius){
+  public DwParticle findNearestParticle(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
     DwParticle2D[] particles = physics.getParticles();
-    DwParticle2D particle = null;
+    DwParticle particle = null;
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
       float dy = my - particles[i].cy;
@@ -369,10 +352,10 @@ public class SoftBody2D_Playground extends PApplet {
     return particle;
   }
   
-  public ArrayList<DwParticle2D> findParticlesWithinRadius(float mx, float my, float search_radius){
+  public ArrayList<DwParticle> findParticlesWithinRadius(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
     DwParticle2D[] particles = physics.getParticles();
-    ArrayList<DwParticle2D> list = new ArrayList<DwParticle2D>();
+    ArrayList<DwParticle> list = new ArrayList<DwParticle>();
     for(int i = 0; i < particles.length; i++){
       float dx = mx - particles[i].cx;
       float dy = my - particles[i].cy;
@@ -388,8 +371,8 @@ public class SoftBody2D_Playground extends PApplet {
   public void updateMouseInteractions(){
     // deleting springs/constraints between particles
     if(DELETE_SPRINGS){
-      ArrayList<DwParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
-      for(DwParticle2D tmp : list){
+      ArrayList<DwParticle> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
+      for(DwParticle tmp : list){
         tmp.enableAllSprings(false);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;

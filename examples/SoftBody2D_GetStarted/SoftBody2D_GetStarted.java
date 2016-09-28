@@ -10,6 +10,8 @@
 package SoftBody2D_GetStarted;
 
 
+import java.util.ArrayList;
+
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
@@ -102,15 +104,11 @@ public class SoftBody2D_GetStarted extends PApplet {
     noFill();
     strokeWeight(1);
     beginShape(LINES);
-    for(int i = 0; i < particles.length; i++){
-      DwParticle2D pa = particles[i];
-      for(int j = 0; j < pa.spring_count; j++){
-        
-        DwSpringConstraint2D spring = (DwSpringConstraint2D) pa.springs[j];
-        if(!spring.enabled) continue;
-        if(spring.pa != pa) continue;
-        DwParticle2D pb = spring.pb;
-      
+    ArrayList<DwSpringConstraint> springs = physics.getSprings();
+    for(DwSpringConstraint spring : springs){
+      if(spring.enabled){
+        DwParticle2D pa = particles[spring.idxPa()];
+        DwParticle2D pb = particles[spring.idxPb()];
         float force = Math.abs(spring.force);
         float r = force*5000f;
         float g = r/10;
@@ -118,11 +116,11 @@ public class SoftBody2D_GetStarted extends PApplet {
         stroke(r,g,b);
         vertex(pa.cx, pa.cy);
         vertex(pb.cx, pb.cy);
-        
       }
     }
     endShape();
     
+
     // render particles
     noStroke();
     fill(0);

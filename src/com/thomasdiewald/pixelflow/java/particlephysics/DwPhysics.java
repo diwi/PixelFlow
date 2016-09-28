@@ -54,6 +54,10 @@ public class DwPhysics<T extends DwParticle> {
   public int getParticlesCount(){
     return particles_count;
   }
+  
+  public ArrayList<DwSpringConstraint> getSprings(){
+    return springs;
+  }
   public int getSpringCount(){
     return springs.size();
   }

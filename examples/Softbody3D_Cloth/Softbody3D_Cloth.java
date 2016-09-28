@@ -89,15 +89,12 @@ public class Softbody3D_Cloth extends PApplet {
   // first thing to do, inside draw()
   boolean NEED_REBUILD = false;
   
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
 
   public void settings(){
     size(viewport_w, viewport_h, P3D); 
     smooth(8);
   }
+  
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -227,9 +224,7 @@ public class Softbody3D_Cloth extends PApplet {
     cube1.setParam(param_cube_spring);
     cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
     cube1.createParticlesShape(this);
-    
-    NUM_SPRINGS   = physics.getSpringCount();
-    NUM_PARTICLES = physics.getParticlesCount();
+
   }
 
 
@@ -327,7 +322,9 @@ public class Softbody3D_Cloth extends PApplet {
     // 5) interaction stuff
     displayMouseInteraction();
 
-    // some info, windows title
+    // info
+    int NUM_SPRINGS   = physics.getSpringCount();
+    int NUM_PARTICLES = physics.getParticlesCount();
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -396,7 +393,7 @@ public class Softbody3D_Cloth extends PApplet {
   void findNearestParticle(float mx, float my, float radius){
     int particles_count = physics.getParticlesCount();
     DwParticle3D[] particles = (DwParticle3D[]) physics.getParticles();
-    
+
     float radius_sq = radius * radius;
     float dd_min = radius_sq;
     float dz_min = 1;

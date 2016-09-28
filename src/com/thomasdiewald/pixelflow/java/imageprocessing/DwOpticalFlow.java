@@ -19,8 +19,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter.DIR;
-
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 

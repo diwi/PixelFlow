@@ -15,7 +15,7 @@ public class DwCollisionGrid{
   
   private float CELL_SIZE = 10f;
   private int   GRID_X; 
-  private int   GRID_Y;
+//  private int   GRID_Y;
 
   private int               HEAD_PTR;
   private int[]             HEAD = new int[0];
@@ -54,7 +54,7 @@ public class DwCollisionGrid{
     
     // set grid size
     GRID_X = gx;
-    GRID_Y = gy;
+//    GRID_Y = gy;
   }
   
   

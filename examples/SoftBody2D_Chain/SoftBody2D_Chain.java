@@ -32,35 +32,27 @@ public class SoftBody2D_Chain extends PApplet {
   int viewport_y = 0;
   
   
-
- 
-  // physics parameters
-  DwPhysics.Param param_physics = new DwPhysics.Param();
+  // parameters
   // particle behavior, different presets for different bodies
-  DwParticle.Param         param_chain = new DwParticle.Param();
+  DwPhysics.Param          param_physics      = new DwPhysics.Param();
+  DwParticle.Param         param_chain        = new DwParticle.Param();
   DwSpringConstraint.Param param_spring_chain = new DwSpringConstraint.Param();
   
   // physics simulation
   DwPhysics<DwParticle2D> physics;
  
-
   // all we need is an array of particles
   int particles_count = 0;
   DwParticle2D[] particles = new DwParticle2D[particles_count];
 
+  
   boolean DISPLAY_PARTICLES = true;
 
-  // just for the window title-info
-  int NUM_SPRINGS;
-  int NUM_PARTICLES;
-  
-  
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
     smooth(8);
   }
   
-
 
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -83,8 +75,8 @@ public class SoftBody2D_Chain extends PApplet {
     param_spring_chain.damp_dec = 0.99999f;
     param_spring_chain.damp_inc = 0.99999f;
     
+    // physics simulation object
     physics = new DwPhysics<DwParticle2D>(param_physics);
-    
     
     // create 200 particles at start
     for(int i = 0; i < 200; i++){
@@ -123,14 +115,12 @@ public class SoftBody2D_Chain extends PApplet {
     pa.setRadiusCollision(radius * radius_collision_scale);
     pa.setCollisionGroup(idx_curr); // every particle has a different collision-ID
     addParticleToList(pa);
-    NUM_PARTICLES++;
-    
+
     if(idx_prev >= 0){
       DwParticle2D pb = particles[idx_prev];
       pa.px = pb.cx;
       pa.py = pb.cy;
       DwSpringConstraint2D.addSpring(physics, pb, pa, rest_len, param_spring_chain);
-      NUM_SPRINGS++;
     }
   }
   
@@ -204,7 +194,9 @@ public class SoftBody2D_Chain extends PApplet {
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
     }
 
-    // stats, to the title window
+    // info
+    int NUM_SPRINGS   = physics.getSpringCount();
+    int NUM_PARTICLES = physics.getParticlesCount();
     String txt_fps = String.format(getClass().getName()+ "   [particles %d]   [springs %d]   [frame %d]   [fps %6.2f]", NUM_PARTICLES, NUM_SPRINGS, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -216,10 +208,6 @@ public class SoftBody2D_Chain extends PApplet {
   //////////////////////////////////////////////////////////////////////////////
  
   DwParticle2D particle_mouse = null;
-  
-  public DwParticle2D findNearestParticle(float mx, float my){
-    return findNearestParticle(mx, my, Float.MAX_VALUE);
-  }
   
   public DwParticle2D findNearestParticle(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
@@ -236,9 +224,9 @@ public class SoftBody2D_Chain extends PApplet {
     return particle;
   }
   
-  public ArrayList<DwParticle2D> findParticlesWithinRadius(float mx, float my, float search_radius){
+  public ArrayList<DwParticle> findParticlesWithinRadius(float mx, float my, float search_radius){
     float dd_min_sq = search_radius * search_radius;
-    ArrayList<DwParticle2D> list = new ArrayList<DwParticle2D>();
+    ArrayList<DwParticle> list = new ArrayList<DwParticle>();
     for(int i = 0; i < particles_count; i++){
       float dx = mx - particles[i].cx;
       float dy = my - particles[i].cy;
@@ -254,8 +242,8 @@ public class SoftBody2D_Chain extends PApplet {
   public void updateMouseInteractions(){
     // deleting springs/constraints between particles
     if(DELETE_SPRINGS){
-      ArrayList<DwParticle2D> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
-      for(DwParticle2D tmp : list){
+      ArrayList<DwParticle> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
+      for(DwParticle tmp : list){
         tmp.enableAllSprings(false);
         tmp.collision_group = physics.getNewCollisionGroupId();
         tmp.rad_collision = tmp.rad;
