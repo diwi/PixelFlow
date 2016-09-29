@@ -1,10 +1,6 @@
 package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
 
 
-import java.util.ArrayList;
-
-import com.thomasdiewald.pixelflow.java.geometry.DwCube;
-import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
@@ -46,6 +42,11 @@ public abstract class DwSoftBody3D{
   
   // general attributes
   public DwPhysics<DwParticle3D> physics;
+  
+  // used for displaying
+  public boolean DISPLAY_SPRINGS_STRUCT = true;
+  public boolean DISPLAY_SPRINGS_SHEAR  = true;
+  public boolean DISPLAY_SPRINGS_BEND   = true;
   
   // can be used for sub-classes
   public boolean CREATE_STRUCT_SPRINGS = true;
@@ -190,9 +191,6 @@ public abstract class DwSoftBody3D{
   }
   
   
-  public boolean DISPLAY_SPRINGS_STRUCT = true;
-  public boolean DISPLAY_SPRINGS_SHEAR  = true;
-  public boolean DISPLAY_SPRINGS_BEND   = true;
   
 
   public void displaySprings(PGraphics pg, int display_mode){
@@ -234,8 +232,7 @@ public abstract class DwSoftBody3D{
       }
     }
     pg.endShape();
-    
-  }
+ }
 
   
   

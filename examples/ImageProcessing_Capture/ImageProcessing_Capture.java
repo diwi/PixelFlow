@@ -29,6 +29,32 @@ import processing.video.Capture;
 
 public class ImageProcessing_Capture extends PApplet {
   
+  //
+  // A demo to quickly checkout the available imageprocessing filters/kernels 
+  // that are available for bluring, noise reduction, edge-detection, 
+  // corner-detection, ...
+  // 
+  // All Filters are implemented as GLSL-shaders.
+  //
+  // - luminance
+  // - boxblur
+  // - gaussblur
+  // - median
+  // - sobel
+  // - laplace
+  // - convolution
+  // - bilateral
+  // - laplace
+  // - dog
+  // - harris corner detection
+  // - custom convolution kernels
+  // - ...
+  //
+
+
+  
+  
+  
   
   // Camera
   Capture cam;

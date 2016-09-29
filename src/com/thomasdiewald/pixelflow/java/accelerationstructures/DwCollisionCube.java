@@ -197,7 +197,7 @@ public class DwCollisionCube{
     int gx = (int) Math.ceil((bounds[3] - bounds[0] +1)/CELL_SIZE);
     int gy = (int) Math.ceil((bounds[4] - bounds[1] +1)/CELL_SIZE);
     int gz = (int) Math.ceil((bounds[5] - bounds[2] +1)/CELL_SIZE);
-    int ppll_len = particles.length * 4 + 1; // just an estimate
+    int ppll_len = particles.length * 4 + 1; // just a guess
     
     // 1) resize if necessary
     resize(gx, gy, gz, ppll_len);

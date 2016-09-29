@@ -30,11 +30,16 @@ import processing.video.Capture;
 
 
 public class OpticalFlow_CaptureFluid extends PApplet {
- 
   
- private class MyFluidData implements DwFluid2D.FluidData{
-    
-    
+  //
+  // This Demo-App combines Optical Flow (based on Webcam capture frames)
+  // and Fluid simulation.
+  // The resulting velocity vectors of the Optical Flow are used to change the
+  // velocity of the fluid. The Capture Frames are the source for the Fluid_density.
+  // 
+  
+  private class MyFluidData implements DwFluid2D.FluidData{
+   
     @Override
     // this is called during the fluid-simulation update step.
     public void update(DwFluid2D fluid) {

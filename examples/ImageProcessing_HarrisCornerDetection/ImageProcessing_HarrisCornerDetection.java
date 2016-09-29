@@ -24,7 +24,11 @@ import processing.opengl.PGraphics2D;
 
 
 public class ImageProcessing_HarrisCornerDetection extends PApplet {
- 
+  //
+  // example, to show how harris corner detection is used
+  //
+  
+  
   // two draw-buffers for swaping
   PGraphics2D pg_src_A;
   PGraphics2D pg_src_B;

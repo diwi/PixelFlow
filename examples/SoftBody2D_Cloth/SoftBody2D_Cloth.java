@@ -28,7 +28,22 @@ import controlP5.Group;
 import processing.core.*;
 
 public class SoftBody2D_Cloth extends PApplet {
-
+  
+  //
+  // This examples creates 2 cloth-objects (softbodies).
+  // To compare them and checkout the different effect of parameters, both start 
+  // with the same particle/spring parameters, and the gui is used to alter them.
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to rip the cloth
+  //
+  // + GUI
+  //
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -128,7 +143,7 @@ public class SoftBody2D_Cloth extends PApplet {
 
     createGUI();
     
-    frameRate(60);
+    frameRate(600);
   }
   
   
@@ -202,9 +217,15 @@ public class SoftBody2D_Cloth extends PApplet {
     
     // 2) springs
     for(DwSoftBody2D body : softbodies){
-      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, DwSpringConstraint.TYPE.BEND  , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, DwSpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, DwSpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+      
+      // 3 different calls, to get control over the drawing order.
+      // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
     }
 
     // interaction stuff

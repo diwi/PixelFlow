@@ -22,6 +22,12 @@ import processing.core.*;
 
 
 public class SoftBody2D_ParticleCollisionSystem extends PApplet {
+  //
+  // 2D Verlet Particle System.
+  // 
+  // + Collision Detection
+  //
+  //
   
   int viewport_w = 1280;
   int viewport_h = 720;

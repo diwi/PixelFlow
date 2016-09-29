@@ -168,7 +168,7 @@ public class DwCollisionGrid{
     bounds[2] = z_min;
     bounds[3] = x_max;
     bounds[4] = y_max;
-    bounds[5] = z_min;
+    bounds[5] = z_max;
     CELL_SIZE = (r_sum * 2) /particles.length;
   }
   
@@ -185,7 +185,7 @@ public class DwCollisionGrid{
     computeBounds(particles, num_particles);
     int gx = (int) Math.ceil((bounds[3] - bounds[0])/CELL_SIZE)+1;
     int gy = (int) Math.ceil((bounds[4] - bounds[1])/CELL_SIZE)+1;
-    int ppll_len = particles.length * 4 + 1; // just an estimate
+    int ppll_len = particles.length * 4 + 1; // just a guess
     
     // 1) resize if necessary
     resize(gx, gy, ppll_len);

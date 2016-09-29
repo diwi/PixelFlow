@@ -37,6 +37,11 @@ public abstract class DwSoftBody2D{
   // general attributes
   public DwPhysics<DwParticle2D> physics;
   
+  // used for display
+  public boolean DISPLAY_SPRINGS_STRUCT = true;
+  public boolean DISPLAY_SPRINGS_SHEAR  = true;
+  public boolean DISPLAY_SPRINGS_BEND   = true;
+  
   // can be used for sub-classes
   public boolean CREATE_STRUCT_SPRINGS = true;
   public boolean CREATE_SHEAR_SPRINGS  = true;
@@ -107,12 +112,14 @@ public abstract class DwSoftBody2D{
     }
   }
   
+  public void displaySprings(PGraphics pg, int display_mode){
+    displaySprings(pg, display_mode, null);
+  }
   
-  public void drawSprings(PGraphics pg, DwSpringConstraint.TYPE type, int display_mode){
+  public void displaySprings(PGraphics pg, int display_mode,  DwSpringConstraint.TYPE type){
     if(display_mode == -1) return;
-    if(type == null) return;
-    
-    float r,g,b,strokeweight;
+
+    float r=0,g=0,b=0,strokeweight=1;
     float force, force_curr, force_relx;
 
     pg.beginShape(PConstants.LINES);
@@ -120,17 +127,19 @@ public abstract class DwSoftBody2D{
       DwParticle2D pa = particles[i];
       for(int j = 0; j < pa.spring_count; j++){
         DwSpringConstraint2D spring = (DwSpringConstraint2D) pa.springs[j];
+        if(type != null && spring.type != type) continue;
         if(!spring.enabled) continue;
         if(spring.pa != pa) continue;
         DwParticle2D pb = spring.pb;
               
-        switch(spring.type){
-          case STRUCT:  strokeweight = 1.00f; r =   0; g =   0; b =   0; break;
-          case SHEAR:   strokeweight = 0.80f; r =  70; g = 140; b = 255; break;
-          case BEND:    strokeweight = 0.60f; r = 255; g =  90; b =  30; break;
-          default: continue;
+        if(display_mode == 0){
+          switch(spring.type){
+            case STRUCT:  if(!DISPLAY_SPRINGS_STRUCT) continue; strokeweight = 1.00f; r =   0; g =   0; b =   0; break;
+            case SHEAR:   if(!DISPLAY_SPRINGS_SHEAR ) continue; strokeweight = 0.80f; r =  70; g = 140; b = 255; break;
+            case BEND:    if(!DISPLAY_SPRINGS_BEND  ) continue; strokeweight = 0.60f; r = 255; g =  90; b =  30; break;
+            default: continue;
+          }
         }
-        
         if(display_mode == 1){
           force_curr = spring.computeForce(); // the force, at this moment
           force_relx = spring.force;          // the force, remaining after the last relaxation step

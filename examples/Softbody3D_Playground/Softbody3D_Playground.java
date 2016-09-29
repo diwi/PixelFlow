@@ -37,7 +37,25 @@ import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
 
 public class Softbody3D_Playground extends PApplet {
-
+  
+  //
+  // 3D Softbody Sandbox, to debug/test/profile everything.
+  //
+  // Lots of different objects are created of particle-arrays and spring-constraints.
+  // Everything can collide with everything and also be destroyed (RMB).
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to deform objects
+  //
+  // ALT + LMB: Camera ROTATE
+  // ALT + MMB: Camera PAN
+  // ALT + RMB: Camera ZOOM
+  //
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;

@@ -31,6 +31,23 @@ import processing.opengl.PGraphics3D;
 
 public class Softbody3D_Cloth extends PApplet {
 
+  //
+  // 3D Cloth, interacting with another flat softbody.
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to deform objects
+  //
+  // ALT + LMB: Camera ROTATE
+  // ALT + MMB: Camera PAN
+  // ALT + RMB: Camera ZOOM
+  //
+  //
+  
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -127,7 +144,7 @@ public class Softbody3D_Cloth extends PApplet {
     
     // spring parameters (for simulation)
     param_cloth_spring.damp_dec = 0.999999f;
-    param_cloth_spring.damp_inc = 0.059999f;
+    param_cloth_spring.damp_inc = 0.009999f;
     
     param_cube_spring.damp_dec = 0.49999f;
     param_cube_spring.damp_inc = 0.049999f;
@@ -188,7 +205,7 @@ public class Softbody3D_Cloth extends PApplet {
     nodes_r = 10;
     nodes_start_x = 0;
     nodes_start_y = 0;
-    nodes_start_z = 300;
+    nodes_start_z = 400;
     r = 255;
     g = 240;
     b = 220;

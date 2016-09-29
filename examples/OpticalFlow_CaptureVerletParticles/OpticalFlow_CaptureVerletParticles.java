@@ -32,7 +32,13 @@ import processing.video.Capture;
 
 
 public class OpticalFlow_CaptureVerletParticles extends PApplet {
- 
+  
+  //
+  // This Demo-App combines Optical Flow (based on Webcam capture frames)
+  // and VerletParticle simulation.
+  // The resulting velocity vectors of the Optical Flow are used to change the
+  // velocity of the Particles.
+  // 
   
   int cam_w = 640;
   int cam_h = 480;

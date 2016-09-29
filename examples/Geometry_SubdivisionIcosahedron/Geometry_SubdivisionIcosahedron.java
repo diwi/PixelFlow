@@ -19,7 +19,7 @@ import processing.opengl.PGraphics3D;
 
 public class Geometry_SubdivisionIcosahedron extends PApplet {
 
-  // Demo to create a Subdivision Icosahedron, and either render it by as usual, 
+  // A demo to create a Subdivision Icosahedron, and either render it by as usual, 
   // or convert it to a HalfEdge representation and use that for rendering and
   // more complex mesh operations/iterations.
   //

@@ -27,7 +27,8 @@ import processing.video.Capture;
 
 
 public class OpticalFlow_CaptureSettings extends PApplet {
- 
+  
+  //Example, Optical Flow for Webcam capture + GUI, to find good parameters.
   
   int cam_w = 640;
   int cam_h = 480;

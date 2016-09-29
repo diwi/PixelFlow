@@ -33,7 +33,16 @@ import processing.video.Movie;
 
 
 public class OpticalFlow_MovieFluid extends PApplet {
- 
+  
+  //
+  // This Demo-App combines Optical Flow (based on Movie frames) and Fluid 
+  // simulation.
+  // The resulting velocity vectors of the Optical Flow are used to change the
+  // velocity of the Fluid. The Movie Frames are the source for the Fluid_density.
+  // 
+  // This effect works best, when the movie background is not chaanging too much,
+  // e.g. when the camera is not moving.
+  // 
   
  private class MyFluidData implements DwFluid2D.FluidData{
     

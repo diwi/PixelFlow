@@ -26,6 +26,23 @@ import processing.core.*;
 
 public class SoftBody2D_Chain extends PApplet {
 
+  
+  //
+  // A simple Verlet Physics Example, that shows how to create a chain by 
+  // creating particles and chaining them together with spring-constraints.
+  // The springs-color shows the current stress, ... at a range from red to black.
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to split the chain
+  //
+  // key ' ': add particles at the current mouse location
+  // key 'p': toggle particle display
+  //
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;

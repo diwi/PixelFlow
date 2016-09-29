@@ -28,7 +28,21 @@ import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid;
 import processing.core.*;
 
 public class SoftBody2D_Playground extends PApplet {
-
+  
+  //
+  // 2D Softbody Sandbox, to debug/test/profile everything.
+  //
+  // Lots of different objects are created of particle-arrays and spring-constraints.
+  // Everything can collide with everything and also be destroyed (RMB).
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to deform objects
+  //
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -279,9 +293,15 @@ public class SoftBody2D_Playground extends PApplet {
     
     // 2) springs
     for(DwSoftBody2D body : softbodies){
-      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, DwSpringConstraint.TYPE.BEND  , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, DwSpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, DwSpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+      
+      // 3 different calls, to get control over the drawing order.
+      // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
+      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
     }
 
     // interaction stuff

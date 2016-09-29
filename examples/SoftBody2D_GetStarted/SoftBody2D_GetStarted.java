@@ -23,6 +23,15 @@ import processing.core.*;
 
 public class SoftBody2D_GetStarted extends PApplet {
 
+  
+  //
+  // Getting started with verlet particles/softbody simulation.
+  // 
+  // + Collision Detection
+  //
+  
+  
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;

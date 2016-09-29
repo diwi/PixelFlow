@@ -22,7 +22,9 @@ import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
 public class OpticalFlow_Capture extends PApplet {
- 
+  
+  // Example, Optical Flow for Webcam capture.
+  
   DwPixelFlow context;
   
   DwOpticalFlow opticalflow;

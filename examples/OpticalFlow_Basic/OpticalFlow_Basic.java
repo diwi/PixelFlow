@@ -18,7 +18,18 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 public class OpticalFlow_Basic extends PApplet {
- 
+  
+  // A GetStarted-example for using Optical Flow in Applications
+  //
+  // based on the direction an object is moving (dx, dy, dt), velocity vectors
+  // are generated as output. 
+  // To simulate a Movie or Webcam capture, this example simply draws some moving
+  // stuff.
+  //
+  // LMB: (default)
+  // MMB: velocity vectors are display normal to their direction
+  // RMB: velocity is displayed as pixelshading
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;

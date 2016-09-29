@@ -27,7 +27,27 @@ import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid;
 import processing.core.*;
 
 public class SoftBody2D_ConnectedBodies extends PApplet {
-
+  
+  //
+  // This examples creates a couple of different softbody objects and connects
+  // some of their vertices with spring constraints.
+  // The result are compound objects. 
+  // Depending on how these connections are setup, very complex bodies can be
+  // created, e.g. for simulating material/structure combinations etc...
+  //
+  // The Color of the springs show the stress.
+  // 
+  // + Collision Detection
+  //
+  // Controls:
+  // LMB: drag particles
+  // MMB: drag + fix particles to a location
+  // RMB: disable springs, to deform objects
+  //
+  // + GUI
+  //
+  
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -260,9 +280,10 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     
     // 2) springs
     for(DwSoftBody2D body : softbodies){
-      if(DISPLAY_SPRINGS_BEND  ) body.drawSprings(this.g, DwSpringConstraint.TYPE.BEND  , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_SHEAR ) body.drawSprings(this.g, DwSpringConstraint.TYPE.SHEAR , DISPLAY_MODE);
-      if(DISPLAY_SPRINGS_STRUCT) body.drawSprings(this.g, DwSpringConstraint.TYPE.STRUCT, DISPLAY_MODE);
+      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+      body.displaySprings(this.g, DISPLAY_MODE);
     }
 
     // interaction stuff
