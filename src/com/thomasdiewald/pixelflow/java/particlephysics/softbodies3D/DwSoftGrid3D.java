@@ -13,7 +13,7 @@ import processing.core.PGraphics;
 import processing.opengl.PGraphics2D;
 
 
-public class DwSoftCube extends DwSoftBody3D{
+public class DwSoftGrid3D extends DwSoftBody3D{
   
   // specific attributes for this body
   public int   nodes_x;
@@ -25,8 +25,6 @@ public class DwSoftCube extends DwSoftBody3D{
   public float ty_inv;
   public float tz_inv;
   
-  public int bend_spring_mode = 0;
-  public int bend_spring_dist = 3; // try other values, it affects the objects stiffness
   
   public PGraphics2D texture_XYp = null;
   public PGraphics2D texture_XYn = null;
@@ -35,9 +33,12 @@ public class DwSoftCube extends DwSoftBody3D{
   public PGraphics2D texture_XZp = null;
   public PGraphics2D texture_XZn = null;
   
+  public int bend_spring_mode = 0;
+  public int bend_spring_dist = 3; // try other values, it affects the objects stiffness
+
   Random rand;
   
-  public DwSoftCube(){
+  public DwSoftGrid3D(){
   }
 
   public void create(DwPhysics<DwParticle3D> physics, int nx, int ny, int nz, float nr, float start_x, float start_y, float start_z){

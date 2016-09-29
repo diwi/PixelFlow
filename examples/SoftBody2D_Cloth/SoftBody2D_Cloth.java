@@ -20,7 +20,7 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -68,8 +68,8 @@ public class SoftBody2D_Cloth extends PApplet {
   DwPhysics<DwParticle2D> physics;
   
   // cloth objects
-  DwSoftGrid cloth1 = new DwSoftGrid();
-  DwSoftGrid cloth2 = new DwSoftGrid();
+  DwSoftGrid2D cloth1 = new DwSoftGrid2D();
+  DwSoftGrid2D cloth2 = new DwSoftGrid2D();
   
   // list, that wills store the cloths
   ArrayList<DwSoftBody2D> softbodies = new ArrayList<DwSoftBody2D>();
@@ -180,7 +180,7 @@ public class SoftBody2D_Cloth extends PApplet {
     // create all cloth in the list
     for(int i = 0; i < num_cloth; i++){
       nodes_start_x += spacing + cloth_width * i;
-      DwSoftGrid cloth = (DwSoftGrid) softbodies.get(i);
+      DwSoftGrid2D cloth = (DwSoftGrid2D) softbodies.get(i);
       cloth.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
@@ -210,7 +210,6 @@ public class SoftBody2D_Cloth extends PApplet {
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-        body.use_particles_color = (DISPLAY_MODE == 0);
         body.drawParticles(this.g);
       }
     }

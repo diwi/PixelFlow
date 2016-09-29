@@ -22,9 +22,11 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftCircle;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid;
-
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBall2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
+import controlP5.Accordion;
+import controlP5.ControlP5;
+import controlP5.Group;
 import processing.core.*;
 
 public class SoftBody2D_Playground extends PApplet {
@@ -49,8 +51,8 @@ public class SoftBody2D_Playground extends PApplet {
   int viewport_y = 0;
   
   int gui_w = 200;
-  int gui_x = 20;
-  int gui_y = 20;
+  int gui_x = viewport_w-gui_w;
+  int gui_y = 0;
   
   
   // physics parameters
@@ -78,12 +80,17 @@ public class SoftBody2D_Playground extends PApplet {
   
   // entities to display
   boolean DISPLAY_PARTICLES      = true;
+  boolean DISPLAY_MESH           = true;
+  boolean DISPLAY_SRPINGS        = true;
+  
   boolean DISPLAY_SPRINGS_STRUCT = true;
   boolean DISPLAY_SPRINGS_SHEAR  = true;
   boolean DISPLAY_SPRINGS_BEND   = true;
   
+  boolean UPDATE_PHYSICS         = true;
+  
   // first thing to do, inside draw()
-  boolean NEED_REBUILD = true;
+  boolean NEED_REBUILD = false;
   
   
   public void settings(){
@@ -126,12 +133,18 @@ public class SoftBody2D_Playground extends PApplet {
     param_spring_circle  .damp_dec = 0.999999f;
     param_spring_circle  .damp_inc = 0.999999f;
 
+    
+    createBodies();
+    
+    createGUI();
+    
+    
     frameRate(600);
   }
   
   
   
-  public void initBodies(){
+  public void createBodies(){
     
     physics.reset();
     
@@ -139,6 +152,7 @@ public class SoftBody2D_Playground extends PApplet {
     
     
     // create some particle-bodies: Cloth / SoftBody
+    float r,g,b,a,s;
     int nodex_x, nodes_y, nodes_r;
     float nodes_start_x, nodes_start_y;
 
@@ -149,16 +163,22 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 7;
       nodes_start_x = 50;
       nodes_start_y = 70;
-      DwSoftGrid body = new DwSoftGrid();
+      DwSoftGrid2D body = new DwSoftGrid2D();
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 2;
+      r = 255;
+      g = 180;
+      b = 0;
+      a = 160;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_cloth);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(             0, 0).enable(false, false, false); // fix node to current location
       body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      body.setParticleColor(color(255,180,0,160));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -170,14 +190,20 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 7;
       nodes_start_x = width/2;
       nodes_start_y = height/2;
-      DwSoftGrid body = new DwSoftGrid();
+      DwSoftGrid2D body = new DwSoftGrid2D();
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 2;
+      r = 0;
+      g = 0;
+      b = 0;
+      a = 128;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.setParticleColor(color(0,128));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -189,15 +215,21 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 7;
       nodes_start_x = 500;
       nodes_start_y = 300;
-      DwSoftGrid body = new DwSoftGrid();
+      DwSoftGrid2D body = new DwSoftGrid2D();
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
+      r = 0;
+      g = 180;
+      b = 255;
+      a = 160;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
-      body.setParticleColor(color(0,180,255,160));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -209,16 +241,22 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 20;
       nodes_start_x = 500;
       nodes_start_y = 100;
-      DwSoftGrid body = new DwSoftGrid();
+      DwSoftGrid2D body = new DwSoftGrid2D();
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
+      r = 0;
+      g = 0;
+      b = 0;
+      a = 128;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
-      body.setParticleColor(color(0,128));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -231,17 +269,23 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 10;
       nodes_start_x = 500;
       nodes_start_y = 200;
-      DwSoftGrid body = new DwSoftGrid();
+      DwSoftGrid2D body = new DwSoftGrid2D();
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.self_collisions      = true; // particles of this body can collide among themselves
       body.collision_radius_scale = 1.00f; // funny, if bigger than 1 and self_collisions = true
+      r = 0;
+      g = 0;
+      b = 0;
+      a = 128;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_chain);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode( 0, 0).enable(false, false, false); // fix node to current location
       body.getNode(35, 0).enable(false, false, false);
-      body.setParticleColor(color(0,128));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -251,14 +295,20 @@ public class SoftBody2D_Playground extends PApplet {
       nodes_r = 10;
       nodes_start_x = 300;
       nodes_start_y = height-150;
-      DwSoftCircle body = new DwSoftCircle();
+      DwSoftBall2D body = new DwSoftBall2D();
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.bend_spring_mode = 3;
+      r = 0;
+      g = 0;
+      b = 0;
+      a = 160;
+      s = 1f;
+      body.setMaterialColor(color(r  ,g  ,b  , a));
+      body.setParticleColor(color(r*s,g*s,b*s, a));
       body.setParam(param_particle);
       body.setParam(param_spring_circle);
       body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
-      body.setParticleColor(color(0,160));
       body.createParticlesShape(this);
       softbodies.add(body);
     }
@@ -267,11 +317,11 @@ public class SoftBody2D_Playground extends PApplet {
 
 
   
-  
+
   public void draw() {
 
     if(NEED_REBUILD){
-      initBodies();
+      createBodies();
       NEED_REBUILD = false;
     }
     
@@ -283,26 +333,47 @@ public class SoftBody2D_Playground extends PApplet {
     // render
     background(DISPLAY_MODE == 0 ?  255 : 92);
     
-    // 1) particles
+    
+
+    
+    
+    // 2) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-        body.use_particles_color = (DISPLAY_MODE == 0);
+//        body.use_particles_color = (DISPLAY_MODE == 0);
         body.drawParticles(this.g);
       }
     }
     
-    // 2) springs
-    for(DwSoftBody2D body : softbodies){
-      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-      
-      // 3 different calls, to get control over the drawing order.
-      // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
+    // 3) springs
+    if(DISPLAY_SRPINGS){
+      for(DwSoftBody2D body : softbodies){
+        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+        
+        // 3 different calls, to get control over the drawing order.
+        // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
+      }
     }
+    
+    
+    
+    // 1) mesh, solid
+    if(DISPLAY_MESH){
+      stroke(0);
+      strokeWeight(0.1f);
+      noStroke();
+      for(DwSoftBody2D body : softbodies){
+        body.displayMesh(this.g);
+      }
+    }
+
+    
+    
 
     // interaction stuff
     if(DELETE_SPRINGS){
@@ -389,6 +460,7 @@ public class SoftBody2D_Playground extends PApplet {
   
   
   public void updateMouseInteractions(){
+    if(cp5.isMouseOver()) return;
     // deleting springs/constraints between particles
     if(DELETE_SPRINGS){
       ArrayList<DwParticle> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
@@ -429,14 +501,146 @@ public class SoftBody2D_Playground extends PApplet {
   
   public void keyReleased(){
     if(key == 's') repairAllSprings();
-    if(key == 'r') initBodies();
     if(key == 'm') applySpringMemoryEffect();
+
+    if(key == 'r') createBodies();
     if(key == '1') DISPLAY_MODE = 0;
     if(key == '2') DISPLAY_MODE = 1;
-    if(key == 'p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    
+    if(key == '3') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    if(key == '4') DISPLAY_MESH      = !DISPLAY_MESH;
+    if(key == '5') DISPLAY_SRPINGS   = !DISPLAY_SRPINGS;
+
+    if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
   }
   
 
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // GUI
+  ////////////////////////////////////////////////////////////////////////////
+  
+  
+  public void setDisplayMode(int val){
+    DISPLAY_MODE = val;
+  }
+  
+  public void setDisplayTypes(float[] val){
+    DISPLAY_PARTICLES = (val[0] > 0);
+    DISPLAY_MESH      = (val[1] > 0);
+    DISPLAY_SRPINGS   = (val[2] > 0);
+  }
+  
+  public void setGravity(float val){
+    physics.param.GRAVITY[2] = -val;
+  }
+  
+  public void togglePause(){
+    UPDATE_PHYSICS = !UPDATE_PHYSICS;
+  }
+  
+  ControlP5 cp5;
+  
+  public void createGUI(){
+    cp5 = new ControlP5(this);
+    cp5.setAutoDraw(true);
+
+    int sx, sy, px, py, oy;
+    sx = 100; sy = 14; oy = (int)(sy*1.4f);
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - CLOTH
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_physics = cp5.addGroup("global");
+    {
+      group_physics.setHeight(20).setSize(gui_w, height)
+      .setBackgroundColor(color(0, 204)).setColorBackground(color(0, 204));
+      group_physics.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+      
+      int bsx = (gui_w-40)/3;
+      cp5.addButton("rebuild").setGroup(group_physics).plugTo(this, "createBodies").setSize(bsx, 18).setPosition(px, py);
+      cp5.addButton("pause")  .setGroup(group_physics).plugTo(this, "togglePause").setSize(bsx, 18).setPosition(px+=bsx+10, py);
+      
+      px = 10; 
+      cp5.addSlider("gravity").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
+          .setRange(0, 1).setValue(physics.param.GRAVITY[1]).plugTo(this, "setGravity");
+      
+      cp5.addSlider("iter: springs").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 20).setValue(physics.param.iterations_springs).plugTo( physics.param, "iterations_springs");
+      
+      cp5.addSlider("iter: collisions").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 8).setValue(physics.param.iterations_collisions).plugTo( physics.param, "iterations_collisions");
+      
+      cp5.addRadio("setDisplayMode").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*1.4f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("springs: colored",0)
+          .addItem("springs: tension",1)
+          .activate(DISPLAY_MODE);
+      
+      cp5.addCheckBox("setDisplayTypes").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
+          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES ? 0 : 5)
+          .addItem("MESH "    , 1).activate(DISPLAY_MESH      ? 1 : 5)
+          .addItem("SRPINGS"  , 2).activate(DISPLAY_SRPINGS   ? 2 : 5);
+    }
+    
+    
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - SPRINGS
+    ////////////////////////////////////////////////////////////////////////////
+    Group group_springs = cp5.addGroup("springs");
+    {
+      Group group_cloth = group_springs;
+      
+      group_cloth.setHeight(20).setSize(gui_w, 210)
+      .setBackgroundColor(color(0, 204)).setColorBackground(color(0, 204));
+      group_cloth.getCaptionLabel().align(CENTER, CENTER);
+      
+      px = 10; py = 15;
+
+      cp5.addSlider("Cloth.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_spring_cloth.damp_dec).plugTo(param_spring_cloth, "damp_dec");
+      
+      cp5.addSlider("Cloth.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_spring_cloth.damp_inc).plugTo(param_spring_cloth, "damp_inc");
+
+      cp5.addSlider("Cube.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=(int)(oy*2))
+          .setRange(0.01f, 1).setValue(param_spring_softbody.damp_dec).plugTo(param_spring_softbody, "damp_dec");
+  
+      cp5.addSlider("Cube.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_spring_softbody.damp_inc).plugTo(param_spring_softbody, "damp_inc");
+  
+      cp5.addSlider("Ball.tensile").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=(int)(oy*2))
+          .setRange(0.01f, 1).setValue(param_spring_circle.damp_dec).plugTo(param_spring_circle, "damp_dec");
+
+      cp5.addSlider("Ball.pressure").setGroup(group_cloth).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0.01f, 1).setValue(param_spring_circle.damp_inc).plugTo(param_spring_circle, "damp_inc");
+
+    }
+   
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - ACCORDION
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
+      .setCollapseMode(Accordion.MULTI)
+      .addItem(group_springs)
+      .addItem(group_physics)
+      .open(0, 1, 2);
+   
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   public static void main(String args[]) {
     PApplet.main(new String[] { SoftBody2D_Playground.class.getName() });

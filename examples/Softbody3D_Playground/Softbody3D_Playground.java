@@ -20,9 +20,9 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBall;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBall3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBody3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftCube;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftGrid3D;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
 import controlP5.Accordion;
@@ -74,10 +74,10 @@ public class Softbody3D_Playground extends PApplet {
   DwPhysics<DwParticle3D> physics = new DwPhysics<DwParticle3D>(param_physics);
   
   // cloth objects
-  DwSoftCube cloth = new DwSoftCube();
-  DwSoftCube cube1 = new DwSoftCube();
-  DwSoftCube cube2 = new DwSoftCube();
-  DwSoftBall ball  = new DwSoftBall();
+  DwSoftGrid3D cloth = new DwSoftGrid3D();
+  DwSoftGrid3D cube1 = new DwSoftGrid3D();
+  DwSoftGrid3D cube2 = new DwSoftGrid3D();
+  DwSoftBall3D ball  = new DwSoftBall3D();
 
   // list, that wills store the softbody objects (cloths, cubes, balls, ...)
   ArrayList<DwSoftBody3D> softbodies = new ArrayList<DwSoftBody3D>();
@@ -354,9 +354,6 @@ public class Softbody3D_Playground extends PApplet {
     nodes_start_x = 300;
     nodes_start_y = 300;
     nodes_start_z = nodes_y * nodes_r*2+200;
-    r = 180;
-    g = 32;
-    b = 96;
     r = 128;
     g = 64;
     b = 64;
@@ -707,7 +704,14 @@ public class Softbody3D_Playground extends PApplet {
   
   
   
-  
+  // update all springs rest-lengths, based on current particle position
+  // the effect is, that the body keeps the current shape
+  public void applySpringMemoryEffect(){
+    ArrayList<DwSpringConstraint> springs = physics.getSprings();
+    for(DwSpringConstraint spring : springs){
+      spring.updateRestlength();
+    }
+  }
   
   
   
@@ -756,6 +760,9 @@ public class Softbody3D_Playground extends PApplet {
   }
   
   public void keyReleased(){
+    
+    if(key == 'm') applySpringMemoryEffect();
+    
     if(key == 'r') createBodies();
     if(key == '1') DISPLAY_MODE = 0;
     if(key == '2') DISPLAY_MODE = 1;
@@ -766,6 +773,7 @@ public class Softbody3D_Playground extends PApplet {
     if(key == '6') DISPLAY_NORMALS   = !DISPLAY_NORMALS;
 
     if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
+    
     if(key == 'c') printCam();
     if(key == 'v') resetCam();
     

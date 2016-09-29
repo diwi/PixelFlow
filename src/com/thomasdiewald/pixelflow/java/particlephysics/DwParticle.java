@@ -178,7 +178,7 @@ public abstract class DwParticle implements DwCollisionObject{
   
 
   public void enableAllSprings(boolean enable){
-    all_springs_deactivated = enable;
+    all_springs_deactivated = !enable;
     
     for(int i = 0; i < spring_count; i++){
       springs[i].enable(enable);

@@ -80,14 +80,32 @@ public abstract class DwSoftBody2D{
   //////////////////////////////////////////////////////////////////////////////
   // RENDERING
   //////////////////////////////////////////////////////////////////////////////
-  public int particle_color = 0x5C000000; // color(0, 92), default
-  public int particle_gray  = 0x5C000000; // color(0, 92)
+//  public int particle_color = 0x5C000000; // color(0, 92), default
+//  public int particle_gray  = 0x5C000000; // color(0, 92)
+//  public boolean use_particles_color = true;
+//  public float collision_radius_scale = 1.33333f;
+//  
+//  public void setParticleColor(int particle_color){
+//    this.particle_color = particle_color;
+//  }
+  
+  public int particle_color = 0xFF5C0000; // color(0, 92), default
+  public int particle_gray  = 0xFF5C0000; // color(0, 92)
   public boolean use_particles_color = true;
   public float collision_radius_scale = 1.33333f;
+  
+  public int material_color = 0xFF555555;
   
   public void setParticleColor(int particle_color){
     this.particle_color = particle_color;
   }
+  
+  public void setMaterialColor(int material_color){
+    this.material_color = material_color;
+  }
+  
+  
+  
   
   public void createParticlesShape(PApplet papplet){
     papplet.shapeMode(PConstants.CORNER);
@@ -159,6 +177,8 @@ public abstract class DwSoftBody2D{
     
   }
   
+  
+  public abstract void displayMesh(PGraphics pg);
   
 
 

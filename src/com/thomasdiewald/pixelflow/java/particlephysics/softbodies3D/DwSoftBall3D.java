@@ -15,7 +15,7 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 
 
-public class DwSoftBall extends DwSoftBody3D{
+public class DwSoftBall3D extends DwSoftBody3D{
   
 
   public DwHalfEdge.Mesh mesh;
@@ -30,7 +30,7 @@ public class DwSoftBall extends DwSoftBody3D{
   
   Random rand;
   
-  public DwSoftBall(){
+  public DwSoftBall3D(){
   }
 
   public void create(DwPhysics<DwParticle3D> physics, int subdivisions, float radius,float start_x, float start_y, float start_z){

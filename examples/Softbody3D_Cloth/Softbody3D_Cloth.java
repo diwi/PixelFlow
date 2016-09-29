@@ -20,7 +20,7 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBody3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftCube;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftGrid3D;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
 import peasy.CameraState;
@@ -66,8 +66,8 @@ public class Softbody3D_Cloth extends PApplet {
   DwPhysics<DwParticle3D> physics = new DwPhysics<DwParticle3D>(param_physics);
   
   // cloth objects
-  DwSoftCube cloth = new DwSoftCube();
-  DwSoftCube cube1 = new DwSoftCube();
+  DwSoftGrid3D cloth = new DwSoftGrid3D();
+  DwSoftGrid3D cube1 = new DwSoftGrid3D();
 
   // list, that wills store the softbody objects (cloths, cubes, balls, ...)
   ArrayList<DwSoftBody3D> softbodies = new ArrayList<DwSoftBody3D>();

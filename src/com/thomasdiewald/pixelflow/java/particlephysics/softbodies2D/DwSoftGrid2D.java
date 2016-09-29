@@ -7,7 +7,11 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 
-public class DwSoftGrid extends DwSoftBody2D{
+import processing.core.PConstants;
+import processing.core.PGraphics;
+import processing.opengl.PGraphics2D;
+
+public class DwSoftGrid2D extends DwSoftBody2D{
   
 
   // specific attributes for this body
@@ -15,12 +19,18 @@ public class DwSoftGrid extends DwSoftBody2D{
   public int   nodes_y;
   public float nodes_r;
   
+  public float tx_inv;
+  public float ty_inv;
+  
+  public PGraphics2D texture_XYp = null;
+
+  
   public int bend_spring_mode = 0;
   public int bend_spring_dist = 3; // try other values, it affects the objects stiffness
   
   Random rand;
   
-  public DwSoftGrid(){
+  public DwSoftGrid2D(){
   }
 
   public void create(DwPhysics<DwParticle2D> physics, int nx, int ny, float nr, float start_x, float start_y){
@@ -35,6 +45,11 @@ public class DwSoftGrid extends DwSoftBody2D{
     this.num_nodes          = nodes_x * nodes_y;
     this.particles          = new DwParticle2D[num_nodes];
     
+    
+    // for textcoord normalization
+    this.tx_inv = 1f/(float)(nodes_x-1);
+    this.ty_inv = 1f/(float)(nodes_y-1);
+ 
     DwParticle2D.MAX_RAD = Math.max(DwParticle2D.MAX_RAD, nr);
 
     // temp variables
@@ -147,6 +162,94 @@ public class DwSoftGrid extends DwSoftBody2D{
     int ib = by * nodes_x + bx;
 
     DwSpringConstraint2D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
+  }
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  // DISPLAY
+  //////////////////////////////////////////////////////////////////////////////
+
+  private DwParticle2D lastp;
+  private boolean degenerated = false;
+  
+  private final void vertex(PGraphics pg, DwParticle2D p, float tu, float tv){
+    if(p.all_springs_deactivated){
+      degenerated = true;
+      if(lastp != null){
+        pg.vertex(lastp.cx,lastp.cy, 0, 0);
+      }
+    } else {
+      if(degenerated){
+        pg.vertex(p.cx,p.cy, 0, 0);
+        pg.vertex(p.cx,p.cy, 0, 0);
+        degenerated = false;
+      }
+      pg.vertex(p.cx, p.cy, tu, tv);
+      lastp = p;
+    }
+  }
+  
+  private void displayGridXY(PGraphics pg, PGraphics2D tex){
+    pg.beginShape(PConstants.TRIANGLE_STRIP);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(tex);
+    int ix, iy;
+    for(iy = 0; iy < nodes_y-1; iy++){
+      for(ix = 0; ix < nodes_x; ix++){
+        vertex(pg, getNode(ix, iy+0), ix * tx_inv, (iy+0) * ty_inv);
+        vertex(pg, getNode(ix, iy+1), ix * tx_inv, (iy+1) * ty_inv);
+      }
+      ix -= 1; vertex(pg, getNode(ix, iy+1), 0, 0);
+      ix  = 0; vertex(pg, getNode(ix, iy+1), 0, 0);
+    }
+    pg.endShape();
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  @Override
+  public void displayMesh(PGraphics pg) {
+    pg.fill(material_color);
+    displayGridXY(pg, texture_XYp);
   }
   
 

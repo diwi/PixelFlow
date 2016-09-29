@@ -8,7 +8,9 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
 
-public class DwSoftCircle extends DwSoftBody2D{
+import processing.core.PGraphics;
+
+public class DwSoftBall2D extends DwSoftBody2D{
   
   // specific attributes for this body
   float circle_x;
@@ -21,7 +23,7 @@ public class DwSoftCircle extends DwSoftBody2D{
   Random rand;
   
   
-  public DwSoftCircle(){
+  public DwSoftBall2D(){
   }
   
   public void create(DwPhysics<DwParticle2D> physics, float circle_x, float circle_y, float cirlce_r, float nodes_r){
@@ -111,6 +113,19 @@ public class DwSoftCircle extends DwSoftBody2D{
   
   public void addSpring(int ia, int ib, DwSpringConstraint.TYPE type){
     DwSpringConstraint2D.addSpring(physics, particles[ia], particles[ib], param_spring, type);
+  }
+
+
+  
+  @Override
+  public void displayMesh(PGraphics pg) {
+    pg.fill(material_color);
+    pg.beginShape();
+    for(int i = 0; i < num_nodes; i++){
+      DwParticle2D pa = particles[i];
+      pg.vertex(pa.cx, pa.cy);
+    }
+    pg.endShape();
   }
   
 

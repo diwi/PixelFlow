@@ -21,8 +21,8 @@ import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftCircle;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBall2D;
+import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
 
 import processing.core.*;
 
@@ -148,10 +148,10 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     int nodex_x, nodes_y, nodes_r;
     float nodes_start_x, nodes_start_y;
 
-    DwSoftGrid lattice_girder = new DwSoftGrid();
-    DwSoftGrid chain          = new DwSoftGrid();
-    DwSoftCircle circle         = new DwSoftCircle();
-    DwSoftGrid box            = new DwSoftGrid();
+    DwSoftGrid2D lattice_girder = new DwSoftGrid2D();
+    DwSoftGrid2D chain          = new DwSoftGrid2D();
+    DwSoftBall2D circle         = new DwSoftBall2D();
+    DwSoftGrid2D box            = new DwSoftGrid2D();
     
     // lattice girder
     {
@@ -160,7 +160,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       nodes_r = 20;
       nodes_start_x = 200;
       nodes_start_y = 100;
-      DwSoftGrid body = lattice_girder;
+      DwSoftGrid2D body = lattice_girder;
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
@@ -183,7 +183,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       nodex_x = 1;
       nodes_y = 10;
       nodes_r = 10;
-      DwSoftGrid body = chain;
+      DwSoftGrid2D body = chain;
       body.CREATE_BEND_SPRINGS    = false;
       body.CREATE_SHEAR_SPRINGS   = false;
       body.self_collisions        = true; 
@@ -209,7 +209,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     {
       nodes_r = 10;
       nodes_start_y = height-150;
-      DwSoftCircle body = circle;
+      DwSoftBall2D body = circle;
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
       body.bend_spring_mode = 3;
@@ -238,7 +238,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       nodes_r = 8;
       nodes_start_x = 100;
       nodes_start_y = height-450;
-      DwSoftGrid body = box;
+      DwSoftGrid2D body = box;
       body.CREATE_SHEAR_SPRINGS = true;
       body.CREATE_BEND_SPRINGS  = true;
       body.bend_spring_mode     = 0;
@@ -273,7 +273,6 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-        body.use_particles_color = (DISPLAY_MODE == 0);
         body.drawParticles(this.g);
       }
     }
