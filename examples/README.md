@@ -1,7 +1,5 @@
 # Examples
 
-###cathegories:
-
 ```
 + Fluid Simulation (GLSL)
 + Fluid Particle Systems (GLSL)
