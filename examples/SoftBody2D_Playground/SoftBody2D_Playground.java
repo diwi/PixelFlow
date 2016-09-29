@@ -45,6 +45,8 @@ public class SoftBody2D_Playground extends PApplet {
   // MMB: drag + fix particles to a location
   // RMB: disable springs, to deform objects
   //
+  // + GUI
+  //
   
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -339,7 +341,7 @@ public class SoftBody2D_Playground extends PApplet {
 
     
     
-    // 2) particles
+    // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
 //        body.use_particles_color = (DISPLAY_MODE == 0);
@@ -347,7 +349,7 @@ public class SoftBody2D_Playground extends PApplet {
       }
     }
     
-    // 3) springs
+    // 2) springs
     if(DISPLAY_SRPINGS){
       for(DwSoftBody2D body : softbodies){
         body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
@@ -364,7 +366,7 @@ public class SoftBody2D_Playground extends PApplet {
     
     
     
-    // 1) mesh, solid
+    // 3) mesh, solid
     if(DISPLAY_MESH){
       stroke(0);
       strokeWeight(0.1f);
@@ -630,7 +632,8 @@ public class SoftBody2D_Playground extends PApplet {
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_springs)
       .addItem(group_physics)
-      .open(0, 1, 2);
+//      .open(0, 1)
+      ;
    
   }
   

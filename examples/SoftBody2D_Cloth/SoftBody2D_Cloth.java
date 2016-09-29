@@ -26,6 +26,7 @@ import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
 import processing.core.*;
+import processing.opengl.PGraphics2D;
 
 public class SoftBody2D_Cloth extends PApplet {
   
@@ -73,6 +74,11 @@ public class SoftBody2D_Cloth extends PApplet {
   
   // list, that wills store the cloths
   ArrayList<DwSoftBody2D> softbodies = new ArrayList<DwSoftBody2D>();
+  
+  
+  PGraphics2D tex_cloth_left;
+  
+
 
   // 0 ... default: particles, spring
   // 1 ... tension
@@ -80,20 +86,23 @@ public class SoftBody2D_Cloth extends PApplet {
   
   // entities to display
   boolean DISPLAY_PARTICLES      = true;
+  boolean DISPLAY_MESH           = true;
+  boolean DISPLAY_SRPINGS        = true;
+  
   boolean DISPLAY_SPRINGS_STRUCT = true;
   boolean DISPLAY_SPRINGS_SHEAR  = true;
   boolean DISPLAY_SPRINGS_BEND   = true;
   
-  // first thing to do, inside draw()
-  boolean NEED_REBUILD = true;
+  boolean UPDATE_PHYSICS         = true;
   
+  // first thing to do, inside draw()
+  boolean NEED_REBUILD = false;
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
     smooth(4);
   }
   
-
 
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -141,14 +150,67 @@ public class SoftBody2D_Cloth extends PApplet {
     cloth2.bend_spring_mode      = 0;
     cloth2.bend_spring_dist      = 3;
 
+    createBodies();
+    
     createGUI();
     
     frameRate(600);
   }
   
+  public void createTexture(String text, DwSoftGrid2D cloth){
+
+    int nodex_x = cloth.nodes_x;
+    int nodes_y = cloth.nodes_y;
+    float nodes_r = cloth.nodes_r;
+    
+    int tex_w = Math.round((nodex_x-1) *nodes_r*2);
+    int tex_h = Math.round((nodes_y-1) *nodes_r*2);
+    
+    PFont font = createFont("Calibri", 64);
+    
+    PGraphics2D texture = cloth.texture_XYp;
+    
+    if(texture == null){
+      texture = (PGraphics2D) createGraphics(tex_w, tex_h, P2D);
+      texture.smooth(8);
+    }
+    
+    texture.beginDraw();
+    {
+      texture.background(cloth.material_color);
+  
+      // grid
+      int num_lines = nodex_x;
+      float dx = tex_w/(float)(num_lines-1);
+      float dy = tex_h/(float)(num_lines-1);
+      texture.strokeWeight(1f);
+      texture.stroke(0);
+      for(int ix = 0; ix < num_lines; ix++){
+        texture.line((int)(dx*ix), 0,(int)(dx*ix), tex_h);
+        texture.line(0, (int)(dy*ix), tex_w, (int)(dy*ix));
+      }
+      
+      // text
+      texture.fill(0);
+      texture.textFont(font);
+      texture.textAlign(CENTER, CENTER);
+      texture.textFont(font);
+      texture.text(text, tex_w/2, tex_h/2);
+  
+      // border
+      texture.noFill();
+      texture.stroke(0);
+      texture.strokeWeight(5);
+      texture.rect(0, 0, tex_w, tex_h);
+    }
+    texture.endDraw();
+    
+    cloth.texture_XYp = texture;
+  }
   
   
-  public void initBodies(){
+  
+  public void createBodies(){
     
     physics.reset();
     
@@ -159,6 +221,9 @@ public class SoftBody2D_Cloth extends PApplet {
     
     cloth1.setParticleColor(color(255, 180,   0, 128));
     cloth2.setParticleColor(color(  0, 180, 255, 128));
+    
+    cloth1.setMaterialColor(color(255, 180,   0, 128));
+    cloth2.setMaterialColor(color(  0, 180, 255, 128));
     
     cloth1.setParam(param_particle_cloth1);
     cloth2.setParam(param_particle_cloth2);
@@ -186,6 +251,11 @@ public class SoftBody2D_Cloth extends PApplet {
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
       cloth.createParticlesShape(this);
     }
+    
+//    cloth1.texture_XYp = tex_cloth_left;
+    
+    createTexture("PixelFlow", cloth1);
+    createTexture("SoftBody", cloth2);
   }
 
 
@@ -195,7 +265,7 @@ public class SoftBody2D_Cloth extends PApplet {
   public void draw() {
 
     if(NEED_REBUILD){
-      initBodies();
+      createBodies();
       NEED_REBUILD = false;
     }
     
@@ -207,25 +277,44 @@ public class SoftBody2D_Cloth extends PApplet {
     // render
     background(DISPLAY_MODE == 0 ?  255 : 92);
     
+    
+
+    
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
+//        body.use_particles_color = (DISPLAY_MODE == 0);
         body.displayParticles(this.g);
       }
     }
     
     // 2) springs
-    for(DwSoftBody2D body : softbodies){
-      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-      
-      // 3 different calls, to get control over the drawing order.
-      // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
-      body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
+    if(DISPLAY_SRPINGS){
+      for(DwSoftBody2D body : softbodies){
+        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+        
+        // 3 different calls, to get control over the drawing order.
+        // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
+        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
+      }
     }
+    
+    
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      stroke(0);
+      strokeWeight(0.1f);
+      noStroke();
+      for(DwSoftBody2D body : softbodies){
+        body.displayMesh(this.g);
+      }
+    }
+    
+
 
     // interaction stuff
     if(DELETE_SPRINGS){
@@ -360,12 +449,18 @@ public class SoftBody2D_Cloth extends PApplet {
   }
   
   public void keyReleased(){
-    if(key == 'r') initBodies();
     if(key == 's') repairAllSprings();
     if(key == 'm') applySpringMemoryEffect();
+
+    if(key == 'r') createBodies();
     if(key == '1') DISPLAY_MODE = 0;
     if(key == '2') DISPLAY_MODE = 1;
-    if(key == 'p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    
+    if(key == '3') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
+    if(key == '4') DISPLAY_MESH      = !DISPLAY_MESH;
+    if(key == '5') DISPLAY_SRPINGS   = !DISPLAY_SRPINGS;
+
+    if(key == ' ') UPDATE_PHYSICS = !UPDATE_PHYSICS;
   }
 
   
@@ -419,15 +514,23 @@ public class SoftBody2D_Cloth extends PApplet {
   }
   
   
+  
+  
   public void setDisplayMode(int val){
     DISPLAY_MODE = val;
   }
   
+//  public void setDisplayTypes(float[] val){
+//    DISPLAY_PARTICLES      = (val[0] > 0);
+//    DISPLAY_SPRINGS_STRUCT = (val[1] > 0);
+//    DISPLAY_SPRINGS_SHEAR  = (val[2] > 0);
+//    DISPLAY_SPRINGS_BEND   = (val[3] > 0); 
+//  }
+  
   public void setDisplayTypes(float[] val){
-    DISPLAY_PARTICLES      = (val[0] > 0);
-    DISPLAY_SPRINGS_STRUCT = (val[1] > 0);
-    DISPLAY_SPRINGS_SHEAR  = (val[2] > 0);
-    DISPLAY_SPRINGS_BEND   = (val[3] > 0);
+    DISPLAY_PARTICLES = (val[0] > 0);
+    DISPLAY_MESH      = (val[1] > 0);
+    DISPLAY_SRPINGS   = (val[2] > 0);
   }
   
   public void setGravity(float val){
@@ -458,7 +561,7 @@ public class SoftBody2D_Cloth extends PApplet {
       px = 10; py = 15;
       
       int bsx = (gui_w-40)/3;
-      cp5.addButton("rebuild").setGroup(group_physics).plugTo(this, "initBodies"             ).setSize(bsx, 18).setPosition(px, py);
+      cp5.addButton("rebuild").setGroup(group_physics).plugTo(this, "createBodies"           ).setSize(bsx, 18).setPosition(px, py);
       cp5.addButton("repair" ).setGroup(group_physics).plugTo(this, "repairAllSprings"       ).setSize(bsx, 18).setPosition(px+=bsx+10, py);
       cp5.addButton("memory" ).setGroup(group_physics).plugTo(this, "applySpringMemoryEffect").setSize(bsx, 18).setPosition(px+=bsx+10, py);
       
@@ -478,12 +581,18 @@ public class SoftBody2D_Cloth extends PApplet {
           .addItem("tension",1)
           .activate(DISPLAY_MODE);
       
+//      cp5.addCheckBox("setDisplayTypes").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
+//          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+//          .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES      ? 0 : 5)
+//          .addItem("STRUCT "  , 1).activate(DISPLAY_SPRINGS_STRUCT ? 1 : 5)
+//          .addItem("SHEAR"    , 2).activate(DISPLAY_SPRINGS_SHEAR  ? 2 : 5)
+//          .addItem("BEND"     , 3).activate(DISPLAY_SPRINGS_BEND   ? 3 : 5);
+      
       cp5.addCheckBox("setDisplayTypes").setGroup(group_physics).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
-          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-          .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES      ? 0 : 5)
-          .addItem("STRUCT "  , 1).activate(DISPLAY_SPRINGS_STRUCT ? 1 : 5)
-          .addItem("SHEAR"    , 2).activate(DISPLAY_SPRINGS_SHEAR  ? 2 : 5)
-          .addItem("BEND"     , 3).activate(DISPLAY_SPRINGS_BEND   ? 3 : 5);
+      .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+      .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES ? 0 : 5)
+      .addItem("MESH "    , 1).activate(DISPLAY_MESH      ? 1 : 5)
+      .addItem("SRPINGS"  , 2).activate(DISPLAY_SRPINGS   ? 2 : 5);
     }
     
     
