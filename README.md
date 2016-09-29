@@ -28,7 +28,11 @@
 ```    
 
 
-
+<br>
+## Download
++ [Releases] (https://github.com/diwi/PixelFlow/releases)
++ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ Processing IDE -> Library Manager
  
 
 <br>
@@ -51,19 +55,14 @@
 [<img src="https://vimeo.com/184849880/og_image_watermark/594411757" alt="alt text" width="30%">](https://vimeo.com/184849880 "Liquid Text")
 
 
-
-<br>
-## Download
-+ [Releases] (https://github.com/diwi/PixelFlow/releases)
-+ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
-+ Processing IDE -> Library Manager
-
 <br>
 ## Getting Started
 
-![result](https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg)
 
 ```java
+
+// FLUID SIMULATION EXAMPLE
+
 import com.thomasdiewald.pixelflow.java.Fluid;
 import com.thomasdiewald.pixelflow.java.PixelFlow;
 
@@ -125,7 +124,7 @@ public void draw() {
   image(pg_fluid, 0, 0);
 }
 ```
-
+<img src="https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg" alt="result" width="50%">
 
 <br>
 ## Platforms
