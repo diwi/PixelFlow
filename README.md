@@ -21,7 +21,11 @@
 	- MedianFilter
 	- Sobel
 + Softbody Dynamics (CPU, GLSL is coming)
-  - Cloth, Particle Systems, etc...
+  - 2D and 3D
+  - Collision Detection
+  - Cloth, Grids, Chains, ...
+  - Particle Systems
+  - etc ...
 + Utils
   - HalfEdge
   - Subdivision Polyhedra
