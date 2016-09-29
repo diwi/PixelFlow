@@ -141,14 +141,14 @@ Windows, Linux, MacOSX
 
 
 <br>
-### Installation, Processing IDE
+## Installation, Processing IDE
 - Install via the Library Manager
 - Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
 
 
 
 <br>
-### Dependencies, to run the examples
+## Dependencies, to run the examples
 
  - **processing-video-library, by Andres Colubri**<br>
    https://processing.org/reference/libraries/video/index.html
