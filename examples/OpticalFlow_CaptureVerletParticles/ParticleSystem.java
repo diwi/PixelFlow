@@ -9,7 +9,7 @@
 
 package OpticalFlow_CaptureVerletParticles;
 
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
 import processing.core.PApplet;
 import processing.core.PConstants;

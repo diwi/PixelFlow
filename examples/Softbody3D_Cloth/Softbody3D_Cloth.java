@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftBody3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D.DwSoftGrid3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
 import peasy.CameraState;
@@ -303,7 +303,7 @@ public class Softbody3D_Cloth extends PApplet {
     if(DISPLAY_PARTICLES){
       for(DwSoftBody3D body : softbodies){
         body.use_particles_color = true;
-        body.drawParticles(this.g);
+        body.displayParticles(this.g);
       }
     }
     

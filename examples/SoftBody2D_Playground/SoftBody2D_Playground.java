@@ -17,13 +17,14 @@ package SoftBody2D_Playground;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBall2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
+
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -298,7 +299,8 @@ public class SoftBody2D_Playground extends PApplet {
       DwSoftBall2D body = new DwSoftBall2D();
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
-      body.bend_spring_mode = 3;
+      body.bend_spring_mode = 0;
+      body.bend_spring_dist = 8;
       r = 0;
       g = 0;
       b = 0;
@@ -341,7 +343,7 @@ public class SoftBody2D_Playground extends PApplet {
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
 //        body.use_particles_color = (DISPLAY_MODE == 0);
-        body.drawParticles(this.g);
+        body.displayParticles(this.g);
       }
     }
     

@@ -1,12 +1,12 @@
-package com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D;
+package com.thomasdiewald.pixelflow.java.softbodydynamics.softbody;
 
 import java.util.Random;
 
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
 
 import processing.core.PGraphics;
 
@@ -19,6 +19,7 @@ public class DwSoftBall2D extends DwSoftBody2D{
   float nodes_r;
   
   public int bend_spring_mode = 0;
+  public int bend_spring_dist = 3; // try other values, it affects the objects stiffness
   
   Random rand;
   
@@ -80,16 +81,10 @@ public class DwSoftBall2D extends DwSoftBody2D{
       addSprings(i, 1, DwSpringConstraint.TYPE.STRUCT);
       
       if(bend_spring_mode == 0){
-        addSprings(i, 4, DwSpringConstraint.TYPE.BEND);
-      }
-      if(bend_spring_mode == 1){
-        addSprings(i, num_nodes/2, DwSpringConstraint.TYPE.BEND);
-      }
-      if(bend_spring_mode == 2){
-        addSprings(i, num_nodes/3, DwSpringConstraint.TYPE.BEND);
+        addSprings(i, bend_spring_dist, DwSpringConstraint.TYPE.BEND);
       }
       // random, 'kind of' anisotropic
-      if(bend_spring_mode == 3){
+      if(bend_spring_mode == 1){
         addSprings(i, (int)(num_nodes/4 + rand.nextFloat() * (num_nodes/2-num_nodes/4)), DwSpringConstraint.TYPE.BEND);
       }
     }

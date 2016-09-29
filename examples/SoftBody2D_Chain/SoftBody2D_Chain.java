@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
 import processing.core.*;
 

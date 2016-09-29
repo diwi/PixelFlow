@@ -15,14 +15,14 @@ package SoftBody2D_ConnectedBodies;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBall2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
 
 import processing.core.*;
 
@@ -212,10 +212,11 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       DwSoftBall2D body = circle;
       body.CREATE_BEND_SPRINGS  = false;
       body.CREATE_SHEAR_SPRINGS = false;
-      body.bend_spring_mode = 3;
+      body.bend_spring_mode = 1;
+      body.bend_spring_dist = 5;
       body.setParam(param_particle);
       body.setParam(param_spring_circle);
-      body.create(physics, nodes_start_x, nodes_start_y, 60, nodes_r);
+      body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
       body.setParticleColor(color(0,160));
       body.createParticlesShape(this);
       softbodies.add(body);
@@ -273,7 +274,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-        body.drawParticles(this.g);
+        body.displayParticles(this.g);
       }
     }
     

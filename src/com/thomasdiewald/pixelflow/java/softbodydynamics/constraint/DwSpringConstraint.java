@@ -6,7 +6,7 @@
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-package com.thomasdiewald.pixelflow.java.particlephysics;
+package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
 
 public abstract class DwSpringConstraint {

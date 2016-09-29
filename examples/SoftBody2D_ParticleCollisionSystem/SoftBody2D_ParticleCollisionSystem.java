@@ -12,8 +12,9 @@ package SoftBody2D_ParticleCollisionSystem;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;

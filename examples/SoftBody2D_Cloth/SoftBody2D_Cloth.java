@@ -15,12 +15,12 @@ package SoftBody2D_Cloth;
 import java.util.ArrayList;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.particlephysics.softbodies2D.DwSoftGrid2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -210,7 +210,7 @@ public class SoftBody2D_Cloth extends PApplet {
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-        body.drawParticles(this.g);
+        body.displayParticles(this.g);
       }
     }
     

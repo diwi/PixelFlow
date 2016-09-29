@@ -7,7 +7,7 @@
  * 
  */
 
-package com.thomasdiewald.pixelflow.java.particlephysics;
+package com.thomasdiewald.pixelflow.java.softbodydynamics.particle;
 
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwCollisionObject;

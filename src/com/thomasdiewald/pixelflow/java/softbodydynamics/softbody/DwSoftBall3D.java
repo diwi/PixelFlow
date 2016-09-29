@@ -1,13 +1,13 @@
-package com.thomasdiewald.pixelflow.java.particlephysics.softbodies3D;
+package com.thomasdiewald.pixelflow.java.softbodydynamics.softbody;
 
 import java.util.Random;
 
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge;
 import com.thomasdiewald.pixelflow.java.geometry.DwHalfEdge.Edge;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.particlephysics.DwSpringConstraint3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 

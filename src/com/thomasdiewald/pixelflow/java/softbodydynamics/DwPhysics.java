@@ -6,7 +6,7 @@
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-package com.thomasdiewald.pixelflow.java.particlephysics;
+package com.thomasdiewald.pixelflow.java.softbodydynamics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +14,8 @@ import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwCollisionGrid;
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 
 public class DwPhysics<T extends DwParticle> {
   

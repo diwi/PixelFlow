@@ -11,7 +11,7 @@
 
 package com.thomasdiewald.pixelflow.java.utils;
 
-import com.thomasdiewald.pixelflow.java.particlephysics.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 import processing.core.PMatrix3D;
 import processing.opengl.PGraphics3D;

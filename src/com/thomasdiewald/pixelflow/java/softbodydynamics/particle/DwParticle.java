@@ -7,12 +7,13 @@
  * 
  */
 
-package com.thomasdiewald.pixelflow.java.particlephysics;
+package com.thomasdiewald.pixelflow.java.softbodydynamics.particle;
 
 
 import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwCollisionObject;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 
 import processing.core.PMatrix;
 import processing.core.PShape;
@@ -125,7 +126,7 @@ public abstract class DwParticle implements DwCollisionObject{
   
 
 
-  protected void addSpring(DwSpringConstraint spring){
+  public void addSpring(DwSpringConstraint spring){
     
     // TODO, sorted by id, etc...
 
