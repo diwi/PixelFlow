@@ -18,7 +18,7 @@
  - **ControlP5, by Andreas Schlegel**<br>
    http://www.sojamo.de/libraries/controlP5
    
- - **PeasyCam, by Jonathan Feinber**<br>
+ - **PeasyCam, by Jonathan Feinberg**<br>
    http://mrfeinberg.com/peasycam
 
 
