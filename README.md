@@ -1,10 +1,10 @@
 ![PixelFlow Header](http://thomasdiewald.com/processing/libraries/pixelflow/PixelFlow_header.jpg)
 
 # PixelFlow
-A Processing/Java library for high performance GPU-Computing (GLSL).
+**A Processing/Java library for high performance GPU-Computing (GLSL).**
 
 
-<br><br>
+<br>
 ## Features
 ```
 + Fluid Simulation (GLSL)
@@ -31,7 +31,7 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 
  
 
-<br><br>
+<br>
 ## videos
 
 #### Softbody Dynamics
@@ -50,13 +50,13 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 
 
 
-<br><br>
+<br>
 ## Download
 + [Releases] (https://github.com/diwi/PixelFlow/releases)
 + [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
 
-<br><br>
+<br>
 ## Getting Started
 
 ![result](https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg)
@@ -125,17 +125,17 @@ public void draw() {
 ```
 
 
-<br><br>
+<br>
 ## Platforms
 Windows, Linux, MacOSX
 
 
-<br><br>
+<br>
 ## Processing Version
 - [Processing 3.2.1] (https://processing.org/download/?processing)
 
 
-<br><br>
+<br>
 ### Installation, Processing IDE
 - Install via the Library Manager
 - Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
