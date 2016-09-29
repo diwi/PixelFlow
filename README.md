@@ -3,6 +3,8 @@
 # PixelFlow
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
+
+<br><br>
 ## Features
 ```
 + Fluid Simulation (GLSL)
@@ -23,9 +25,15 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 + Utils
   - HalfEdge
   - Subdivision Polyhedra
-```
+```    
 
+
+
+ 
+
+<br><br>
 ## videos
+
 #### Softbody Dynamics
 [<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="30%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
 [<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="30%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
@@ -40,12 +48,15 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 [<img src="https://vimeo.com/184849892/og_image_watermark/594411994" alt="alt text" width="30%">](https://vimeo.com/184849892 "Liquid Painting - M.C. Escher")
 [<img src="https://vimeo.com/184849880/og_image_watermark/594411757" alt="alt text" width="30%">](https://vimeo.com/184849880 "Liquid Text")
 
+
+
+<br><br>
 ## Download
 + [Releases] (https://github.com/diwi/PixelFlow/releases)
 + [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
 
-
+<br><br>
 ## Getting Started
 
 ![result](https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg)
@@ -114,13 +125,17 @@ public void draw() {
 ```
 
 
-
+<br><br>
 ## Platforms
 Windows, Linux, MacOSX
 
+
+<br><br>
 ## Processing Version
 - [Processing 3.2.1] (https://processing.org/download/?processing)
 
+
+<br><br>
 ### Installation, Processing IDE
 - Install via the Library Manager
 - Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
