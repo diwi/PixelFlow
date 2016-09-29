@@ -4,14 +4,30 @@
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
 ## Features
-FluidSimulation /  
-Optical Flow /  
-Harris Corner Detection /  
-Motion Tracking /  
-Image Processing Filters /  
-Particle Systems /  
-GLSL Tools /  
-and more ...
+- Fluid Simulation (GLSL)
+- Fluid Particle Systems (GLSL)
+- Optical Flow  (GLSL)
+- Harris Corner Detection  (GLSL)
+- Image Processing Filters (GLSL)
+	- Bilateral Filter
+	- Box Blur.java
+	- Custom Convolution Kernel
+	- DoG (Difference of Gaussian)
+	- Gaussian Blur
+	- Laplace
+	- MedianFilter
+	- Sobel
+- Softbody Dynamics (CPU, GLSL is coming)
+  - Cloth, Particle Systems, etc...
+- Utils
+  - HalfEdge
+  - Subdivision Polyhedra
+
+
+
+
+
+
 
 
 ## Download
