@@ -4,11 +4,12 @@
 A Processing/Java library for high performance GPU-Computing (GLSL).
 
 ## Features
-- Fluid Simulation (GLSL)
-- Fluid Particle Systems (GLSL)
-- Optical Flow  (GLSL)
-- Harris Corner Detection  (GLSL)
-- Image Processing Filters (GLSL)
+```
++ Fluid Simulation (GLSL)
++ Fluid Particle Systems (GLSL)
++ Optical Flow  (GLSL)
++ Harris Corner Detection  (GLSL)
++ Image Processing Filters (GLSL)
 	- Bilateral Filter
 	- Box Blur.java
 	- Custom Convolution Kernel
@@ -17,19 +18,27 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
 	- Laplace
 	- MedianFilter
 	- Sobel
-- Softbody Dynamics (CPU, GLSL is coming)
++ Softbody Dynamics (CPU, GLSL is coming)
   - Cloth, Particle Systems, etc...
-- Utils
++ Utils
   - HalfEdge
   - Subdivision Polyhedra
+```
 
 ## videos
 #### Softbody Dynamics
-[<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="40%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
-[<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="40%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
-[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="40%">](https://vimeo.com/184853892 SoftBody Dynamics 2D - Playground")
-[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="40%">](https://vimeo.com/184853883 SoftBody Dynamics 2D - Connected Bodies")
+[<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="30%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
+[<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="30%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
+[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="30%">](https://vimeo.com/184853892 SoftBody Dynamics 2D - Playground")
+[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="30%">](https://vimeo.com/184853883 SoftBody Dynamics 2D - Connected Bodies")
 
+#### Computational Fluid Dynamics
+[<img src="https://vimeo.com/184850259/og_image_watermark/594412638" alt="alt text" width="30%">](https://vimeo.com/184850259 "WindTunnel")
+[<img src="https://vimeo.com/184850254/og_image_watermark/594412429" alt="alt text" width="30%">](https://vimeo.com/184850254 "StreamLines")
+[<img src="https://vimeo.com/184849960/og_image_watermark/594410553" alt="alt text" width="30%">](https://vimeo.com/184849960 "Verlet Particle Collision System")
+[<img src="https://vimeo.com/184849959/og_image_watermark/594412244" alt="alt text" width="30%">](https://vimeo.com/184849959 "Fluid Particles")
+[<img src="https://vimeo.com/184849892/og_image_watermark/594411994" alt="alt text" width="30%">](https://vimeo.com/184849892 "Liquid Painting - M.C. Escher")
+[<img src="https://vimeo.com/184849880/og_image_watermark/594411757" alt="alt text" width="30%">](https://vimeo.com/184849880 "Liquid Text")
 
 ## Download
 + [Releases] (https://github.com/diwi/PixelFlow/releases)
