@@ -147,4 +147,16 @@ Windows, Linux, MacOSX
 
 
 
+<br>
+### Dependencies, to run the examples
+
+ - **processing-video-library, by Andres Colubri**<br>
+   https://processing.org/reference/libraries/video/index.html
+   
+ - **ControlP5, by Andreas Schlegel**<br>
+   http://www.sojamo.de/libraries/controlP5
+   
+ - **PeasyCam, by Jonathan Feinberg**<br>
+   http://mrfeinberg.com/peasycam
+
 
