@@ -23,11 +23,12 @@ A Processing/Java library for high performance GPU-Computing (GLSL).
   - HalfEdge
   - Subdivision Polyhedra
 
-
-
-
-
-
+## videos
+#### Softbody Dynamics
+[<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="40%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
+[<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="40%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
+[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="40%">](https://vimeo.com/184853892 SoftBody Dynamics 2D - Playground")
+[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="40%">](https://vimeo.com/184853883 SoftBody Dynamics 2D - Connected Bodies")
 
 
 ## Download
@@ -114,6 +115,7 @@ Windows, Linux, MacOSX
 ### Installation, Processing IDE
 - Install via the Library Manager
 - Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
+
 
 
 
