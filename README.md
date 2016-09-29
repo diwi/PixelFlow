@@ -67,33 +67,31 @@ More Videos on [Vimeo](https://vimeo.com/user56436843).
 ```java
 
 // FLUID SIMULATION EXAMPLE
-
-import com.thomasdiewald.pixelflow.java.Fluid;
-import com.thomasdiewald.pixelflow.java.PixelFlow;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 
 // fluid simulation
-Fluid fluid;
+DwFluid2D fluid;
 
-// render targets
+// render target
 PGraphics2D pg_fluid;
-
 
 public void setup() {
   size(800, 800, P2D);
-  
+
   // library context
-  PixelFlow context = new PixelFlow(this);
+  DwPixelFlow context = new DwPixelFlow(this);
 
   // fluid simulation
-  fluid = new Fluid(context, width, height, 1);
-  
-  // set some fluid paramaters
+  fluid = new DwFluid2D(context, width, height, 1);
+
+  // some fluid parameters
   fluid.param.dissipation_velocity = 0.70f;
   fluid.param.dissipation_density  = 0.99f;
 
   // adding data to the fluid simulation
-  fluid.addCallback_FluiData(new Fluid.FluidData() {
-    public void update(Fluid fluid) {
+  fluid.addCallback_FluiData(new  DwFluid2D.FluidData() {
+    public void update(DwFluid2D fluid) {
       if (mousePressed) {
         float px     = mouseX;
         float py     = height-mouseY;
@@ -106,10 +104,7 @@ public void setup() {
     }
   });
 
-  // render-target
   pg_fluid = (PGraphics2D) createGraphics(width, height, P2D);
-
-  frameRate(60);
 }
 
 
@@ -122,12 +117,13 @@ public void draw() {
   pg_fluid.background(0);
   pg_fluid.endDraw();
 
-  // render
+  // render fluid stuff
   fluid.renderFluidTextures(pg_fluid, 0);
 
   // display
   image(pg_fluid, 0, 0);
 }
+
 ```
 <img src="https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg" alt="result" width="50%">
 
