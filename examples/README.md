@@ -2,12 +2,30 @@
 
 ###cathegories:
 
-
-+ Fluid Simulation
-+ Optical Flow
-+ ImageProcessing
-+ Verlect Physics (ParticleSystems, SoftBodies)
-
+```
++ Fluid Simulation (GLSL)
++ Fluid Particle Systems (GLSL)
++ Optical Flow  (GLSL)
++ Harris Corner Detection  (GLSL)
++ Image Processing Filters (GLSL)
+    - Bilateral Filter
+    - Box Blur.java
+    - Custom Convolution Kernel
+    - DoG (Difference of Gaussian)
+    - Gaussian Blur
+    - Laplace
+    - MedianFilter
+    - Sobel
++ Softbody Dynamics (CPU, GLSL is coming)
+  - 2D and 3D
+  - Collision Detection
+  - Cloth, Grids, Chains, ...
+  - Particle Systems
+  - etc ...
++ Utils
+  - HalfEdge
+  - Subdivision Polyhedra
+```
 
 
 # Dependencies
