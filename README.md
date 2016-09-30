@@ -128,19 +128,15 @@ public void draw() {
 <img src="https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg" alt="result" width="50%">
 
 <br>
-## Platforms
-Windows, Linux, MacOSX
-
-
-<br>
-## Processing Version
-- [Processing 3.2.1] (https://processing.org/download/?processing)
-
-
 <br>
 ## Installation, Processing IDE
-- Install via the Library Manager
-- Or manually. Unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
+
+- Download [Processing 3.2.1] (https://processing.org/download/?processing)
+- Install PixelFlow via the Library Manager.
+- Or manually, unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
+
+#### Platforms
+Windows, Linux, MacOSX
 
 
 
