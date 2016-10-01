@@ -32,6 +32,8 @@
   - Subdivision Polyhedra
 ```    
 
+JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
+
 
 <br>
 ## Download
