@@ -146,7 +146,7 @@ Windows, Linux, MacOSX
 <br>
 ## Dependencies, to run the examples
 
- - **processing-video-library, by Andres Colubri**<br>
+ - **Video, by the Processing Foundation**<br>
    https://processing.org/reference/libraries/video/index.html
    
  - **ControlP5, by Andreas Schlegel**<br>
