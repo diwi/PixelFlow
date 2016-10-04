@@ -189,12 +189,12 @@ public class DwSoftBall3D extends DwSoftBody3D{
       float[]n = normals[ia]; n[0] = n[1] = n[2] = 0;
       int edge_count = mesh.getVertexEdges(ia, edges);
       for(int j = 0; j < edge_count-1; j++){
-        int ib0 = edges[j+0].pair.vert;
-        int ib1 = edges[j+1].pair.vert;
+        int ib0 = edges[j+0].next.vert;
+        int ib1 = edges[j+1].next.vert;
         DwParticle3D.crossAccum(pC, particles[ib0], particles[ib1], n);
       }
-      int ib0 = edges[0].pair.vert;
-      int ib1 = edges[edge_count-1].pair.vert;
+      int ib0 = edges[0].next.vert;
+      int ib1 = edges[edge_count-1].next.vert;
       DwParticle3D.crossAccum(pC, particles[ib0], particles[ib1], n);
       
       float dd_sq  = n[0]*n[0] +  n[1]*n[1] +  n[2]*n[2];

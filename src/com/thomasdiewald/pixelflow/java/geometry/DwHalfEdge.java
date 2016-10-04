@@ -10,7 +10,6 @@
 package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwStack;
@@ -162,7 +161,7 @@ public class DwHalfEdge {
           edges[count] = iter;
         }
         count++;
-      } while((iter = iter.pair.next) != edge);
+      } while(iter.pair != null && (iter = iter.pair.next) != edge);
       return count;
     }
     
@@ -188,7 +187,7 @@ public class DwHalfEdge {
       float[] v;
       while(!stack.isEmpty()){
         edge = stack.pop();
-        if(getFLAG_display(edge)){
+        if(edge != null && getFLAG_display(edge)){
           DwHalfEdge.Edge iter = edge;
           pg.beginShape();
           do {
@@ -213,7 +212,7 @@ public class DwHalfEdge {
       pg.beginShape(PConstants.QUADS);
       while(!stack.isEmpty()){
         edge = stack.pop();
-        if(getFLAG_display(edge)){
+        if(edge != null && getFLAG_display(edge)){
           // draw quad
           v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
@@ -237,7 +236,7 @@ public class DwHalfEdge {
       pg.beginShape(PConstants.TRIANGLES);
       while(!stack.isEmpty()){
         edge = stack.pop();
-        if(getFLAG_display(edge)){
+        if(edge != null && getFLAG_display(edge)){
           // draw triangle
           v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 

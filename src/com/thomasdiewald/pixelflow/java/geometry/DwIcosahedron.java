@@ -1,5 +1,6 @@
 package com.thomasdiewald.pixelflow.java.geometry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
@@ -192,7 +193,26 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   public int[][] getFaces() {
     return faces;
   }
+
+  @Override
+  public void setVerts(float[][] verts) {
+    System.out.println("unimplemented");
+  }
+
+  @Override
+  public void setFaces(int[][] faces) {
+    System.out.println("unimplemented");
+  }
   
+  @Override
+  public void setVerts(ArrayList<float[]> verts_list) {
+    System.out.println("unimplemented");
+  }
+
+  @Override
+  public void setFaces(ArrayList<int[]> faces_list) {
+    System.out.println("unimplemented");
+  }
   
 }
 

@@ -1,5 +1,6 @@
 package com.thomasdiewald.pixelflow.java.geometry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
@@ -8,8 +9,6 @@ import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 
 public class DwCube implements DwIndexedFaceSetAble{
   
-
-
   public int       faces_count;
   public int       verts_count;
   public int  [][] faces;
@@ -178,6 +177,26 @@ public class DwCube implements DwIndexedFaceSetAble{
   @Override
   public int[][] getFaces() {
     return faces;
+  }
+  
+  @Override
+  public void setVerts(float[][] verts) {
+    System.out.println("unimplemented");
+  }
+
+  @Override
+  public void setFaces(int[][] faces) {
+    System.out.println("unimplemented");
+  }
+
+  @Override
+  public void setVerts(ArrayList<float[]> verts_list) {
+    System.out.println("unimplemented");
+  }
+
+  @Override
+  public void setFaces(ArrayList<int[]> faces_list) {
+    System.out.println("unimplemented");
   }
   
   

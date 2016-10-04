@@ -251,6 +251,37 @@ public class DwParticle3D extends DwParticle{
       return 1;
     }
   }
+  
+  
+  static public int crossAccumNormalized(DwParticle3D p, DwParticle3D pA, DwParticle3D pB, float[] cross){
+    if(pA == null || pA.all_springs_deactivated ||
+       pB == null || pB.all_springs_deactivated)
+    {
+      return 0;
+    } else {
+      float dxA = pA.cx - p.cx;
+      float dyA = pA.cy - p.cy;
+      float dzA = pA.cz - p.cz;
+      
+      float dxB = pB.cx - p.cx;
+      float dyB = pB.cy - p.cy;
+      float dzB = pB.cz - p.cz;
+      
+      float nx = (dyA * dzB) - (dyB * dzA);
+      float ny = (dzA * dxB) - (dzB * dxA);
+      float nz = (dxA * dyB) - (dxB * dyA);
+      
+      float dd_sq = nx*nx + ny*ny + nz*nz;
+      if(dd_sq == 0.0f) return 0;
+      
+      float dd_inv = 1f / (float) Math.sqrt(dd_sq);
+      
+      cross[0] += nx * dd_inv;
+      cross[1] += ny * dd_inv;
+      cross[2] += nz * dd_inv;
+      return 1;
+    }
+  }
 
   
 }
