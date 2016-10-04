@@ -131,11 +131,11 @@ public class SoftBody2D_Cloth extends PApplet {
 
     // spring parameters for Cloth1
     param_spring_cloth1.damp_dec = 0.999999f;
-    param_spring_cloth1.damp_inc = 0.000599f;
+    param_spring_cloth1.damp_inc = 0.000199f;
     
     // spring parameters for Cloth2  
     param_spring_cloth2.damp_dec = 0.999999f;
-    param_spring_cloth2.damp_inc = 0.000599f;
+    param_spring_cloth2.damp_inc = 0.000199f;
     
     // initial cloth building parameters, both cloth start the same
     cloth1.CREATE_STRUCT_SPRINGS = true;
@@ -154,7 +154,7 @@ public class SoftBody2D_Cloth extends PApplet {
     
     createGUI();
     
-    frameRate(600);
+    frameRate(60);
   }
   
   public void createTexture(String text, DwSoftGrid2D cloth){

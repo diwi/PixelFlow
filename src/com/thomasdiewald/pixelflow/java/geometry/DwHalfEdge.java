@@ -9,6 +9,8 @@
 
 package com.thomasdiewald.pixelflow.java.geometry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwStack;
@@ -58,6 +60,18 @@ public class DwHalfEdge {
     
     public Mesh(DwIndexedFaceSetAble ifs){
       create(ifs);
+    }
+    
+    public void addFaces(ArrayList<Face> faces_list_new){
+      int num_faces_new = faces_list_new.size();
+      int num_faces_old = faces.length;
+      
+      Face[] faces_new = faces_list_new.toArray(new Face[num_faces_new]);
+      Face[] faces_old = faces;
+      
+      faces = new Face[num_faces_old + num_faces_new];
+      System.arraycopy(faces_old, 0, faces,             0, num_faces_old);
+      System.arraycopy(faces_new, 0, faces, num_faces_old, num_faces_new);
     }
     
     private void create(DwIndexedFaceSetAble ifs){

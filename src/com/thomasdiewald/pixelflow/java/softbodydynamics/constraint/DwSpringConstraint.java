@@ -14,7 +14,8 @@ public abstract class DwSpringConstraint {
   static public enum TYPE{
     STRUCT,
     SHEAR,
-    BEND
+    BEND,
+    VIRTUAL,
   }
   
   static public class Param{
@@ -52,5 +53,11 @@ public abstract class DwSpringConstraint {
   public final void enable(boolean enable){
     this.enabled = enable;
   }
+  
+  public void setRestLength(float dd_rest){
+    this.dd_rest    = dd_rest;
+    this.dd_rest_sq = dd_rest * dd_rest;
+  }
+  
   
 }

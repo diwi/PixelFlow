@@ -142,7 +142,7 @@ public class SoftBody2D_Playground extends PApplet {
     createGUI();
     
     
-    frameRate(600);
+    frameRate(60);
   }
   
   

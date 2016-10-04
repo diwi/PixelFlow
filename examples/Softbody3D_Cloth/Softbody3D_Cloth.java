@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
+import Softbody3D_RigidFolding.Softbody3D_RigidFolding;
 import peasy.CameraState;
 import peasy.PeasyCam;
 import processing.core.PApplet;
@@ -742,6 +743,6 @@ public class Softbody3D_Cloth extends PApplet {
   }
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Softbody3D_Cloth.class.getName() });
+    PApplet.main(new String[] { Softbody3D_RigidFolding.class.getName() });
   }
 }

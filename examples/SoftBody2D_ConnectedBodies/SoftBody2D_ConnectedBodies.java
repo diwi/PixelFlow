@@ -390,7 +390,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
   
   
   boolean DELETE_SPRINGS = false;
-  float   DELETE_RADIUS  = 10;
+  float   DELETE_RADIUS  = 20;
 
   public void mousePressed(){
     if(mouseButton == RIGHT ) DELETE_SPRINGS = true;
