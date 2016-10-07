@@ -17,6 +17,9 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   // Override what we want to customize
   public class CustomParticle3D extends DwParticle3D{
     
+    public CustomParticle3D(int idx, float[] v, float rad) {
+      super(idx, v[0], v[1], v[2], rad);
+    }
     
     public CustomParticle3D(int idx, float x, float y, float z, float rad) {
       super(idx, x, y, z, rad);

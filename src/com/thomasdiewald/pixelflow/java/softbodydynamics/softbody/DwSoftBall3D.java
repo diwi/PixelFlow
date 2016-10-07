@@ -287,6 +287,11 @@ public class DwSoftBall3D extends DwSoftBody3D{
     }
     pg.endShape();
   }
+  
+  @Override
+  public void displayWireFrame(PGraphics pg, float strokeWeight){
+    
+  }
 
 
 }

@@ -477,6 +477,11 @@ public class DwSoftGrid3D extends DwSoftBody3D{
     
   }
   
+  @Override
+  public void displayWireFrame(PGraphics pg, float strokeWeight){
+    
+  }
+  
    
   @Override
   public void displayNormals(PGraphics pg){

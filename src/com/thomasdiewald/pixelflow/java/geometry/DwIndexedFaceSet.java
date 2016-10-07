@@ -2,15 +2,26 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.ArrayList;
 
+import RigidFoldingStructures.quadpattern.QuadPattern;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.opengl.PGraphics2D;
 
 public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
-
   public float[][] verts;
   public int  [][] faces;
 
   public DwIndexedFaceSet(){ 
+  }
+  
+  public DwIndexedFaceSet(int verts_count, int faces_count){
+    this.verts = new float[verts_count][];
+    this.faces = new int  [faces_count][];
+  }
+  
+  public DwIndexedFaceSet(float[][] verts, int[][] faces){
+    this.verts = verts;
+    this.faces = faces;
   }
   
   public DwIndexedFaceSet(ArrayList<float[]> verts_list, ArrayList<int[]> faces_list){
@@ -19,43 +30,106 @@ public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
   }
   
   
+  public DwIndexedFaceSet translate(float tx, float ty, float tz){
+    for(int i = 0; i < verts.length; i++){
+      verts[i][0] += tx;
+      verts[i][1] += ty;
+      verts[i][2] += tz;
+    }
+    return this;
+  }
+  
+  public DwIndexedFaceSet scale(float sx, float sy, float sz){
+    for(int i = 0; i < verts.length; i++){
+      verts[i][0] *= sx;
+      verts[i][1] *= sy;
+      verts[i][2] *= sz;
+    }
+    return this;
+  }
+  
+  public DwIndexedFaceSet scale(float xyz){
+    for(int i = 0; i < verts.length; i++){
+      verts[i][0] *= xyz;
+      verts[i][1] *= xyz;
+      verts[i][2] *= xyz;
+    }
+    return this;
+  }
+  
+  public float[] computeBounds(){
+    float[] bounds = {  +Float.MAX_VALUE, +Float.MAX_VALUE, +Float.MAX_VALUE, 
+                        -Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE };
 
+    for(int i = 0; i < verts.length; i++){
+      float[] v = verts[i];
+      if(bounds[0] > v[0]) bounds[0] = v[0];
+      if(bounds[1] > v[1]) bounds[1] = v[1];
+      if(bounds[2] > v[2]) bounds[2] = v[2];
+      if(bounds[3] < v[0]) bounds[3] = v[0];
+      if(bounds[4] < v[1]) bounds[4] = v[1];
+      if(bounds[5] < v[2]) bounds[5] = v[2];
+    }
+    return bounds;
+  }
+  
+  
+  public void alignMin(float minx, float miny, float minz){
+    float[] bounds = computeBounds();
+    minx -= bounds[0];
+    miny -= bounds[1];
+    minz -= bounds[2];
+    translate(minx, miny, minz);
+  }
+  
+  public void fitSize(float fit_xyz){
+    fitSize(fit_xyz, fit_xyz, fit_xyz);
+  }
+  
+  public void fitSize(float fit_x, float fit_y, float fit_z){
+    float[] bounds = computeBounds();
+//    translate(-bounds[0], -bounds[1], -bounds[2]);
+    
+    float size_x = bounds[3] - bounds[0];
+    float size_y = bounds[4] - bounds[1];
+    float size_z = bounds[5] - bounds[2];
+    
+    float sx = size_x / fit_x;
+    float sy = size_y / fit_y;
+    float sz = size_z / fit_z;
+
+    float sxyz = 0;
+    if(sx != 0 && sy   != 0) sxyz = Math.max(sx, sy);
+    if(sz != 0 && sxyz != 0) sxyz = Math.max(sz, sxyz);
+    if(sxyz != 0){
+      scale(1f / sxyz);
+    }
+
+//    translate(+bounds[0], +bounds[1], +bounds[2]);
+  }
+  
+  
   public void display(PGraphics pg){
     for(int i = 0; i < faces.length; i++){
       int[] face = faces[i];
-
       pg.beginShape();
       for(int j = 0; j < face.length; j++){
-        float[] v = verts[face[j]];
-         pg.vertex(v[0], v[1], v[2]);
-      }
-      pg.endShape(PConstants.CLOSE);
-    }
-  }
-  
-  public void display2D(PGraphics pg){
-    for(int i = 0; i < faces.length; i++){
-      int[] face = faces[i];
-
-      pg.beginShape();
-      for(int j = 0; j < face.length; j++){
-        float[] v = verts[face[j]];
-         pg.vertex(v[0], v[1]);
+        vertex(pg, verts[face[j]]);
       }
       pg.endShape(PConstants.CLOSE);
     }
   }
   
   public void display(PGraphics pg, int filter_num_verts){
-    float[] v;
     if(filter_num_verts == 3){
       pg.beginShape(PConstants.TRIANGLES);
       for(int i = 0; i < faces.length; i++){
         int[] face = faces[i];
-        if(face.length != 3) continue;
-        v = verts[face[0]];  pg.vertex(v[0], v[1], v[2]);
-        v = verts[face[1]];  pg.vertex(v[0], v[1], v[2]);
-        v = verts[face[2]];  pg.vertex(v[0], v[1], v[2]);
+        if(face.length == 3){
+          vertex(pg, verts[face[0]]);
+          vertex(pg, verts[face[1]]);
+          vertex(pg, verts[face[2]]);
+        }
       }
       pg.endShape(PConstants.CLOSE);
     }
@@ -64,49 +138,24 @@ public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
       pg.beginShape(PConstants.QUADS);
       for(int i = 0; i < faces.length; i++){
         int[] face = faces[i];
-        if(face.length != 4) continue;
-        v = verts[face[0]];  pg.vertex(v[0], v[1], v[2]);
-        v = verts[face[1]];  pg.vertex(v[0], v[1], v[2]);
-        v = verts[face[2]];  pg.vertex(v[0], v[1], v[2]);
-        v = verts[face[3]];  pg.vertex(v[0], v[1], v[2]);
+        if(face.length == 4){
+          vertex(pg, verts[face[0]]);
+          vertex(pg, verts[face[1]]);
+          vertex(pg, verts[face[2]]);
+          vertex(pg, verts[face[3]]);
+        }
       }
       pg.endShape(PConstants.CLOSE);
     }
   }
   
-  
-  public void display2D(PGraphics pg, int filter_num_verts){
-    float[] v;
-    if(filter_num_verts == 3){
-      pg.beginShape(PConstants.TRIANGLES);
-      for(int i = 0; i < faces.length; i++){
-        int[] face = faces[i];
-        if(face.length != 3) continue;
-        v = verts[face[0]];  pg.vertex(v[0], v[1]);
-        v = verts[face[1]];  pg.vertex(v[0], v[1]);
-        v = verts[face[2]];  pg.vertex(v[0], v[1]);
-      }
-      pg.endShape(PConstants.CLOSE);
-    }
-    
-    if(filter_num_verts == 4){
-      pg.beginShape(PConstants.QUADS);
-      for(int i = 0; i < faces.length; i++){
-        int[] face = faces[i];
-        if(face.length != 4) continue;
-        v = verts[face[0]];  pg.vertex(v[0], v[1]);
-        v = verts[face[1]];  pg.vertex(v[0], v[1]);
-        v = verts[face[2]];  pg.vertex(v[0], v[1]);
-        v = verts[face[3]];  pg.vertex(v[0], v[1]);
-      }
-      pg.endShape(PConstants.CLOSE);
+  public void vertex(PGraphics pg, float[] v){
+    if(pg.is2D()){
+      pg.vertex(v[0], v[1]);
+    } else {
+      pg.vertex(v[0], v[1], v[2]);
     }
   }
-  
-
-  
-  
-  
   
   
   

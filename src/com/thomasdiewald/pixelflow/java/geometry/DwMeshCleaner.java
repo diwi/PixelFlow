@@ -129,10 +129,11 @@ public class DwMeshCleaner{
   }
   
 
-  public void removeDuplicateVerts(float threshold){
+  public DwMeshCleaner removeDuplicateVerts(float threshold){
     mergeVerts(threshold, 100);
     weldVerts(threshold);
     remapVerts();
+    return this;
   }
 
 

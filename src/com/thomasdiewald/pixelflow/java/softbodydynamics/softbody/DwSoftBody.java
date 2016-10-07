@@ -80,7 +80,7 @@ public abstract class DwSoftBody{
   public abstract void displaySprings(PGraphics pg, int display_mode);
 
   public abstract void displayMesh(PGraphics pg);
-
+  public abstract void displayWireFrame(PGraphics pg, float strokeWeight);
 
 }
   

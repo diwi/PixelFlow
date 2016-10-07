@@ -252,6 +252,11 @@ public class DwSoftGrid2D extends DwSoftBody2D{
     displayGridXY(pg, texture_XYp);
   }
   
+  @Override
+  public void displayWireFrame(PGraphics pg, float strokeWeight){
+    
+  }
+  
 
 }
   
