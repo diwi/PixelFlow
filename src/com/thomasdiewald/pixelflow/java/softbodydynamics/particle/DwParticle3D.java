@@ -252,6 +252,26 @@ public class DwParticle3D extends DwParticle{
     }
   }
   
+  // TODO, move to some Utils class
+  static public int crossAccum(float[] p, float[] pA, float[] pB, float[] cross){
+    if(pA == null ||pB == null){
+      return 0;
+    } else {
+      float dxA = pA[0] - p[0];
+      float dyA = pA[1] - p[1];
+      float dzA = pA[2] - p[2];
+      
+      float dxB = pB[0] - p[0];
+      float dyB = pB[1] - p[1];
+      float dzB = pB[2] - p[2];
+      
+      cross[0] += (dyA * dzB) - (dyB * dzA);
+      cross[1] += (dzA * dxB) - (dzB * dxA);
+      cross[2] += (dxA * dyB) - (dxB * dyA);
+      return 1;
+    }
+  }
+  
   
   static public int crossAccumNormalized(DwParticle3D p, DwParticle3D pA, DwParticle3D pB, float[] cross){
     if(pA == null || pA.all_springs_deactivated ||
@@ -281,6 +301,24 @@ public class DwParticle3D extends DwParticle{
       cross[2] += nz * dd_inv;
       return 1;
     }
+  }
+  
+  
+  static public void normalize(float[] vec3){
+    float dd_sq = vec3[0]*vec3[0] + vec3[1]*vec3[1] + vec3[2]*vec3[2];
+    if(dd_sq == 0.0f) return;
+    float dd_inv = 1f / (float) Math.sqrt(dd_sq);
+    vec3[0] *= dd_inv;
+    vec3[1] *= dd_inv;
+    vec3[2] *= dd_inv;
+  }
+  
+  static public float dot(float[] a, float[] b){
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  }
+  
+  static public float magSq(float[] a){
+    return a[0]*a[0] + a[1]*a[1] + a[2]*a[2];
   }
 
   

@@ -82,30 +82,64 @@ public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
     translate(minx, miny, minz);
   }
   
+  public void fitBounds(float[] dst_bounds){
+    float[] src_bounds = computeBounds();
+    
+    float src_sx = src_bounds[3] - src_bounds[0];
+    float src_sy = src_bounds[4] - src_bounds[1];
+    float src_sz = src_bounds[5] - src_bounds[2];
+    
+    float src_cx = src_bounds[0] + src_sx * 0.5f;
+    float src_cy = src_bounds[1] + src_sy * 0.5f;
+    float src_cz = src_bounds[2] + src_sz * 0.5f;
+    
+    float dst_sx = dst_bounds[3] - dst_bounds[0];
+    float dst_sy = dst_bounds[4] - dst_bounds[1];
+    float dst_sz = dst_bounds[5] - dst_bounds[2];
+    
+    float dst_cx = dst_bounds[0] + dst_sx * 0.5f;
+    float dst_cy = dst_bounds[1] + dst_sy * 0.5f;
+    float dst_cz = dst_bounds[2] + dst_sz * 0.5f;
+    
+    float sx = dst_sx / src_sx;
+    float sy = dst_sx / src_sx;
+    float sz = dst_sx / src_sx;
+    
+    float sxyz = Math.max(Math.max(sx, sy), sz);
+    if(sx != 0) sxyz = Math.min(sxyz, sx);
+    if(sy != 0) sxyz = Math.min(sxyz, sy);
+    if(sz != 0) sxyz = Math.min(sxyz, sz);
+    
+    for(int i = 0; i < verts.length; i++){
+      float[] v = verts[i];
+      v[0] = (v[0] - src_cx) * sxyz + dst_cx;
+      v[1] = (v[1] - src_cy) * sxyz + dst_cy;
+      v[2] = (v[2] - src_cz) * sxyz + dst_cz;
+    }
+
+  }
+  
   public void fitSize(float fit_xyz){
     fitSize(fit_xyz, fit_xyz, fit_xyz);
   }
   
   public void fitSize(float fit_x, float fit_y, float fit_z){
     float[] bounds = computeBounds();
-//    translate(-bounds[0], -bounds[1], -bounds[2]);
-    
-    float size_x = bounds[3] - bounds[0];
-    float size_y = bounds[4] - bounds[1];
-    float size_z = bounds[5] - bounds[2];
-    
-    float sx = size_x / fit_x;
-    float sy = size_y / fit_y;
-    float sz = size_z / fit_z;
 
-    float sxyz = 0;
-    if(sx != 0 && sy   != 0) sxyz = Math.max(sx, sy);
-    if(sz != 0 && sxyz != 0) sxyz = Math.max(sz, sxyz);
-    if(sxyz != 0){
-      scale(1f / sxyz);
-    }
+    float src_sx = bounds[3] - bounds[0];
+    float src_sy = bounds[4] - bounds[1];
+    float src_sz = bounds[5] - bounds[2];
+    
+    float sx = fit_x / src_sx;
+    float sy = fit_y / src_sy;
+    float sz = fit_z / src_sz;
 
-//    translate(+bounds[0], +bounds[1], +bounds[2]);
+    float sxyz = Math.max(Math.max(sx, sy), sz);
+    if(sx != 0) sxyz = Math.min(sxyz, sx);
+    if(sy != 0) sxyz = Math.min(sxyz, sy);
+    if(sz != 0) sxyz = Math.min(sxyz, sz);
+    scale(sxyz);
+
   }
   
   
