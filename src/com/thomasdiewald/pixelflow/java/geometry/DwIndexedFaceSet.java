@@ -2,10 +2,8 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.ArrayList;
 
-import RigidFoldingStructures.patternDefinitions.RFQuadPattern;
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.opengl.PGraphics2D;
 
 public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
   public float[][] verts;
