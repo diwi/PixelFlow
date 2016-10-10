@@ -2,7 +2,7 @@ package com.thomasdiewald.pixelflow.java.geometry;
 
 import java.util.ArrayList;
 
-import RigidFoldingStructures.quadpattern.QuadPattern;
+import RigidFoldingStructures.patternDefinitions.RFQuadPattern;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.opengl.PGraphics2D;
@@ -101,11 +101,12 @@ public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
     float dst_cy = dst_bounds[1] + dst_sy * 0.5f;
     float dst_cz = dst_bounds[2] + dst_sz * 0.5f;
     
-    float sx = dst_sx / src_sx;
-    float sy = dst_sx / src_sx;
-    float sz = dst_sx / src_sx;
+    float sx = dst_sx / src_sx; if(Float.isNaN(sx)) sx = 0;
+    float sy = dst_sy / src_sy; if(Float.isNaN(sy)) sy = 0;
+    float sz = dst_sz / src_sz; if(Float.isNaN(sz)) sz = 0;
     
     float sxyz = Math.max(Math.max(sx, sy), sz);
+
     if(sx != 0) sxyz = Math.min(sxyz, sx);
     if(sy != 0) sxyz = Math.min(sxyz, sy);
     if(sz != 0) sxyz = Math.min(sxyz, sz);
@@ -130,9 +131,9 @@ public class DwIndexedFaceSet implements DwIndexedFaceSetAble{
     float src_sy = bounds[4] - bounds[1];
     float src_sz = bounds[5] - bounds[2];
     
-    float sx = fit_x / src_sx;
-    float sy = fit_y / src_sy;
-    float sz = fit_z / src_sz;
+    float sx = fit_x / src_sx;  if(Float.isNaN(sx)) sx = 0;
+    float sy = fit_y / src_sy;  if(Float.isNaN(sy)) sy = 0;
+    float sz = fit_z / src_sz;  if(Float.isNaN(sz)) sz = 0;
 
     float sxyz = Math.max(Math.max(sx, sy), sz);
     if(sx != 0) sxyz = Math.min(sxyz, sx);
