@@ -20,7 +20,7 @@ uniform sampler2D tex_source;
 uniform sampler2D tex_obstacleC;
 
 uniform vec2  wh_inv;
-uniform float timestep ;
+uniform float timestep;
 uniform float rdx;
 uniform float dissipation;
 

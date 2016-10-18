@@ -31,7 +31,7 @@ import processing.core.PGraphics;
 public class DwFrameCapture {
   
   public PApplet papplet;
-  public boolean AUTO_CAPTURE = true;
+  public boolean AUTO_CAPTURE = !true;
   public float   jpeg_compression = 0.8f;
   
   public String root_dir = "";
@@ -106,16 +106,17 @@ public class DwFrameCapture {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    createFilename();
-    
-    File file = createFilename();
-    File dir = new File(file.getParent());
-    long size_dir  = folderSize(dir);
-    long size_file = size_dir/frame_count;
-    
-    String size_dir_str  = NumberFormat.getNumberInstance(Locale.US).format(size_dir  >> 10);
-    String size_file_str = NumberFormat.getNumberInstance(Locale.US).format(size_file >> 10);
-    System.out.printf(">> Captured %d frames (%s kb)  > dir: \"%s\" (%s kb)\n", frame_count, size_file_str, dir, size_dir_str);
+
+    if(AUTO_CAPTURE){
+      File file = createFilename();
+      File dir = new File(file.getParent());
+      long size_dir  = folderSize(dir);
+      long size_file = size_dir/frame_count;
+      
+      String size_dir_str  = NumberFormat.getNumberInstance(Locale.US).format(size_dir  >> 10);
+      String size_file_str = NumberFormat.getNumberInstance(Locale.US).format(size_file >> 10);
+      System.out.printf(">> Captured %d frames (%s kb)  > dir: \"%s\" (%s kb)\n", frame_count, size_file_str, dir, size_dir_str);
+    }
   }
   
 
@@ -157,7 +158,7 @@ public class DwFrameCapture {
   }
   
   
-  private BufferedImage createBufferedImage(){
+  public BufferedImage createBufferedImage(){
     PGraphics pg = papplet.g;
   //  BufferedImage img_native = (BufferedImage) papplet.getGraphics().getNative();
   //  System.out.println(pg.format == PConstants.ARGB);
@@ -170,7 +171,7 @@ public class DwFrameCapture {
   }
   
 
-  private File createFilename(){
+  public File createFilename(){
     Class<?> this_ = papplet.getClass();
     File dir_cur = new File(root_dir+this_.getCanonicalName().replaceAll("[.]", "/")+"/");
     File dir_new = new File(dir_cur.getParent()+"/out/"+this_.getSimpleName()+"_"+start_ms+"/");

@@ -158,10 +158,11 @@ public class DwParticle2D extends DwParticle{
     final float[] bd = bounds;
     float vx, vy;
     float damping = param.DAMP_BOUNDS;
-    if ((cx - rad) < bd[0]) {vx=cx-px;vy=cy-py; cx=bd[0]+rad;px=cx+vx*damping;py=cy-vy*damping;}
-    if ((cx + rad) > bd[2]) {vx=cx-px;vy=cy-py; cx=bd[2]-rad;px=cx+vx*damping;py=cy-vy*damping;}
-    if ((cy - rad) < bd[1]) {vx=cx-px;vy=cy-py; cy=bd[1]+rad;px=cx-vx*damping;py=cy+vy*damping;}
-    if ((cy + rad) > bd[3]) {vx=cx-px;vy=cy-py; cy=bd[3]-rad;px=cx-vx*damping;py=cy+vy*damping;}
+    float r = rad;    
+    if ((cx - r) < bd[0]) {vx=cx-px;vy=cy-py; cx=bd[0]+r;px=cx+vx*damping;py=cy-vy*damping;}
+    if ((cx + r) > bd[2]) {vx=cx-px;vy=cy-py; cx=bd[2]-r;px=cx+vx*damping;py=cy-vy*damping;}
+    if ((cy - r) < bd[1]) {vx=cx-px;vy=cy-py; cy=bd[1]+r;px=cx-vx*damping;py=cy+vy*damping;}
+    if ((cy + r) > bd[3]) {vx=cx-px;vy=cy-py; cy=bd[3]-r;px=cx-vx*damping;py=cy+vy*damping;}
   }
   
   

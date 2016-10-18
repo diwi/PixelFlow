@@ -154,13 +154,15 @@ public class DwParticle3D extends DwParticle{
     if(!enable_collisions) return;
     final float[] bd = bounds;
     float vx, vy, vz;
-    float damping = param.DAMP_BOUNDS;
-    if ((cx - rad) < bd[0]) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=bd[0]+rad;px=cx+vx*damping;py=cy-vy*damping;pz=cz-vz*damping;}
-    if ((cx + rad) > bd[3]) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=bd[3]-rad;px=cx+vx*damping;py=cy-vy*damping;pz=cz-vz*damping;}
-    if ((cy - rad) < bd[1]) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=bd[1]+rad;px=cx-vx*damping;py=cy+vy*damping;pz=cz-vz*damping;}
-    if ((cy + rad) > bd[4]) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=bd[4]-rad;px=cx-vx*damping;py=cy+vy*damping;pz=cz-vz*damping;}
-    if ((cz - rad) < bd[2]) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=bd[2]+rad;px=cx-vx*damping;py=cy-vy*damping;pz=cz+vz*damping;}
-    if ((cz + rad) > bd[5]) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=bd[5]-rad;px=cx-vx*damping;py=cy-vy*damping;pz=cz+vz*damping;}
+    float damp = param.DAMP_BOUNDS;
+//    float r = rad;
+    float r = radCollision();
+    if ((cx - r) < bd[0]) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=bd[0]+r;px=cx+vx*damp;py=cy-vy*damp;pz=cz-vz*damp;}
+    if ((cx + r) > bd[3]) {vx=cx-px;vy=cy-py;vz=cz-pz; cx=bd[3]-r;px=cx+vx*damp;py=cy-vy*damp;pz=cz-vz*damp;}
+    if ((cy - r) < bd[1]) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=bd[1]+r;px=cx-vx*damp;py=cy+vy*damp;pz=cz-vz*damp;}
+    if ((cy + r) > bd[4]) {vx=cx-px;vy=cy-py;vz=cz-pz; cy=bd[4]-r;px=cx-vx*damp;py=cy+vy*damp;pz=cz-vz*damp;}
+    if ((cz - r) < bd[2]) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=bd[2]+r;px=cx-vx*damp;py=cy-vy*damp;pz=cz+vz*damp;}
+    if ((cz + r) > bd[5]) {vx=cx-px;vy=cy-py;vz=cz-pz; cz=bd[5]-r;px=cx-vx*damp;py=cy-vy*damp;pz=cz+vz*damp;}
   }
   
   

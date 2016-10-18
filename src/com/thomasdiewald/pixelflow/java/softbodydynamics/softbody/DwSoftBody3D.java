@@ -1,6 +1,7 @@
 package com.thomasdiewald.pixelflow.java.softbodydynamics.softbody;
 
 
+import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
@@ -28,8 +29,13 @@ public abstract class DwSoftBody3D extends DwSoftBody{
     @Override
     public void updateShapeColor(){
       if(use_particles_color){
-        setColor(particle_color);
-        shp_particle.setStroke(particle_color);
+        if(collision_group_id != this.collision_group){
+          setColor(particle_color2);
+          shp_particle.setStroke(particle_color2);
+        } else {
+          setColor(particle_color);
+          shp_particle.setStroke(particle_color);
+        }
       } else {
         setColor(particle_gray);
         shp_particle.setStroke(particle_gray);
@@ -73,15 +79,15 @@ public abstract class DwSoftBody3D extends DwSoftBody{
     PShape shape;
     
     shape = papplet.createShape(PConstants.POINT, 0, 0);
-    shape.setStroke(true);
-    shape.setStrokeWeight(6);
+//    shape.setStroke(true);
+//    shape.setStrokeWeight(6);
 
-//    if(ifs == null){
-//      ifs = new DwIcosahedron(1);
-////      ifs = new DwCube(1);
-//    }
-//    shape = papplet.createShape(PShape.GEOMETRY);
-//    createPolyhedronShape(shape, ifs, particle.rad, 3, true);
+    if(ifs == null){
+      ifs = new DwIcosahedron(1);
+//      ifs = new DwCube(1);
+    }
+    shape = papplet.createShape(PShape.GEOMETRY);
+    createPolyhedronShape(shape, ifs, particle.rad, 3, true);
 
     return shape;
   }

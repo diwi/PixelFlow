@@ -20,8 +20,8 @@ out vec2 glFragColor;
 uniform sampler2D	tex_curr_frame ; // current  image
 uniform sampler2D	tex_prev_frame ; // previous image
 uniform sampler2D	tex_curr_sobelH; // current  gradient horizontal
-uniform sampler2D	tex_curr_sobelV; // previous gradient horizontal
-uniform sampler2D	tex_prev_sobelH; // current  gradient vertical
+uniform sampler2D	tex_curr_sobelV; // current  gradient vertical
+uniform sampler2D	tex_prev_sobelH; // previous gradient horizontal
 uniform sampler2D	tex_prev_sobelV; // previous gradient vertical
 
 uniform vec2  wh;                  // size rendertarget

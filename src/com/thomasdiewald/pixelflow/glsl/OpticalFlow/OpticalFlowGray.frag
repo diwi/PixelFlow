@@ -18,8 +18,8 @@ out vec2 glFragColor;
 uniform sampler2D	tex_curr_frame ; // current  image
 uniform sampler2D	tex_prev_frame ; // previous image
 uniform sampler2D	tex_curr_sobelH; // current  gradient horizontal
-uniform sampler2D	tex_curr_sobelV; // previous gradient horizontal
-uniform sampler2D	tex_prev_sobelH; // current  gradient vertical
+uniform sampler2D	tex_curr_sobelV; // current  gradient vertical
+uniform sampler2D	tex_prev_sobelH; // previous gradient horizontal
 uniform sampler2D	tex_prev_sobelV; // previous gradient vertical
 
 uniform vec2  wh;                  // size rendertarget
@@ -37,6 +37,7 @@ void main(){
   
   dt *= 3.0; dx *= 3.0; dy *= 3.0; // to match the rgb range
 
+  
   // gradient length
   float dd = sqrt(dx*dx + dy*dy + 1);
   // optical flow
@@ -45,7 +46,6 @@ void main(){
   // threshold
   float len_old = sqrt(flow.x*flow.x + flow.y*flow.y + 0.00001);
   float len_new = max(len_old - threshold, 0.0);
-  // len_new = len_new * len_old/(len_new + 0.00001);
   flow = (len_new * flow)/len_old;
   
   glFragColor = flow;

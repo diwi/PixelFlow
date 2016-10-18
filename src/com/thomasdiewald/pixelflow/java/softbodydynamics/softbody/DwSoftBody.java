@@ -53,6 +53,7 @@ public abstract class DwSoftBody{
   // RENDERING
   //////////////////////////////////////////////////////////////////////////////
   public int particle_color = 0xFF5C0000; // color(0, 92), default
+  public int particle_color2 = 0xFF5C0000; // color(0, 92), default
   public int particle_gray  = 0xFF5C0000; // color(0, 92)
   public boolean use_particles_color = true;
   public float collision_radius_scale = 1.33333f;
@@ -61,6 +62,16 @@ public abstract class DwSoftBody{
   
   public void setParticleColor(int particle_color){
     this.particle_color = particle_color;
+    
+    int a = (particle_color >> 24) & 0xFF;
+    int r = (particle_color >> 16) & 0xFF;
+    int g = (particle_color >>  8) & 0xFF;
+    int b = (particle_color >>  0) & 0xFF;
+    float s = 0.6f;
+    r = (int)Math.round(r*s);
+    g = (int)Math.round(g*s);
+    b = (int)Math.round(b*s);
+    this.particle_color2 = a << 24 | r << 16 | g << 8 | b;
   }
   
   public void setMaterialColor(int material_color){

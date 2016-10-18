@@ -34,4 +34,13 @@ public class DwStack<T>{
   public boolean isEmpty(){
     return ptr == 0;
   }
+  
+  public T[] copyToArray(T[] array){
+    if(array == null){
+      return null;
+    }
+    System.arraycopy(stack, 0, array, 0, Math.min(array.length, size()));
+    return array;
+  }
+  
 }
