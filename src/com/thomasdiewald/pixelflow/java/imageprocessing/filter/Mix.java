@@ -14,7 +14,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Mix {
@@ -25,7 +25,7 @@ public class Mix {
     this.context = context;
   }
 
-  public void apply(PGraphics2D srcA, PGraphics2D srcB, PGraphics2D dst, float mix_value) {
+  public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float mix_value) {
     Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
     Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
     

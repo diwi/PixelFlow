@@ -16,7 +16,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Copy {
@@ -27,7 +27,7 @@ public class Copy {
     this.context = context;
   }
 
-  public void apply(PGraphics2D src, PGraphics2D dst) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;
@@ -39,7 +39,7 @@ public class Copy {
     dst.endDraw();
   }
   
-  public void apply(PGraphics2D src, DwGLTexture dst) {
+  public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;
@@ -51,7 +51,7 @@ public class Copy {
     context.end("Copy.apply");
   }
   
-  public void apply(DwGLTexture src, PGraphics2D dst) {
+  public void apply(DwGLTexture src, PGraphicsOpenGL dst) {
     dst.beginDraw();
     context.begin();
     apply(src.HANDLE[0], dst.width, dst.height);

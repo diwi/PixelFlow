@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Multiply {
@@ -26,7 +26,7 @@ public class Multiply {
     this.context = context;
   }
   
-  public void apply(PGraphics2D src, PGraphics2D dst, float[] multiplier) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;
@@ -38,7 +38,7 @@ public class Multiply {
     dst.endDraw();
   }
   
-  public void apply(PGraphics2D src, DwGLTexture dst, float[] multiplier) {
+  public void apply(PGraphicsOpenGL src, DwGLTexture dst, float[] multiplier) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;

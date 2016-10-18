@@ -17,7 +17,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class BoxBlur {
@@ -32,7 +32,7 @@ public class BoxBlur {
     this.context = context;
   }
 
-  public void apply(PGraphics2D src, PGraphics2D dst, PGraphics2D tmp, int radius) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, int radius) {
     if(src == tmp || dst == tmp){
       System.out.println("BoxBlur error: read-write race");
       return;

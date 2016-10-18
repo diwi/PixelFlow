@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Laplace {
@@ -44,7 +44,7 @@ public class Laplace {
   DwGLSLProgram[] shader       = new DwGLSLProgram[TYPE.values().length];
   DwGLSLProgram[] shader_ubyte = new DwGLSLProgram[TYPE.values().length];
 
-  public void apply(PGraphics2D src, PGraphics2D dst, TYPE type) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, TYPE type) {
     if(src == dst){
       System.out.println("Laplace error: read-write race");
       return;

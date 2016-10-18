@@ -14,7 +14,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class DoG {
@@ -29,7 +29,7 @@ public class DoG {
   DwGLSLProgram shader_DoG_UBYTE;
   
   //multiplier = {1,-1}
-  public void apply(PGraphics2D srcA, PGraphics2D srcB, PGraphics2D dst, float[] multiplier) {
+  public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
     Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
     

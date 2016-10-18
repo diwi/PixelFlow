@@ -17,7 +17,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class GaussianBlur {
@@ -73,11 +73,11 @@ public class GaussianBlur {
   }
 
 
-  public void apply(PGraphics2D src, PGraphics2D dst, PGraphics2D tmp, int radius) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, int radius) {
     apply(src, dst, tmp, radius, radius * DEFAULT_RADIUS_SIGMA_RATIO);
   }
 
-  public void apply(PGraphics2D src, PGraphics2D dst, PGraphics2D tmp, int radius, float sigma) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, int radius, float sigma) {
     if(src == tmp || dst == tmp){
       System.out.println("GaussBlur error: read-write race");
       return;

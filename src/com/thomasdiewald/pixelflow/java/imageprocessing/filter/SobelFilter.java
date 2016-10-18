@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class SobelFilter {
@@ -47,7 +47,7 @@ public class SobelFilter {
   }
   
   
-  public void apply(PGraphics2D src, PGraphics2D dst, SobelFilter.DIR dir) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, SobelFilter.DIR dir) {
     if(src == dst){
       System.out.println("SobelFilter error: read-write race");
       return;

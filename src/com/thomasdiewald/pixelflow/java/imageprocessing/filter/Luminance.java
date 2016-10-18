@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Luminance {
@@ -30,7 +30,7 @@ public class Luminance {
     this.context = context;
   }
   
-  public void apply(PGraphics2D src, PGraphics2D dst) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;
@@ -42,7 +42,7 @@ public class Luminance {
     dst.endDraw();
   }
   
-  public void apply(PGraphics2D src, DwGLTexture dst) {
+  public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
     Texture tex_src = src.getTexture();
     if(!tex_src.available()) 
       return;

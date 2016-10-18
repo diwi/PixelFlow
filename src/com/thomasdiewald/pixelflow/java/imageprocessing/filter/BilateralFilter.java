@@ -16,7 +16,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class BilateralFilter {
@@ -27,7 +27,7 @@ public class BilateralFilter {
     this.context = context;
   }
 
-  public void apply(PGraphics2D src, PGraphics2D dst, int radius, float sigma_color, float sigma_space) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, int radius, float sigma_color, float sigma_space) {
     if(src == dst){
       System.out.println("BilateralFilter error: read-write race");
       return;

@@ -16,7 +16,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class Convolution {
@@ -32,7 +32,7 @@ public class Convolution {
    *         3 4 5
    *         6 7 8
    */
-  public void apply(PGraphics2D src, PGraphics2D dst, float[] kernel) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] kernel) {
     if(src == dst){
       System.out.println("Convolution error: read-write race");
       return;

@@ -15,7 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 public class MedianFilter {
@@ -38,7 +38,7 @@ public class MedianFilter {
     this.context = context;
   }
 
-  public void apply(PGraphics2D src, PGraphics2D dst, MedianFilter.TYPE size) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, MedianFilter.TYPE size) {
     if(src == dst){
       System.out.println("MedianFilter error: read-write race");
       return;
