@@ -78,6 +78,7 @@ public abstract class DwSoftBody{
     this.material_color = material_color;
   }
   
+  public abstract void createParticlesShape(PApplet papplet, boolean icosahedron);
   public abstract void createParticlesShape(PApplet papplet);
 
   

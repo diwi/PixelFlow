@@ -10,6 +10,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PShape;
+import processing.opengl.PGraphicsOpenGL;
 
 public abstract class DwSoftBody3D extends DwSoftBody{
   
@@ -60,34 +61,48 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   //////////////////////////////////////////////////////////////////////////////
   // RENDERING
   //////////////////////////////////////////////////////////////////////////////
+  @Override
   public void createParticlesShape(PApplet papplet){
+    createParticlesShape(papplet, false);
+  }
+  
+  @Override
+  public void createParticlesShape(PApplet papplet, boolean icosahedron){
     papplet.shapeMode(PConstants.CORNER);
+
     shp_particles = papplet.createShape(PShape.GROUP);
     for(int i = 0; i < particles.length; i++){
-      PShape shp_pa = createShape(papplet, particles[i]);
+      PShape shp_pa = createShape(papplet, particles[i], icosahedron);
       particles[i].setShape(shp_pa);
       shp_particles.addChild(shp_pa);
     }
-//    shp_particles.getTessellation();
+    
+    if(icosahedron){
+//      shp_particles.getTessellation();
+    }
+
   }
 
   
 
   DwIndexedFaceSetAble ifs;
   
-  PShape createShape(PApplet papplet, DwParticle3D particle){
+  PShape createShape(PApplet papplet, DwParticle3D particle, boolean icosahedron){
     PShape shape;
     
-    shape = papplet.createShape(PConstants.POINT, 0, 0);
-//    shape.setStroke(true);
-//    shape.setStrokeWeight(6);
-
-    if(ifs == null){
-      ifs = new DwIcosahedron(1);
-//      ifs = new DwCube(1);
+    if(!icosahedron){
+      shape = papplet.createShape(PConstants.POINT, 0, 0);
+      shape.setStroke(true);
+      shape.setStrokeWeight(6);
+    } else {
+      if(ifs == null){
+        ifs = new DwIcosahedron(1);
+  //      ifs = new DwCube(1);
+      }
+      shape = papplet.createShape(PShape.GEOMETRY);
+      shape.setStroke(false);
+      createPolyhedronShape(shape, ifs, particle.rad, 3, true);
     }
-    shape = papplet.createShape(PShape.GEOMETRY);
-    createPolyhedronShape(shape, ifs, particle.rad, 3, true);
 
     return shape;
   }
@@ -103,8 +118,9 @@ public abstract class DwSoftBody3D extends DwSoftBody{
       default: return;
     }
    
+    shape.setStroke(false);
     shape.beginShape(type);
-    shape.noStroke();
+//    shape.noStroke();
     
     int  [][] faces = ifs.getFaces();
     float[][] verts = ifs.getVerts();
@@ -136,10 +152,10 @@ public abstract class DwSoftBody3D extends DwSoftBody{
         shape.vertex(v[0]*scale, v[1]*scale, v[2]*scale);
       }
     }
-    shape.endShape(PConstants.CLOSE);
+    shape.endShape();
   }
   
-
+  @Override
   public void displaySprings(PGraphics pg, int display_mode){
     if(display_mode == -1) return;
     

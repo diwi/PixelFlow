@@ -13,7 +13,10 @@ package com.thomasdiewald.pixelflow.java.utils;
 
 public class DwSampling {
   
+  
   public static final double PI_TWO = Math.PI*2.0;
+  public static final double GOLDEN_ANGLE_R = Math.PI * (3.0 - Math.sqrt(5.0));
+  
   
   static public double halton(int index, int base){
     double result = 0;

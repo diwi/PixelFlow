@@ -42,8 +42,12 @@ public abstract class DwSoftBody2D extends DwSoftBody{
   //////////////////////////////////////////////////////////////////////////////
   // RENDERING
   //////////////////////////////////////////////////////////////////////////////
-
+  @Override
+  public void createParticlesShape(PApplet papplet, boolean icosahedron){
+    createParticlesShape(papplet);
+  }
   
+  @Override
   public void createParticlesShape(PApplet papplet){
     papplet.shapeMode(PConstants.CORNER);
     shp_particles = papplet.createShape(PShape.GROUP);
@@ -60,10 +64,11 @@ public abstract class DwSoftBody2D extends DwSoftBody{
     shp_particles.getTessellation();
   }
 
+  @Override
   public void displaySprings(PGraphics pg, int display_mode){
     displaySprings(pg, display_mode, null);
   }
-  
+
   public void displaySprings(PGraphics pg, int display_mode,  DwSpringConstraint.TYPE type){
     if(display_mode == -1) return;
 
