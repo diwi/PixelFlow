@@ -252,6 +252,10 @@ public abstract class DwParticle implements DwCollisionObject{
   }
 
   
+  @Override
+  public int getCollisionCount(){
+    return collision_count;
+  }
   
   
   

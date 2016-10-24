@@ -9,10 +9,7 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL4;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 import processing.core.PGraphics;

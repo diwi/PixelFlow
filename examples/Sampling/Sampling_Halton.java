@@ -11,7 +11,7 @@ package Sampling;
 
 
 
-import com.thomasdiewald.pixelflow.java.utils.DwSampling;
+import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 
 import peasy.PeasyCam;
 import processing.core.PApplet;

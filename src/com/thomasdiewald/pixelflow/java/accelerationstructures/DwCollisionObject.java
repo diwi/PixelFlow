@@ -22,4 +22,5 @@ public interface DwCollisionObject {
   public float z();
   public float rad();
   public float radCollision();
+  public int getCollisionCount();
 }

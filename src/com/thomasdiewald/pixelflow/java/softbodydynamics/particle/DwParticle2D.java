@@ -144,6 +144,8 @@ public class DwParticle2D extends DwParticle{
   }
   
   
+
+  
   
   
   
@@ -201,9 +203,7 @@ public class DwParticle2D extends DwParticle{
     updateCollision((DwParticle2D)othr);
   }
   
-  
-  
-  
+
   
   
   

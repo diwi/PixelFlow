@@ -3,6 +3,7 @@ package com.thomasdiewald.pixelflow.java.softbodydynamics.softbody;
 
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
+import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
@@ -10,7 +11,6 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PShape;
-import processing.opengl.PGraphicsOpenGL;
 
 public abstract class DwSoftBody3D extends DwSoftBody{
   
@@ -85,9 +85,9 @@ public abstract class DwSoftBody3D extends DwSoftBody{
 
   
 
-  DwIndexedFaceSetAble ifs;
+  private DwIndexedFaceSetAble ifs;
   
-  PShape createShape(PApplet papplet, DwParticle3D particle, boolean icosahedron){
+  private PShape createShape(PApplet papplet, DwParticle3D particle, boolean icosahedron){
     PShape shape;
     
     if(!icosahedron){
@@ -101,60 +101,13 @@ public abstract class DwSoftBody3D extends DwSoftBody{
       }
       shape = papplet.createShape(PShape.GEOMETRY);
       shape.setStroke(false);
-      createPolyhedronShape(shape, ifs, particle.rad, 3, true);
+      DwMeshUtils.createPolyhedronShape(shape, ifs, particle.rad, 3, true);
     }
 
     return shape;
   }
   
-  
-  public void createPolyhedronShape(PShape shape, DwIndexedFaceSetAble ifs, float scale, int verts_per_face, boolean smooth){
-    
-    int type = -1;
-    
-    switch(verts_per_face){
-      case 3: type = PConstants.TRIANGLES; break;
-      case 4: type = PConstants.QUADS; break;
-      default: return;
-    }
-   
-    shape.setStroke(false);
-    shape.beginShape(type);
-//    shape.noStroke();
-    
-    int  [][] faces = ifs.getFaces();
-    float[][] verts = ifs.getVerts();
-    
-    for(int[] face : faces){
-      float nx = 0, ny = 0, nz = 0;
 
-      int num_verts = face.length;
-      
-      // compute face normal
-      if(!smooth){
-        for(int i = 0; i < num_verts; i++){
-          int vi = face[i];
-          nx += verts[vi][0];
-          ny += verts[vi][1];
-          nz += verts[vi][2];
-        }
-        nx /= num_verts;
-        ny /= num_verts;
-        nz /= num_verts;
-        shape.normal(nx, ny, nz); 
-      }
-      
-      for(int i = 0; i < num_verts; i++){
-        float[] v = verts[face[i]];
-        if(smooth){
-          shape.normal(v[0], v[1], v[2]); 
-        }
-        shape.vertex(v[0]*scale, v[1]*scale, v[2]*scale);
-      }
-    }
-    shape.endShape();
-  }
-  
   @Override
   public void displaySprings(PGraphics pg, int display_mode){
     if(display_mode == -1) return;

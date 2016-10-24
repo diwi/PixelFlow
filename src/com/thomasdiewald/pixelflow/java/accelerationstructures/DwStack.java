@@ -26,6 +26,11 @@ public class DwStack<T>{
   public T pop(){
     return stack[--ptr];
   }
+  public T pop(int idx){
+    T item = stack[idx];
+    stack[idx] = stack[--ptr];
+    return item;
+  }
   
   public int size(){
     return ptr;

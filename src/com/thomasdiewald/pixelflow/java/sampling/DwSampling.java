@@ -8,7 +8,7 @@
  */
 
 
-package com.thomasdiewald.pixelflow.java.utils;
+package com.thomasdiewald.pixelflow.java.sampling;
 
 
 public class DwSampling {
