@@ -10,8 +10,6 @@
 package Sampling;
 
 
-
-import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -20,9 +18,7 @@ import com.thomasdiewald.pixelflow.java.sampling.PoissonSample;
 
 import peasy.PeasyCam;
 import processing.core.PApplet;
-import processing.core.PMatrix3D;
 import processing.core.PShape;
-import processing.opengl.PGraphicsOpenGL;
 
 public class Sampling_Poisson3D extends PApplet {
   

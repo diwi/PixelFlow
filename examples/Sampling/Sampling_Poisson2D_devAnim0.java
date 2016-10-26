@@ -79,7 +79,7 @@ public class Sampling_Poisson2D_devAnim0 extends PApplet {
         float x = (float) Math.cos(angle);
         float y = (float) Math.sin(angle);
   
-        float rr = 0;
+//        float rr = 0;
 //        float pr = (rand.nextFloat() * rr - rr/2 + 1.0f) *sample_radius;
         float pr = random(2,10);
         float px = curr_x + x * (curr_r + pr + empty_distance);

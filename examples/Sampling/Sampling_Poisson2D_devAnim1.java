@@ -84,8 +84,8 @@ public class Sampling_Poisson2D_devAnim1 extends PApplet {
       boolean GOT_NEW_SAMPLE = false;
       
       int tests = 1000;
-      float angle_step  = (float)Math.PI * 2 / tests;
-      float angle_start = (float)Math.PI * 2 * rand.nextFloat();
+//      float angle_step  = (float)Math.PI * 2 / tests;
+//      float angle_start = (float)Math.PI * 2 * rand.nextFloat();
       for(int i = 0; !GOT_NEW_SAMPLE && i < tests; i++){
 //        double angle = angle_start + i * angle_step;
         double angle = (float)Math.PI * 2 * rand.nextFloat();
