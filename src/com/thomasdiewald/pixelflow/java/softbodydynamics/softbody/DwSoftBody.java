@@ -60,6 +60,10 @@ public abstract class DwSoftBody{
   
   public int material_color = 0xFF555555;
   
+  public void setParticleColor(float[] rgb){
+    setParticleColor(toARGB(rgb));
+  }
+  
   public void setParticleColor(int particle_color){
     this.particle_color = particle_color;
     
@@ -76,6 +80,17 @@ public abstract class DwSoftBody{
   
   public void setMaterialColor(int material_color){
     this.material_color = material_color;
+  }
+  public void setMaterialColor(float[] rgb){
+    this.material_color = toARGB(rgb);
+  }
+  
+  private int toARGB(float[] rgb){
+    int a = 255;
+    int r = (int)Math.min(Math.max(rgb[0], 0), 255);
+    int g = (int)Math.min(Math.max(rgb[1], 0), 255);
+    int b = (int)Math.min(Math.max(rgb[2], 0), 255);
+    return a << 24 | r << 16 | g << 8 | b;
   }
   
   public abstract void createParticlesShape(PApplet papplet, boolean icosahedron);

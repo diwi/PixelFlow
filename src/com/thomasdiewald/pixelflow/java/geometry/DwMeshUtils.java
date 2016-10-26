@@ -54,7 +54,8 @@ public class DwMeshUtils {
         shape.normal(nx, ny, nz); 
       }
       
-      for(int i = 0; i < num_verts; i++){
+//      for(int i = 0; i < num_verts; i++){
+      for(int i = num_verts-1; i >= 0; i--){
         float[] v = verts[face[i]];
         if(smooth){
           shape.normal(v[0], v[1], v[2]); 

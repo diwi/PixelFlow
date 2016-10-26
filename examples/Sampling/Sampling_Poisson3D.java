@@ -19,7 +19,9 @@ import com.thomasdiewald.pixelflow.java.sampling.PoissonSample;
 
 import peasy.PeasyCam;
 import processing.core.PApplet;
+import processing.core.PMatrix3D;
 import processing.core.PShape;
+import processing.opengl.PGraphicsOpenGL;
 
 public class Sampling_Poisson3D extends PApplet {
   
@@ -48,6 +50,16 @@ public class Sampling_Poisson3D extends PApplet {
 
     generatePoissonSampling();
     
+    
+    perspective(60 * DEG_TO_RAD, width/(float)height, 1, 1000);
+    
+    PMatrix3D mat = ((PGraphicsOpenGL)(this.g)).projection;
+    mat.print();
+    
+    printProjection();
+    
+    cam.beginHUD();
+    
     frameRate(1000);
   }
   
@@ -62,7 +74,7 @@ public class Sampling_Poisson3D extends PApplet {
     };
     
     long timer;
-    float[] bounds = {-200,-200,0, 200, 200, 100};
+    float[] bounds = {-200,-200,0, 200, 200, 200};
     float rmin = 3;
     float rmax = 25;
     float roff = 1;
@@ -93,7 +105,7 @@ public class Sampling_Poisson3D extends PApplet {
 
   public void draw(){
     lights();
-    pointLight(128, 96, 64, 500, 500, -1000);
+    directionalLight(128, 96, 64, -500, -500, +1000);
     
     background(64);
     displayGizmo(500);

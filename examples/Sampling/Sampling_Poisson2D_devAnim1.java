@@ -70,7 +70,7 @@ public class Sampling_Poisson2D_devAnim1 extends PApplet {
   public void draw(){
     background(64);
     
-    for(int m = 0; m < 100; m++)
+    for(int m = 0; m < 2; m++)
     if(!stack.isEmpty()){
       int rand_ptr = (int)(rand.nextFloat() * stack.size());
       int sample_idx = stack.pop(rand_ptr);

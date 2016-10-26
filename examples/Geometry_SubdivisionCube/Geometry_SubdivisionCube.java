@@ -38,12 +38,12 @@ public class Geometry_SubdivisionCube extends PApplet {
 
   public void settings() {
     size(800, 800, P3D);
-    smooth(4);
+    smooth(8);
   }
  
   public void setup() {
     cam = new PeasyCam(this, 1000);
-    createMesh(3);
+    createMesh(4);
   }
   
   
@@ -54,8 +54,7 @@ public class Geometry_SubdivisionCube extends PApplet {
   
   public void draw() {
     lights();
-    pointLight(128, 96, 64, 500, 500, -1000);
-    
+    directionalLight(128, 96, 64, -500, -500, +1000);
     background(64);
     displayGizmo(300);
     
@@ -102,17 +101,17 @@ public class Geometry_SubdivisionCube extends PApplet {
       switch(face.length){
       case 3: 
         beginShape(TRIANGLE);
-        v = verts[face[0]];  vertex(v[0], v[1], v[2]);
-        v = verts[face[1]];  vertex(v[0], v[1], v[2]);
         v = verts[face[2]];  vertex(v[0], v[1], v[2]);
+        v = verts[face[1]];  vertex(v[0], v[1], v[2]);
+        v = verts[face[0]];  vertex(v[0], v[1], v[2]);
         endShape();
         break;
       case 4: 
         beginShape(QUAD);
-        v = verts[face[0]];  vertex(v[0], v[1], v[2]);
-        v = verts[face[1]];  vertex(v[0], v[1], v[2]);
-        v = verts[face[2]];  vertex(v[0], v[1], v[2]);
         v = verts[face[3]];  vertex(v[0], v[1], v[2]);
+        v = verts[face[2]];  vertex(v[0], v[1], v[2]);
+        v = verts[face[1]];  vertex(v[0], v[1], v[2]);
+        v = verts[face[0]];  vertex(v[0], v[1], v[2]);
         endShape();
         break;
       default:
