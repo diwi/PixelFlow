@@ -12,6 +12,7 @@ package Sampling;
 
 
 import com.thomasdiewald.pixelflow.java.geometry.DwCube;
+import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.sampling.PoissonDiscSamping3D;
@@ -50,16 +51,6 @@ public class Sampling_Poisson3D extends PApplet {
 
     generatePoissonSampling();
     
-    
-    perspective(60 * DEG_TO_RAD, width/(float)height, 1, 1000);
-    
-    PMatrix3D mat = ((PGraphicsOpenGL)(this.g)).projection;
-    mat.print();
-    
-    printProjection();
-    
-    cam.beginHUD();
-    
     frameRate(1000);
   }
   
@@ -74,7 +65,7 @@ public class Sampling_Poisson3D extends PApplet {
     };
     
     long timer;
-    float[] bounds = {-200,-200,0, 200, 200, 200};
+    float[] bounds = {-200,-200,0, 200, 200, 100};
     float rmin = 3;
     float rmax = 25;
     float roff = 1;
@@ -105,7 +96,8 @@ public class Sampling_Poisson3D extends PApplet {
 
   public void draw(){
     lights();
-    directionalLight(128, 96, 64, -500, -500, +1000);
+    pointLight(128, 96, 64, -500, -500, -1000);
+//    directionalLight(128, 96, 64, -500, -500, +1000);
     
     background(64);
     displayGizmo(500);
@@ -127,8 +119,8 @@ public class Sampling_Poisson3D extends PApplet {
     
     
     if(ifs == null){
-//      ifs = new DwIcosahedron(2);
-      ifs = new DwCube(2);
+      ifs = new DwIcosahedron(2);
+//      ifs = new DwCube(2);
     }
     PShape shp_sphere = createShape(PShape.GEOMETRY);
     shp_sphere.setStroke(false);
@@ -136,7 +128,7 @@ public class Sampling_Poisson3D extends PApplet {
     shp_sphere.resetMatrix();
     shp_sphere.translate(sample.x(), sample.y(), sample.z());
     
-    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), 4, true);
+    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), 3, true);
     
     shp_samples_spheres.addChild(shp_sphere);
   }
