@@ -134,7 +134,7 @@ public void draw() {
 <br>
 ## Installation, Processing IDE
 
-- Download [Processing 3.2.1] (https://processing.org/download/?processing)
+- Download [Processing 3.x.x] (https://processing.org/download/?processing)
 - Install PixelFlow via the Library Manager.
 - Or manually, unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
 
