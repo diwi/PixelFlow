@@ -55,8 +55,6 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   }
   
   
-  
-
 
   //////////////////////////////////////////////////////////////////////////////
   // RENDERING
@@ -76,12 +74,10 @@ public abstract class DwSoftBody3D extends DwSoftBody{
       particles[i].setShape(shp_pa);
       shp_particles.addChild(shp_pa);
     }
-    
-    if(icosahedron){
-//      shp_particles.getTessellation();
-    }
-
   }
+  
+  
+
 
   
 

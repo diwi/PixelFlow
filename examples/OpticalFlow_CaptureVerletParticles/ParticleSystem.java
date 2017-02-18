@@ -111,8 +111,6 @@ public class ParticleSystem {
   }
   
   public void initParticleShapes(){
-//    clearShapes(); // not sure if this is required
-
     papplet.shapeMode(PConstants.CORNER);
     shp_particlesystem = papplet.createShape(PShape.GROUP);
     
@@ -122,8 +120,6 @@ public class ParticleSystem {
       particles[i].setShape(shp_particle);
       shp_particlesystem.addChild(shp_particle);
     }
-    // https://github.com/processing/processing/issues/4662
-    shp_particlesystem.getTessellation();
   }
   
   

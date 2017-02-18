@@ -61,7 +61,6 @@ public abstract class DwSoftBody2D extends DwSoftBody{
       particles[i].setShape(shp_pa);
       shp_particles.addChild(shp_pa);
     }
-    shp_particles.getTessellation();
   }
 
   @Override

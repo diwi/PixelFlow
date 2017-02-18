@@ -107,6 +107,8 @@ public class DwPhysics<T extends DwParticle> {
   }
   
   
+  public boolean update_particle_shapes = true;
+  
 
   public void update(float timestep){
     
@@ -142,7 +144,10 @@ public class DwPhysics<T extends DwParticle> {
       particles[i].addGravity(param.GRAVITY);
       particles[i].updatePosition(timestep);
       particles[i].updateBounds(param.bounds);
-      particles[i].updateShape();
+      
+      if(update_particle_shapes){
+        particles[i].updateShape();
+      }
     }
 
   }

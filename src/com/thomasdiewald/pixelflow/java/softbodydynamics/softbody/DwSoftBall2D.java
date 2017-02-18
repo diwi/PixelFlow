@@ -118,6 +118,7 @@ public class DwSoftBall2D extends DwSoftBody2D{
     pg.beginShape();
     for(int i = 0; i < num_nodes; i++){
       DwParticle2D pa = particles[i];
+      if(pa.all_springs_deactivated) continue;
       pg.vertex(pa.cx, pa.cy);
     }
     pg.endShape();

@@ -281,6 +281,7 @@ public abstract class DwParticle implements DwCollisionObject{
     }
   }
   
+  
   public void updateShape(){
     updateShapePosition();
     updateShapeColor();

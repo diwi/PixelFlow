@@ -106,7 +106,7 @@ public class OpticalFlow_Basic extends PApplet {
     pg_src.ellipse(mouseX, mouseY, 100, 100);
     pg_src.endDraw();
     
-    
+
     // update Optical Flow
     opticalflow.update(pg_src);
     

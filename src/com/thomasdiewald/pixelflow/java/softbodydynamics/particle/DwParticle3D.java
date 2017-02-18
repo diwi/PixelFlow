@@ -211,7 +211,24 @@ public class DwParticle3D extends DwParticle{
     if(shp_transform != null){
       shp_transform.reset();
       shp_transform.translate(cx, cy, cz);
-//      shp_transform.rotate((float)Math.atan2(cy-py, cx-px));
+      // TODO: rotation matrix
+      // normalize up vector
+//      float vx = cx - px;
+//      float vy = cy - py;
+//      float vz = cz - pz;
+//      float vlen = (float) (1.0/ Math.sqrt(vx*vx + vy*vy + vz*vz));
+//      vx *= vlen;
+//      vy *= vlen;
+//      vz *= vlen;
+//      PMatrix3D shp_rot = new PMatrix3D();
+//      // [m00 m01 m02 m03]
+//      // [m10 m11 m12 m13]
+//      // [m20 m21 m22 m23]
+//      // [m30 m31 m32 m33]
+//      shp_rot.m02 = vx;
+//      shp_rot.m12 = vy;
+//      shp_rot.m22 = vz;
+//      shp_transform.apply(shp_rot);
     }
 
     // update shape position

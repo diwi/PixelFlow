@@ -29,7 +29,7 @@ public abstract class DwSoftBody{
   public int collision_group_id;       // particles that share the same id, are ignored during collision tests
   public int num_nodes;                // number of particles for this object
   public int nodes_offset;             // offset in the global array, used for creating a unique id
-  public DwParticle[] particles; // particles of this body
+//  public DwParticle[] particles; // particles of this body
   public PShape shp_particles;         // shape for drawing all particles of this body
   
   
@@ -103,6 +103,13 @@ public abstract class DwSoftBody{
     }
   }
   
+//  public void setParticlesVisibility(boolean visible){
+////    System.out.println(particles);
+////    for(DwParticle particle : particles){
+////      particle.updateShape(visible);
+////    }
+//  }
+
 
   public abstract void displaySprings(PGraphics pg, int display_mode);
 
