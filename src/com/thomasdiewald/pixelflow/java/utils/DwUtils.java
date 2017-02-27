@@ -181,6 +181,14 @@ public class DwUtils {
     String[] lines = readASCIIfile(inputstream);
     return lines;
   }
+  
+  public String[] readASCIIfileNL(String path) {
+    String[] lines = readASCIIfile(path);
+    for(int i = 0; i < lines.length; i++){
+      lines[i] += DwUtils.NL;
+    }
+    return lines;
+  }
 
 
 }
