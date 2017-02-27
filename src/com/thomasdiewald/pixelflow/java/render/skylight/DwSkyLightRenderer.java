@@ -8,10 +8,8 @@
  */
 package com.thomasdiewald.pixelflow.java.render.skylight;
 
-import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
-
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.opengl.PGraphics3D;
@@ -23,6 +21,13 @@ import processing.opengl.PShader;
  *
  */
 public class DwSkyLightRenderer {
+  
+  
+  static public class Param{
+    public float gamma = 2.2f;
+  }
+  
+  public Param param = new Param();
   
   
   String dir = DwPixelFlow.SHADER_DIR+"render/skylight/";
@@ -37,19 +42,7 @@ public class DwSkyLightRenderer {
   public DwScreenSpaceGeometryBuffer geom;
   public DwSkyLightShader sky;
   public DwSkyLightShader sun;
-  
-  public float gamma = 2.2f;
-  
-  public void setGammaCorrection(float gamma){
-    this.gamma = gamma;
-  }
-  
-  public float getGammaCorrection(){
-    return gamma;
-  }
-  
-  
-  
+
   public DwSkyLightRenderer(DwPixelFlow context, DwSceneDisplay scene_display, DwScreenSpaceGeometryBuffer geom, DwSkyLightShader sky, DwSkyLightShader sun){
     this.context = context;
     this.papplet = context.papplet;
@@ -89,14 +82,14 @@ public class DwSkyLightRenderer {
     DwGLTextureUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
   }
   
-  public void update(int iterations_sun, int iterations_sky){
+  public void update(){
     
     updateMatrices();
 
     geom.update(pg_render);
 
-    sky.update(iterations_sky);
-    sun.update(iterations_sun);
+    sky.update();
+    sun.update();
     
     PGraphics3D pg     = pg_render;
     PGraphics3D pg_sun = sun.getSrc();
@@ -105,8 +98,8 @@ public class DwSkyLightRenderer {
     float w = pg_render.width;
     float h = pg_render.height;
     
-    float[] sky_intensity = sky.getIntensity();
-    float[] sun_intensity = sun.getIntensity();
+    float[] sky_intensity = sky.param.vec3_intensity;
+    float[] sun_intensity = sun.param.vec3_intensity;
     
     pg.beginDraw();
     pg.clear();
@@ -116,7 +109,7 @@ public class DwSkyLightRenderer {
     shader.set("tex_sun", pg_sun);
     shader.set("mult_sun", sun_intensity[0], sun_intensity[1], sun_intensity[2]);
     shader.set("mult_sky", sky_intensity[0], sky_intensity[1], sky_intensity[2]);
-    shader.set("gamma", gamma);
+    shader.set("gamma", param.gamma);
     scene_display.display(pg);
     pg.endDraw();
   }

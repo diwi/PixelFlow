@@ -29,11 +29,24 @@ import processing.opengl.PShader;
 public class DwSkyLightShader {
   
   static public final float TO_RAD = (float)Math.PI/180f;
-  public float SOLAR_AZIMUTH = 0;
-  public float SOLAR_ZENITH  = 0;
-  public float sample_focus  = 1f;
   
-  public float[] intensity = {1,1,1};
+  static public class Param{
+    public float[] vec3_intensity = {1,1,1};
+    public float iterations = 20;
+    
+    public float solar_azimuth = 0;
+    public float solar_zenith  = 0;
+    public float sample_focus  = 1f;
+  }
+  
+  
+
+  public Param param = new Param();
+  
+//  public float SOLAR_AZIMUTH = 0;
+//  public float SOLAR_ZENITH  = 0;
+//  public float sample_focus  = 1f;
+  
   
   public PMatrix3D mat_sun = new PMatrix3D();
   
@@ -89,17 +102,6 @@ public class DwSkyLightShader {
     reset();
   }
 
-  public void setOrientation(float solar_azimuth, float solar_zenith){
-    SOLAR_AZIMUTH = solar_azimuth;
-    SOLAR_ZENITH  = solar_zenith;
-    mat_sun.reset();
-    mat_sun.rotateZ(SOLAR_AZIMUTH * TO_RAD);
-    mat_sun.rotateY(SOLAR_ZENITH  * TO_RAD);
-  }
-  
-  public void setSampleFocus(float sample_focus){
-    this.sample_focus = sample_focus;
-  }
   
   public void generateSampleDirection(){
     float scene_radius = scene_display.getSceneRadius();
@@ -111,9 +113,9 @@ public class DwSkyLightShader {
     // create new sample direction
     float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+1);
     float[] eye = new float[3];
-    eye[0] = sample[0] * sample_focus;
-    eye[1] = sample[1] * sample_focus;
-    eye[2] = sample[2] + (1-sample_focus);
+    eye[0] = sample[0] * param.sample_focus;
+    eye[1] = sample[1] * param.sample_focus;
+    eye[2] = sample[2] + (1-param.sample_focus);
     
     // project to bounding-sphere
     float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
@@ -122,6 +124,10 @@ public class DwSkyLightShader {
     eye[2] = scene_radius * eye[2] / dd;
 
     // rotate
+//    setOrientation(param.solar_azimuth, param.solar_zenith);
+    mat_sun.reset();
+    mat_sun.rotateZ(param.solar_azimuth * TO_RAD);
+    mat_sun.rotateY(param.solar_zenith  * TO_RAD);
     eye = mat_sun.mult(eye, new float[3]);
     samples.add(eye);
     
@@ -130,25 +136,18 @@ public class DwSkyLightShader {
   }
   
 
-  public void setIntensity(float[] vec3_intensity){
-    this.intensity = vec3_intensity;
-  }
-  
-  public float[] getIntensity(){
-    return intensity;
-  }
-  
   public void setGeometryBuffer(DwScreenSpaceGeometryBuffer geombuffer){
     this.geombuffer = geombuffer;
   }
   
-  public void update(int iterations){
-    for(int i = 0; i < iterations; i++){
-      update();
+  
+  public void update(){
+    for(int i = 0; i < param.iterations; i++){
+      updateStep();
     }
   }
 
-  public void update(){
+  public void updateStep(){
     
     // 1) shadow pass
     generateSampleDirection();
