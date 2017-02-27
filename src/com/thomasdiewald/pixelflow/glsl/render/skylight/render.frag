@@ -42,7 +42,7 @@ void main(void) {
   
   gl_FragColor = vec4(shading, 1);
   
-  vec3 normal = normalize(normalMatrix * vertNormal);
+  // vec3 normal = normalize(normalMatrix * vertNormal);
 
 
   
@@ -59,15 +59,15 @@ void main(void) {
     // gl_FragColor = vec4(1,0,0, 1);
   // }
   
-  {
-    vec4 p_clip = projection * vertPosition;
-    vec3 p_ndc  = p_clip.xyz / p_clip.w;
-    vec4 p_frag = vec4((p_ndc * 0.5 + 0.5) * vec3(wh, 1), 1.0 / p_clip.w);
+  // {
+    // vec4 p_clip = projection * vertPosition;
+    // vec3 p_ndc  = p_clip.xyz / p_clip.w;
+    // vec4 p_frag = vec4((p_ndc * 0.5 + 0.5) * vec3(wh, 1), 1.0 / p_clip.w);
     
-    if( abs(p_frag.w - gl_FragCoord.w) < 0.001){
+    // if( abs(p_frag.w - gl_FragCoord.w) < 0.001){
       // gl_FragColor = vec4(1,1,0, 1);
-    }
-  }
+    // }
+  // }
   
 // PERSPECTIVE projection matrix
 //
@@ -124,16 +124,16 @@ void main(void) {
 //  
   
   
-  float A = projection[0][0];
-  float F = projection[1][1];
-  float I = projection[2][0];
-  float J = projection[2][1];
-  float L = projection[2][3];
+  // float A = projection[0][0];
+  // float F = projection[1][1];
+  // float I = projection[2][0];
+  // float J = projection[2][1];
+  // float L = projection[2][3];
   
-  vec2 fragcoord = gl_FragCoord.xy;
-  vec2 p_ndc = (fragcoord / wh) * 2.0 - 1.0;
-  vec4 p_eye = vec4(0,0, L / gl_FragCoord.w, 1);
-  p_eye.xy = p_eye.z * (L * p_ndc - vec2(I, J)) / vec2(A, F);
+  // vec2 fragcoord = gl_FragCoord.xy;
+  // vec2 p_ndc = (fragcoord / wh) * 2.0 - 1.0;
+  // vec4 p_eye = vec4(0,0, L / gl_FragCoord.w, 1);
+  // p_eye.xy = p_eye.z * (L * p_ndc - vec2(I, J)) / vec2(A, F);
   
   // if( length(p_eye-vertPosition) < 1){
     // gl_FragColor = vec4(abs(p_eye.xyz-vertPosition.xyz)*100, 1);

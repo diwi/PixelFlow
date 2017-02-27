@@ -19,8 +19,6 @@ attribute vec3 normal;
 varying vec4 vertColor;
 varying vec4 vertPosition;
 varying vec3 vertNormal;
-// varying vec4 shadowCoord;
-// varying float kd;
 
 void main() {
   vertColor = color;

@@ -60,7 +60,6 @@ public class DwSkyLight {
 
     this.shader = new PShader(papplet, src_vert, src_frag);
     
-    
 //    this.shader        = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
     this.scene_display = scene_display;
     this.geombuffer    = geombuffer;
@@ -223,14 +222,13 @@ public class DwSkyLight {
     shader.set("mat_shadow", mat_shadow);
 //    shader.set("mat_screen_to_eye", mat_screen_to_eye);
     shader.set("mat_projection", mat_projection);
-    shader.set("mat_shadow_modelview", mat_shadow_modelview);
+//    shader.set("mat_shadow_modelview", mat_shadow_modelview);
     shader.set("tex_shadow", shadowmap.pg_shadowmap);
     shader.set("tex_geombuffer", geombuffer.pg_geom);
     
     shader.set("pass_mix", pass_mix);
     shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
-    shader.set("poison_scale", 0.5f / shadow_map_size);
 
   }
 
