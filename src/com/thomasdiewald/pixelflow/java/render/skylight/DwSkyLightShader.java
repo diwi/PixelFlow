@@ -26,12 +26,14 @@ import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 
 
-public class DwSkyLight {
+public class DwSkyLightShader {
   
   static public final float TO_RAD = (float)Math.PI/180f;
   public float SOLAR_AZIMUTH = 0;
   public float SOLAR_ZENITH  = 0;
   public float sample_focus  = 1f;
+  
+  public float[] intensity = {1,1,1};
   
   public PMatrix3D mat_sun = new PMatrix3D();
   
@@ -51,7 +53,7 @@ public class DwSkyLight {
   public DwSceneDisplay scene_display;
   public DwScreenSpaceGeometryBuffer geombuffer;
 
-  public DwSkyLight(DwPixelFlow context, DwSceneDisplay scene_display, DwScreenSpaceGeometryBuffer geombuffer, DwShadowMap shadowmap){
+  public DwSkyLightShader(DwPixelFlow context, DwSceneDisplay scene_display, DwScreenSpaceGeometryBuffer geombuffer, DwShadowMap shadowmap){
     this.context = context;
     this.papplet = context.papplet;
     
@@ -128,6 +130,13 @@ public class DwSkyLight {
   }
   
 
+  public void setIntensity(float[] vec3_intensity){
+    this.intensity = vec3_intensity;
+  }
+  
+  public float[] getIntensity(){
+    return intensity;
+  }
   
   public void setGeometryBuffer(DwScreenSpaceGeometryBuffer geombuffer){
     this.geombuffer = geombuffer;

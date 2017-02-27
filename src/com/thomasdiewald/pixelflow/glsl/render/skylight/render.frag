@@ -23,8 +23,8 @@ uniform vec2 wh;
 uniform sampler2D tex_sky;
 uniform sampler2D tex_sun;
 
-uniform float mult_sun = 1.0;
-uniform float mult_sky = 1.0;
+uniform vec3 mult_sun = vec3(1.0);
+uniform vec3 mult_sky = vec3(1.0);
 uniform float gamma = 2.2;
 
 void main(void) {
@@ -32,8 +32,8 @@ void main(void) {
   vec3 shading = vertColor.rgb;
 
   vec2 fragCoordn = (gl_FragCoord.xy)/wh;
-  float shading_SKY = texture2D(tex_sky, fragCoordn).r * mult_sky;
-  float shading_SUN = texture2D(tex_sun, fragCoordn).r * mult_sun;
+  vec3 shading_SKY = texture2D(tex_sky, fragCoordn).r * mult_sky;
+  vec3 shading_SUN = texture2D(tex_sun, fragCoordn).r * mult_sun;
 
   shading *= (shading_SUN + shading_SKY);
 

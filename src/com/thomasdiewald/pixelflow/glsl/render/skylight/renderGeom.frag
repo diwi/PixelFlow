@@ -11,7 +11,6 @@
 #version 150
 
 
-
 uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat3 normalMatrix;
@@ -29,13 +28,9 @@ uniform float gamma = 2.2;
 
 void main(void) {
 
-  // vec2 off = 0.5 / wh;
-
   vec2 fragcoordn = gl_FragCoord.xy / wh;
   vec4 geom = texture(tex_geombuffer, fragcoordn);
   
-  vec3 p_eye_normal = geom.xyz;
-
   // reconstruct vertex position (p_eye) from depth (p_eye.z)
   vec2 AF = vec2(mat_projection[0].x, mat_projection[1].y);
   vec2 IJ = vec2(mat_projection[2].xy);
@@ -47,7 +42,8 @@ void main(void) {
   vec4 p_eye = vec4((L * p_ndc - IJ) / AF, 1, 1); p_eye.xyz *= eye_z;
   
   // angle/orientation/diffuse shading
-  float kd_eye = dot(normalize(p_eye_normal), normalize(-p_eye.xyz));
+  // vec3 p_eye_normal = geom.xyz;
+  // float kd_eye = dot(normalize(p_eye_normal), normalize(-p_eye.xyz));
   // float kd_sky = dot(p_eye_normal, dir_light);
 
   

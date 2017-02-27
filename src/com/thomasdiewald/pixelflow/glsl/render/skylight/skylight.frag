@@ -84,7 +84,7 @@ void main(void) {
   vec4 p_frag_shadow = mat_shadow * (p_eye + shadow_bias); 
   p_frag_shadow.xyz /= p_frag_shadow.w;
   
-  // shading
+  // diffuse shading
   float kd_sky = dot(p_eye_normal, dir_light);
  
   float shading_cur = 0.0;
