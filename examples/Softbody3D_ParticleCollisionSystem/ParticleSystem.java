@@ -10,6 +10,7 @@
 package Softbody3D_ParticleCollisionSystem;
 
 
+import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -33,7 +34,7 @@ public class ParticleSystem {
     @Override
     public void updateShapeColor(){
 //      setColor(0xFF020100);
-//      super.updateShapeColor();
+      super.updateShapeColor();
     }
     
   }
@@ -44,9 +45,7 @@ public class ParticleSystem {
   public float PARTICLE_SCREEN_FILL_FACTOR = 0.5f;
   public int   PARTICLE_COUNT              = 500;
   
-  // particle behavior
-  public float MULT_GRAVITY  = 0.50f;
-  
+
   DwParticle3D.Param particle_param = new DwParticle3D.Param();
   
   
@@ -158,9 +157,10 @@ public class ParticleSystem {
     shp_particle.rotateY(papplet.random(PConstants.TWO_PI));
     shp_particle.rotateZ(papplet.random(PConstants.TWO_PI));
     shp_particle.setStroke(false);
-    shp_particle.setFill(papplet.color(160));
+//    shp_particle.setFill(papplet.color(160));
     
     if(ifs == null) ifs = new DwIcosahedron(1);
+//    if(ifs == null) ifs = new DwCube(1);
     DwMeshUtils.createPolyhedronShape(shp_particle, ifs, particle.rad, 3, true);
 
     return shp_particle;

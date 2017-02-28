@@ -15,6 +15,8 @@ package com.thomasdiewald.pixelflow.java.utils;
 
 import java.util.Locale;
 
+import processing.core.PMatrix3D;
+
 
 /**
  * 
@@ -59,6 +61,14 @@ public class DwBoundingSphere {
   
   public void print(){
     System.out.printf(Locale.ENGLISH, "BoundingSphere: %+3.3f, %+3.3f, %+3.3f,  %3.3f\n", pos[0], pos[1], pos[2], rad );
+  }
+  
+  
+  public PMatrix3D getMatrix_centeredUnitSphere(){
+    PMatrix3D mat = new PMatrix3D();
+    mat.scale(1.0f/rad);
+    mat.translate(-pos[0], -pos[1], -pos[2]);
+    return mat;
   }
   
 

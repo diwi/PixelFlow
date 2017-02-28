@@ -117,8 +117,7 @@ public class Softbody3D_ParticleCollisionSystem extends PApplet {
     // set some parameters
     particlesystem.PARTICLE_COUNT              = 1000;
     particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.50f;
-    particlesystem.MULT_GRAVITY                = 2.00f;
-
+    
     particlesystem.particle_param.DAMP_BOUNDS    = 0.99999f;
     particlesystem.particle_param.DAMP_COLLISION = 0.99999f;
     particlesystem.particle_param.DAMP_VELOCITY  = 0.99999f;
@@ -407,9 +406,9 @@ public class Softbody3D_ParticleCollisionSystem extends PApplet {
   
   public void createCam(){
     // camera - modelview
-    double   distance = 1518.898;
-    double[] look_at  = { 58.444, -48.939, 167.661};
-    double[] rotation = { -0.744,   0.768,  -0.587};
+    double   distance = 3518.898;
+    double[] look_at  = {257.660, -332.919, 148.795};
+    double[] rotation = { -0.599,   0.723,  -0.802};
     peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
     peasycam.setMaximumDistance(10000);
     peasycam.setMinimumDistance(0.1f);
@@ -643,10 +642,6 @@ public class Softbody3D_ParticleCollisionSystem extends PApplet {
       
       cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
           .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.DAMP_VELOCITY).plugTo(particlesystem.particle_param, "DAMP_VELOCITY");
-      
-      cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
-
       
       cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 1f).setValue(particlesystem.particle_param.DAMP_COLLISION).plugTo(particlesystem.particle_param, "DAMP_COLLISION");

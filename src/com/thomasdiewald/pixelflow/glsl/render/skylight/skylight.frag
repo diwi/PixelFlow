@@ -27,6 +27,8 @@ uniform sampler2D tex_shadow;
 uniform sampler2D tex_src;
 uniform float pass_mix;
 
+uniform int singlesided_normal_switch = 1;
+
 uniform sampler2D tex_geombuffer;
 
 vec2 endcodeNormal2F(in vec3 n3){
@@ -77,7 +79,9 @@ void main(void) {
   // vertex normal
   vec3 p_eye_normal = geom.xyz;
   // switch normal direction if needed for single sided surfaces
-  p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
+  if(singlesided_normal_switch == 1){
+    p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
+  }
   
   // vertex position in shadow map screenspace
   vec4 shadow_bias = vec4(p_eye_normal, 0.0) * shadow_bias_mag;

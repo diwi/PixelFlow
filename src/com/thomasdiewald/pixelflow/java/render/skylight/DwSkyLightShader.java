@@ -37,6 +37,7 @@ public class DwSkyLightShader {
     public float solar_azimuth = 0;
     public float solar_zenith  = 0;
     public float sample_focus  = 1f;
+    public int singlesided_normal_switch = 1; // 0 = off, 1 = on
   }
   
   
@@ -48,7 +49,7 @@ public class DwSkyLightShader {
 //  public float sample_focus  = 1f;
   
   
-  public PMatrix3D mat_sun = new PMatrix3D();
+//  public PMatrix3D mat_sun = new PMatrix3D();
   
   String dir = DwPixelFlow.SHADER_DIR+"render/skylight/";
 
@@ -104,14 +105,14 @@ public class DwSkyLightShader {
 
   
   public void generateSampleDirection(){
-    float scene_radius = scene_display.getSceneRadius();
-    
+   
     // create shadowmap direction
     float[] center = {0,0,0};
     float[] up = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
     
     // create new sample direction
-    float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+1);
+//    float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+2);
+    float[] sample = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+2);
     float[] eye = new float[3];
     eye[0] = sample[0] * param.sample_focus;
     eye[1] = sample[1] * param.sample_focus;
@@ -119,19 +120,58 @@ public class DwSkyLightShader {
     
     // project to bounding-sphere
     float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
-    eye[0] = scene_radius * eye[0] / dd;
-    eye[1] = scene_radius * eye[1] / dd;
-    eye[2] = scene_radius * eye[2] / dd;
+    eye[0] /=  dd;
+    eye[1] /=  dd;
+    eye[2] /=  dd;
 
     // rotate
 //    setOrientation(param.solar_azimuth, param.solar_zenith);
-    mat_sun.reset();
+    PMatrix3D mat_sun = new PMatrix3D();
+//    mat_sun.reset();
     mat_sun.rotateZ(param.solar_azimuth * TO_RAD);
     mat_sun.rotateY(param.solar_zenith  * TO_RAD);
     eye = mat_sun.mult(eye, new float[3]);
     samples.add(eye);
     
     shadowmap.setDirection(eye, center, up);
+    
+    
+    
+    
+//    // create shadowmap direction
+//    float[] center = {0,0,0};
+//    float[] up = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
+//    
+//    // create new sample direction
+////    float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+1);
+//    float[] sample = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
+//    float[] eye = new float[3];
+//    eye[0] = sample[0];
+//    eye[1] = sample[1];
+//    eye[2] = sample[2];
+//    
+//    // project to bounding-sphere
+//    float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
+//    eye[0] /=  dd;
+//    eye[1] /=  dd;
+//    eye[2] /=  dd;
+//
+//    // rotate
+////    setOrientation(param.solar_azimuth, param.solar_zenith);
+////    mat_sun.reset();
+////    mat_sun.rotateZ(param.solar_azimuth * TO_RAD);
+////    mat_sun.rotateY(param.solar_zenith  * TO_RAD);
+////    eye = mat_sun.mult(eye, new float[3]);
+//    samples.add(eye);
+//    
+//    shadowmap.setDirection(eye, center, up);
+//    
+    
+    
+    
+    
+    
+    
      
   }
   
@@ -206,10 +246,10 @@ public class DwSkyLightShader {
     float h_shadow = shadowmap.pg_shadowmap.height;
     
     // shadow offset
-    float scene_radius = scene_display.getSceneRadius();
+//    float scene_radius = scene_display.getSceneRadius();
     float shadow_map_size = Math.min(w_shadow, h_shadow);
-    float shadow_bias_mag = scene_radius * 6 / shadow_map_size;
-    
+//    float shadow_bias_mag = scene_radius * 6 / shadow_map_size;
+    float shadow_bias_mag = 1;
 
 
     float w = pg.width;
@@ -237,7 +277,7 @@ public class DwSkyLightShader {
     shader.set("pass_mix", pass_mix);
     shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
-
+    shader.set("singlesided_normal_switch", param.singlesided_normal_switch);
   }
 
 

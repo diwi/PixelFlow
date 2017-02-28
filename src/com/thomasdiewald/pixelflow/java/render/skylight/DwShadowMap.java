@@ -32,6 +32,8 @@ public class DwShadowMap {
   public PShader shader_shadow;
   public PGraphics3D pg_shadowmap;
   
+  public PMatrix3D mat_boundingsphere = new PMatrix3D();
+  
   public PVector lightdir = new PVector();
 
   public DwSceneDisplay scene_display;
@@ -70,7 +72,7 @@ public class DwShadowMap {
     pg_shadowmap.noStroke();
     pg_shadowmap.endDraw();
     
-    setOrtho(scene_display.getSceneRadius());
+    setOrtho();
   }
   
   
@@ -78,17 +80,19 @@ public class DwShadowMap {
     pg_shadowmap.beginDraw();
     pg_shadowmap.background(0xFFFFFFFF);
     pg_shadowmap.noStroke();
+    pg_shadowmap.applyMatrix(mat_boundingsphere);
     scene_display.display(pg_shadowmap);
     pg_shadowmap.endDraw();
   }
   
 
-  public void setOrtho(float scene_radius){
-    pg_shadowmap.ortho(-scene_radius, scene_radius, -scene_radius, scene_radius, 0, 2*scene_radius);
+
+  public void setOrtho(){
+    pg_shadowmap.ortho(-1, 1,-1, 1, 0, 2);
   }
   
-  public void setPerspective(float fovy, float scene_radius){
-    pg_shadowmap.perspective(fovy, 1, 1, 2*scene_radius);
+  public void setPerspective(float fovy){
+    pg_shadowmap.perspective(fovy, 1, 1, 2);
   }
   
   public void setDirection(float[] eye, float[] center, float[] up){

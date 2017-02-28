@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
 
@@ -80,9 +83,14 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   PGraphics2D texture;
   
   // global states
-  int BACKGROUND_COLOR = 92;
+  int BACKGROUND_COLOR = 32;
 
-  boolean UPDATE_PHYSICS         = true;
+  boolean UPDATE_PHYSICS = true;
+  
+  DwSkyLight skylight;
+  
+  DwBoundingSphere scene_bs;
+  float SCENE_RADIUS;
   
   public void settings(){
     size(viewport_w, viewport_h, P3D); 
@@ -107,7 +115,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
     // physics world parameters
     int cs = 1500;
     param_physics.GRAVITY = new float[]{ 0, 0, -0.1f};
-    param_physics.bounds  = new float[]{ -cs, -cs, 0, +cs, +cs, +cs };
+    param_physics.bounds  = new float[]{ -cs, -cs, -cs/2, +cs, +cs, cs/2 };
     param_physics.iterations_collisions = 2;
     param_physics.iterations_springs    = 8;
     
@@ -115,15 +123,80 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
     particlesystem = new ParticleSystem(this, param_physics.bounds);
     
     // set some parameters
-    particlesystem.PARTICLE_COUNT              = 1000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.50f;
-    particlesystem.MULT_GRAVITY                = 2.00f;
+    particlesystem.PARTICLE_COUNT              = 500;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.30f;
 
     particlesystem.particle_param.DAMP_BOUNDS    = 0.99999f;
     particlesystem.particle_param.DAMP_COLLISION = 0.99999f;
     particlesystem.particle_param.DAMP_VELOCITY  = 0.99999f;
     
     particlesystem.initParticles();
+    
+    
+    
+    float[] bounds = param_physics.bounds;
+    float bsx = bounds[3] - bounds[0];
+    float bsy = bounds[4] - bounds[1];
+    float bsz = bounds[5] - bounds[2];
+ 
+    float cx = (bounds[0] + bounds[3]) * 0.5f;
+    float cy = (bounds[1] + bounds[4]) * 0.5f;
+    float cz = (bounds[2] + bounds[5]) * 0.5f;
+    
+    float cr = (float)Math.sqrt(bsx*bsx + bsy*bsy + bsz*bsz) * 0.5f;
+
+    SCENE_RADIUS = cr;
+    
+    scene_bs = new DwBoundingSphere();
+    scene_bs.set(cx, cy, cz, cr);
+
+
+    DwSceneDisplay scene_display = new DwSceneDisplay(){
+      @Override
+      public void display(PGraphics3D canvas) {
+        displayScene(canvas);  
+      }
+//      @Override
+//      public float getSceneRadius() {
+//        return SCENE_RADIUS;
+//      }
+    };
+    
+    DwPixelFlow context = new DwPixelFlow(this);
+    
+    skylight = new DwSkyLight(context, scene_display);
+    
+    // parameters for sky-light
+    skylight.sky.param.iterations     = 30;
+    skylight.sky.param.singlesided_normal_switch = 0;
+    skylight.sky.param.solar_azimuth  = 0;
+    skylight.sky.param.solar_zenith   = 0;
+    skylight.sky.param.sample_focus   = 1; // full hemisphere sampling
+    skylight.sky.param.vec3_intensity = new float[]{0.8f,0.9f,1.0f};
+    
+    // parameters for sun-light
+    skylight.sun.param.iterations     = 20;
+    skylight.sun.param.singlesided_normal_switch = 0;
+    skylight.sun.param.solar_azimuth  = 45;
+    skylight.sun.param.solar_zenith   = 60;
+    skylight.sun.param.sample_focus   = 0.05f;
+    skylight.sun.param.vec3_intensity = new float[]{1.0f,0.8f,0.5f};
+    
+    float sun_mult = 1;
+    skylight.sun.param.vec3_intensity[0] *= sun_mult;
+    skylight.sun.param.vec3_intensity[1] *= sun_mult;
+    skylight.sun.param.vec3_intensity[2] *= sun_mult;
+    
+    float sky_mult = 1;
+    skylight.sky.param.vec3_intensity[0] *= sky_mult;
+    skylight.sky.param.vec3_intensity[1] *= sky_mult;
+    skylight.sky.param.vec3_intensity[2] *= sky_mult;
+    
+    
+    
+    
+    
+    
     
     // modelview/projection
     createCam();
@@ -137,7 +210,17 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   
   
 
-
+  float[] cam_pos = new float[3];
+  boolean CAM_ACTIVE = false;
+  
+  public void updateCamActiveStatus(){
+    float[] cam_pos_curr = peasycam.getPosition();
+    CAM_ACTIVE = false;
+    CAM_ACTIVE |= cam_pos_curr[0] != cam_pos[0];
+    CAM_ACTIVE |= cam_pos_curr[1] != cam_pos[1];
+    CAM_ACTIVE |= cam_pos_curr[2] != cam_pos[2];
+    cam_pos = cam_pos_curr;
+  }
   
   //////////////////////////////////////////////////////////////////////////////
   // draw()
@@ -145,22 +228,41 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   
   public void draw() {
     
+    updateCamActiveStatus();
+    
+    
     // update interactions, like editing particle positions, deleting springs, etc...
-    updateMouseInteractions();
+//    updateMouseInteractions();
     
     physics.setParticles(particlesystem.particles, particlesystem.particles.length);
     
     // update physics simulation
     if(UPDATE_PHYSICS){
+      updateMouseInteractions();
       physics.update(1);
     }
     
+    if(UPDATE_PHYSICS || CAM_ACTIVE){
+      skylight.reset();
+    }
+    
+   
+    skylight.update();
 
     // disable peasycam-interaction while we edit the model
     peasycam.setActive(MOVE_CAM);
     
-    displayScene();
+//    displayScene((PGraphics3D) this.g);
 
+    peasycam.beginHUD();
+    image(skylight.renderer.pg_render, 0, 0);
+    image(skylight.sun.shadowmap.pg_shadowmap, 10, 10, 200, 200);
+    image(skylight.sky.shadowmap.pg_shadowmap, 10, 220, 200, 200);
+    image(skylight.geom.pg_geom, 10, 430, 200, 200 / (width/(float)height));
+    peasycam.endHUD();
+    
+    
+    
     displayGUI();
 
     // info
@@ -174,27 +276,33 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   
   
  
-  public void displayScene(){
+  public void displayScene(PGraphics3D canvas){
 
-    background(BACKGROUND_COLOR);
+    boolean RENDER_COMPOSITION = canvas == skylight.renderer.pg_render;
+    
+    // set background color
+    if(RENDER_COMPOSITION){
+      canvas.background(BACKGROUND_COLOR);
+    }
+ 
     
     // XY-grid, gizmo, scene-bounds
-    strokeWeight(2);
-    displayGridXY(20, 100);
-    displayGizmo(1000);
-    displayAABB(physics.param.bounds);
     
-    // lights, materials
-    // lights();
-    pointLight(220, 180, 140, -1000, -1000, -100);
-    ambientLight(96, 96, 96);
-    directionalLight(210, 210, 210, -1, -1.5f, -2);
-    lightFalloff(1.0f, 0.001f, 0.0f);
-    lightSpecular(255, 0, 0);
-    specular(255, 0, 0);
-    shininess(5);
+    canvas.pushMatrix();
+    canvas.scale(SCENE_RADIUS / scene_bs.rad);
+    canvas.translate(-scene_bs.pos[0], -scene_bs.pos[1], -scene_bs.pos[2]);
     
-    particlesystem.display(this.g);
+    canvas.strokeWeight(2);
+//    displayGridXY(canvas, 20, 100);
+//    displayGizmo(canvas, 1000);
+    displayAABB(canvas, physics.param.bounds);
+    
+
+    particlesystem.display(canvas);
+    
+ 
+    canvas.popMatrix();
+
 
     displayMouseInteraction();
   }
@@ -331,7 +439,12 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       int col = (mouseButton == CENTER) ? col_move_fixed : col_move_release;
       
       DwParticle particle = pnearest.particle;
-
+      
+//      DwParticle3D p3d = (DwParticle3D)particle;
+//      p3d.
+//      particle.setColor(color(160,0,0));
+      particle.setColor(color(255,255,255));
+      
       strokeWeight(1);
       stroke(col);
       line(particle.x(), particle.y(), particle.z(), mouse_world[0], mouse_world[1], mouse_world[2]);
@@ -398,6 +511,26 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
     if(key == 'c') printCam();
     if(key == 'v') resetCam();
     
+    
+    if(key == 'f'){
+      if(pnearest != null){
+        float x = pnearest.particle.x();
+        float y = pnearest.particle.y();
+        float z = pnearest.particle.z();
+        
+        float[] campos = peasycam.getPosition();
+        
+        float dx = campos[0] - x;
+        float dy = campos[1] - y;
+        float dz = campos[2] - z;
+        float dd_sq = dx*dx + dy*dy + dz*dz;
+        float dd = (float) Math.sqrt(dd_sq);
+        
+        peasycam.lookAt(x, y, z, dd, 500);
+      }
+    }
+    
+    
     MOVE_CAM = false; 
   }
 
@@ -407,9 +540,9 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   
   public void createCam(){
     // camera - modelview
-    double   distance = 1518.898;
-    double[] look_at  = { 58.444, -48.939, 167.661};
-    double[] rotation = { -0.744,   0.768,  -0.587};
+    double   distance = 3518.898;
+    double[] look_at  = {257.660, -332.919, 148.795};
+    double[] rotation = { -0.599,   0.723,  -0.802};
     peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
     peasycam.setMaximumDistance(10000);
     peasycam.setMinimumDistance(0.1f);
@@ -464,7 +597,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   PShape shp_gridxy;
   PShape shp_aabb;
   
-  public void displayGizmo(float s){
+  public void displayGizmo(PGraphics3D canvas, float s){
     if(shp_gizmo == null){
       strokeWeight(1);
       shp_gizmo = createShape();
@@ -474,10 +607,10 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       shp_gizmo.stroke(0,0,255); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,0,s); 
       shp_gizmo.endShape();
     }
-    shape(shp_gizmo);
+    canvas.shape(shp_gizmo);
   }
   
-  public void displayGridXY(int lines, float s){
+  public void displayGridXY(PGraphics3D canvas, int lines, float s){
     if(shp_gridxy == null){
       shp_gridxy = createShape();
       shp_gridxy.beginShape(LINES);
@@ -493,11 +626,11 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       }
       shp_gridxy.endShape();
     }
-    shape(shp_gridxy);
+    canvas.shape(shp_gridxy);
 
   }
   
-  public void displayAABB(float[] aabb){
+  public void displayAABB(PGraphics3D canvas, float[] aabb){
     if(shp_aabb == null){
       float xmin = aabb[0], xmax = aabb[3];
       float ymin = aabb[1], ymax = aabb[4];
@@ -551,7 +684,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       corners.endShape();
       shp_aabb.addChild(corners);
     }
-    shape(shp_aabb);
+    canvas.shape(shp_aabb);
   }
   
 
@@ -643,10 +776,6 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       
       cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
           .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.DAMP_VELOCITY).plugTo(particlesystem.particle_param, "DAMP_VELOCITY");
-      
-      cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
-
       
       cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 1f).setValue(particlesystem.particle_param.DAMP_COLLISION).plugTo(particlesystem.particle_param, "DAMP_COLLISION");
