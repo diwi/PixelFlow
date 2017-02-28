@@ -48,7 +48,11 @@ public class DwShadowMap {
 //    this.shader_shadow = papplet.loadShader(dir+"shadowmap.frag", dir+"shadowmap.vert");
     this.scene_display = scene_display;
     
-    resize(size, size);
+    resize(size);
+  }
+  
+  public void resize(int wh){
+    resize(wh, wh);
   }
   
   public void resize(int w, int h){
