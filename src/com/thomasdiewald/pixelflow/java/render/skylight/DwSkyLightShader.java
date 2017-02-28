@@ -216,19 +216,18 @@ public class DwSkyLightShader {
   public PGraphics3D getDst(){ return pg_shading[1]; }
 
   void setUniforms() {
-    PGraphicsOpenGL pg = geombuffer.pg_geom;
-    
+
     // 1) modelview (camera) -> model (world)
-    PMatrix3D mat_modelviewInv = pg.modelviewInv.get();
+    PMatrix3D mat_modelviewInv = geombuffer.pg_geom.modelviewInv.get();
 
     // camera -> world -> shadowmap
     PMatrix3D mat_shadow = shadowmap.getShadowmapMatrix();
     mat_shadow.apply(mat_modelviewInv);
     mat_shadow.transpose(); // processing
     
-    PMatrix3D mat_shadow_modelview = new PMatrix3D(shadowmap.pg_shadowmap.modelview);
-    mat_shadow_modelview.apply(mat_modelviewInv);
-    mat_shadow_modelview.transpose();
+//    PMatrix3D mat_shadow_modelview = new PMatrix3D(shadowmap.pg_shadowmap.modelview);
+//    mat_shadow_modelview.apply(mat_modelviewInv);
+//    mat_shadow_modelview.transpose();
 
     // 2) transform light direction into camera space = inverse-transpose-modelView * direction
     mat_modelviewInv.transpose();
@@ -236,7 +235,7 @@ public class DwSkyLightShader {
     light_dir_cameraspace.normalize();
     
     // projection matrix of the geometry buffer
-    PMatrix3D mat_projection = pg.projection.get();
+    PMatrix3D mat_projection = geombuffer.pg_geom.projection.get();
     mat_projection.transpose(); // processing
     
     // temporal averaging
@@ -252,8 +251,8 @@ public class DwSkyLightShader {
     float shadow_bias_mag = 1;
 
 
-    float w = pg.width;
-    float h = pg.height;
+    float w = geombuffer.pg_geom.width;
+    float h = geombuffer.pg_geom.height;
     
 //    PMatrix3D mat_screen_to_eye = new PMatrix3D();
 //    mat_screen_to_eye.scale(w, h, 1);
