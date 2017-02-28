@@ -21,6 +21,11 @@ public class DwParticle3D extends DwParticle{
   public float px = 0, py = 0, pz = 0; // previous position
   public float ax = 0, ay = 0, az = 0; // acceleration
 
+  
+  public DwParticle3D(int idx) {
+    super(idx);
+  }
+  
   public DwParticle3D(int idx, float x, float y, float z, float rad) {
     super(idx);
     setPosition(x, y, z);

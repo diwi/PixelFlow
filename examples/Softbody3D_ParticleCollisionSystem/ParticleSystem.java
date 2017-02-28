@@ -7,9 +7,13 @@
  * 
  */
 
-package SoftBody2D_ParticleCollisionSystem;
+package Softbody3D_ParticleCollisionSystem;
 
-import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+
+import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
+import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
+import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -21,14 +25,14 @@ public class ParticleSystem {
   
   // for customizing the particle we just extends the original class and
   // Override what we want to customize
-  static class CustomVerletParticle2D extends DwParticle2D{
-    public CustomVerletParticle2D(int idx) {
+  static class CustomVerletParticle3D extends DwParticle3D{
+    public CustomVerletParticle3D(int idx) {
       super(idx);
     }
     
     @Override
     public void updateShapeColor(){
-      setColor(0xFF020100);
+//      setColor(0xFF020100);
 //      super.updateShapeColor();
     }
     
@@ -37,28 +41,27 @@ public class ParticleSystem {
   
   
   // particle system
-  public float PARTICLE_SCREEN_FILL_FACTOR = 0.9f;
+  public float PARTICLE_SCREEN_FILL_FACTOR = 0.5f;
   public int   PARTICLE_COUNT              = 500;
   
   // particle behavior
   public float MULT_GRAVITY  = 0.50f;
   
-  DwParticle2D.Param particle_param = new DwParticle2D.Param();
+  DwParticle3D.Param particle_param = new DwParticle3D.Param();
   
   
   public PApplet papplet;
   
-  public DwParticle2D[] particles;
+  public DwParticle3D[] particles;
   public PShape shp_particlesystem;
   
-  public int size_x;
+  public float[] bounds;
   public int size_y;
+  public int size_z;
   
-  public ParticleSystem(PApplet papplet, int size_x, int size_y){
+  public ParticleSystem(PApplet papplet, float[] bounds){
     this.papplet = papplet;
-    
-    this.size_x = size_x;
-    this.size_y = size_y;
+    this.bounds = bounds;
   }
 
   
@@ -82,9 +85,9 @@ public class ParticleSystem {
 
   
   public void initParticles(){
-    particles = new DwParticle2D[PARTICLE_COUNT];
+    particles = new DwParticle3D[PARTICLE_COUNT];
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      particles[i] = new CustomVerletParticle2D(i);
+      particles[i] = new CustomVerletParticle3D(i);
       particles[i].setCollisionGroup(i);
       particles[i].setParamByRef(particle_param);
     }
@@ -95,14 +98,22 @@ public class ParticleSystem {
   
   
   public void initParticlesSize(){
-
-    float radius = (float)Math.sqrt((size_x * size_y * PARTICLE_SCREEN_FILL_FACTOR) / PARTICLE_COUNT) * 0.5f;
+    
+    float bsx = bounds[3] - bounds[0];
+    float bsy = bounds[4] - bounds[1];
+    float bsz = bounds[5] - bounds[2];
+    
+    float volume = bsx * bsy * bsz * PARTICLE_SCREEN_FILL_FACTOR;
+    
+    float volume_per_particle = volume / PARTICLE_COUNT;
+    float radius = (float) (Math.pow(volume_per_particle, 1/3.0) * 0.5);
+    
     radius = Math.max(radius, 1);
-    float rand_range = 0.5f;
+    float rand_range = 0.4f;
     float r_min = radius * (1.0f - rand_range);
     float r_max = radius * (1.0f + rand_range);
     
-    DwParticle2D.MAX_RAD = r_max;
+    DwParticle3D.MAX_RAD = r_max;
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       float pr = papplet.random(r_min, r_max);
@@ -115,9 +126,10 @@ public class ParticleSystem {
   public void initParticlesPosition(){
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      float px = papplet.random(0, size_x - 1);
-      float py = papplet.random(0, size_y - 1);
-      particles[i].setPosition(px, py);
+      float px = papplet.random(bounds[0]+DwParticle3D.MAX_RAD, bounds[3]-DwParticle3D.MAX_RAD);
+      float py = papplet.random(bounds[1]+DwParticle3D.MAX_RAD, bounds[4]-DwParticle3D.MAX_RAD);
+      float pz = papplet.random(bounds[2]+DwParticle3D.MAX_RAD, bounds[5]-DwParticle3D.MAX_RAD);
+      particles[i].setPosition(px, py, pz);
     }
   }
   
@@ -130,51 +142,27 @@ public class ParticleSystem {
       particles[i].setShape(shp_particle);
       shp_particlesystem.addChild(shp_particle);
     }
+
   }
   
+  DwIndexedFaceSetAble ifs;
   
   // create the shape that is going to be rendered
-  public PShape createParticleShape(DwParticle2D particle){
+  public PShape createParticleShape(DwParticle3D particle){
+   
+    PShape shp_particle = papplet.createShape(PShape.GEOMETRY);
     
-    final float rad = particle.rad;
+    shp_particle.resetMatrix();
+    shp_particle.translate(particle.cx, particle.cy, particle.cz);
+    shp_particle.rotateX(papplet.random(PConstants.TWO_PI));
+    shp_particle.rotateY(papplet.random(PConstants.TWO_PI));
+    shp_particle.rotateZ(papplet.random(PConstants.TWO_PI));
+    shp_particle.setStroke(false);
+    shp_particle.setFill(papplet.color(160));
+    
+    if(ifs == null) ifs = new DwIcosahedron(1);
+    DwMeshUtils.createPolyhedronShape(shp_particle, ifs, particle.rad, 3, true);
 
-    PShape shp_particle = papplet.createShape(PShape.GROUP);
-    
-    // compute circle resolution, depending on the radius we reduce/increase
-    // the number of vertices we need to render
-    float threshold1 = 1;   // radius shortening for arc segments
-    float threshold2 = 140; // arc between segments
-    
-    double arc1 = Math.acos(Math.max((rad-threshold1), 0) / rad);
-    double arc2 = (180 - threshold2) * Math.PI / 180;
-    double arc = Math.min(arc1, arc2);
-    
-    int num_vtx = (int)Math.ceil(2*Math.PI/arc);
-    
-    // actual circle
-    PShape circle = papplet.createShape(PShape.GEOMETRY);
-    circle.beginShape();
-    circle.noStroke();
-    circle.fill(200,100);
-    for(int i = 0; i < num_vtx; i++){
-      float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * rad;
-      float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * rad;
-      circle.vertex(vx, vy);
-    }
-    circle.endShape(PConstants.CLOSE);
-
-    // line, to indicate the velocity-direction of the particle
-    PShape line = papplet.createShape(PShape.GEOMETRY);
-    line.beginShape(PConstants.LINES);
-    line.stroke(255, 100);
-    line.strokeWeight(1);
-    line.vertex(0, 0);
-    line.vertex(-(rad-1), 0);
-    line.endShape();
-    
-    shp_particle.addChild(circle);
-    shp_particle.addChild(line);
-    
     return shp_particle;
   }
   
