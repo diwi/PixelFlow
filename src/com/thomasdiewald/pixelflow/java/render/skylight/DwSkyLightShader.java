@@ -19,6 +19,7 @@ import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PMatrix2D;
 import processing.core.PMatrix3D;
 import processing.core.PVector;
 import processing.opengl.PGraphics3D;
@@ -49,7 +50,7 @@ public class DwSkyLightShader {
 //  public float sample_focus  = 1f;
   
   
-//  public PMatrix3D mat_sun = new PMatrix3D();
+  public PMatrix3D mat_sun = new PMatrix3D();
   
   String dir = DwPixelFlow.SHADER_DIR+"render/skylight/";
 
@@ -108,6 +109,8 @@ public class DwSkyLightShader {
    
     // create shadowmap direction
     float[] center = {0,0,0};
+    
+
     float[] up = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
     
     // create new sample direction
@@ -116,18 +119,16 @@ public class DwSkyLightShader {
     float[] eye = new float[3];
     eye[0] = sample[0] * param.sample_focus;
     eye[1] = sample[1] * param.sample_focus;
-    eye[2] = sample[2] + (1-param.sample_focus);
+    eye[2] = sample[2] + (1.0f-param.sample_focus);
     
     // project to bounding-sphere
     float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
-    eye[0] /=  dd;
-    eye[1] /=  dd;
-    eye[2] /=  dd;
+    eye[0] /= dd;
+    eye[1] /= dd;
+    eye[2] /= dd;
 
     // rotate
-//    setOrientation(param.solar_azimuth, param.solar_zenith);
-    PMatrix3D mat_sun = new PMatrix3D();
-//    mat_sun.reset();
+    mat_sun.reset();
     mat_sun.rotateZ(param.solar_azimuth * TO_RAD);
     mat_sun.rotateY(param.solar_zenith  * TO_RAD);
     eye = mat_sun.mult(eye, new float[3]);
@@ -214,6 +215,7 @@ public class DwSkyLightShader {
   
   public PGraphics3D getSrc(){ return pg_shading[0]; }
   public PGraphics3D getDst(){ return pg_shading[1]; }
+  
 
   void setUniforms() {
 
@@ -224,6 +226,23 @@ public class DwSkyLightShader {
     PMatrix3D mat_shadow = shadowmap.getShadowmapMatrix();
     mat_shadow.apply(mat_modelviewInv);
     mat_shadow.transpose(); // processing
+    
+    
+    PMatrix3D mat_shadow_normal = mat_shadow.get();
+    mat_shadow_normal.invert();
+    mat_shadow_normal.transpose(); // processing
+    
+    PMatrix3D mat_shadow_normal_modelview = shadowmap.getModelView().get();
+    mat_shadow_normal_modelview.apply(mat_modelviewInv);
+    mat_shadow_normal_modelview.transpose(); // processing
+    mat_shadow_normal_modelview.invert();
+    mat_shadow_normal_modelview.transpose(); // processing
+    
+    PMatrix3D mat_shadow_normal_projection = shadowmap.getProjection().get();
+    mat_shadow_normal_projection.invert();
+    mat_shadow_normal_projection.transpose(); // processing
+    
+
     
 //    PMatrix3D mat_shadow_modelview = new PMatrix3D(shadowmap.pg_shadowmap.modelview);
 //    mat_shadow_modelview.apply(mat_modelviewInv);
@@ -245,11 +264,10 @@ public class DwSkyLightShader {
     float h_shadow = shadowmap.pg_shadowmap.height;
     
     // shadow offset
-//    float scene_radius = scene_display.getSceneRadius();
     float shadow_map_size = Math.min(w_shadow, h_shadow);
-//    float shadow_bias_mag = scene_radius * 6 / shadow_map_size;
-    float shadow_bias_mag = 1;
-
+    float shadow_bias_mag = 0.25f/shadow_map_size;
+    
+//    shadow_bias_mag = scene_scale/ shadow_map_size;
 
     float w = geombuffer.pg_geom.width;
     float h = geombuffer.pg_geom.height;
@@ -267,6 +285,12 @@ public class DwSkyLightShader {
     // 3) update shader uniforms
     shader.set("dir_light", light_dir_cameraspace);
     shader.set("mat_shadow", mat_shadow);
+    shader.set("mat_shadow_normal", mat_shadow_normal);
+    shader.set("mat_shadow_normal_modelview", mat_shadow_normal_modelview);
+    shader.set("mat_shadow_normal_projection", mat_shadow_normal_projection);
+    
+
+    
 //    shader.set("mat_screen_to_eye", mat_screen_to_eye);
     shader.set("mat_projection", mat_projection);
 //    shader.set("mat_shadow_modelview", mat_shadow_modelview);

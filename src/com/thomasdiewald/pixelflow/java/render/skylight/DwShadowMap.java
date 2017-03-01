@@ -53,12 +53,9 @@ public class DwShadowMap {
     resize(size);
   }
   
+
   public void resize(int wh){
-    resize(wh, wh);
-  }
-  
-  public void resize(int w, int h){
-    pg_shadowmap = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
+    pg_shadowmap = (PGraphics3D) papplet.createGraphics(wh, wh, PConstants.P3D);
     pg_shadowmap.smooth(0);
 
     DwGLTextureUtils.changeTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT);
@@ -115,6 +112,28 @@ public class DwShadowMap {
 
     // model (world) -> modelview (shadowmap) -> ndc (shadowmap)
     mat_shadow.apply(pg_shadowmap.projmodelview);
+    
+    return mat_shadow;
+  }
+  
+  public PMatrix3D getModelView(){
+    pg_shadowmap.updateProjmodelview();
+    return pg_shadowmap.modelview;
+  }
+  
+  public PMatrix3D getProjection(){
+    pg_shadowmap.updateProjmodelview();
+
+    // 1) create shadowmap matrix, 
+    //    to transform positions from camera-space to the shadowmap-space (light-space)
+    PMatrix3D mat_shadow = new PMatrix3D();
+    // ndc (shadowmap) -> normalized (shadowmap) 
+    //         [-1,+1] -> [0,1]
+    mat_shadow.scale(0.5f);
+    mat_shadow.translate(1,1,1);
+
+    // model (world) -> modelview (shadowmap) -> ndc (shadowmap)
+    mat_shadow.apply(pg_shadowmap.projection);
     
     return mat_shadow;
   }

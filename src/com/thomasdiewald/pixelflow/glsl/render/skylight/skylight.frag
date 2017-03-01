@@ -19,7 +19,12 @@ uniform mat4 mat_projection;
 // uniform mat4 mat_screen_to_eye; // screen-space (view) -> eye-space
 uniform mat4 mat_shadow_modelview;
 uniform mat4 mat_shadow;        // eye-space -> screen-space (shadowmap)
+uniform mat4 mat_shadow_normal;
 uniform vec3 dir_light;
+
+
+uniform mat4  mat_shadow_normal_modelview;
+uniform mat4  mat_shadow_normal_projection;
 
 uniform float shadow_bias_mag = 0;
 uniform vec2 wh;
@@ -83,9 +88,16 @@ void main(void) {
     p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
   }
   
-  // vertex position in shadow map screenspace
-  vec4 shadow_bias = vec4(p_eye_normal, 0.0) * shadow_bias_mag;
-  vec4 p_frag_shadow = mat_shadow * (p_eye + shadow_bias); 
+  // normal bias
+  // shadowmap eye space has bounds of the unitsphere.
+  // so the normal bias can be of constant length, only affected by shadowmap resolution
+  vec3 p_normal_bias = p_eye_normal;
+  p_normal_bias = mat3(mat_shadow_normal_modelview ) * p_normal_bias;  // to eyespace
+  p_normal_bias = normalize(p_normal_bias) * shadow_bias_mag;          // constant length
+  p_normal_bias = mat3(mat_shadow_normal_projection) * p_normal_bias;  // to screenspace
+  
+  // vertex position in shadow map screenspace + bias
+  vec4 p_frag_shadow = (mat_shadow * p_eye) + vec4(p_normal_bias, 0);
   p_frag_shadow.xyz /= p_frag_shadow.w;
   
   // diffuse shading

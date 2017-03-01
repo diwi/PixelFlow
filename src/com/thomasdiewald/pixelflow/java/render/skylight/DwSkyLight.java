@@ -33,15 +33,17 @@ public class DwSkyLight {
   public DwSkyLightShader sun;
   
   public DwSkyLightRenderer renderer;
-
+  
   public DwSkyLight(DwPixelFlow context, DwSceneDisplay scene_display){
 
     this.scene_display = scene_display;
     
     geom = new DwScreenSpaceGeometryBuffer(context, scene_display);
     
-    DwShadowMap sun_shadowmap = new DwShadowMap(context, 1024, scene_display);
-    DwShadowMap sky_shadowmap = new DwShadowMap(context, 1024, scene_display);
+    int shadowmap_wh = 1024;
+    
+    DwShadowMap sun_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display);
+    DwShadowMap sky_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display);
     
     sun = new DwSkyLightShader(context, scene_display, geom, sun_shadowmap);
     sky = new DwSkyLightShader(context, scene_display, geom, sky_shadowmap);
