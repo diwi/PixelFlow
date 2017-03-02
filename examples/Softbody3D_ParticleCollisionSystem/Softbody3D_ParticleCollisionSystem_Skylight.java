@@ -30,6 +30,7 @@ import controlP5.Group;
 import peasy.CameraState;
 import peasy.PeasyCam;
 import processing.core.PApplet;
+import processing.core.PMatrix3D;
 import processing.core.PShape;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
@@ -87,10 +88,9 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
 
   boolean UPDATE_PHYSICS = true;
   
+  // renderer
   DwSkyLight skylight;
-  
-  DwBoundingSphere scene_bs;
-  float SCENE_RADIUS;
+  PMatrix3D mat_scene_bounds;
   
   public void settings(){
     size(viewport_w, viewport_h, P3D); 
@@ -145,59 +145,49 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
     
     float cr = (float)Math.sqrt(bsx*bsx + bsy*bsy + bsz*bsz) * 0.5f;
 
-    SCENE_RADIUS = cr;
-    
-    scene_bs = new DwBoundingSphere();
+    DwBoundingSphere scene_bs = new DwBoundingSphere();
     scene_bs.set(cx, cy, cz, cr);
+    
+    
+    // used for centering and re-scaling the scene
+    mat_scene_bounds = scene_bs.getUnitSphereMatrix();
 
-
+    
     DwSceneDisplay scene_display = new DwSceneDisplay(){
       @Override
       public void display(PGraphics3D canvas) {
         displayScene(canvas);  
       }
-//      @Override
-//      public float getSceneRadius() {
-//        return SCENE_RADIUS;
-//      }
     };
     
     DwPixelFlow context = new DwPixelFlow(this);
     
-    skylight = new DwSkyLight(context, scene_display);
+    skylight = new DwSkyLight(context, scene_display, mat_scene_bounds);
     
     // parameters for sky-light
-    skylight.sky.param.iterations     = 30;
-    skylight.sky.param.singlesided_normal_switch = 0;
+    skylight.sky.param.iterations     = 25;
     skylight.sky.param.solar_azimuth  = 0;
-    skylight.sky.param.solar_zenith   = 0;
-    skylight.sky.param.sample_focus   = 1; // full hemisphere sampling
-    skylight.sky.param.vec3_intensity = new float[]{0.8f,0.9f,1.0f};
+    skylight.sky.param.solar_zenith   = 1;
+    skylight.sky.param.sample_focus   = 1; // full sphere sampling
+    skylight.sky.param.intensity      = 1.5f;
+    skylight.sky.param.color          = new float[]{0.8f,0.9f,1.0f}; // color
+    skylight.sky.param.singlesided    = false;
     
     // parameters for sun-light
-    skylight.sun.param.iterations     = 20;
-    skylight.sun.param.singlesided_normal_switch = 0;
+    skylight.sun.param.iterations     = 25;
     skylight.sun.param.solar_azimuth  = 45;
-    skylight.sun.param.solar_zenith   = 60;
-    skylight.sun.param.sample_focus   = 0.05f;
-    skylight.sun.param.vec3_intensity = new float[]{1.0f,0.8f,0.5f};
-    
-    float sun_mult = 1;
-    skylight.sun.param.vec3_intensity[0] *= sun_mult;
-    skylight.sun.param.vec3_intensity[1] *= sun_mult;
-    skylight.sun.param.vec3_intensity[2] *= sun_mult;
-    
-    float sky_mult = 1;
-    skylight.sky.param.vec3_intensity[0] *= sky_mult;
-    skylight.sky.param.vec3_intensity[1] *= sky_mult;
-    skylight.sky.param.vec3_intensity[2] *= sky_mult;
+    skylight.sun.param.solar_zenith   = 55;
+    skylight.sun.param.sample_focus   = 0.25f; // affects shadow, sharp or blury
+    skylight.sun.param.intensity      = 1.5f;
+    skylight.sun.param.color          = new float[]{1.0f,0.8f,0.5f}; // color
+    skylight.sun.param.singlesided    = false;
+
+    // resize if needed (Quality vs. Performance)
+    skylight.sky.shadowmap.resize(256);
+    skylight.sun.shadowmap.resize(512);
     
     
-    
-    
-    
-    
-    
+   
     // modelview/projection
     createCam();
     
@@ -287,24 +277,20 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
  
     
     // XY-grid, gizmo, scene-bounds
-    
     canvas.pushMatrix();
-    canvas.scale(SCENE_RADIUS / scene_bs.rad);
-    canvas.translate(-scene_bs.pos[0], -scene_bs.pos[1], -scene_bs.pos[2]);
-    
     canvas.strokeWeight(2);
 //    displayGridXY(canvas, 20, 100);
 //    displayGizmo(canvas, 1000);
     displayAABB(canvas, physics.param.bounds);
     
-
     particlesystem.display(canvas);
     
- 
     canvas.popMatrix();
 
-
-    displayMouseInteraction();
+//    if(RENDER_COMPOSITION)
+    {
+      displayMouseInteraction();
+    }
   }
   
   
@@ -431,7 +417,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
   
   
   public void displayMouseInteraction(){
-    if(SNAP_PARTICLE){
+    if(SNAP_PARTICLE && pnearest != null){
 
       int col_move_release = color(64, 200, 0);
       int col_move_fixed   = color(255, 30, 10); 
@@ -442,7 +428,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       
 //      DwParticle3D p3d = (DwParticle3D)particle;
 //      p3d.
-//      particle.setColor(color(160,0,0));
+//      particle.setColor(color(255,0,0));
       particle.setColor(color(255,255,255));
       
       strokeWeight(1);
@@ -489,6 +475,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
           if(mouseButton == LEFT  ) pnearest.particle.enable(true, true, true);
           if(mouseButton == CENTER) pnearest.particle.enable(true, false, false);
           pnearest = null;
+//          SNAP_PARTICLE = false;
         }
 
 //      }
@@ -739,7 +726,7 @@ public class Softbody3D_ParticleCollisionSystem_Skylight extends PApplet {
       int bsx = (gui_w-40)/3;
       cp5.addButton("rebuild").setGroup(group_physics).plugTo(this, "createBodies").setSize(bsx, 18).setPosition(px, py);
       cp5.addButton("pause")  .setGroup(group_physics).plugTo(this, "togglePause").setSize(bsx, 18).setPosition(px+=bsx+10, py);
-      cp5.addButton("cam_0")   .setGroup(group_physics).plugTo(this, "resetCam").setSize(bsx, 18).setPosition(px+=bsx+10, py);
+      cp5.addButton("cam_0")  .setGroup(group_physics).plugTo(this, "resetCam").setSize(bsx, 18).setPosition(px+=bsx+10, py);
       
       px = 10; 
       cp5.addSlider("gravity").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))

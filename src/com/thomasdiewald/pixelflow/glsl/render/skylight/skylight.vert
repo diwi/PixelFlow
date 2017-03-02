@@ -11,7 +11,7 @@
  
 uniform mat4 projection;
 uniform mat4 modelview;
-// uniform mat3 normalMatrix;
+uniform mat3 normalMatrix;
 
 attribute vec4 vertex;
 // attribute vec4 color;

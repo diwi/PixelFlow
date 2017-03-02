@@ -32,15 +32,16 @@ public class DwShadowMap {
   public PShader shader_shadow;
   public PGraphics3D pg_shadowmap;
   
-  public PMatrix3D mat_boundingsphere = new PMatrix3D();
+  public PMatrix3D mat_scene_bounds;
   
   public PVector lightdir = new PVector();
 
   public DwSceneDisplay scene_display;
   
-  public DwShadowMap(DwPixelFlow context, int size, DwSceneDisplay scene_display){
+  public DwShadowMap(DwPixelFlow context, int size, DwSceneDisplay scene_display, PMatrix3D mat_scene_bounds){
     this.context = context;
     this.papplet = context.papplet;
+    this.mat_scene_bounds = mat_scene_bounds;
     
     String[] src_frag = context.utils.readASCIIfile(dir+"shadowmap.frag");
     String[] src_vert = context.utils.readASCIIfile(dir+"shadowmap.vert");
@@ -77,7 +78,7 @@ public class DwShadowMap {
     pg_shadowmap.beginDraw();
     pg_shadowmap.background(0xFFFFFFFF);
     pg_shadowmap.noStroke();
-    pg_shadowmap.applyMatrix(mat_boundingsphere);
+    pg_shadowmap.applyMatrix(mat_scene_bounds);
     scene_display.display(pg_shadowmap);
     pg_shadowmap.endDraw();
   }

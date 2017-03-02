@@ -17,22 +17,22 @@ uniform mat3 normalMatrix;
 
 uniform mat4 mat_projection;
 // uniform mat4 mat_screen_to_eye; // screen-space (view) -> eye-space
-uniform mat4 mat_shadow_modelview;
+// uniform mat4 mat_shadow_modelview;
 uniform mat4 mat_shadow;        // eye-space -> screen-space (shadowmap)
-uniform mat4 mat_shadow_normal;
+// uniform mat3 mat_shadow_normal;
+uniform mat3 mat_shadow_normal_modelview;
+uniform mat3 mat_shadow_normal_projection;
 uniform vec3 dir_light;
 
 
-uniform mat4  mat_shadow_normal_modelview;
-uniform mat4  mat_shadow_normal_projection;
+
 
 uniform float shadow_bias_mag = 0;
 uniform vec2 wh;
 uniform sampler2D tex_shadow;
 uniform sampler2D tex_src;
 uniform float pass_mix;
-
-uniform int singlesided_normal_switch = 1;
+uniform int singlesided = 1;
 
 uniform sampler2D tex_geombuffer;
 
@@ -84,7 +84,7 @@ void main(void) {
   // vertex normal
   vec3 p_eye_normal = geom.xyz;
   // switch normal direction if needed for single sided surfaces
-  if(singlesided_normal_switch == 1){
+  if(singlesided == 1){
     p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
   }
   
@@ -92,9 +92,9 @@ void main(void) {
   // shadowmap eye space has bounds of the unitsphere.
   // so the normal bias can be of constant length, only affected by shadowmap resolution
   vec3 p_normal_bias = p_eye_normal;
-  p_normal_bias = mat3(mat_shadow_normal_modelview ) * p_normal_bias;  // to eyespace
+  p_normal_bias = mat_shadow_normal_modelview  * p_normal_bias;  // to eyespace
   p_normal_bias = normalize(p_normal_bias) * shadow_bias_mag;          // constant length
-  p_normal_bias = mat3(mat_shadow_normal_projection) * p_normal_bias;  // to screenspace
+  p_normal_bias = mat_shadow_normal_projection * p_normal_bias;  // to screenspace
   
   // vertex position in shadow map screenspace + bias
   vec4 p_frag_shadow = (mat_shadow * p_eye) + vec4(p_normal_bias, 0);

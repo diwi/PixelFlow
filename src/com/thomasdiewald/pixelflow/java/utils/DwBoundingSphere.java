@@ -45,6 +45,7 @@ public class DwBoundingSphere {
     set(0,0,0,0);
   }
   
+
   public void set(float x, float y, float z, float r){
     pos[0] = x;
     pos[1] = y;
@@ -60,11 +61,11 @@ public class DwBoundingSphere {
   }
   
   public void print(){
-    System.out.printf(Locale.ENGLISH, "BoundingSphere: %+3.3f, %+3.3f, %+3.3f,  %3.3f\n", pos[0], pos[1], pos[2], rad );
+    System.out.printf(Locale.ENGLISH, "BoundingSphere: xyz[%+3.3f, %+3.3f, %+3.3f],  rad[%3.3f]\n", pos[0], pos[1], pos[2], rad );
   }
   
   
-  public PMatrix3D getMatrix_centeredUnitSphere(){
+  public PMatrix3D getUnitSphereMatrix(){
     PMatrix3D mat = new PMatrix3D();
     mat.scale(1.0f/rad);
     mat.translate(-pos[0], -pos[1], -pos[2]);

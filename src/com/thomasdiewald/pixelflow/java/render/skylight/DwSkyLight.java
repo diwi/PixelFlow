@@ -12,6 +12,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PMatrix3D;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 
@@ -21,8 +22,7 @@ import processing.opengl.PShader;
  *
  */
 public class DwSkyLight {
-  
-  
+
   DwPixelFlow context;
 
   public PShader shader;
@@ -31,19 +31,19 @@ public class DwSkyLight {
   public DwScreenSpaceGeometryBuffer geom;
   public DwSkyLightShader sky;
   public DwSkyLightShader sun;
-  
   public DwSkyLightRenderer renderer;
   
-  public DwSkyLight(DwPixelFlow context, DwSceneDisplay scene_display){
+
+  public DwSkyLight(DwPixelFlow context, DwSceneDisplay scene_display, PMatrix3D mat_scene_bounds){
 
     this.scene_display = scene_display;
+ 
+    int shadowmap_wh = 1024; // default value, can be resized anytime
+    
+    DwShadowMap sun_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display, mat_scene_bounds);
+    DwShadowMap sky_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display, mat_scene_bounds);
     
     geom = new DwScreenSpaceGeometryBuffer(context, scene_display);
-    
-    int shadowmap_wh = 1024;
-    
-    DwShadowMap sun_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display);
-    DwShadowMap sky_shadowmap = new DwShadowMap(context, shadowmap_wh, scene_display);
     
     sun = new DwSkyLightShader(context, scene_display, geom, sun_shadowmap);
     sky = new DwSkyLightShader(context, scene_display, geom, sky_shadowmap);
@@ -51,21 +51,18 @@ public class DwSkyLight {
     // composition of sky and sun for rendering
     renderer = new DwSkyLightRenderer(context, scene_display, geom, sky, sun);
     
-    
     // parameters for sky-light
     sky.param.solar_azimuth  = 0;
     sky.param.solar_zenith   = 0;
     sky.param.sample_focus   = 1;
-    sky.param.vec3_intensity = new float[]{1,1,1};
+    sky.param.color = new float[]{1,1,1};
     
     // parameters for sun-light
     sun.param.solar_azimuth  = 45;
     sun.param.solar_zenith   = 80;
     sun.param.sample_focus   = 0.05f;
-    sun.param.vec3_intensity = new float[]{1,1,1};
-
+    sun.param.color = new float[]{1,1,1};
   }
-  
   
   public void update(){
     renderer.update();
@@ -74,5 +71,4 @@ public class DwSkyLight {
     renderer.reset();
   }
 
-  
 }

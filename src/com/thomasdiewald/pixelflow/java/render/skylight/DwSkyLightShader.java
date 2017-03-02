@@ -32,22 +32,24 @@ public class DwSkyLightShader {
   static public final float TO_RAD = (float)Math.PI/180f;
   
   static public class Param{
-    public float[] vec3_intensity = {1,1,1};
-    public float iterations = 20;
     
-    public float solar_azimuth = 0;
-    public float solar_zenith  = 0;
-    public float sample_focus  = 1f;
-    public int singlesided_normal_switch = 1; // 0 = off, 1 = on
+    public float   intensity = 1f;
+    public float[] color = {1,1,1};
+    
+    public float   solar_azimuth = 0;
+    public float   solar_zenith  = 0;
+    public float   sample_focus  = 1f;
+    
+    public float   iterations = 20;
+    public boolean singlesided = true;
+    public int     shadowmap_size = 1024;
   }
   
   
 
   public Param param = new Param();
   
-//  public float SOLAR_AZIMUTH = 0;
-//  public float SOLAR_ZENITH  = 0;
-//  public float sample_focus  = 1f;
+
   
   
   public PMatrix3D mat_sun = new PMatrix3D();
@@ -190,6 +192,10 @@ public class DwSkyLightShader {
 
   public void updateStep(){
     
+    if( shadowmap.pg_shadowmap.width != param.shadowmap_size){
+      shadowmap.resize(param.shadowmap_size);
+    }
+    
     // 1) shadow pass
     generateSampleDirection();
     shadowmap.update();
@@ -265,7 +271,7 @@ public class DwSkyLightShader {
     
     // shadow offset
     float shadow_map_size = Math.min(w_shadow, h_shadow);
-    float shadow_bias_mag = 0.25f/shadow_map_size;
+    float shadow_bias_mag = 0.33f/shadow_map_size;
     
 //    shadow_bias_mag = scene_scale/ shadow_map_size;
 
@@ -285,9 +291,9 @@ public class DwSkyLightShader {
     // 3) update shader uniforms
     shader.set("dir_light", light_dir_cameraspace);
     shader.set("mat_shadow", mat_shadow);
-    shader.set("mat_shadow_normal", mat_shadow_normal);
-    shader.set("mat_shadow_normal_modelview", mat_shadow_normal_modelview);
-    shader.set("mat_shadow_normal_projection", mat_shadow_normal_projection);
+//    shader.set("mat_shadow_normal", mat_shadow_normal);
+    shader.set("mat_shadow_normal_modelview", mat_shadow_normal_modelview, true);
+    shader.set("mat_shadow_normal_projection", mat_shadow_normal_projection, true);
     
 
     
@@ -300,7 +306,7 @@ public class DwSkyLightShader {
     shader.set("pass_mix", pass_mix);
     shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
-    shader.set("singlesided_normal_switch", param.singlesided_normal_switch);
+    shader.set("singlesided", param.singlesided ? 1 : 0);
   }
 
 

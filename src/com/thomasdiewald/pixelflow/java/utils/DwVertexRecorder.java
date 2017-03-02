@@ -28,6 +28,22 @@ public class DwVertexRecorder extends PGraphics3D{
     setPrimary(false);
     setSize(papplet.width, papplet.height);
   }
+  
+  public DwVertexRecorder(PApplet papplet, PShape ... shapes){
+    setParent(papplet);
+    setPrimary(false);
+    setSize(papplet.width, papplet.height);
+    
+    record(shapes);
+  }
+  
+  public void record(PShape ... shapes){
+    parent.beginRecord(this);
+    for(PShape shp : shapes){
+      parent.shape(shp);
+    }
+    parent.endRecord();
+  }
     
   public void beginDraw(){
     super.beginDraw();

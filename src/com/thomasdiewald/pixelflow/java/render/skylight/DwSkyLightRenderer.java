@@ -98,8 +98,11 @@ public class DwSkyLightRenderer {
     float w = pg_render.width;
     float h = pg_render.height;
     
-    float[] sky_intensity = sky.param.vec3_intensity;
-    float[] sun_intensity = sun.param.vec3_intensity;
+    float sky_int = sky.param.intensity;
+    float sun_int = sun.param.intensity;
+    
+    float[] sky_col = sky.param.color;
+    float[] sun_col = sun.param.color;
     
     pg.beginDraw();
     pg.clear();
@@ -107,8 +110,8 @@ public class DwSkyLightRenderer {
     shader.set("wh", w, h);
     shader.set("tex_sky", pg_sky);
     shader.set("tex_sun", pg_sun);
-    shader.set("mult_sun", sun_intensity[0], sun_intensity[1], sun_intensity[2]);
-    shader.set("mult_sky", sky_intensity[0], sky_intensity[1], sky_intensity[2]);
+    shader.set("mult_sun", sun_col[0] * sun_int, sun_col[1] * sun_int, sun_col[2] * sun_int);
+    shader.set("mult_sky", sky_col[0] * sky_int, sky_col[1] * sky_int, sky_col[2] * sky_int);
     shader.set("gamma", param.gamma);
     scene_display.display(pg);
     pg.endDraw();
