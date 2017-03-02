@@ -92,7 +92,7 @@ public class Skylight_Basic extends PApplet {
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.color          = new float[]{1,1,1};
     skylight.sky.param.singlesided    = false;
-    skylight.sky.param.shadowmap_size = 512; // quality vs. performance
+    skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
     // parameters for sun-light
     skylight.sun.param.iterations     = 50;

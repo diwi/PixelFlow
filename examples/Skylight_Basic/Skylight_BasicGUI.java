@@ -8,8 +8,6 @@
  */
 package Skylight_Basic;
 
-import java.util.Locale;
-
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
@@ -18,7 +16,6 @@ import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
 import controlP5.Accordion;
-import controlP5.CColor;
 import controlP5.ColorWheel;
 import controlP5.ControlEvent;
 import controlP5.ControlP5;
@@ -56,7 +53,7 @@ public class Skylight_BasicGUI extends PApplet {
   
   boolean DISPLAY_SAMPLES_SUN = false;
   boolean DISPLAY_SAMPLES_SKY = false;
-  boolean DISPLAY_TEXTURES    = false;
+  boolean DISPLAY_TEXTURES    = true;
   
   public void settings() {
     size(viewport_w, viewport_h, P3D);
@@ -72,12 +69,6 @@ public class Skylight_BasicGUI extends PApplet {
     peasycam = new PeasyCam(this, SCENE_SCALE*1.5f);
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, SCENE_SCALE * 250);
 
-//    // camera
-//    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 61);
-//    peasycam.setRotations(  1.085,  -0.477,   2.910);
-//
-//    // projection
-//    perspective(60 * DEG_TO_RAD, width/(float)height, 2, 5000);
 
     // load obj file into shape-object
     shape = loadShape("examples/data/skylight_demo_scene.obj");
@@ -128,19 +119,20 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.color          = new float[]{1,1,1};
     skylight.sky.param.singlesided    = false;
-    skylight.sky.param.shadowmap_size = 512; // quality vs. performance
+    skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
     // parameters for sun-light
     skylight.sun.param.iterations     = 50;
     skylight.sun.param.solar_azimuth  = 45;
     skylight.sun.param.solar_zenith   = 55;
-    skylight.sun.param.sample_focus   = 0.05f;
+    skylight.sun.param.sample_focus   = 0.01f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.color          = new float[]{1,1,1};
     skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
     
     
+    // cp5 gui
     createGUI();
 
     frameRate(1000);
@@ -166,11 +158,33 @@ public class Skylight_BasicGUI extends PApplet {
     image(skylight.renderer.pg_render, 0, 0);
     // display textures
     if(DISPLAY_TEXTURES){
-      image(skylight.sun.shadowmap.pg_shadowmap, 10,  10, 150, 150);
-      image(skylight.sky.shadowmap.pg_shadowmap, 10, 170, 150, 150);
-      image(skylight.geom.pg_geom, 10, 330, 150, 150 / (width/(float)height));
+      
+      int dy = 10;
+      int px = dy;
+      int py = dy;
+      int sx = 170;
+      
+      int shadow_sx = skylight.sun.shadowmap.pg_shadowmap.width;
+      int shadow_sy = skylight.sun.shadowmap.pg_shadowmap.height;
+      int view_sx   = skylight.geom.pg_geom.width;
+      int view_sy   = skylight.geom.pg_geom.height;
+      
+      int sy_shadow = ceil(sx / (shadow_sx/(float)shadow_sy));
+      int sy_geom   = ceil(sx / (view_sx  /(float)view_sy  ));
+  
+      noStroke();
+      fill(0, 204);
+      rect(0,0, sx + 2*dy, height);
+
+      image(skylight.sun.shadowmap.pg_shadowmap, px, py              , sx, sy_shadow);
+      image(skylight.sky.shadowmap.pg_shadowmap, px, py+=sy_shadow+dy, sx, sy_shadow);
+      image(skylight.geom.pg_geom,               px, py+=sy_shadow+dy, sx, sy_geom);
+      image(skylight.sun.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom);
+      image(skylight.sky.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom); 
+      
     }
     peasycam.endHUD();
+    
     
     displayGUI();
     
@@ -250,26 +264,8 @@ public class Skylight_BasicGUI extends PApplet {
     cam_pos = cam_pos_curr;
   }
   
-  public void printCam(){
-    float[] pos = peasycam.getPosition();
-    float[] rot = peasycam.getRotations();
-    float[] lat = peasycam.getLookAt();
-    float   dis = (float) peasycam.getDistance();
-    
-    System.out.printf(Locale.ENGLISH, "position: (%7.3f, %7.3f, %7.3f)\n", pos[0], pos[1], pos[2]);
-    System.out.printf(Locale.ENGLISH, "rotation: (%7.3f, %7.3f, %7.3f)\n", rot[0], rot[1], rot[2]);
-    System.out.printf(Locale.ENGLISH, "look-at:  (%7.3f, %7.3f, %7.3f)\n", lat[0], lat[1], lat[2]);
-    System.out.printf(Locale.ENGLISH, "distance: (%7.3f)\n", dis);
-  }
-  
-  
-  public void keyReleased(){
-    printCam();
-  }
-  
-  
-  
-  
+
+
   
   ControlP5 cp5;
   
@@ -281,26 +277,15 @@ public class Skylight_BasicGUI extends PApplet {
   }
   
   
-  
-  public void setIterations(){
-    
-  }
-  
-  
+ 
   public void controlEvent(ControlEvent ce) {
 //    System.out.println(ce);
-//    if(c.getName().equals("sky.iterations")){
-//      
-//    }
-//    println(c+", "+c.getValue());
-    
     if(ce.getName().equals("sky.color")){
       ColorWheel cw  = (ColorWheel) ce.getController();
       int rgb = cw.getRGB();
       int r = (rgb >> 16 ) & 0xFF;
       int g = (rgb >>  8 ) & 0xFF;
       int b = (rgb >>  0 ) & 0xFF;
-//      System.out.println("rgb "+r+", "+g+", "+b);
       skylight.sky.param.color = new float[]{r/255f, g/255f, b/255f};
     }
     
@@ -310,7 +295,6 @@ public class Skylight_BasicGUI extends PApplet {
       int r = (rgb >> 16 ) & 0xFF;
       int g = (rgb >>  8 ) & 0xFF;
       int b = (rgb >>  0 ) & 0xFF;
-//      System.out.println("rgb "+r+", "+g+", "+b);
       skylight.sun.param.color = new float[]{r/255f, g/255f, b/255f};
     }
     
@@ -324,9 +308,7 @@ public class Skylight_BasicGUI extends PApplet {
     DISPLAY_TEXTURES    = (val[2] > 0);
   }
   
-  
-
-  
+ 
   public void createGUI(){
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(false);
@@ -347,18 +329,7 @@ public class Skylight_BasicGUI extends PApplet {
       
       int bsx = (gui_w-40)/3;
       cp5.addButton("reset").setGroup(group_skylight).plugTo(skylight, "reset").setSize(bsx, 18).setPosition(px, py);
-//      cp5.addButton("pause").setGroup(group_skylight).plugTo(this, "togglePause").setSize(bsx, 18).setPosition(px+=bsx+10, py);
-//      cp5.addButton("cam_0").setGroup(group_skylight).plugTo(this, "resetCam").setSize(bsx, 18).setPosition(px+=bsx+10, py);
-      
-//      skylight.sky.param.iterations     = 50;
-//      skylight.sky.param.solar_azimuth  = 0;
-//      skylight.sky.param.solar_zenith   = 0;
-//      skylight.sky.param.sample_focus   = 1; // full sphere sampling
-//      skylight.sky.param.intensity      = 1.0f;
-//      skylight.sky.param.color          = new float[]{1,1,1};
-//      skylight.sky.param.singlesided    = false;
-//      skylight.sky.param.shadowmap_size = 512; // quality vs. performance
-      
+
       px = 10;
       
       cp5.addCheckBox("displaySamples").setGroup(group_skylight).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
@@ -368,15 +339,11 @@ public class Skylight_BasicGUI extends PApplet {
           .addItem("textures"   , 2).activate(DISPLAY_TEXTURES    ? 2 : 5)
       ;
   
-      
-      
+   
       DwSkyLightShader.Param param_sky = skylight.sky.param;
       DwSkyLightShader.Param param_sun = skylight.sun.param;
       
 
-
-      
- 
       cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*3.4f))
           .setRange(0, 200).setValue(param_sky.iterations).plugTo(param_sky, "iterations");
       cp5.addSlider("sky.quality").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
@@ -409,52 +376,18 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addColorWheel("sun.color", px, py+=oy, gui_w/2).setGroup(group_skylight)
           .setRGB(color(param_sun.color[0]*255, param_sun.color[1]*255, param_sun.color[2]*255));
 
-
     }
     
-    
 
-//    ////////////////////////////////////////////////////////////////////////////
-//    // GUI - PARTICLES
-//    ////////////////////////////////////////////////////////////////////////////
-//    Group group_particles = cp5.addGroup("Particles");
-//    {
-//      
-//      group_particles.setHeight(20).setSize(gui_w, 200)
-//      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-//      group_particles.getCaptionLabel().align(CENTER, CENTER);
-//      
-//      sx = 100; px = 10; py = 10;oy = (int)(sy*1.4f);
-//      
-//      cp5.addButton("reset particles").setGroup(group_particles).setWidth(160).setPosition(10, 10).plugTo(particlesystem, "initParticles");
-//
-//      cp5.addSlider("Particle count").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
-//          .setRange(10, 10000).setValue(particlesystem.PARTICLE_COUNT).plugTo(particlesystem, "setParticleCount");
-//      
-//      cp5.addSlider("Fill Factor").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-//      .setRange(0.2f, 1.5f).setValue(particlesystem.PARTICLE_SCREEN_FILL_FACTOR).plugTo(particlesystem, "setFillFactor");
-//      
-//      cp5.addSlider("VELOCITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy+10)
-//          .setRange(0.85f, 1.0f).setValue(particlesystem.particle_param.DAMP_VELOCITY).plugTo(particlesystem.particle_param, "DAMP_VELOCITY");
-//      
-//      cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-//          .setRange(0, 1f).setValue(particlesystem.particle_param.DAMP_COLLISION).plugTo(particlesystem.particle_param, "DAMP_COLLISION");
-//      
-//   
-//    }
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
     cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
-//      .addItem(group_particles)
       .addItem(group_skylight)
       .open(0, 1);
    
   }
-  
-  
-  
   
   
   
