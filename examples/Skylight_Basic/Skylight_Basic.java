@@ -8,6 +8,8 @@
  */
 package Skylight_Basic;
 
+import java.util.Locale;
+
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
@@ -30,7 +32,7 @@ public class Skylight_Basic extends PApplet {
   int viewport_y = 0;
 
   // camera control
-  PeasyCam cam;
+  PeasyCam peasycam;
   
   // scene to render
   PShape shape;
@@ -47,8 +49,8 @@ public class Skylight_Basic extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
-    cam = new PeasyCam(this,  -0.035,  -3.753,   7.222, 100);
-    cam.setRotations(-0.777,   0.761,  -0.639);
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 61);
+    peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 5000);
@@ -96,7 +98,7 @@ public class Skylight_Basic extends PApplet {
     skylight.sun.param.iterations     = 50;
     skylight.sun.param.solar_azimuth  = 45;
     skylight.sun.param.solar_zenith   = 55;
-    skylight.sun.param.sample_focus   = 0.1f;
+    skylight.sun.param.sample_focus   = 0.05f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.color          = new float[]{1,1,1};
     skylight.sun.param.singlesided    = false;
@@ -118,9 +120,10 @@ public class Skylight_Basic extends PApplet {
     // update renderer
     skylight.update();
 
-    cam.beginHUD();
+    // display result
+    peasycam.beginHUD();
     image(skylight.renderer.pg_render, 0, 0);
-    cam.endHUD();
+    peasycam.endHUD();
 
     // some info, window title
     int sun_pass = skylight.sun.RENDER_PASS;
@@ -142,12 +145,29 @@ public class Skylight_Basic extends PApplet {
   boolean CAM_ACTIVE = false;
   
   public void updateCamActiveStatus(){
-    float[] cam_pos_curr = cam.getPosition();
+    float[] cam_pos_curr = peasycam.getPosition();
     CAM_ACTIVE = false;
     CAM_ACTIVE |= cam_pos_curr[0] != cam_pos[0];
     CAM_ACTIVE |= cam_pos_curr[1] != cam_pos[1];
     CAM_ACTIVE |= cam_pos_curr[2] != cam_pos[2];
     cam_pos = cam_pos_curr;
+  }
+  
+  public void printCam(){
+    float[] pos = peasycam.getPosition();
+    float[] rot = peasycam.getRotations();
+    float[] lat = peasycam.getLookAt();
+    float   dis = (float) peasycam.getDistance();
+    
+    System.out.printf(Locale.ENGLISH, "position: (%7.3f, %7.3f, %7.3f)\n", pos[0], pos[1], pos[2]);
+    System.out.printf(Locale.ENGLISH, "rotation: (%7.3f, %7.3f, %7.3f)\n", rot[0], rot[1], rot[2]);
+    System.out.printf(Locale.ENGLISH, "look-at:  (%7.3f, %7.3f, %7.3f)\n", lat[0], lat[1], lat[2]);
+    System.out.printf(Locale.ENGLISH, "distance: (%7.3f)\n", dis);
+  }
+  
+  
+  public void keyReleased(){
+    printCam();
   }
   
   public static void main(String args[]) {
