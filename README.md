@@ -70,7 +70,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 More Videos on [Vimeo](https://vimeo.com/user56436843).
 
 <br>
-## Getting Started
+## Getting Started - FLuid Simulation
 
 
 ```java
