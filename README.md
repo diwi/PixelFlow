@@ -27,6 +27,10 @@
   - Cloth, Grids, Chains, ...
   - Particle Systems
   - etc ...
++ Skylight Renderer
+  - Interactive/realtime viewport renderer
+  - Ambient Occlusion
+  - Diffuse Shading
 + Utils
   - HalfEdge
   - Subdivision Polyhedra
