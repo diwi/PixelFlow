@@ -1,11 +1,16 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
+
+
 
 
 package com.thomasdiewald.pixelflow.java.render.skylight;
@@ -32,7 +37,7 @@ public class DwSkyLightShader {
   static public class Param{
     
     public float   intensity = 1f;
-    public float[] color = {1,1,1};
+    public float[] rgb = {1,1,1};
     
     public float   solar_azimuth = 0;
     public float   solar_zenith  = 0;

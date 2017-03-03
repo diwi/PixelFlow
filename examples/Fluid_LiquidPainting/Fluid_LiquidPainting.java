@@ -162,7 +162,7 @@ public class Fluid_LiquidPainting extends PApplet {
     fluid.addCallback_FluiData(cb_fluid_data);
     
     // image, used for density
-    image = loadImage("mc_escher.jpg");
+    image = loadImage("../data/mc_escher.jpg");
 
     // fluid render target
     pg_fluid = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);

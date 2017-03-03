@@ -1,11 +1,18 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
+
+
+
+
 package Skylight_BasicGUI;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -29,6 +36,15 @@ import processing.opengl.PGraphics3D;
 
 
 public class Skylight_BasicGUI extends PApplet {
+  
+  //
+  // Basic setup for the Skylight renderer, including UI for debugging.
+  //
+  // Also in this example: the use of general Matrix operations, for centering 
+  // and scaling the scene globally.
+  //
+  
+  
   
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -117,7 +133,7 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sky.param.solar_zenith   = 0;
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
-    skylight.sky.param.color          = new float[]{1,1,1};
+    skylight.sky.param.rgb            = new float[]{1,1,1};
     skylight.sky.param.singlesided    = false;
     skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
@@ -127,7 +143,7 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sun.param.solar_zenith   = 55;
     skylight.sun.param.sample_focus   = 0.01f;
     skylight.sun.param.intensity      = 1.0f;
-    skylight.sun.param.color          = new float[]{1,1,1};
+    skylight.sun.param.rgb            = new float[]{1,1,1};
     skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
     
@@ -287,7 +303,7 @@ public class Skylight_BasicGUI extends PApplet {
       int r = (rgb >> 16 ) & 0xFF;
       int g = (rgb >>  8 ) & 0xFF;
       int b = (rgb >>  0 ) & 0xFF;
-      skylight.sky.param.color = new float[]{r/255f, g/255f, b/255f};
+      skylight.sky.param.rgb = new float[]{r/255f, g/255f, b/255f};
     }
     
     if(ce.getName().equals("sun.color")){
@@ -296,7 +312,7 @@ public class Skylight_BasicGUI extends PApplet {
       int r = (rgb >> 16 ) & 0xFF;
       int g = (rgb >>  8 ) & 0xFF;
       int b = (rgb >>  0 ) & 0xFF;
-      skylight.sun.param.color = new float[]{r/255f, g/255f, b/255f};
+      skylight.sun.param.rgb = new float[]{r/255f, g/255f, b/255f};
     }
     
     skylight.reset();
@@ -358,7 +374,7 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addSlider("sky.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
           .setRange(0, 5).setValue(param_sky.intensity).plugTo(param_sky, "intensity");
       cp5.addColorWheel("sky.color", px, py+=oy, gui_w/2).setGroup(group_skylight)
-          .setRGB(color(param_sky.color[0]*255, param_sky.color[1]*255, param_sky.color[2]*255));
+          .setRGB(color(param_sky.rgb[0]*255, param_sky.rgb[1]*255, param_sky.rgb[2]*255));
       
       py += gui_w/2+40;
       
@@ -375,7 +391,7 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addSlider("sun.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
           .setRange(0, 5).setValue(param_sun.intensity).plugTo(param_sun, "intensity");
       cp5.addColorWheel("sun.color", px, py+=oy, gui_w/2).setGroup(group_skylight)
-          .setRGB(color(param_sun.color[0]*255, param_sun.color[1]*255, param_sun.color[2]*255));
+          .setRGB(color(param_sun.rgb[0]*255, param_sun.rgb[1]*255, param_sun.rgb[2]*255));
 
     }
     

@@ -1,11 +1,20 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
+
+
+
+
+
+
 package com.thomasdiewald.pixelflow.java.render.skylight;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -101,8 +110,8 @@ public class DwSkyLightRenderer {
     float sky_int = sky.param.intensity;
     float sun_int = sun.param.intensity;
     
-    float[] sky_col = sky.param.color;
-    float[] sun_col = sun.param.color;
+    float[] sky_col = sky.param.rgb;
+    float[] sun_col = sun.param.rgb;
     
     pg.beginDraw();
     pg.clear();

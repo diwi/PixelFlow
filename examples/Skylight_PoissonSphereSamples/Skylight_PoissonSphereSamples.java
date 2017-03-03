@@ -1,11 +1,16 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
+
+
 
 package Skylight_PoissonSphereSamples;
 
@@ -28,6 +33,13 @@ import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
 public class Skylight_PoissonSphereSamples extends PApplet {
+  
+  //
+  // Animated Spheres (Poisson Distribution) + Skylight Renderer
+  // 
+  // ... for testing and tweaking interactivity and realtime behaviour.
+  // 
+  
   
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -106,7 +118,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     skylight.sky.param.solar_zenith   = 0;
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
-    skylight.sky.param.color          = new float[]{1,1,1};
+    skylight.sky.param.rgb            = new float[]{1,1,1};
     skylight.sky.param.singlesided    = false;
     skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
@@ -116,7 +128,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     skylight.sun.param.solar_zenith   = 55;
     skylight.sun.param.sample_focus   = 0.10f;
     skylight.sun.param.intensity      = 1.0f;
-    skylight.sun.param.color          = new float[]{1,1,1};
+    skylight.sun.param.rgb            = new float[]{1,1,1};
     skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
     
@@ -298,7 +310,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     
     colorMode(HSB, 360, 1, 1);
     float hsb_h = 30 + (float)(Math.random() - 0.5f) * 30 ;
-    float hsb_s = (float) Math.random();
+    float hsb_s = (float) Math.random() * 0.99f + 0.01f;
     float hsb_b = hsb_s*2;
     
     shp_sphere.setFill(color(hsb_h, hsb_s, hsb_b));

@@ -1,11 +1,16 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
+
+
 
 package Skylight_ClothSimulation;
 
@@ -36,10 +41,10 @@ import processing.opengl.PGraphics3D;
 public class Skylight_ClothSimulation extends PApplet {
 
   //
-  // 3D Cloth, interacting with another flat softbody.
+  // Cloth simulation + Skylight Renderer
   // 
-  // + Collision Detection
-  //
+  // ... for testing and tweaking interactivity and realtime behaviour.
+  // 
   // Controls:
   // LMB: drag particles
   // MMB: drag + fix particles to a location
@@ -48,7 +53,6 @@ public class Skylight_ClothSimulation extends PApplet {
   // ALT + LMB: Camera ROTATE
   // ALT + MMB: Camera PAN
   // ALT + RMB: Camera ZOOM
-  //
   //
   
   
@@ -217,7 +221,7 @@ public class Skylight_ClothSimulation extends PApplet {
     skylight.sky.param.solar_zenith   = 0;
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
-    skylight.sky.param.color          = new float[]{1,1,1};
+    skylight.sky.param.rgb            = new float[]{1,1,1};
     skylight.sky.param.singlesided    = true;
     skylight.sky.param.shadowmap_size = 512; // quality vs. performance
     
@@ -227,7 +231,7 @@ public class Skylight_ClothSimulation extends PApplet {
     skylight.sun.param.solar_zenith   = 45;
     skylight.sun.param.sample_focus   = 0.12f;
     skylight.sun.param.intensity      = 1.2f;
-    skylight.sun.param.color          = new float[]{1,1,1};
+    skylight.sun.param.rgb            = new float[]{1,1,1};
     skylight.sun.param.singlesided    = true;
     skylight.sun.param.shadowmap_size = 512;
     

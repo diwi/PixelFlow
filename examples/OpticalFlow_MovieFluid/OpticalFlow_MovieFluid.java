@@ -96,7 +96,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       context.begin();
       context.getGLTextureHandle(pg_movie_a, pg_tex_handle);
       context.beginDraw(fluid.tex_density.dst);
-      DwGLSLProgram shader = context.createShader("examples/OpticalFlow_MovieFluid/data/addDensityCam.frag");
+      DwGLSLProgram shader = context.createShader("data/addDensityCam.frag");
       shader.begin();
       shader.uniform2f     ("wh"        , fluid.fluid_w, fluid.fluid_h);                                                                   
       shader.uniform1i     ("blend_mode", 6);   
@@ -266,8 +266,10 @@ public class OpticalFlow_MovieFluid extends PApplet {
     pg_oflow.smooth(4);
     
     
-    font = createFont("SourceCodePro-Regular.ttf", 12);
+    font = createFont("../data/SourceCodePro-Regular.ttf", 12);
     
+    // movie file is not contained in the library release
+    // to keep the file size small. please use one of your own videos instead.
     movie = new Movie(this, "examples/data/Pulp_Fiction_Dance_Scene.mp4");
     movie.loop();
     
