@@ -6,7 +6,7 @@
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-package Skylight_Basic;
+package Skylight_BasicGUI;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;

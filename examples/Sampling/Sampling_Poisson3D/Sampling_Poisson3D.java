@@ -7,9 +7,10 @@
  * 
  */
 
-package Sampling;
+package Sampling.Sampling_Poisson3D;
 
 
+import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -20,18 +21,10 @@ import peasy.PeasyCam;
 import processing.core.PApplet;
 import processing.core.PShape;
 
-public class Sampling_Poisson3D_anim extends PApplet {
+public class Sampling_Poisson3D extends PApplet {
   
   PeasyCam cam;
   
-  
-  float[] bounds = {-500,-500,0, 500, 500, 500};
-  float rmin = 50;
-  float rmax = 100;
-  float roff = 1;
-  int new_points = 50;
-  
-  PoissonDiscSamping3D<MyPoissonSample> pds;
   PShape shp_samples_spheres;
   PShape shp_samples_points;
 
@@ -45,40 +38,23 @@ public class Sampling_Poisson3D_anim extends PApplet {
   
   
   static class MyPoissonSample extends PoissonSample{
-    public float anim_rad = 0;
-    public float anim_speed = 0;
-    public float rad_inc = 0.01f;
- 
     public MyPoissonSample(float x, float y, float z, float r, float r_collision) {
       super(x, y, z, r, r_collision);
     }
-        
-    public void initAnimationRadius(){
-      anim_speed = 0.015f + (float) (Math.random() * 0.04f);
-      rad_inc = (float) Math.PI;
-    }
-    
-    public void updateAnimation(){
-      rad_inc += anim_speed;
-      anim_rad = (float) (Math.sin(rad_inc) * 0.5 + 0.5f); //[0, 1]
-      float min_scale = 0.2f;
-      anim_rad = min_scale + anim_rad *(1 - min_scale);
-    }
   }
   
-  
   public void setup(){
-    cam = new PeasyCam(this, 0, 0, 0, 1400);
+    cam = new PeasyCam(this, 0, 0, 0, 1000);
 
     generatePoissonSampling();
     
-    frameRate(60);
+    frameRate(1000);
   }
   
   
   public void generatePoissonSampling(){
-    
-    pds = new PoissonDiscSamping3D<MyPoissonSample>() {
+
+    PoissonDiscSamping3D<MyPoissonSample> pds = new PoissonDiscSamping3D<MyPoissonSample>() {
       @Override
       public MyPoissonSample newInstance(float x, float y, float z, float r, float rcollision){
         return new MyPoissonSample(x,y,z,r,rcollision);
@@ -86,7 +62,12 @@ public class Sampling_Poisson3D_anim extends PApplet {
     };
     
     long timer;
-
+    float[] bounds = {-200,-200,0, 200, 200, 400};
+    float rmin = 10;
+    float rmax = 50;
+    float roff = 1;
+    int new_points = 50;
+    
     timer = System.currentTimeMillis();
     
     pds.generatePoissonSampling(bounds, rmin, rmax, roff, new_points);
@@ -95,13 +76,13 @@ public class Sampling_Poisson3D_anim extends PApplet {
     System.out.println("poisson samples 3D generated");
     System.out.println("    time: "+timer+"ms");
     System.out.println("    count: "+pds.samples.size());
-
+    
+    
     timer = System.currentTimeMillis();
     shp_samples_spheres = createShape(GROUP);
     shp_samples_points  = createShape(GROUP);
     for(MyPoissonSample sample : pds.samples){
       addShape(sample);
-      sample.initAnimationRadius();
     }
     timer = System.currentTimeMillis() - timer;
     System.out.println("PShapes created");
@@ -109,31 +90,13 @@ public class Sampling_Poisson3D_anim extends PApplet {
     System.out.println("    count: "+pds.samples.size());
   }
   
-  
-  
-  public void updateSpheres(){
-    PShape[] shp_spheres = shp_samples_spheres.getChildren();
-    for(int i = 0; i < shp_spheres.length; i++){
-      PShape shp_sphere = shp_spheres[i];
-      MyPoissonSample sample = pds.samples.get(i);
-      sample.updateAnimation();
-      shp_sphere.resetMatrix();
-      shp_sphere.scale(sample.anim_rad);
-      shp_sphere.translate(sample.x(), sample.y(), sample.z());
-    }
-  }
 
   public void draw(){
-    updateSpheres();
-    display();
-  }
-  
-  
-  public void display(){
-    background(64);
-
     lights();
     pointLight(128, 96, 64, -500, -500, -1000);
+//    directionalLight(128, 96, 64, -500, -500, +1000);
+    
+    background(64);
     displayGizmo(500);
 
     if(DISPLAY_RADIUS){
@@ -141,15 +104,7 @@ public class Sampling_Poisson3D_anim extends PApplet {
     } else {
       shape(shp_samples_points);
     }
-   
   }
-  
-  
-  
-  
-  
-  
-  
   
   DwIndexedFaceSetAble ifs;
   
@@ -170,14 +125,11 @@ public class Sampling_Poisson3D_anim extends PApplet {
     shp_sphere.setStroke(false);
     shp_sphere.setFill(color(255));
     shp_sphere.resetMatrix();
-   
     shp_sphere.translate(sample.x(), sample.y(), sample.z());
    
-    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, !true);
+    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, true);
     
     shp_samples_spheres.addChild(shp_sphere);
-    
-
     
     
 //    PShape shp_sphere_normals = createShape(PShape.GEOMETRY);
@@ -217,6 +169,6 @@ public class Sampling_Poisson3D_anim extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Sampling_Poisson3D_anim.class.getName() });
+    PApplet.main(new String[] { Sampling_Poisson3D.class.getName() });
   }
 }

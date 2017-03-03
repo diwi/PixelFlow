@@ -7,7 +7,7 @@
  * 
  */
 
-package Sampling;
+package Sampling.Sampling_Fibonacci;
 
 
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
@@ -16,7 +16,7 @@ import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PVector;
 
-public class Sampling_Fiboniacci extends PApplet {
+public class Sampling_Fibonacci extends PApplet {
 
  
   PShape shp_samples;
@@ -60,6 +60,6 @@ public class Sampling_Fiboniacci extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Sampling_Fiboniacci.class.getName() });
+    PApplet.main(new String[] { Sampling_Fibonacci.class.getName() });
   }
 }

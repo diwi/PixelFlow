@@ -7,7 +7,7 @@
  * 
  */
 
-package Softbody3D_Cloth;
+package Skylight_ClothSimulation;
 
 
 
@@ -33,7 +33,7 @@ import processing.core.PMatrix3D;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
-public class Softbody3D_Cloth_Skylight extends PApplet {
+public class Skylight_ClothSimulation extends PApplet {
 
   //
   // 3D Cloth, interacting with another flat softbody.
@@ -851,6 +851,6 @@ public class Softbody3D_Cloth_Skylight extends PApplet {
   }
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Softbody3D_Cloth_Skylight.class.getName() });
+    PApplet.main(new String[] { Skylight_ClothSimulation.class.getName() });
   }
 }

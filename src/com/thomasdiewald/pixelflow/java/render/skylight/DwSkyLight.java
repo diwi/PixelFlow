@@ -9,11 +9,7 @@
 package com.thomasdiewald.pixelflow.java.render.skylight;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
-import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PMatrix3D;
-import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 
 

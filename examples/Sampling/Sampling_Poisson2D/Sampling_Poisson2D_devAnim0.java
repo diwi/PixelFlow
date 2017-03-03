@@ -7,7 +7,7 @@
  * 
  */
 
-package Sampling;
+package Sampling.Sampling_Poisson2D;
 
 
 

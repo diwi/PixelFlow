@@ -19,11 +19,9 @@ import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.core.PMatrix2D;
 import processing.core.PMatrix3D;
 import processing.core.PVector;
 import processing.opengl.PGraphics3D;
-import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 
 
