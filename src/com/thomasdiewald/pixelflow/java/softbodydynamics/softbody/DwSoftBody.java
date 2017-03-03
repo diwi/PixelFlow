@@ -64,6 +64,7 @@ public abstract class DwSoftBody{
     setParticleColor(toARGB(rgb));
   }
   
+//  static public float darken_ = 0.6f;
   public void setParticleColor(int particle_color){
     this.particle_color = particle_color;
     
@@ -71,7 +72,7 @@ public abstract class DwSoftBody{
     int r = (particle_color >> 16) & 0xFF;
     int g = (particle_color >>  8) & 0xFF;
     int b = (particle_color >>  0) & 0xFF;
-    float s = 0.6f;
+    float s = 0.8f;
     r = (int)Math.round(r*s);
     g = (int)Math.round(g*s);
     b = (int)Math.round(b*s);

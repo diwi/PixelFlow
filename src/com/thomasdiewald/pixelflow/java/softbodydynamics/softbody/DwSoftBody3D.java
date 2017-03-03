@@ -1,6 +1,7 @@
 package com.thomasdiewald.pixelflow.java.softbodydynamics.softbody;
 
 
+import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -93,7 +94,7 @@ public abstract class DwSoftBody3D extends DwSoftBody{
     } else {
       if(ifs == null){
         ifs = new DwIcosahedron(1);
-  //      ifs = new DwCube(1);
+//        ifs = new DwCube(1);
       }
       shape = papplet.createShape(PShape.GEOMETRY);
       shape.setStroke(false);

@@ -120,8 +120,9 @@ public class Skylight_Basic extends PApplet {
     // update renderer
     skylight.update();
 
-    // display result
+  
     peasycam.beginHUD();
+    // display result
     image(skylight.renderer.pg_render, 0, 0);
     peasycam.endHUD();
 

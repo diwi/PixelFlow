@@ -153,8 +153,9 @@ public class Skylight_BasicGUI extends PApplet {
     // update renderer
     skylight.update();
 
-    // display result
+ 
     peasycam.beginHUD();
+    // display result
     image(skylight.renderer.pg_render, 0, 0);
     // display textures
     if(DISPLAY_TEXTURES){
