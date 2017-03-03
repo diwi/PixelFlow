@@ -31,9 +31,11 @@
   - Interactive/realtime viewport renderer
   - Ambient Occlusion
   - Diffuse Shading
+  - ShadowMapping
 + Utils
   - HalfEdge
   - Subdivision Polyhedra
+  - Sampling
 ```    
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
