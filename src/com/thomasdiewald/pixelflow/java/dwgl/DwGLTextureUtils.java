@@ -32,12 +32,13 @@ public class DwGLTextureUtils {
     PGL pgl;
     pgl = pg.beginPGL();
     pgl.bindTexture(tex.glTarget, tex.glName);
-    
+
     
 //    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
 //    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST); // GL_NEAREST, GL_LINEAR
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+    
 //    
 //    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_COMPARE_MODE, GL2ES2.GL_COMPARE_REF_TO_TEXTURE);
 //    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_COMPARE_FUNC, GL2ES2.GL_LEQUAL);

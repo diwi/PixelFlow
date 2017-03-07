@@ -80,7 +80,8 @@ public class DwPixelFlow{
 //    System.out.println("GL_MAX_PROGRAM_TEXEL_OFFSET "+rval[1]);
     
     pjogl.enableFBOLayer();
-    
+
+
     papplet.registerMethod("dispose", this);
     
     utils = new DwUtils(this);

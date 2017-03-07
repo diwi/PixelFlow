@@ -29,6 +29,7 @@ uniform vec3 dir_light;
 
 uniform float shadow_bias_mag = 0;
 uniform vec2 wh;
+uniform vec2 wh_shadow;
 uniform sampler2D tex_shadow;
 uniform sampler2D tex_src;
 uniform float pass_mix;
@@ -48,14 +49,15 @@ vec3 decodeNormal3f(in vec2 n2){
 }
 
 float getShadow(vec4 p_frag_shadow){
-  return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
+  // return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
+  return step(p_frag_shadow.z, texelFetch(tex_shadow, ivec2(p_frag_shadow.xy*wh_shadow), 0).r);
 }
 
 
 void main(void) {
 
   vec2 fragcoordn = (gl_FragCoord.xy) / wh;
-  vec4 geom = texture(tex_geombuffer, fragcoordn);
+  vec4 geom = texelFetch(tex_geombuffer, ivec2(gl_FragCoord.xy), 0);
   
   // transform vertex normal to eye-space
   // vec3 vert_normal = normalize(normalMatrix * vertNormal);
@@ -109,7 +111,7 @@ void main(void) {
   }
   
   // average
-  float shading_old = texture2D(tex_src, fragcoordn).r;
+  float shading_old = texelFetch(tex_src, ivec2(gl_FragCoord.xy), 0).r;
   float shading_new = mix(shading_cur, shading_old, pass_mix);
   gl_FragColor = vec4(shading_new);
 }

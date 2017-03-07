@@ -20,6 +20,7 @@ import java.util.Locale;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
+import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
@@ -135,13 +136,72 @@ public class Skylight_Basic extends PApplet {
       skylight.reset();
     }
 
+
+    
+    
+    
+    float rand = (float) Math.random()*2-1;
+    
+    rand *= 0.5f;
+//    rand
+
+    float PI         = (float)Math.PI;
+    float DEG_TO_RAD = PI/180.0f;
+
+    float view_sx = width;
+    float view_sy = height;
+    
+    
+    float aspect = view_sx/(float)view_sy;
+    float fovy = 60 * DEG_TO_RAD;
+    float znear = 2;
+    float zfar = 5000;
+    
+//    geombuffer.pg_geom.perspective(fovy, aspect, znear, zfar);
+//    geombuffer.pg_geom.translate(100, rand);
+    
+    
+//    float fov2 = ((fovy*PI) / 180.0f) / 2.0f;
+//    float top = (float) (znear / (Math.cos(fov2) / Math.sin(fov2)));
+//    float bottom = -top;
+//    float right = top * aspect;
+//    float left = -right;
+    float top = znear * (float) Math.tan(fovy / 2);
+    float bottom = -top;
+    float left = bottom * aspect;
+    float right = top * aspect;
+    
+    float sizex = right-left;
+    float sizey = top-bottom;
+
+    // jitter
+    float dx = rand * sizex / view_sx;
+    float dy = rand * sizey / view_sy;
+
+//    frustum(left+dx, right+dx, bottom+dy, top+dy, znear, zfar);
+    
+//    PGraphics3D p3d = (PGraphics3D)(this.g);
+//    rand *= 0.1f;
+//    PMatrix3D mat_cam = p3d.camera.get();
+//    
+//    float[] xyz = DwSampling.uniformSampleSphere_Random();
+//    float scale = 0.1f;
+//    xyz[0] *= scale;
+//    xyz[1] *= scale;
+//    xyz[2] *= scale;
+//    p3d.camera.translate(xyz[0], xyz[1], xyz[2]);
+////    p3d.camera.rotate(0.003f, xyz[0], xyz[1], xyz[2]);
+    
+    
     // update renderer
     skylight.update();
-
+    
+//    p3d.camera.set(mat_cam);
   
     peasycam.beginHUD();
     // display result
     image(skylight.renderer.pg_render, 0, 0);
+//    image(skylight.sky.getSrc(), 0, 0);
     peasycam.endHUD();
 
     // some info, window title

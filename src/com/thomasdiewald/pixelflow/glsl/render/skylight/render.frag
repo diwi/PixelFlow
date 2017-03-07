@@ -30,6 +30,7 @@ uniform float gamma = 2.2;
 void main(void) {
 
   vec3 shading = vertColor.rgb;
+  // shading = vec3(1);
 
   vec2 fragCoordn = (gl_FragCoord.xy)/wh;
   vec3 shading_SKY = texture2D(tex_sky, fragCoordn).r * mult_sky;

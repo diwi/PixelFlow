@@ -123,6 +123,14 @@ public class DwSkyLightRenderer {
     shader.set("mult_sky", sky_col[0] * sky_int, sky_col[1] * sky_int, sky_col[2] * sky_int);
     shader.set("gamma", param.gamma);
     scene_display.display(pg);
+    
+//    pg.resetMatrix();
+//    pg.resetProjection();
+//    pg.noStroke();
+//    pg.fill(0);
+//    pg.rect(-1,-1,2,2);
+    
+    
     pg.endDraw();
   }
   
