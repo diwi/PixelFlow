@@ -31,7 +31,8 @@ public class DwFilter {
   public final BilateralFilter bilateral;
   public final Convolution     convolution;
   public final DoG             dog;
-  public final GammaCorrection gammacorrection;
+  public final GammaCorrection gamma;
+  public final RGBL            rgbl;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
@@ -49,7 +50,8 @@ public class DwFilter {
     bilateral   = new BilateralFilter (context);
     convolution = new Convolution     (context);
     dog         = new DoG             (context);
-    gammacorrection = new GammaCorrection(context);
+    gamma       = new GammaCorrection(context);
+    rgbl        = new RGBL(context);
     
     filter_cache.put(context, this);
   }

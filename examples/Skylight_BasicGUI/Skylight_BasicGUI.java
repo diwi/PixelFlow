@@ -221,8 +221,22 @@ public class Skylight_BasicGUI extends PApplet {
     
     canvas.pushMatrix();
     canvas.applyMatrix(mat_scene_view);
+//    shape.setStroke(false);
+////    shape.setFill(true);
+//    
+//    if(canvas == skylight.renderer.pg_render && skylight.renderer.STEP == 1){
+//      shape.setStroke(true);
+//      shape.setStrokeWeight(1.1f);
+//      shape.setStroke(color(0));
+////      shape.setFill(false);
+//    } else {
+////      shape.setStroke(false);
+////      shape.setFill(true);
+//    }
+    
     canvas.shape(shape);
     canvas.popMatrix();
+
   }
   
   

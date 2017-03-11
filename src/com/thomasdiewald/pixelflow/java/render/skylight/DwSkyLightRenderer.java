@@ -79,7 +79,7 @@ public class DwSkyLightRenderer {
 
     pg_render.beginDraw();
     pg_render.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_render.textureSampling(0);
+    pg_render.textureSampling(2);
     pg_render.background(0);
     pg_render.blendMode(PConstants.REPLACE);
     pg_render.shader(shader);
@@ -90,6 +90,7 @@ public class DwSkyLightRenderer {
   public void updateMatrices(){
     DwGLTextureUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
   }
+//  public int STEP = 0;
   
   public void update(){
     
@@ -113,6 +114,7 @@ public class DwSkyLightRenderer {
     float[] sky_col = sky.param.rgb;
     float[] sun_col = sun.param.rgb;
     
+//    STEP = 0;
     pg.beginDraw();
     pg.clear();
     pg.shader(shader);
@@ -131,7 +133,14 @@ public class DwSkyLightRenderer {
 //    pg.rect(-1,-1,2,2);
     
     
+//    STEP = 1;
+////    pg.clear();
+//    pg.resetShader();
+//    scene_display.display(pg);
+    
     pg.endDraw();
+    
+
   }
   
   

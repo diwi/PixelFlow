@@ -11,9 +11,12 @@
 
 package com.thomasdiewald.pixelflow.java.dwgl;
 
+import java.io.File;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -70,13 +73,48 @@ public class DwGLSLShader{
     this.gl = context.gl;
     this.type = type;
     this.path = path;
-    content = context.utils.readASCIIfile(path);
-
-    for(int i = 0; i < content.length; i++){
-      content[i] += DwUtils.NL;
-    }
+    
+    this.content = loadSource(path);
+    
     build();
   }
+  
+  
+  
+  public String[] loadSource(String path){
+    ArrayList<String> source = new ArrayList<String>();
+    
+    loadSource(0, source, new File(path));
+    
+    String[] content = new String[source.size()];
+    source.toArray(content);
+    return content;
+  }
+  
+  public void loadSource(int depth, ArrayList<String> source, File file){
+//    System.out.println("parsing file: "+file);
+    String[] lines = context.utils.readASCIIfile(file.getPath());
+    
+    if(depth++ > 5){
+      throw new StackOverflowError("recursive #include: "+file);
+    }
+    
+    File file_dir = file.getParentFile();
+    
+    for(int i = 0; i < lines.length; i++){
+      String line = lines[i];
+      String line_trim = line.trim();
+      if(line_trim.startsWith("#include")){
+        String include_file = line_trim.substring("#include".length()).replace("\"", "").trim();
+        File file_to_include = new File(file_dir, include_file);
+        loadSource(depth, source, file_to_include);
+      } else {
+        source.add(line + DwUtils.NL);
+      }
+    }
+  }
+  
+  
   
 
 

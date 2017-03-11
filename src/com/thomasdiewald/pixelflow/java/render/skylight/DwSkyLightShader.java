@@ -208,7 +208,7 @@ public class DwSkyLightShader {
     
 //    float rand = (float) Math.random()*2-1;
 //    
-////    rand *= 0.5f;
+//    rand *= 0.5f;
 ////    rand = 0;
 ////    rand
 //

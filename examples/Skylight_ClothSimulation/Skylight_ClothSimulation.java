@@ -766,9 +766,9 @@ public class Skylight_ClothSimulation extends PApplet {
   
   public void displayGizmo(PGraphics3D canvas, float s){
     if(shp_gizmo == null){
-      strokeWeight(1);
       shp_gizmo = createShape();
       shp_gizmo.beginShape(LINES);
+      shp_gizmo.strokeWeight(1);
       shp_gizmo.stroke(255,0,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(s,0,0);
       shp_gizmo.stroke(0,255,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,s,0); 
       shp_gizmo.stroke(0,0,255); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,0,s); 
