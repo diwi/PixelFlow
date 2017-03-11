@@ -1,3 +1,16 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * 
+ * src  - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
+
+
 #version 150
 
 
@@ -30,7 +43,7 @@ void main( void ){
   //   0.50 - lower limit (sharper, less sub-pixel aliasing removal)
   //   0.25 - almost off
   //   0.00 - completely off
-	FxaaFloat fxaaQualitySubpix = 0.75;
+  FxaaFloat fxaaQualitySubpix = 0.75;
 
   // The minimum amount of local contrast required to apply algorithm.
   //   0.333 - too little (faster)
@@ -38,7 +51,7 @@ void main( void ){
   //   0.166 - default
   //   0.125 - high quality 
   //   0.063 - overkill (slower)
-	FxaaFloat fxaaQualityEdgeThreshold = 0.125;
+  FxaaFloat fxaaQualityEdgeThreshold = 0.125;
 
   // Trims the algorithm from processing darks.
   //   0.0833 - upper limit (default, the start of visible unfiltered edges)
@@ -50,9 +63,9 @@ void main( void ){
   //   will appear very dark in the green channel!
   //   Tune by looking at mostly non-green content,
   //   then start at zero and increase until aliasing is a problem.
-	FxaaFloat fxaaQualityEdgeThresholdMin = 0.0;
+  FxaaFloat fxaaQualityEdgeThresholdMin = 0.0;
   
-	glFragColor = FxaaPixelShader(
+  glFragColor = FxaaPixelShader(
       wh_rcp * gl_FragCoord.xy
     , vec4(0.0)
     , tex

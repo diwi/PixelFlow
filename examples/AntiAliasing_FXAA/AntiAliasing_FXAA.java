@@ -37,18 +37,8 @@ import processing.opengl.PGraphics3D;
 
 
 public class AntiAliasing_FXAA extends PApplet {
-  
-  //
-  // Basic setup for the Skylight renderer.
-  // 
-  // Its important to compute or define a most optimal bounding-sphere for the
-  // scene. This can be done manually or automatically, as shown in this example.
-  // 
-  // Any existing sketch utilizing the P3D renderer can be extended to use the 
-  // Skylight renderer.
-  //
-  
-  
+
+
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -57,9 +47,11 @@ public class AntiAliasing_FXAA extends PApplet {
   // camera control
   PeasyCam peasycam;
   
-  float BACKGROUND_COLOR = 32;
   float gamma = 2.2f;
+  float BACKGROUND_COLOR = 32;
   
+
+
   // scene to render
   PShape shape;
   
@@ -108,19 +100,15 @@ public class AntiAliasing_FXAA extends PApplet {
   
 
   public void draw() {
-    
+    float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
 
     DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render);
 
-    float gamma_corrected_bg = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
-    
-
-
-    boolean APPLY_FXAA = keyPressed && key == ' ';
+    boolean APPLY_FXAA = !(keyPressed && key == ' ');
     
     pg_render.beginDraw();
     pg_render.blendMode(PConstants.BLEND);
-    pg_render.background(gamma_corrected_bg);
+    pg_render.background(BACKGROUND_COLOR_GAMMA);
     pg_render.lights();
     displayScene(pg_render);
     pg_render.endDraw();
@@ -131,10 +119,10 @@ public class AntiAliasing_FXAA extends PApplet {
     pg_render.blendMode(PConstants.REPLACE);
     pg_render.endDraw();
     DwFilter.get(context).gamma.apply(pg_render, pg_render, 2.2f);
-//    if(APPLY_FXAA){
-      DwFilter.get(context).rgbl.apply(pg_render, pg_render);
-      fxaa.apply(pg_render, pg_fxaa);
-//    }
+    DwFilter.get(context).rgbl.apply(pg_render, pg_render);
+    
+    // AntiAliasing ... FXAA
+    fxaa.apply(pg_render, pg_fxaa);
     
 
     blendMode(PConstants.REPLACE);
