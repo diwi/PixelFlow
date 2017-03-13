@@ -90,17 +90,18 @@ public class SMAA {
     if(!tex_src.available()) 
       return;
     
-//    Texture tex_dst = dst.getTexture();
-//    if(!tex_dst.available()) 
-//      return;
-    
+    Texture tex_dst = dst.getTexture();
+    if(!tex_dst.available()) {
+      return;
+    }
+
     int w = src.width;
     int h = src.height;
     
     resize(w, h);
      
     context.begin();
-    
+
     // PASS 1 - Edges
     context.beginDraw(tex_edges);
     context.gl.glClearColor(0,0,0,0);
@@ -132,7 +133,7 @@ public class SMAA {
     shader_smaa.begin();
     shader_smaa.uniform2f     ("wh_rcp"   , 1f/w, 1f/h);
     shader_smaa.uniformTexture("tex_color", tex_src.glName);
-    shader_smaa.uniformTexture("tex_blend", tex_blend .HANDLE[0]);
+    shader_smaa.uniformTexture("tex_blend", tex_blend.HANDLE[0]);
     shader_smaa.drawFullScreenQuad();
     shader_smaa.end();
     context.endDraw("smaa - pass3");

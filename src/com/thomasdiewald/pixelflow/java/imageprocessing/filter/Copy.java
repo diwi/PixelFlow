@@ -52,11 +52,22 @@ public class Copy {
   }
   
   public void apply(DwGLTexture src, PGraphicsOpenGL dst) {
-    dst.beginDraw();
+//    dst.beginDraw();
+//    context.begin();
+//    apply(src.HANDLE[0], dst.width, dst.height);
+//    context.end("Copy.apply");
+//    dst.endDraw();
+    
+    Texture tex_dst = dst.getTexture();
+    if(!tex_dst.available()) 
+      return;
+    
     context.begin();
+    context.beginDraw(dst);
     apply(src.HANDLE[0], dst.width, dst.height);
+    context.endDraw();
     context.end("Copy.apply");
-    dst.endDraw();
+    
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst) {

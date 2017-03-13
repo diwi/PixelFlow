@@ -11,6 +11,8 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -35,11 +37,22 @@ public class RGBL {
     if(!tex_src.available()) 
       return;
        
-    dst.beginDraw();
+//    dst.beginDraw();
+//    context.begin();
+//    apply(tex_src.glName, dst.width, dst.height);
+//    context.end("RGBL.apply");
+//    dst.endDraw();
+    
+    Texture tex_dst = dst.getTexture();
+    if(!tex_dst.available()){
+      return;
+    }
+
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height);
+    context.endDraw();
     context.end("RGBL.apply");
-    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
@@ -66,11 +79,20 @@ public class RGBL {
   DwGLSLProgram shader;
   public void apply(int tex_handle, int w, int h){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/RGBL.frag");
+    
+//    byte[] blend = new byte[1];
+//    context.gl.glGetBooleanv(GL2ES2.GL_BLEND, blend, 0);
+//    context.gl.glDisable(GL2ES2.GL_BLEND); // TODO check if this breaks something else
     shader.begin();
     shader.uniform2f     ("wh" , w, h);
     shader.uniformTexture("tex", tex_handle);
     shader.uniform3fv("luminance", 1, luminance);
     shader.drawFullScreenQuad(0, 0, w, h);
+    
+//    if(blend[0] == 1){
+//      context.gl.glEnable(GL2ES2.GL_BLEND);
+//    }
+
     shader.end();
   }
   

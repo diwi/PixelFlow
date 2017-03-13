@@ -84,5 +84,5 @@ void main(){
     , vec4(0.0)                   // FxaaFloat4 fxaaConsole360ConstDir
   );
   
-  //glFragColor.a = 1;
+  glFragColor.a = 1;
 }
