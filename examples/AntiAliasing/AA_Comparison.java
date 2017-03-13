@@ -13,23 +13,33 @@
 
 
 
-package AntiAliasing_SMAA;
+package AntiAliasing;
 
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
+import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
+import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
+import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
+
 import peasy.*;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PFont;
 import processing.core.PGraphics;
+import processing.core.PMatrix3D;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
 
-public class AntiAliasing_SMAA extends PApplet {
+public class AA_Comparison extends PApplet {
+
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -43,15 +53,32 @@ public class AntiAliasing_SMAA extends PApplet {
   float BACKGROUND_COLOR = 32;
   
 
+
   // scene to render
   PShape shape;
   
-  PGraphics3D pg_render;
-  PGraphics3D pg_smaa;
+  PGraphics3D pg_render_noaa;
+  PGraphics3D pg_render_smaa;
+  PGraphics3D pg_render_fxaa;
+  PGraphics3D pg_render_msaa;
+  
+  
+  AA_MODE aa_mode = AA_MODE.NOAA;
+  
   
   DwPixelFlow context;
+  FXAA fxaa;
   SMAA smaa;
-
+  
+  PFont font;
+  
+  enum AA_MODE{
+    NOAA,
+    MSAA,
+    SMAA,
+    FXAA
+  }
+  
   public void settings() {
     size(viewport_w, viewport_h, P3D);
     smooth(0);
@@ -71,21 +98,41 @@ public class AntiAliasing_SMAA extends PApplet {
     shape = loadShape("examples/data/skylight_demo_scene.obj");
     shape.scale(10);
     
-    // main rendertarget
-    pg_render = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render.smooth(0);
-    pg_render.textureSampling(5);
+    // NO AA
+    pg_render_noaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_render_noaa.smooth(0);
+    pg_render_noaa.textureSampling(5);
+    
+    // MSAA
+    pg_render_msaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_render_msaa.smooth(8);
 
-    // postprocessing AA
-    pg_smaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_smaa.smooth(0);
-    pg_smaa.textureSampling(5);
-    pg_smaa.beginDraw();
-    pg_smaa.blendMode(PConstants.REPLACE);
-    pg_smaa.endDraw();
+    // FXAA
+    pg_render_fxaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_render_fxaa.smooth(0);
+    pg_render_fxaa.textureSampling(5);
+    pg_render_fxaa.beginDraw();
+    pg_render_fxaa.blendMode(PConstants.REPLACE);
+    pg_render_fxaa.endDraw();
+    
+    // SMAA
+    pg_render_smaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_render_smaa.smooth(0);
+    pg_render_smaa.textureSampling(5);
+    pg_render_smaa.beginDraw();
+    pg_render_smaa.blendMode(PConstants.REPLACE);
+    pg_render_smaa.endDraw();
     
     context = new DwPixelFlow(this);
+    
+    fxaa = new FXAA(context);
     smaa = new SMAA(context);
+    
+    
+    // processing font
+//    font = createFont("SourceCodePro-Regular.ttf", 32);
+    font = createFont("Calibri", 32);
+    textFont(font);
     
     frameRate(1000);
   }
@@ -93,39 +140,61 @@ public class AntiAliasing_SMAA extends PApplet {
   
 
   public void draw() {
-    float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
 
-    DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render);
+    DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render_noaa);
+    DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render_msaa);
+    
+    
+    if(aa_mode == AA_MODE.MSAA){
+      pg_render_msaa.beginDraw();
+      displayScene(pg_render_msaa);
+      pg_render_msaa.endDraw();
+      
+      pg_render_msaa.beginDraw();
+      pg_render_msaa.blendMode(PConstants.REPLACE);
+      pg_render_msaa.endDraw();
+      
+      DwFilter.get(context).gamma.apply(pg_render_msaa, pg_render_msaa, gamma);
+    }
+    
+    if(aa_mode == AA_MODE.NOAA || aa_mode == AA_MODE.SMAA || aa_mode == AA_MODE.FXAA){
+      pg_render_noaa.beginDraw();
+      displayScene(pg_render_noaa);
+      pg_render_noaa.endDraw();
+      
+      pg_render_noaa.beginDraw();
+      pg_render_noaa.blendMode(PConstants.REPLACE);
+      pg_render_noaa.endDraw();
+      
+  
+      // 1) RGB gamma correction
+      DwFilter.get(context).gamma.apply(pg_render_noaa, pg_render_noaa, gamma);
+      
+      // 2) RGBL ... red, green, blue, luminance, for FXAA
+      DwFilter.get(context).rgbl.apply(pg_render_noaa, pg_render_noaa);
+      
+      if(aa_mode == AA_MODE.SMAA) smaa.apply(pg_render_noaa, pg_render_smaa);
+      if(aa_mode == AA_MODE.FXAA) fxaa.apply(pg_render_noaa, pg_render_fxaa);
+    }
+    
+    PGraphics3D display = pg_render_noaa;
+    
+    switch(aa_mode){
+      case NOAA: display = pg_render_noaa; break;
+      case MSAA: display = pg_render_msaa; break;
+      case SMAA: display = pg_render_smaa; break;
+      case FXAA: display = pg_render_fxaa; break;
+    }
 
-    boolean APPLY_SMAA = !(keyPressed && key == ' ');
     
-    pg_render.beginDraw();
-    pg_render.blendMode(PConstants.BLEND);
-    pg_render.background(BACKGROUND_COLOR_GAMMA);
-    pg_render.pointLight(255, 255, 255, 600,600,600);
-    pg_render.pointLight(50, 50, 50, -600,-600,20);
-    pg_render.ambientLight(64, 64, 64);
-    displayScene(pg_render);
-    pg_render.endDraw();
-    
-    // 1) RGB gamma correction
-    // 2) RGBL ... red, green, blue, luminance
-    pg_render.beginDraw();
-    pg_render.blendMode(PConstants.REPLACE);
-    pg_render.endDraw();
-    DwFilter.get(context).gamma.apply(pg_render, pg_render, 2.2f);
-    
-    // AntiAliasing ... SMAA
-    smaa.apply(pg_render, pg_smaa);
-    
+
     blendMode(PConstants.REPLACE);
     clear();
     peasycam.beginHUD();
-    if(APPLY_SMAA) {
-      image(pg_smaa, 0, 0);
-    } else {
-      image(pg_render, 0, 0);
-    }
+    image(display, 0, 0);
+    
+    fill(255);
+    text(aa_mode+"", 10, height-10);
     peasycam.endHUD();
 
     // some info, window title
@@ -135,18 +204,25 @@ public class AntiAliasing_SMAA extends PApplet {
 
 
   public void displayScene(PGraphics canvas){
+    float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
+
+    canvas.blendMode(PConstants.BLEND);
+    canvas.background(BACKGROUND_COLOR_GAMMA);
+    canvas.pointLight(255, 255, 255, 600,600,600);
+    canvas.pointLight(50, 50, 50, -600,-600,20);
+    canvas.ambientLight(64, 64, 64);
     canvas.shape(shape);
-//    displayGizmo(canvas, 300);
-//    displayGridXY(canvas, 50, 10);
+    
+//    float aabb = 400;
+////    displayGizmo(canvas, 300);
+//    displayGridXY(canvas, 50, 20);
+//    displayAABB(canvas, new float[]{-aabb, -aabb, 0, aabb, aabb, aabb});
   }
   
   
   
   
   
-  
-  
-
   //////////////////////////////////////////////////////////////////////////////
   // Scene Display Utilities
   //////////////////////////////////////////////////////////////////////////////
@@ -159,7 +235,7 @@ public class AntiAliasing_SMAA extends PApplet {
     if(shp_gizmo == null){
       shp_gizmo = createShape();
       shp_gizmo.beginShape(LINES);
-      shp_gizmo.strokeWeight(1);
+      shp_gizmo.strokeWeight(1f);
       shp_gizmo.stroke(255,0,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(s,0,0);
       shp_gizmo.stroke(0,255,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,s,0); 
       shp_gizmo.stroke(0,0,255); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,0,s); 
@@ -173,7 +249,7 @@ public class AntiAliasing_SMAA extends PApplet {
       shp_gridxy = createShape();
       shp_gridxy.beginShape(LINES);
       shp_gridxy.stroke(0);
-      shp_gridxy.strokeWeight(1);
+      shp_gridxy.strokeWeight(1f);
       float d = lines*s;
       for(int i = 0; i <= lines; i++){
         shp_gridxy.vertex(-d,-i*s,0); shp_gridxy.vertex(d,-i*s,0);
@@ -274,9 +350,13 @@ public class AntiAliasing_SMAA extends PApplet {
   
   public void keyReleased(){
 //    printCam();
+    if(key == '1') aa_mode = AA_MODE.NOAA;
+    if(key == '2') aa_mode = AA_MODE.MSAA;
+    if(key == '3') aa_mode = AA_MODE.SMAA;
+    if(key == '4') aa_mode = AA_MODE.FXAA;
   }
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { AntiAliasing_SMAA.class.getName() });
+    PApplet.main(new String[] { AA_Comparison.class.getName() });
   }
 }

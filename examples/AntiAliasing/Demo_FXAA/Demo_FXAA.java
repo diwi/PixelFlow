@@ -13,7 +13,7 @@
 
 
 
-package AntiAliasing_FXAA;
+package AntiAliasing.Demo_FXAA;
 
 import java.util.Locale;
 
@@ -36,19 +36,9 @@ import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
 
-public class AntiAliasing_MSAA extends PApplet {
-  
-  //
-  // Basic setup for the Skylight renderer.
-  // 
-  // Its important to compute or define a most optimal bounding-sphere for the
-  // scene. This can be done manually or automatically, as shown in this example.
-  // 
-  // Any existing sketch utilizing the P3D renderer can be extended to use the 
-  // Skylight renderer.
-  //
-  
-  
+public class Demo_FXAA extends PApplet {
+
+
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -57,17 +47,23 @@ public class AntiAliasing_MSAA extends PApplet {
   // camera control
   PeasyCam peasycam;
   
+  float gamma = 2.2f;
+  float BACKGROUND_COLOR = 16;
+  
+
+
   // scene to render
   PShape shape;
   
   PGraphics3D pg_render;
+  PGraphics3D pg_fxaa;
   
-  float BACKGROUND_COLOR = 128;
-
+  DwPixelFlow context;
+  FXAA fxaa;
 
   public void settings() {
     size(viewport_w, viewport_h, P3D);
-    smooth(8);
+    smooth(0);
   }
   
   public void setup() {
@@ -84,8 +80,21 @@ public class AntiAliasing_MSAA extends PApplet {
     shape = loadShape("examples/data/skylight_demo_scene.obj");
     shape.scale(10);
     
+    // main rendertarget
     pg_render = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render.smooth(8);
+    pg_render.smooth(0);
+    pg_render.textureSampling(5);
+
+    // postprocessing AA
+    pg_fxaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_fxaa.smooth(0);
+    pg_fxaa.textureSampling(5);
+    pg_fxaa.beginDraw();
+    pg_fxaa.blendMode(PConstants.REPLACE);
+    pg_fxaa.endDraw();
+    
+    context = new DwPixelFlow(this);
+    fxaa = new FXAA(context);
     
     frameRate(1000);
   }
@@ -93,17 +102,42 @@ public class AntiAliasing_MSAA extends PApplet {
   
 
   public void draw() {
-   
+    float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
+
     DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render);
 
+    boolean APPLY_FXAA = !(keyPressed && key == ' ');
+    
     pg_render.beginDraw();
-    pg_render.background(BACKGROUND_COLOR);
-    pg_render.lights();
+    pg_render.blendMode(PConstants.BLEND);
+    pg_render.background(BACKGROUND_COLOR_GAMMA);
+//    pg_render.lights();
+    pg_render.pointLight(255, 255, 255, 600,600,600);
+    pg_render.pointLight(50, 50, 50, -600,-600,20);
+    pg_render.ambientLight(64, 64, 64);
     displayScene(pg_render);
     pg_render.endDraw();
     
+    // 1) RGB gamma correction
+    // 2) RGBL ... red, green, blue, luminance
+    pg_render.beginDraw();
+    pg_render.blendMode(PConstants.REPLACE);
+    pg_render.endDraw();
+    DwFilter.get(context).gamma.apply(pg_render, pg_render, gamma);
+    DwFilter.get(context).rgbl.apply(pg_render, pg_render);
+    
+    // AntiAliasing ... FXAA
+    fxaa.apply(pg_render, pg_fxaa);
+    
+
+    blendMode(PConstants.REPLACE);
+    clear();
     peasycam.beginHUD();
-    image(pg_render, 0, 0);
+    if(APPLY_FXAA) {
+      image(pg_fxaa, 0, 0);
+    } else {
+      image(pg_render, 0, 0);
+    }
     peasycam.endHUD();
 
     // some info, window title
@@ -113,13 +147,18 @@ public class AntiAliasing_MSAA extends PApplet {
 
 
   public void displayScene(PGraphics canvas){
-//    canvas.shape(shape);
-    displayGizmo(canvas, 300);
-    displayGridXY(canvas, 50, 10);
+    canvas.shape(shape);
+//    displayGizmo(canvas, 300);
+//    displayGridXY(canvas, 50, 10);
   }
   
   
   
+  
+  
+  
+  
+
   //////////////////////////////////////////////////////////////////////////////
   // Scene Display Utilities
   //////////////////////////////////////////////////////////////////////////////
@@ -223,6 +262,15 @@ public class AntiAliasing_MSAA extends PApplet {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
   public void printCam(){
     float[] pos = peasycam.getPosition();
     float[] rot = peasycam.getRotations();
@@ -237,10 +285,10 @@ public class AntiAliasing_MSAA extends PApplet {
   
   
   public void keyReleased(){
-    printCam();
+//    printCam();
   }
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { AntiAliasing_MSAA.class.getName() });
+    PApplet.main(new String[] { Demo_FXAA.class.getName() });
   }
 }
