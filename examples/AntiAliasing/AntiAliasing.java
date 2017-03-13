@@ -10,9 +10,6 @@
  */
 
 
-
-
-
 package AntiAliasing;
 
 import java.util.Locale;
@@ -36,20 +33,23 @@ import processing.opengl.PGraphics3D;
 public class AntiAliasing extends PApplet {
   
   //
-  // This example compares several AntiAliasing Algorithms.
+  // This example compares several Anti-Aliasing Algorithms.
   // 
   // 1) NOAA
   //    no AntiAliasing, default rendering mode
   //
-  // 2) MSAA - MultiSample AntiAliasing, 8x
+  //
+  // 2) MSAA - MultiSample AntiAliasing (8x)
   //    build in OpenGL AA, best quality, performance intensive
   //    https://www.khronos.org/opengl/wiki/Multisampling
   //
-  // 3) SMAA - Enhances Subpixel Morphological AntiAliasing
+  //
+  // 3) SMAA - Enhances SubPixel Morphological AntiAliasing
   //    PostProcessing, 3 passes, nice quality
   //    SMAA.h, Version 2.8: 
   //    http://www.iryoku.com/smaa/
   //    
+  //
   // 4) FXAA - Fast Approximate AntiAliasing
   //    PostProcessing, 1 pass, good quality - a bit blurry sometimes
   //    created "by Timothy Lottes under NVIDIA", FXAA_WhitePaper.pdf
@@ -59,14 +59,20 @@ public class AntiAliasing extends PApplet {
   //
   // controls:
   //
-  // key 0: NOAA
-  // key 1: MSAA(8)
-  // key 2: SMAA
-  // key 3: FXAA
+  // key '1': NOAA
+  // key '2': MSAA(8)
+  // key '3': SMAA
+  // key '4': FXAA
+  //
+  // ALT + LMB: Camera ROTATE
+  // ALT + MMB: Camera PAN
+  // ALT + RMB: Camera ZOOM
+  //
+
 
   
 
-  boolean START_FULLSCREEN = false;
+  boolean START_FULLSCREEN = !false;
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -76,40 +82,37 @@ public class AntiAliasing extends PApplet {
   // camera control
   PeasyCam peasycam;
   
-  // AntiAliasing
+  // library context
   DwPixelFlow context;
+  
+  // AntiAliasing
   FXAA fxaa;
   SMAA smaa;
   
-  // toggling active mode
-  AA_MODE aa_mode = AA_MODE.NOAA;
-  SMAA_MODE smaa_mode = SMAA_MODE.FINAL;
-  
-  // aa buffers
+  // AntiAliasing render targets
   PGraphics3D pg_render_noaa;
   PGraphics3D pg_render_smaa;
   PGraphics3D pg_render_fxaa;
   PGraphics3D pg_render_msaa;
+  
+  // toggling active AntiAliasing-Mode
+  AA_MODE aa_mode = AA_MODE.NOAA;
+  SMAA_MODE smaa_mode = SMAA_MODE.FINAL;
+  
+  // AA mode, selected with keys '1' - '4'
+  enum AA_MODE{  NOAA, MSAA, SMAA, FXAA }
+  // SMAA mode, selected with keys 'q', 'w', 'e'
+  enum SMAA_MODE{ EGDES, BLEND, FINAL }
   
   
   // render stuff
   PFont font;
   float gamma = 2.2f;
   float BACKGROUND_COLOR = 32;
-  PShape shape;
+  //  PShape shape;
 
-  enum AA_MODE{
-    NOAA,
-    MSAA,
-    SMAA,
-    FXAA
-  }
-  
-  enum SMAA_MODE{
-    EGDES,
-    BLEND,
-    FINAL
-  }
+
+
   
   public void settings() {
     if(START_FULLSCREEN){
@@ -124,11 +127,14 @@ public class AntiAliasing extends PApplet {
     smooth(0);
   }
   
+  
+  
+  
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
-    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1000);
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 2000);
     peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection
@@ -140,7 +146,7 @@ public class AntiAliasing extends PApplet {
     
     // load obj file into shape-object
 //    shape = loadShape("examples/data/skylight_demo_scene.obj");
-//    shape.scale(10);
+//    shape.scale(20);
 
     
     // MSAA - main render-target for MSAA
@@ -173,24 +179,18 @@ public class AntiAliasing extends PApplet {
     frameRate(1000);
   }
 
+
   
 
   public void draw() {
-
-    // peasycam is applied only onto the main canvas
-    DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render_noaa);
-    DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render_msaa);
-    
     if(aa_mode == AA_MODE.MSAA){
       displayScene(pg_render_msaa);
-      
       // RGB gamma correction
       DwFilter.get(context).gamma.apply(pg_render_msaa, pg_render_msaa, gamma);
     }
     
     if(aa_mode == AA_MODE.NOAA || aa_mode == AA_MODE.SMAA || aa_mode == AA_MODE.FXAA){
       displayScene(pg_render_noaa);
-
       // RGB gamma correction
       DwFilter.get(context).gamma.apply(pg_render_noaa, pg_render_noaa, gamma);
     }
@@ -199,6 +199,7 @@ public class AntiAliasing extends PApplet {
     if(aa_mode == AA_MODE.FXAA) fxaa.apply(pg_render_noaa, pg_render_fxaa);
     
     
+    // only for debugging
     if(aa_mode == AA_MODE.SMAA){
       if(smaa_mode == SMAA_MODE.EGDES) DwFilter.get(context).copy.apply(smaa.tex_edges, pg_render_smaa);
       if(smaa_mode == SMAA_MODE.BLEND) DwFilter.get(context).copy.apply(smaa.tex_blend, pg_render_smaa);
@@ -248,6 +249,10 @@ public class AntiAliasing extends PApplet {
   public void displayScene(PGraphics3D canvas){
     canvas.beginDraw();
     
+//    DwGLTextureUtils.copyMatrices((PGraphics3D) this.g, canvas);
+    peasycam.getState().apply(canvas);
+
+
     float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
 
     // background
@@ -271,7 +276,7 @@ public class AntiAliasing extends PApplet {
     int num_boxes = 50;
     int num_spheres = 50;
     
-    float bb_size = 400;
+    float bb_size = 800;
     float xmin = -bb_size;
     float xmax = +bb_size;
     float ymin = -bb_size;
@@ -290,8 +295,8 @@ public class AntiAliasing extends PApplet {
     for(int i = 0; i < num_boxes; i++){
       float px = random(xmin, xmax);
       float py = random(ymin, ymax);
-      float sx = random(100) + 10;
-      float sy = random(100) + 10;
+      float sx = random(200) + 10;
+      float sy = random(200) + 10;
       float sz = random(zmin, zmax);
 
       float hsb_h = 0;
@@ -326,7 +331,7 @@ public class AntiAliasing extends PApplet {
       float px = random(xmin, xmax);
       float py = random(ymin, ymax);
       float pz = random(zmin, zmax);
-      float rr = random(30) + 20;
+      float rr = random(50) + 50;
       
       
       boolean facets = (i%2 == 0);
@@ -349,7 +354,7 @@ public class AntiAliasing extends PApplet {
 
     canvas.colorMode(RGB, 255, 255, 255);
     
-    PShape grid = createGridXY(30,20);
+    PShape grid = createGridXY(30,40);
     grid.setStroke(true);
     grid.setStrokeWeight(1.0f);
     grid.setStroke(color(164, 64, 0));
@@ -390,7 +395,7 @@ public class AntiAliasing extends PApplet {
     System.out.printf(Locale.ENGLISH, "distance: (%7.3f)\n", dis);
   }
   
-  
+
   public void keyReleased(){
     if(key == 'c') printCam();
     
@@ -402,7 +407,6 @@ public class AntiAliasing extends PApplet {
     if(key == 'q') smaa_mode = SMAA_MODE.EGDES;
     if(key == 'w') smaa_mode = SMAA_MODE.BLEND;
     if(key == 'e') smaa_mode = SMAA_MODE.FINAL;
-
   }
   
   
