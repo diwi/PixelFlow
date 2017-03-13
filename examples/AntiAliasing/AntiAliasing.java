@@ -34,6 +34,37 @@ import processing.opengl.PGraphics3D;
 
 
 public class AntiAliasing extends PApplet {
+  
+  //
+  // This example compares several AntiAliasing Algorithms.
+  // 
+  // 1) NOAA
+  //    no AntiAliasing, default rendering mode
+  //
+  // 2) MSAA - MultiSample AntiAliasing, 8x
+  //    build in OpenGL AA, best quality, performance intensive
+  //    https://www.khronos.org/opengl/wiki/Multisampling
+  //
+  // 3) SMAA - Enhances Subpixel Morphological AntiAliasing
+  //    PostProcessing, 3 passes, nice quality
+  //    SMAA.h, Version 2.8: 
+  //    http://www.iryoku.com/smaa/
+  //    
+  // 4) FXAA - Fast Approximate AntiAliasing
+  //    PostProcessing, 1 pass, good quality - a bit blurry sometimes
+  //    created "by Timothy Lottes under NVIDIA", FXAA_WhitePaper.pdf
+  //    FXAA3_11.h, Version 3.11: 
+  //    https://docs.nvidia.com/gameworks/content/gameworkslibrary/graphicssamples/opengl_samples/fxaa.htm
+  //
+  //
+  // controls:
+  //
+  // key 0: NOAA
+  // key 1: MSAA(8)
+  // key 2: SMAA
+  // key 3: FXAA
+
+  
 
   boolean START_FULLSCREEN = false;
 
@@ -97,7 +128,7 @@ public class AntiAliasing extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
-    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 500);
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1000);
     peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection
@@ -108,8 +139,8 @@ public class AntiAliasing extends PApplet {
     textFont(font);
     
     // load obj file into shape-object
-    shape = loadShape("examples/data/skylight_demo_scene.obj");
-    shape.scale(10);
+//    shape = loadShape("examples/data/skylight_demo_scene.obj");
+//    shape.scale(10);
 
     
     // MSAA - main render-target for MSAA

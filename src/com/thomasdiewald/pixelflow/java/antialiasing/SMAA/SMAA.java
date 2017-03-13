@@ -11,25 +11,34 @@
 
 package com.thomasdiewald.pixelflow.java.antialiasing.SMAA;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow.Param;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 /**
- * @author Thomas
+ * 
+ * SMAA - Enhances Subpixel Morphological AntiAliasing
+ * 
+ * PostProcessing, 3 passes, nice quality
+ * 
+ * SMAA.h, Version 2.8: 
+ * http://www.iryoku.com/smaa/
+ * 
+ * copyright-note, see SMAA.h:
+ *   Uses SMAA. Copyright (C) 2011 by Jorge Jimenez, Jose I. Echevarria,
+ *   Tiago Sousa, Belen Masia, Fernando Navarro and Diego Gutierrez.
+ * 
+ * 
+ * 
+ * @author Thomas Diewald
  *
  */
 public class SMAA {

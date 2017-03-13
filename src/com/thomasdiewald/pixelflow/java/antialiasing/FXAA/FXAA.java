@@ -13,8 +13,6 @@ package com.thomasdiewald.pixelflow.java.antialiasing.FXAA;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow.Param;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import processing.core.PConstants;
@@ -22,7 +20,20 @@ import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 /**
- * @author Thomas
+ * 
+ * FXAA - Fast Approximate AntiAliasing
+ * 
+ * PostProcessing, 1 pass, good quality - a bit blurry sometimes
+ * 
+ * created "by Timothy Lottes under NVIDIA", FXAA_WhitePaper.pdf
+ * FXAA3_11.h, Version 3.11: 
+ * https://docs.nvidia.com/gameworks/content/gameworkslibrary/graphicssamples/opengl_samples/fxaa.htm
+ * 
+ * 
+ * copyright-note, see FXAA3_11.h:
+ *   Uses FXAA. Copyright (c) 2014-2015, NVIDIA CORPORATION.
+ *  
+ * @author Thomas Diewald
  *
  */
 public class FXAA {
