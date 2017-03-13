@@ -113,8 +113,13 @@ public class DwGLTexture{
         othr.byte_per_channel
         );
   }
-
+  
   public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
+    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+ 
+  }
+
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
 
     if(w <= 0 || h <= 0) return false;
     if(    this.w == w 
@@ -140,6 +145,9 @@ public class DwGLTexture{
     HANDLE = new int[1];
     gl.glGenTextures(1, HANDLE, 0);
     gl.glBindTexture  (target, HANDLE[0]);
+    
+    gl.glPixelStorei(GL2ES2.GL_UNPACK_ALIGNMENT, 1);
+    gl.glPixelStorei(GL2ES2.GL_PACK_ALIGNMENT,   1);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_BASE_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAX_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_EDGE);
@@ -156,8 +164,11 @@ public class DwGLTexture{
 
     // gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, GL2ES2.GL_NEAREST); // GL_NEAREST, GL_LINEAR
     // gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, GL2ES2.GL_NEAREST);
-    gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, null);
+    gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, data);
+//    gl.glTexSubImage2D(target, 0, 0, 0, w, h, format, type, data);
     gl.glBindTexture  (target, 0);   
+    
+
     
     DwGLError.debug(gl, "DwGLTexture.resize");
     

@@ -152,7 +152,7 @@ public class Fluid_StreamLines extends PApplet {
   
   public void settings() {
     size(viewport_w, viewport_h, P2D);
-    smooth(4);
+    smooth(8);
   }
   
   public void setup() {

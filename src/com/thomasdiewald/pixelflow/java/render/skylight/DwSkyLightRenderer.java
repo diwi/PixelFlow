@@ -79,7 +79,7 @@ public class DwSkyLightRenderer {
 
     pg_render.beginDraw();
     pg_render.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_render.textureSampling(2);
+    pg_render.textureSampling(5);
     pg_render.background(0);
     pg_render.blendMode(PConstants.REPLACE);
     pg_render.shader(shader);

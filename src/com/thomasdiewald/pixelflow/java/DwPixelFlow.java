@@ -26,7 +26,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLError;
 
 import processing.core.PApplet;
 import processing.opengl.FrameBuffer;
-import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PJOGL;
 
 
@@ -169,10 +169,10 @@ public class DwPixelFlow{
     framebuffer.bind(dst);
     defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
   }
-  public void beginDraw(PGraphics2D dst){
+  public void beginDraw(PGraphicsOpenGL dst){
     beginDraw(dst, false);
   }
-  public void beginDraw(PGraphics2D dst, boolean multisample){
+  public void beginDraw(PGraphicsOpenGL dst, boolean multisample){
     FrameBuffer fbo = dst.getFrameBuffer(multisample);
     if(fbo == null){
       multisample = false;
@@ -193,12 +193,22 @@ public class DwPixelFlow{
     }
   }
   
+  public void endDraw(String error_msg){
+    if(framebuffer != null && framebuffer.isActive()){
+      framebuffer.unbind();
+    } else {
+      gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
+    }
+    errorCheck("smaa - pass2");
+  }
+  
  
   public void defaultRenderSettings(int x, int y, int w, int h){
     gl.glViewport(0, 0, w, h);
     gl.glColorMask(true, true, true, true);
     gl.glDepthMask(false);
     gl.glDisable(GL.GL_DEPTH_TEST);
+    gl.glDisable(GL.GL_SCISSOR_TEST);
     gl.glDisable(GL.GL_STENCIL_TEST);
     gl.glDisable(GL.GL_BLEND);
     gl.glDisable(GL.GL_MULTISAMPLE);
@@ -249,7 +259,7 @@ public class DwPixelFlow{
   
   
 
-  public void getGLTextureHandle(PGraphics2D pg, int[] tex_handle){
+  public void getGLTextureHandle(PGraphicsOpenGL pg, int[] tex_handle){
     int fbo_handle = pg.getFrameBuffer().glFbo;
     int target     = GL2ES2.GL_FRAMEBUFFER;
     int attachment = GL2ES2.GL_COLOR_ATTACHMENT0;

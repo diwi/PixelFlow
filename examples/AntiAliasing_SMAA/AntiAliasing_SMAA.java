@@ -13,31 +13,23 @@
 
 
 
-package AntiAliasing_FXAA;
+package AntiAliasing_SMAA;
 
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
-import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
-import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
-import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
-import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
-
 import peasy.*;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.core.PMatrix3D;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
 
-public class AntiAliasing_FXAA extends PApplet {
-
+public class AntiAliasing_SMAA extends PApplet {
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -51,15 +43,14 @@ public class AntiAliasing_FXAA extends PApplet {
   float BACKGROUND_COLOR = 32;
   
 
-
   // scene to render
   PShape shape;
   
   PGraphics3D pg_render;
-  PGraphics3D pg_fxaa;
+  PGraphics3D pg_smaa;
   
   DwPixelFlow context;
-  FXAA fxaa;
+  SMAA smaa;
 
   public void settings() {
     size(viewport_w, viewport_h, P3D);
@@ -86,15 +77,15 @@ public class AntiAliasing_FXAA extends PApplet {
     pg_render.textureSampling(5);
 
     // postprocessing AA
-    pg_fxaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_fxaa.smooth(0);
-    pg_fxaa.textureSampling(5);
-    pg_fxaa.beginDraw();
-    pg_fxaa.blendMode(PConstants.REPLACE);
-    pg_fxaa.endDraw();
+    pg_smaa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_smaa.smooth(0);
+    pg_smaa.textureSampling(5);
+    pg_smaa.beginDraw();
+    pg_smaa.blendMode(PConstants.REPLACE);
+    pg_smaa.endDraw();
     
     context = new DwPixelFlow(this);
-    fxaa = new FXAA(context);
+    smaa = new SMAA(context);
     
     frameRate(1000);
   }
@@ -106,12 +97,11 @@ public class AntiAliasing_FXAA extends PApplet {
 
     DwGLTextureUtils.copyMatrices((PGraphics3D)this.g, pg_render);
 
-    boolean APPLY_FXAA = !(keyPressed && key == ' ');
+    boolean APPLY_SMAA = !(keyPressed && key == ' ');
     
     pg_render.beginDraw();
     pg_render.blendMode(PConstants.BLEND);
     pg_render.background(BACKGROUND_COLOR_GAMMA);
-//    pg_render.lights();
     pg_render.pointLight(255, 255, 255, 600,600,600);
     pg_render.pointLight(50, 50, 50, -600,-600,20);
     pg_render.ambientLight(64, 64, 64);
@@ -124,17 +114,15 @@ public class AntiAliasing_FXAA extends PApplet {
     pg_render.blendMode(PConstants.REPLACE);
     pg_render.endDraw();
     DwFilter.get(context).gamma.apply(pg_render, pg_render, 2.2f);
-    DwFilter.get(context).rgbl.apply(pg_render, pg_render);
     
-    // AntiAliasing ... FXAA
-    fxaa.apply(pg_render, pg_fxaa);
+    // AntiAliasing ... SMAA
+    smaa.apply(pg_render, pg_smaa);
     
-
     blendMode(PConstants.REPLACE);
     clear();
     peasycam.beginHUD();
-    if(APPLY_FXAA) {
-      image(pg_fxaa, 0, 0);
+    if(APPLY_SMAA) {
+      image(pg_smaa, 0, 0);
     } else {
       image(pg_render, 0, 0);
     }
@@ -289,6 +277,6 @@ public class AntiAliasing_FXAA extends PApplet {
   }
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { AntiAliasing_FXAA.class.getName() });
+    PApplet.main(new String[] { AntiAliasing_SMAA.class.getName() });
   }
 }
