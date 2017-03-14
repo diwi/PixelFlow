@@ -16,6 +16,7 @@
 package Skylight_BasicGUI;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightShader;
@@ -70,6 +71,9 @@ public class Skylight_BasicGUI extends PApplet {
   boolean DISPLAY_SAMPLES_SUN = false;
   boolean DISPLAY_SAMPLES_SKY = false;
   boolean DISPLAY_TEXTURES    = true;
+  
+  SMAA smaa;
+  PGraphics3D pg_aa;
   
   public void settings() {
     size(viewport_w, viewport_h, P3D);
@@ -148,6 +152,13 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sun.param.shadowmap_size = 512;
     
     
+    smaa = new SMAA(context);
+    // postprocessing AA
+    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
+    
+    
     // cp5 gui
     createGUI();
 
@@ -168,11 +179,14 @@ public class Skylight_BasicGUI extends PApplet {
 
     // update renderer
     skylight.update();
+    
+    // apply AntiAliasing
+    smaa.apply(skylight.renderer.pg_render, pg_aa);
 
- 
+
     peasycam.beginHUD();
     // display result
-    image(skylight.renderer.pg_render, 0, 0);
+    image(pg_aa, 0, 0);
     // display textures
     if(DISPLAY_TEXTURES){
       

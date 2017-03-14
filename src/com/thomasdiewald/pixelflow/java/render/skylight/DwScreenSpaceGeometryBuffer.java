@@ -58,7 +58,7 @@ public class DwScreenSpaceGeometryBuffer {
     DwGLTextureUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
     pg_geom.beginDraw();
     pg_geom.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_geom.textureSampling(0);
+    pg_geom.textureSampling(2);
     pg_geom.background(0xFFFFFFFF);
     pg_geom.blendMode(PConstants.REPLACE);
     pg_geom.shader(shader);

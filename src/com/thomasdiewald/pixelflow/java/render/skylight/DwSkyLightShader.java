@@ -99,7 +99,7 @@ public class DwSkyLightShader {
       
       pg_shading[i].beginDraw();
       pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-      pg_shading[i].textureSampling(0);
+      pg_shading[i].textureSampling(5);
       pg_shading[i].background(0xFFFFFFFF);
       pg_shading[i].blendMode(PConstants.REPLACE);
       pg_shading[i].shader(shader);

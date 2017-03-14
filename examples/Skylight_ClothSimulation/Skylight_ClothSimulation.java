@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
@@ -95,7 +97,12 @@ public class Skylight_ClothSimulation extends PApplet {
   
   // renderer
   DwSkyLight skylight;
- 
+  
+  // AntiAliasing, SMAA
+  SMAA smaa;
+  PGraphics3D pg_aa;
+
+  
   PMatrix3D mat_scene_bounds;
   
   
@@ -136,6 +143,13 @@ public class Skylight_ClothSimulation extends PApplet {
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+    
+    
+    smaa = new SMAA(context);
+    
+    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
     
 
     ////////////////////////////////////////////////////////////////////////////
@@ -363,9 +377,11 @@ public class Skylight_ClothSimulation extends PApplet {
     }
     skylight.update();
   
+    // Apply AntiAliasing
+    smaa.apply(skylight.renderer.pg_render, pg_aa);
   
     peasycam.beginHUD();
-    image(skylight.renderer.pg_render, 0, 0);
+    image(pg_aa, 0, 0);
     peasycam.endHUD();
 
 

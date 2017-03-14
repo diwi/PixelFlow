@@ -12,11 +12,12 @@
 
 
 
-package Skylight_PoissonSphereSamples_FXAA;
+package Skylight_PoissonSphereSamples_AA;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -35,7 +36,7 @@ import processing.core.PMatrix3D;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
-public class Skylight_PoissonSphereSamples_FXAA extends PApplet {
+public class Skylight_PoissonSphereSamples_AA extends PApplet {
   
   //
   // Animated Spheres (Poisson Distribution) + Skylight Renderer
@@ -69,11 +70,12 @@ public class Skylight_PoissonSphereSamples_FXAA extends PApplet {
   PMatrix3D mat_scene_bounds;
   
   
-  PGraphics3D pg_fxaa;
+
   
   DwPixelFlow context;
-  FXAA fxaa;
+  SMAA smaa;
   
+  PGraphics3D pg_aa;
 
   // state variables
   boolean DISPLAY_RADIUS = true;
@@ -120,15 +122,12 @@ public class Skylight_PoissonSphereSamples_FXAA extends PApplet {
     
     
     
-    fxaa = new FXAA(context);
-    
+    smaa = new SMAA(context);
     // postprocessing AA
-    pg_fxaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_fxaa.smooth(0);
-    pg_fxaa.textureSampling(5);
-    pg_fxaa.beginDraw();
-    pg_fxaa.blendMode(PConstants.REPLACE);
-    pg_fxaa.endDraw();
+    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
+
     
 
     
@@ -240,24 +239,12 @@ public class Skylight_PoissonSphereSamples_FXAA extends PApplet {
     skylight.update();
 
     
-    PGraphics3D pg_render = skylight.renderer.pg_render;
-    
-//    DwFilter.get(context).gamma.apply(pg_render, pg_render, 2.2f);
-    DwFilter.get(context).rgbl.apply(pg_render, pg_render);
-    
-    // AntiAliasing ... FXAA
-    fxaa.apply(pg_render, pg_fxaa);
-    
-    blendMode(PConstants.REPLACE);
-    clear();
+    // AntiAliasing ... SMAA
+    smaa.apply(skylight.renderer.pg_render, pg_aa);
+
+
     cam.beginHUD();
-    
-    boolean APPLY_FXAA = !(keyPressed && key == 'a');
-    if(APPLY_FXAA){
-      image(pg_fxaa, 0, 0);
-    } else {
-      image(skylight.renderer.pg_render, 0, 0);
-    }
+    image(pg_aa, 0, 0);
     cam.endHUD();
     
     // some info, window title
@@ -412,6 +399,6 @@ public class Skylight_PoissonSphereSamples_FXAA extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Skylight_PoissonSphereSamples_FXAA.class.getName() });
+    PApplet.main(new String[] { Skylight_PoissonSphereSamples_AA.class.getName() });
   }
 }

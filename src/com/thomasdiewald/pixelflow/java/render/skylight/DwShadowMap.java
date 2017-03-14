@@ -70,7 +70,7 @@ public class DwShadowMap {
 
     pg_shadowmap.beginDraw();
     pg_shadowmap.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_shadowmap.textureSampling(0);
+    pg_shadowmap.textureSampling(2);
     pg_shadowmap.background(0xFFFFFFFF);
     pg_shadowmap.blendMode(PConstants.REPLACE);
     pg_shadowmap.shader(shader_shadow);
