@@ -31,12 +31,15 @@ public class GammaCorrection {
   
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float gamma) {
     Texture tex_src = src.getTexture(); if(!tex_src.available()) return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available()) return;
     
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName,dst.width, dst.height, gamma);
+    context.endDraw();
     context.end("GammaCorrection.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {

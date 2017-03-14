@@ -27,15 +27,16 @@ public class Multiply {
   }
   
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] multiplier) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, multiplier);
+    context.endDraw();
     context.end("Multiply.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst, float[] multiplier) {

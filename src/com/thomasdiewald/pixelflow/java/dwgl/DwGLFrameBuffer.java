@@ -48,7 +48,11 @@ public class DwGLFrameBuffer {
 
   // textures must be of the same size
   public void bind(int ... HANDLE_tex){
-
+    
+    if(IS_ACTIVE){
+      unbind(); // unbind, in case of bind() is called consecutively
+    }
+    
     color_attachments = new int[HANDLE_tex.length];
     
     gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
@@ -58,10 +62,13 @@ public class DwGLFrameBuffer {
     }
     
     gl.glDrawBuffers(color_attachments.length, color_attachments, 0);
+    IS_ACTIVE = true;
   }
   
   
   public boolean IS_ACTIVE = false;
+  
+   
   
   public void bind(DwGLTexture ... tex){
    

@@ -32,15 +32,16 @@ public class BilateralFilter {
       System.out.println("BilateralFilter error: read-write race");
       return;
     }
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, radius, sigma_color, sigma_space);
+    context.endDraw();
     context.end("BilateralFilter.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, int radius, float sigma_color, float sigma_space) {

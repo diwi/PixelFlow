@@ -17,6 +17,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
+import processing.opengl.FrameBuffer;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -40,24 +41,29 @@ public class BoxBlur {
     if(radius <= 0){
       return; 
     }
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
+    Texture tex_tmp = tmp.getTexture(); if(!tex_tmp.available())  return;
     
-    tmp.beginDraw();
+//    tmp.beginDraw();
     context.begin();
+    context.beginDraw(tmp);
     pass(tex_src.glName, tmp.width, tmp.height, radius, HORZ);
+    context.endDraw();
     context.end("BoxBlur.apply - HORZ");
-    tmp.endDraw();
-    
-    Texture tex_tmp = tmp.getTexture();
-    
-    dst.beginDraw();
+//    tmp.endDraw();
+
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     pass(tex_tmp.glName, dst.width, dst.height, radius, VERT);
+    context.endDraw();
     context.end("BoxBlur.apply - VERT");
-    dst.endDraw(); 
+//    dst.endDraw(); 
   }
+  
+
   
   public void apply(DwGLTexture src, DwGLTexture dst, DwGLTexture tmp, int radius) {
     if(src == tmp || dst == tmp){

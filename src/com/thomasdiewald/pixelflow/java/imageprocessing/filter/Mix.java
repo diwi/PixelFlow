@@ -26,14 +26,17 @@ public class Mix {
   }
 
   public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float mix_value) {
-    Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
-    Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
+    Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())  return;
+    Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())  return;
+    Texture tex_dst  = dst .getTexture(); if(!tex_dst .available())  return;
     
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_srcA.glName, tex_srcB.glName, dst.width, dst.height, mix_value);
+    context.endDraw();
     context.end("Mix.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
    public void apply(DwGLTexture srcA, DwGLTexture srcB, DwGLTexture dst, float mix_value) {

@@ -38,15 +38,17 @@ public class Convolution {
       return;
     }
     if(kernel.length < 9) return;
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, kernel);
+    context.endDraw();
     context.end("Convolution.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, float[] kernel) {

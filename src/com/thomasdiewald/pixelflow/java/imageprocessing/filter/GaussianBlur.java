@@ -86,23 +86,27 @@ public class GaussianBlur {
       return; 
     }
     
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available()) return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available()) return;
+    Texture tex_tmp = tmp.getTexture(); if(!tex_tmp.available()) return;
     
-    tmp.beginDraw();
+//    tmp.beginDraw();
     context.begin();
+    context.beginDraw(tmp);
     pass(tex_src.glName, tmp.width, tmp.height, radius, sigma, HORZ);
+    context.endDraw();
     context.end("GaussianBlur.apply - HORZ");
-    tmp.endDraw(); 
+//    tmp.endDraw(); 
     
-    Texture tex_tmp = tmp.getTexture();
+//    Texture tex_tmp = tmp.getTexture();
     
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     pass(tex_tmp.glName, dst.width, dst.height, radius, sigma, VERT);
+    context.endDraw();
     context.end("GaussianBlur.apply - VERT");
-    dst.endDraw(); 
+//    dst.endDraw(); 
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, DwGLTexture tmp, int radius) {

@@ -134,7 +134,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 0;
+  public int     DISPLAY_FILTER = 1;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -166,7 +166,7 @@ public class ImageProcessing_Filter extends PApplet {
     view_w = img.width;
     view_h = img.height;
     size(view_w+gui_w, view_h, P2D);
-    smooth(0);
+    smooth(8);
   }
 
   public void setup() {
@@ -178,13 +178,13 @@ public class ImageProcessing_Filter extends PApplet {
     filter = new DwFilter(context);
 
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_A.smooth(0);
+    pg_src_A.smooth(8);
     
     pg_src_B = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_B.smooth(0);
+    pg_src_B.smooth(8);
     
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_C.smooth(0);
+    pg_src_C.smooth(8);
 
       
     createGUI();

@@ -44,15 +44,16 @@ public class MedianFilter {
       return;
     }
 
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, size);
+    context.endDraw();
     context.end("MedianFilter.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, MedianFilter.TYPE size) {

@@ -164,7 +164,7 @@ public class Fluid_Basic extends PApplet {
     
     // pgraphics for obstacles
     pg_obstacles = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
-    pg_obstacles.noSmooth();
+    pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
     // circle-obstacles

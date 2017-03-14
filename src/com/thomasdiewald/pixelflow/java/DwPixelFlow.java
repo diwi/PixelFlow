@@ -164,13 +164,15 @@ public class DwPixelFlow{
   
   
   
-  
+
   public void beginDraw(DwGLTexture ... dst){
     framebuffer.bind(dst);
     defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
   }
+  
+  PGraphicsOpenGL pgl_dst = null;
   public void beginDraw(PGraphicsOpenGL dst){
-    beginDraw(dst, false);
+    beginDraw(dst, true);
   }
   public void beginDraw(PGraphicsOpenGL dst, boolean multisample){
     FrameBuffer fbo = dst.getFrameBuffer(multisample);
@@ -183,7 +185,7 @@ public class DwPixelFlow{
     if(multisample){
       gl.glEnable(GL.GL_MULTISAMPLE);
     }
-    
+    this.pgl_dst = dst;
   }
   public void endDraw(){
     if(framebuffer != null && framebuffer.isActive()){
@@ -191,14 +193,25 @@ public class DwPixelFlow{
     } else {
       gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
     }
+    
+    if(pgl_dst != null){
+      updateFBO(pgl_dst);
+      pgl_dst = null;
+    }
+  }
+  
+  // apparently this needs to be done. 
+  // instead, loadTexture() needs to be called, ...i guess
+  private void updateFBO(PGraphicsOpenGL pg){
+    FrameBuffer mfb = pg.getFrameBuffer(true);
+    FrameBuffer ofb = pg.getFrameBuffer(false);
+    if (ofb != null && mfb != null) {
+      mfb.copyColor(ofb);
+    }
   }
   
   public void endDraw(String error_msg){
-    if(framebuffer != null && framebuffer.isActive()){
-      framebuffer.unbind();
-    } else {
-      gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
-    }
+    endDraw();
     errorCheck("smaa - pass2");
   }
   

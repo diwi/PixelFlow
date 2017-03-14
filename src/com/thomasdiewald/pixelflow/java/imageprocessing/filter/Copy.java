@@ -9,7 +9,6 @@
 
 
 
-
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -28,21 +27,18 @@ public class Copy {
   }
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height);
+    context.endDraw();
     context.end("Copy.apply");
-    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
        
     context.begin();
     context.beginDraw(dst);
@@ -52,15 +48,7 @@ public class Copy {
   }
   
   public void apply(DwGLTexture src, PGraphicsOpenGL dst) {
-//    dst.beginDraw();
-//    context.begin();
-//    apply(src.HANDLE[0], dst.width, dst.height);
-//    context.end("Copy.apply");
-//    dst.endDraw();
-    
-    Texture tex_dst = dst.getTexture();
-    if(!tex_dst.available()) 
-      return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
     context.begin();
     context.beginDraw(dst);

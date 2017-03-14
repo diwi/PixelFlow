@@ -30,12 +30,13 @@ public class Add {
   public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
     Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
+    Texture tex_dst  = dst .getTexture(); if(!tex_dst .available())   return;
     
-    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     apply(tex_srcA.glName, tex_srcB.glName, dst.width, dst.height, multiplier);
+    context.endDraw();
     context.end("Add.apply");
-    dst.endDraw();
   }
   
  

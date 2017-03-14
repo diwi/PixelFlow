@@ -224,8 +224,8 @@ public class Fluid_StreamLines extends PApplet {
 
     createGUI();
     
-    frameRate(60);
-//    frameRate(1000);
+//    frameRate(60);
+    frameRate(1000);
   }
   
   

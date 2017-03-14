@@ -11,8 +11,6 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 
-import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL2GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -33,20 +31,8 @@ public class RGBL {
   }
   
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
-       
-//    dst.beginDraw();
-//    context.begin();
-//    apply(tex_src.glName, dst.width, dst.height);
-//    context.end("RGBL.apply");
-//    dst.endDraw();
-    
-    Texture tex_dst = dst.getTexture();
-    if(!tex_dst.available()){
-      return;
-    }
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
 
     context.begin();
     context.beginDraw(dst);

@@ -32,13 +32,15 @@ public class DoG {
   public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
     Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
-    
-    dst.beginDraw();
+    Texture tex_dst  = dst .getTexture(); if(!tex_dst .available())   return;
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     if(shader_DoG_UBYTE == null) shader_DoG_UBYTE = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/DoG_UBYTE.frag");
     apply(shader_DoG_UBYTE, tex_srcA.glName, tex_srcB.glName, dst.width, dst.height, multiplier);
+    context.endDraw();
     context.end("DoG.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
   

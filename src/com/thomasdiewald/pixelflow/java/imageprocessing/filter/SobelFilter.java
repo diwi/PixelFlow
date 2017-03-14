@@ -53,18 +53,17 @@ public class SobelFilter {
       return;
     }
  
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    
-       
-    dst.beginDraw();
+//    dst.beginDraw();
     context.begin();
+    context.beginDraw(dst);
     if(shaderUbyte[dir.ordinal()] == null) shaderUbyte[dir.ordinal()] = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/"+dir.dir_shader_ubyte);
     apply(shaderUbyte[dir.ordinal()], tex_src.glName, dst.width, dst.height);
+    context.endDraw();
     context.end("SobelFilter.apply");
-    dst.endDraw();
+//    dst.endDraw();
   }
   
  

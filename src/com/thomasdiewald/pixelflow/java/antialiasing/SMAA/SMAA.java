@@ -95,14 +95,13 @@ public class SMAA {
   
   
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
-      return;
-    
-    Texture tex_dst = dst.getTexture();
-    if(!tex_dst.available()) {
+    if(src == dst){
+      System.out.println("MSAA error: read-write race");
       return;
     }
+    
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
 
     int w = src.width;
     int h = src.height;

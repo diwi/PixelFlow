@@ -85,41 +85,24 @@ public class FXAA {
   
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
-    Texture tex_src = src.getTexture();
-    if(!tex_src.available()) 
+    if(src == dst){
+      System.out.println("FXAA error: read-write race");
       return;
+    }
+    
+    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
     // RGBL ... red, green, blue, luminance, for FXAA
     DwFilter.get(context).rgbl.apply(src, src);
        
-    dst.beginDraw();
-    dst.blendMode(PConstants.REPLACE);
     context.begin();
+    context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height);
+    context.endDraw();
     context.end("FXAA.apply");
-    dst.endDraw();
   }
   
-//  public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
-//    Texture tex_src = src.getTexture();
-//    if(!tex_src.available()) 
-//      return;
-//       
-//    context.begin();
-//    context.beginDraw(dst);
-//    apply(tex_src.glName, dst.w, dst.h);
-//    context.endDraw();
-//    context.end("FXAA.apply");
-//  }
-//  
-//  
-//  public void apply(DwGLTexture src, DwGLTexture dst) {
-//    context.begin();
-//    context.beginDraw(dst);
-//    apply(src.HANDLE[0], dst.w, dst.h);
-//    context.endDraw();
-//    context.end("FXAA.apply");
-//  }
   
   DwGLSLProgram shader;
   public void apply(int tex_handle, int w, int h){

@@ -188,7 +188,7 @@ public class MyParticleSystem{
     
     dst.beginDraw();
     dst.blendMode(PConstants.BLEND);
-    if( background == 0) dst.blendMode(PConstants.ADD); // works nicely on black background
+    if(background == 0) dst.blendMode(PConstants.ADD); // works nicely on black background
     
     context.begin();
     shader_particelRender.begin();

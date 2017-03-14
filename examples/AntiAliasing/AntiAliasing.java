@@ -18,7 +18,6 @@ import java.util.Random;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -219,7 +218,6 @@ public class AntiAliasing extends PApplet {
     peasycam.beginHUD();
     {
       // display Anti Aliased result
-      blendMode(REPLACE);
       image(display, 0, 0);
       
       // display AA name
