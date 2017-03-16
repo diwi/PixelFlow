@@ -146,6 +146,13 @@ public class DwGLTexture{
     gl.glGenTextures(1, HANDLE, 0);
     gl.glBindTexture  (target, HANDLE[0]);
     
+//    int[] val = new int[1];
+//    gl.glGetIntegerv(GL2ES2.GL_UNPACK_ALIGNMENT, val, 0);
+//    System.out.println("GL_UNPACK_ALIGNMENT "+val[0]);
+//    gl.glGetIntegerv(GL2ES2.GL_PACK_ALIGNMENT, val, 0);
+//    System.out.println("GL_PACK_ALIGNMENT "+val[0]);
+    
+    // TODO
     gl.glPixelStorei(GL2ES2.GL_UNPACK_ALIGNMENT, 1);
     gl.glPixelStorei(GL2ES2.GL_PACK_ALIGNMENT,   1);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_BASE_LEVEL, 0);

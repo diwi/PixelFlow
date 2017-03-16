@@ -44,7 +44,7 @@ public class DwSkyLightShader {
     public float   sample_focus  = 1f;
     
     public float   iterations = 20;
-    public boolean singlesided = true;
+//    public boolean singlesided = true;
     public int     shadowmap_size = 1024;
   }
   
@@ -349,7 +349,7 @@ public class DwSkyLightShader {
     shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("wh_shadow", w_shadow, h_shadow); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
-    shader.set("singlesided", param.singlesided ? 1 : 0);
+//    shader.set("singlesided", param.singlesided ? 1 : 0);
   }
 
 

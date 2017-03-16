@@ -89,6 +89,9 @@ vec3 decodeNormal3f(in vec2 n2){
 void main(void) {
   // transform vertex normal to eye-space
   vec3 vert_normal = normalize(normalMatrix * vertNormal);
+  
+  if(!gl_FrontFacing) vert_normal = -vert_normal;
+  
   // vec3 vert_normal = normalize(vertNormal);
   // gl_FragColor = vec4(vert_normal, gl_FragCoord.z);
   gl_FragColor = vec4(vert_normal, 1.0 / gl_FragCoord.w);

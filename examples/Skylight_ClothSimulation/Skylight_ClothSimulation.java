@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
@@ -46,7 +45,9 @@ public class Skylight_ClothSimulation extends PApplet {
   // Cloth simulation + Skylight Renderer
   // 
   // ... for testing and tweaking interactivity and realtime behaviour.
-  // 
+  //
+  // AntiAliasing: SMAA
+  //
   // Controls:
   // LMB: drag particles
   // MMB: drag + fix particles to a location
@@ -236,7 +237,6 @@ public class Skylight_ClothSimulation extends PApplet {
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.singlesided    = true;
     skylight.sky.param.shadowmap_size = 512; // quality vs. performance
     
     // parameters for sun-light
@@ -246,12 +246,7 @@ public class Skylight_ClothSimulation extends PApplet {
     skylight.sun.param.sample_focus   = 0.12f;
     skylight.sun.param.intensity      = 1.2f;
     skylight.sun.param.rgb            = new float[]{1,1,1};
-    skylight.sun.param.singlesided    = true;
     skylight.sun.param.shadowmap_size = 512;
-    
-    
-    
-    
     
     
     

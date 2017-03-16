@@ -44,6 +44,8 @@ public class Skylight_BasicGUI extends PApplet {
   // Also in this example: the use of general Matrix operations, for centering 
   // and scaling the scene globally.
   //
+  // AntiAliasing: SMAA
+  //
   
   
   
@@ -92,7 +94,7 @@ public class Skylight_BasicGUI extends PApplet {
 
     // load obj file into shape-object
     shape = loadShape("examples/data/skylight_demo_scene.obj");
-
+    
     // record list of vertices of the given shape
     DwVertexRecorder vertex_recorder = new DwVertexRecorder(this, shape);
    
@@ -138,7 +140,6 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.singlesided    = false;
     skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
     // parameters for sun-light
@@ -148,7 +149,6 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sun.param.sample_focus   = 0.01f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.rgb            = new float[]{1,1,1};
-    skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
     
     
@@ -235,22 +235,8 @@ public class Skylight_BasicGUI extends PApplet {
     
     canvas.pushMatrix();
     canvas.applyMatrix(mat_scene_view);
-//    shape.setStroke(false);
-////    shape.setFill(true);
-//    
-//    if(canvas == skylight.renderer.pg_render && skylight.renderer.STEP == 1){
-//      shape.setStroke(true);
-//      shape.setStrokeWeight(1.1f);
-//      shape.setStroke(color(0));
-////      shape.setFill(false);
-//    } else {
-////      shape.setStroke(false);
-////      shape.setFill(true);
-//    }
-    
     canvas.shape(shape);
     canvas.popMatrix();
-
   }
   
   

@@ -33,7 +33,7 @@ uniform vec2 wh_shadow;
 uniform sampler2D tex_shadow;
 uniform sampler2D tex_src;
 uniform float pass_mix;
-uniform int singlesided = 1;
+// uniform int singlesided = 1;
 
 uniform sampler2D tex_geombuffer;
 
@@ -86,10 +86,11 @@ void main(void) {
   // vertex normal
   vec3 p_eye_normal = geom.xyz;
   // switch normal direction if needed for single sided surfaces
-  if(singlesided == 1){
-    p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
-  }
+  // if(singlesided == 1){
+    // p_eye_normal *= sign(dot(p_eye_normal, -p_eye.xyz));
+  // }
   
+
   // normal bias
   // shadowmap eye space has bounds of the unitsphere.
   // so the normal bias can be of constant length, only affected by shadowmap resolution

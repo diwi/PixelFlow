@@ -16,6 +16,7 @@ package Skylight_PoissonSphereSamples;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
@@ -38,7 +39,9 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   // Animated Spheres (Poisson Distribution) + Skylight Renderer
   // 
   // ... for testing and tweaking interactivity and realtime behaviour.
-  // 
+  //
+  // AntiAliasing: SMAA
+  //
   
   
   int viewport_w = 1280;
@@ -65,6 +68,13 @@ public class Skylight_PoissonSphereSamples extends PApplet {
  
   PMatrix3D mat_scene_bounds;
   
+  
+
+  
+  DwPixelFlow context;
+  SMAA smaa;
+  
+  PGraphics3D pg_aa;
 
   // state variables
   boolean DISPLAY_RADIUS = true;
@@ -105,9 +115,23 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     };
     
     // library context
-    DwPixelFlow context = new DwPixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+    
+    
+    
+    smaa = new SMAA(context);
+    // postprocessing AA
+    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
+
+    
+
+    
+    
+    
     
     // init skylight renderer
     skylight = new DwSkyLight(context, scene_display, mat_scene_bounds);
@@ -119,7 +143,6 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.singlesided    = false;
     skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
     // parameters for sun-light
@@ -129,7 +152,6 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     skylight.sun.param.sample_focus   = 0.10f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.rgb            = new float[]{1,1,1};
-    skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
     
     
@@ -212,10 +234,14 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     }
     
     skylight.update();
+
     
+    // AntiAliasing ... SMAA
+    smaa.apply(skylight.renderer.pg_render, pg_aa);
+
 
     cam.beginHUD();
-    image(skylight.renderer.pg_render, 0, 0);
+    image(pg_aa, 0, 0);
     cam.endHUD();
     
     // some info, window title
@@ -302,16 +328,16 @@ public class Skylight_PoissonSphereSamples extends PApplet {
 
     if(ifs == null){
       ifs = new DwIcosahedron(2); verts_per_face = 3;
-//      ifs = new DwCube(2); verts_per_face = 4;
+//      ifs = new DwCube(3); verts_per_face = 4;
     }
     PShape shp_sphere = createShape(PShape.GEOMETRY);
     shp_sphere.setStroke(false);
     shp_sphere.setFill(color(255));
     
     colorMode(HSB, 360, 1, 1);
-    float hsb_h = 30 + (float)(Math.random() - 0.5f) * 30 ;
+    float hsb_h = 20 + (float)(Math.random() - 0.5f) * 50 ;
     float hsb_s = (float) Math.random() * 0.99f + 0.01f;
-    float hsb_b = hsb_s*2;
+    float hsb_b = hsb_s*3;
     
     shp_sphere.setFill(color(hsb_h, hsb_s, hsb_b));
     colorMode(RGB);
@@ -319,7 +345,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     shp_sphere.resetMatrix();
     shp_sphere.translate(sample.x(), sample.y(), sample.z());
    
-    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, true);
+    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, !true);
     
     shp_samples_spheres.addChild(shp_sphere);
   }

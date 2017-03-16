@@ -20,7 +20,6 @@ import java.util.Locale;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
-import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
@@ -110,7 +109,6 @@ public class Skylight_Basic extends PApplet {
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.singlesided    = false;
     skylight.sky.param.shadowmap_size = 256; // quality vs. performance
     
     // parameters for sun-light
@@ -120,7 +118,6 @@ public class Skylight_Basic extends PApplet {
     skylight.sun.param.sample_focus   = 0.05f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.rgb            = new float[]{1,1,1};
-    skylight.sun.param.singlesided    = false;
     skylight.sun.param.shadowmap_size = 512;
 
     frameRate(1000);
