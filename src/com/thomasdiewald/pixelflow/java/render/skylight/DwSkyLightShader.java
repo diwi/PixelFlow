@@ -172,12 +172,6 @@ public class DwSkyLightShader {
 //    
 //    shadowmap.setDirection(eye, center, up);
 //    
-    
-    
-    
-    
-    
-    
      
   }
   
@@ -205,45 +199,6 @@ public class DwSkyLightShader {
 
     PGraphics3D pg_dst = getDst();
     PGraphics3D pg_src = getSrc();
-    
-//    float rand = (float) Math.random()*2-1;
-//    
-//    rand *= 0.5f;
-////    rand = 0;
-////    rand
-//
-//    float PI         = (float)Math.PI;
-//    float DEG_TO_RAD = PI/180.0f;
-//
-//    float view_sx = geombuffer.pg_geom.width;
-//    float view_sy = geombuffer.pg_geom.height;
-//    
-//    
-//    float aspect = view_sx/(float)view_sy;
-//    float fovy = 60 * DEG_TO_RAD;
-//    float znear = 2;
-//    float zfar = 5000;
-//    
-////    geombuffer.pg_geom.perspective(fovy, aspect, znear, zfar);
-////    geombuffer.pg_geom.translate(100, rand);
-//    
-//    float top = znear * (float) Math.tan(fovy / 2);
-//    float bottom = -top;
-//    float left = bottom * aspect;
-//    float right = top * aspect;
-//    
-//    float sizex = right-left;
-//    float sizey = top-bottom;
-//
-//    // jitter
-//    float dx = rand * sizex / view_sx;
-//    float dy = rand * sizey / view_sy;
-//
-//    geombuffer.pg_geom.frustum(left+dx, right+dx, bottom+dy, top+dy, znear+dx, zfar);
-////    geombuffer.pg_geom.frustum(left, right, bottom, top, znear+rand, zfar);
-//    geombuffer.update(geombuffer.pg_geom);
-    
-    
     
     // 2) render pass
     pg_dst.beginDraw();

@@ -19,5 +19,4 @@ import processing.opengl.PGraphics3D;
 
 public interface DwSceneDisplay {
   public void display(PGraphics3D canvas);
-
 }

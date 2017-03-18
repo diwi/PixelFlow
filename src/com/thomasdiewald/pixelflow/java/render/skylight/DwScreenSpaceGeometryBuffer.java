@@ -71,8 +71,8 @@ public class DwScreenSpaceGeometryBuffer {
   }
 
   public void update(PGraphics3D pg_src){
-    updateMatrices(pg_src);
     pg_geom.beginDraw();
+    updateMatrices(pg_src);
     pg_geom.clear();
     scene_display.display(pg_geom);
     pg_geom.endDraw();

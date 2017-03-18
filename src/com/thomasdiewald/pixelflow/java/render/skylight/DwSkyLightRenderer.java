@@ -94,9 +94,9 @@ public class DwSkyLightRenderer {
   
   public void update(){
     
-    updateMatrices();
+//    updateMatrices();
 
-    geom.update(pg_render);
+    geom.update((PGraphics3D) papplet.g);
 
     sky.update();
     sun.update();
@@ -116,6 +116,7 @@ public class DwSkyLightRenderer {
     
 //    STEP = 0;
     pg.beginDraw();
+    updateMatrices();
     pg.clear();
     pg.shader(shader);
     shader.set("wh", w, h);

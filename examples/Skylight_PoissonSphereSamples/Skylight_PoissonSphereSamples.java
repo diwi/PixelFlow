@@ -345,7 +345,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     shp_sphere.resetMatrix();
     shp_sphere.translate(sample.x(), sample.y(), sample.z());
    
-    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, !true);
+    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, true);
     
     shp_samples_spheres.addChild(shp_sphere);
   }

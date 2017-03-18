@@ -25,8 +25,10 @@ import peasy.*;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
+import processing.core.PImage;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
+import processing.opengl.PGraphicsOpenGL;
 
 
 public class AntiAliasing extends PApplet {
@@ -108,7 +110,8 @@ public class AntiAliasing extends PApplet {
   PFont font;
   float gamma = 2.2f;
   float BACKGROUND_COLOR = 32;
-  //  PShape shape;
+  
+  PShape shape;
 
 
 
@@ -140,12 +143,12 @@ public class AntiAliasing extends PApplet {
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     // processing font
-    font = createFont("Calibri", 32);
+    font = createFont("Calibri", 48);
     textFont(font);
     
     // load obj file into shape-object
-//    shape = loadShape("examples/data/skylight_demo_scene.obj");
-//    shape.scale(20);
+    shape = loadShape("examples/data/skylight_demo_scene.obj");
+    shape.scale(20);
 
     
     // MSAA - main render-target for MSAA
@@ -218,7 +221,33 @@ public class AntiAliasing extends PApplet {
     peasycam.beginHUD();
     {
       // display Anti Aliased result
+      blendMode(REPLACE);
+      clear();
       image(display, 0, 0);
+      blendMode(BLEND);
+      
+      float magnification = 4f;
+      
+      int sx = width / 20;
+      int sy = sx;
+      int mx = mouseX - sx / 2;
+      int my = mouseY - sy / 2;
+      PImage window = display.get(mx, my, sx, sy);
+      
+      strokeWeight(1);
+      stroke(200,0,0,200);
+      noFill();
+      rect(mx, my, sx, sy);
+      
+      
+      ((PGraphicsOpenGL)g).textureSampling(2);
+      int mag_w = ceil(sx * magnification);
+      int mag_h = mag_w;
+      int mag_x = 0;
+      int mag_y = height-mag_h;
+      image(window, mag_x, mag_y, mag_w, mag_h);
+      
+      rect(mag_x, mag_y, mag_w, mag_h);
       
       // display AA name
       String mode = aa_mode.name();
@@ -227,8 +256,21 @@ public class AntiAliasing extends PApplet {
         if(smaa_mode == SMAA_MODE.EGDES ) buffer = " ["+smaa_mode.name()+"]";
         if(smaa_mode == SMAA_MODE.BLEND ) buffer = " ["+smaa_mode.name()+"]";
       }
-      fill(255);
-      text(mode + buffer, 20, height-20);
+      
+      
+      noStroke();
+      fill(0,150);
+      rect(0, height-65, mag_w, 65);
+      
+      
+      int tx = 20;
+      int ty = height-20;
+      fill(0);
+      text(mode + buffer, tx+2, ty+2);
+      
+      fill(255,200,0);
+      text(mode + buffer, tx, ty);
+      
     }
     peasycam.endHUD();
 
@@ -262,8 +304,8 @@ public class AntiAliasing extends PApplet {
     canvas.directionalLight(255, 255, 255, -200,-600,-400);
     canvas.ambientLight(64, 64, 64);
     
-//    canvas.shape(shape);
-    boxes(canvas);
+    canvas.shape(shape);
+//    boxes(canvas);
     
     canvas.endDraw();
   }
