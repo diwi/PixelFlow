@@ -30,9 +30,24 @@ public class DwGLSLProgram {
   public int HANDLE;
 
   public DwGLSLShader vert;
+  public DwGLSLShader geom;
   public DwGLSLShader frag;
-  
+ 
   public String name;
+  
+  //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
+  public DwGLSLProgram(DwPixelFlow context, String vert_path, String geom_path, String frag_path) {
+
+    this.vert = new DwGLSLShader(context, GL3.GL_VERTEX_SHADER  , vert_path);
+    this.geom = new DwGLSLShader(context, GL3.GL_GEOMETRY_SHADER, geom_path);
+    this.frag = new DwGLSLShader(context, GL3.GL_FRAGMENT_SHADER, frag_path);
+    this.name = vert_path+"/"+geom_path+"/"+vert_path;
+    this.gl = context.gl;
+    this.context = context;
+    build();
+  }
+  
+  
   
   //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String frag_path) {
@@ -61,8 +76,9 @@ public class DwGLSLProgram {
     gl.glDeleteProgram(HANDLE); HANDLE = 0;
 
     HANDLE = gl.glCreateProgram();
-    gl.glAttachShader(HANDLE, vert.HANDLE);
-    gl.glAttachShader(HANDLE, frag.HANDLE);
+    if(vert != null) gl.glAttachShader(HANDLE, vert.HANDLE);
+    if(geom != null) gl.glAttachShader(HANDLE, geom.HANDLE);
+    if(frag != null) gl.glAttachShader(HANDLE, frag.HANDLE);
     gl.glLinkProgram(HANDLE);
     
 //    gl.glValidateProgram(HANDLE);
