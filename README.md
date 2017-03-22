@@ -5,7 +5,7 @@
 
 
 <br>
-## Features
+# Features
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
 
