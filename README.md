@@ -6,7 +6,7 @@
 
 <br>
 ## Features
-```
+```java
 + Fluid Simulation (GLSL)
 + Fluid Particle Systems (GLSL)
 + Optical Flow  (GLSL)
@@ -36,7 +36,7 @@
   - HalfEdge
   - Subdivision Polyhedra
   - Sampling
-```    
+```  
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
 
