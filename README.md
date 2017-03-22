@@ -50,8 +50,8 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 <br>
 
 ## Download
-+ [Releases] (https://github.com/diwi/PixelFlow/releases)
-+ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ [Releases](https://github.com/diwi/PixelFlow/releases)
++ [PixelFlow Website](http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
  
 <br>
