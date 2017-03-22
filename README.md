@@ -47,15 +47,15 @@
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
 
-
 <br>
+
 ## Download
 + [Releases] (https://github.com/diwi/PixelFlow/releases)
 + [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
  
-
 <br>
+
 ## videos
 
 #### Skylight Renderer
@@ -80,6 +80,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 More Videos on [Vimeo](https://vimeo.com/user56436843).
 
 <br>
+
 ## Getting Started - FLuid Simulation
 
 
