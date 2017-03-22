@@ -5,7 +5,44 @@
 
 
 <br>
-# Features
+## Features
+
+```
++ Fluid Simulation (GLSL)
++ Fluid Particle Systems (GLSL)
++ Optical Flow  (GLSL)
++ Harris Corner Detection  (GLSL)
++ Image Processing Filters (GLSL)
+	- Bilateral Filter
+	- Box Blur
+	- Custom Convolution Kernel
+	- DoG (Difference of Gaussian)
+	- Gaussian Blur
+	- Laplace
+	- MedianFilter
+	- Sobel
+	- ...
++ Softbody Dynamics (CPU, GLSL is coming)
+  - 2D and 3D
+  - Collision Detection
+  - Cloth, Grids, Chains, ...
+  - Particle Systems
+  - etc ...
++ Skylight Renderer
+  - Interactive/realtime viewport renderer
+  - Ambient Occlusion
+  - Diffuse Shading
+  - ShadowMapping
++ AntiAliasing
+  - FXAA
+  - SMAA
+  - GBAA
++ Utils
+  - HalfEdge
+  - Subdivision Polyhedra
+  - Sampling
+```  
+
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
 
