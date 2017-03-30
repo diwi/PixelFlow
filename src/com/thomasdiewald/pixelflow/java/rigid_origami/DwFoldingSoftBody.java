@@ -8,6 +8,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PShape;
 
 
 public class DwFoldingSoftBody extends DwSoftBody3D{
@@ -47,7 +48,7 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
     // add new particles to the physics-world
     physics.addParticles(particles, num_nodes);
   }
-  float fold_value_stp = 0.001f;
+  public float fold_value_stp = 0.001f;
   float fold_value_cur = 1;
   float fold_value_dst = 1;
   
@@ -110,15 +111,34 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
     normals_face = foldingmodel.computeFaceNormals(normals_face, particles);
   }
   
+
+  
+  private PShape createShape(PGraphics pg){
+    PShape shp = pg.createShape();
+    shp.beginShape(PConstants.TRIANGLES);
+    foldingmodel.display(shp, this);
+    shp.endShape();
+    return shp;
+  }
+  
+  
   @Override
-  public void displayMesh(PGraphics pg){
-    foldingmodel.display(pg, this);
+  public void createMesh(PGraphics pg){
+    shp_mesh = createShape(pg);
   }
   
   @Override
-  public void displayWireFrame(PGraphics pg, float strokeWeight){
-    foldingmodel.displayWireFrame(pg, this, strokeWeight);
+  public void createWireframe(PGraphics pg, float strokeWeight){
+    shp_wireframe = createShape(pg);
+    shp_wireframe.setTexture(null);
+    shp_wireframe.setFill(false);
+    shp_wireframe.setStroke(true);
+    shp_wireframe.setStroke(pg.color(0));
+    shp_wireframe.setStrokeWeight(strokeWeight);
   }
+  
+  
+  
   
   @Override
   public void displayNormals(PGraphics pg){

@@ -83,7 +83,7 @@ public class SoftBody2D_Playground extends PApplet {
   
   // entities to display
   boolean DISPLAY_PARTICLES      = true;
-  boolean DISPLAY_MESH           = true;
+  boolean DISPLAY_MESH           = !true;
   boolean DISPLAY_SRPINGS        = true;
   
   boolean DISPLAY_SPRINGS_STRUCT = true;
@@ -364,13 +364,16 @@ public class SoftBody2D_Playground extends PApplet {
       }
     }
     
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      for(DwSoftBody2D body : softbodies){
+        body.createMesh(this.g);
+      }
+    }
     
     
     // 3) mesh, solid
     if(DISPLAY_MESH){
-      stroke(0);
-      strokeWeight(0.1f);
-      noStroke();
       for(DwSoftBody2D body : softbodies){
         body.displayMesh(this.g);
       }

@@ -9,6 +9,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PShape;
 import processing.opengl.PGraphics2D;
 
 public class DwSoftGrid2D extends DwSoftBody2D{
@@ -200,7 +201,7 @@ public class DwSoftGrid2D extends DwSoftBody2D{
   private DwParticle2D lastp;
   private boolean degenerated = false;
   
-  private final void vertex(PGraphics pg, DwParticle2D p, float tu, float tv){
+  private final void vertex(PShape pg, DwParticle2D p, float tu, float tv){
     if(p.all_springs_deactivated){
       degenerated = true;
       if(lastp != null){
@@ -217,10 +218,12 @@ public class DwSoftGrid2D extends DwSoftBody2D{
     }
   }
   
-  private void displayGridXY(PGraphics pg, PGraphics2D tex){
+  private void displayGridXY(PShape pg, PGraphics2D tex){
     pg.beginShape(PConstants.TRIANGLE_STRIP);
     pg.textureMode(PConstants.NORMAL);
     pg.texture(tex);
+    pg.fill(material_color);
+    pg.noStroke();
     int ix, iy;
     for(iy = 0; iy < nodes_y-1; iy++){
       for(ix = 0; ix < nodes_x; ix++){
@@ -237,24 +240,23 @@ public class DwSoftGrid2D extends DwSoftBody2D{
   
   
   
-  
-  
-  
-  
-  
-
-  
-  
-  
   @Override
-  public void displayMesh(PGraphics pg) {
-    pg.fill(material_color);
-    displayGridXY(pg, texture_XYp);
+  public void createMesh(PGraphics pg) {
+    shp_mesh = pg.createShape();
+    displayGridXY(shp_mesh, texture_XYp);
   }
   
   @Override
-  public void displayWireFrame(PGraphics pg, float strokeWeight){
+  public void createWireframe(PGraphics pg, float strokeWeight){
     
+    shp_wireframe = pg.createShape();
+    displayGridXY(shp_wireframe, texture_XYp);
+    
+    shp_wireframe.setTexture(null);
+    shp_wireframe.setFill(false);
+    shp_wireframe.setStroke(true);
+    shp_wireframe.setStroke(pg.color(0));
+    shp_wireframe.setStrokeWeight(strokeWeight);
   }
   
 

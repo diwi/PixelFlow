@@ -110,6 +110,7 @@ public class Softbody3D_Playground extends PApplet {
   // entities to display
   boolean DISPLAY_PARTICLES      = false;
   boolean DISPLAY_MESH           = true;
+  boolean DISPLAY_WIREFRAME      = false;
   boolean DISPLAY_NORMALS        = false;
   boolean DISPLAY_SRPINGS        = false;
   
@@ -491,13 +492,31 @@ public class Softbody3D_Playground extends PApplet {
     
     // 3) mesh, solid
     if(DISPLAY_MESH){
-      stroke(0);
-      strokeWeight(0.1f);
-      noStroke();
+      for(DwSoftBody3D body : softbodies){
+        body.createMesh(this.g);
+      }
+    }
+    
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
       for(DwSoftBody3D body : softbodies){
         body.displayMesh(this.g);
       }
     }
+    
+    
+    if(DISPLAY_WIREFRAME){
+      for(DwSoftBody3D body : softbodies){
+        body.createWireframe(this.g, 0.5f);
+      }
+    }
+    
+    if(DISPLAY_WIREFRAME){
+      for(DwSoftBody3D body : softbodies){
+        body.displayWireframe(this.g);
+      }
+    }
+
     
     // 4) normals
     if(DISPLAY_NORMALS){
@@ -957,6 +976,7 @@ public class Softbody3D_Playground extends PApplet {
     DISPLAY_MESH      = (val[1] > 0);
     DISPLAY_SRPINGS   = (val[2] > 0);
     DISPLAY_NORMALS   = (val[3] > 0);
+    DISPLAY_WIREFRAME = (val[4] > 0);
   }
   
   public void setGravity(float val){
@@ -1021,7 +1041,8 @@ public class Softbody3D_Playground extends PApplet {
           .addItem("PARTICLES", 0).activate(DISPLAY_PARTICLES ? 0 : 5)
           .addItem("MESH "    , 1).activate(DISPLAY_MESH      ? 1 : 5)
           .addItem("SRPINGS"  , 2).activate(DISPLAY_SRPINGS   ? 2 : 5)
-          .addItem("NORMALS"  , 3).activate(DISPLAY_NORMALS   ? 3 : 5);
+          .addItem("NORMALS"  , 3).activate(DISPLAY_NORMALS   ? 3 : 5)
+          .addItem("WIREFRAME", 4).activate(DISPLAY_WIREFRAME ? 4 : 5);
     }
     
     

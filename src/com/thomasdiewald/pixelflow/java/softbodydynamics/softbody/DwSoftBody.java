@@ -31,7 +31,8 @@ public abstract class DwSoftBody{
   public int nodes_offset;             // offset in the global array, used for creating a unique id
 //  public DwParticle[] particles; // particles of this body
   public PShape shp_particles;         // shape for drawing all particles of this body
-  
+  public PShape shp_mesh;              // shape for drawing the mesh
+  public PShape shp_wireframe;              // shape for drawing the mesh
   
   public DwParticle.Param         param_particle = new DwParticle.Param();
   public DwSpringConstraint.Param param_spring   = new DwSpringConstraint.Param();
@@ -98,11 +99,24 @@ public abstract class DwSoftBody{
   public abstract void createParticlesShape(PApplet papplet);
 
   
-  public void displayParticles(PGraphics pg){
+  public final void displayParticles(PGraphics pg){
     if(shp_particles != null){
       pg.shape(shp_particles);
     }
   }
+  
+  public final void displayMesh(PGraphics pg){
+    if(shp_mesh != null){
+      pg.shape(shp_mesh);
+    }
+  }
+  
+  public final void displayWireframe(PGraphics pg){
+    if(shp_wireframe != null){
+      pg.shape(shp_wireframe);
+    }
+  }
+  
   
 //  public void setParticlesVisibility(boolean visible){
 ////    System.out.println(particles);
@@ -113,9 +127,10 @@ public abstract class DwSoftBody{
 
 
   public abstract void displaySprings(PGraphics pg, int display_mode);
+  
+  public abstract void createMesh(PGraphics pg);
 
-  public abstract void displayMesh(PGraphics pg);
-  public abstract void displayWireFrame(PGraphics pg, float strokeWeight);
+  public abstract void createWireframe(PGraphics pg, float strokeWeight);
 
 }
   

@@ -74,6 +74,7 @@ public class AntiAliasing extends PApplet {
   // key '2': MSAA(8)
   // key '3': SMAA
   // key '4': FXAA
+  // key '5': GBAA
   //
   // ALT + LMB: Camera ROTATE
   // ALT + MMB: Camera PAN
@@ -83,7 +84,7 @@ public class AntiAliasing extends PApplet {
 
   
 
-  boolean START_FULLSCREEN = true;
+  boolean START_FULLSCREEN = !true;
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -114,9 +115,9 @@ public class AntiAliasing extends PApplet {
   
   // AA mode, selected with keys '1' - '4'
   enum AA_MODE{  NoAA, MSAA, SMAA, FXAA, GBAA }
+  
   // SMAA mode, selected with keys 'q', 'w', 'e'
   enum SMAA_MODE{ EGDES, BLEND, FINAL }
-  
   
   // render stuff
   PFont font;
@@ -124,8 +125,6 @@ public class AntiAliasing extends PApplet {
   float BACKGROUND_COLOR = 32;
   
   PShape shape;
-
-
 
   
   public void settings() {
@@ -335,8 +334,8 @@ public class AntiAliasing extends PApplet {
     canvas.directionalLight(255, 255, 255, -200,-600,-400);
     canvas.ambientLight(64, 64, 64);
     
-    canvas.shape(shape);
-//    boxes(canvas);
+//    canvas.shape(shape);
+    boxes(canvas);
   }
   
   
@@ -423,12 +422,14 @@ public class AntiAliasing extends PApplet {
 
     canvas.colorMode(RGB, 255, 255, 255);
     
-    PShape grid = createGridXY(30,40);
-    grid.setStroke(true);
-    grid.setStrokeWeight(1.0f);
-    grid.setStroke(color(164, 64, 0));
-    canvas.shape(grid);
+//    PShape grid = createGridXY(30,40);
+//    grid.setStroke(true);
+//    grid.setStrokeWeight(1.0f);
+//    grid.setStroke(color(164, 64, 0));
+//    canvas.shape(grid);
     
+    canvas.rectMode(CENTER);
+    canvas.rect(0, 0, 2000, 2000);
   }
   
   

@@ -361,6 +361,13 @@ public class Skylight_ClothSimulation extends PApplet {
       body.computeNormals();
     }
     
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      for(DwSoftBody3D body : softbodies){
+        body.createMesh(this.g);
+      }
+    }
+    
     // disable peasycam-interaction while we edit the model
     peasycam.setActive(MOVE_CAM);
     
@@ -438,11 +445,9 @@ public class Skylight_ClothSimulation extends PApplet {
       }
     }
     
+ 
     // 3) mesh, solid
     if(DISPLAY_MESH){
-      stroke(0);
-      strokeWeight(0.1f);
-      noStroke();
       for(DwSoftBody3D body : softbodies){
         body.displayMesh(canvas);
       }

@@ -123,8 +123,8 @@ public abstract class DwSoftBody3D extends DwSoftBody{
         if(display_mode == 0){
           switch(spring.type){
             case STRUCT:  if(!DISPLAY_SPRINGS_STRUCT) continue; strokeweight = 1.00f; r =   0; g =   0; b =   0; break;
-            case SHEAR:   if(!DISPLAY_SPRINGS_SHEAR ) continue; strokeweight = 0.80f; r =  70; g = 140; b = 255; break;
-            case BEND:    if(!DISPLAY_SPRINGS_BEND  ) continue; strokeweight = 0.60f; r = 255; g =  90; b =  30; break;
+            case SHEAR:   if(!DISPLAY_SPRINGS_SHEAR ) continue; strokeweight = 1.00f; r =  70; g = 140; b = 255; break;
+            case BEND:    if(!DISPLAY_SPRINGS_BEND  ) continue; strokeweight = 1.00f; r = 255; g =  90; b =  30; break;
             default: continue;
           }
         }
@@ -144,7 +144,7 @@ public abstract class DwSoftBody3D extends DwSoftBody{
       }
     }
     pg.endShape();
- }
+  }
 
   
   
@@ -153,7 +153,6 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   public float display_normal_length = 20;
 
   public abstract void computeNormals();
-  public abstract void displayMesh(PGraphics pg);
   public abstract void displayNormals(PGraphics pg);
  
 

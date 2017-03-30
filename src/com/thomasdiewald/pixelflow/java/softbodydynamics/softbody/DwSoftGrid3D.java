@@ -10,6 +10,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PShape;
 import processing.opengl.PGraphics2D;
 
 
@@ -426,6 +427,100 @@ public class DwSoftGrid3D extends DwSoftBody3D{
     }
     pg.endShape();
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  private final void vertex(PShape pg, DwParticle3D p, float[] n, float tu, float tv){
+    if(p.all_springs_deactivated){
+      degenerated = true;
+      if(lastp != null){
+        pg.vertex(lastp.cx,lastp.cy,lastp.cz, 0, 0);
+      }
+    } else {
+      if(degenerated){
+        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
+        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
+        degenerated = false;
+      }
+      pg.normal(n[0], n[1], n[2]); 
+      pg.vertex(p.cx, p.cy, p.cz, tu, tv);
+      lastp = p;
+    }
+  }
+  
+  private void displayGridXY(PShape pg, float[][] normals, int iz, PGraphics2D tex){
+    pg.beginShape(PConstants.TRIANGLE_STRIP);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(tex);
+    pg.fill(material_color);
+    int ix, iy;
+    for(iy = 0; iy < nodes_y-1; iy++){
+      for(ix = 0; ix < nodes_x; ix++){
+        vertex(pg, getNode3D(ix, iy+0, iz), normals[(iy+0)*nodes_x+ix], ix * tx_inv, (iy+0) * ty_inv);
+        vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], ix * tx_inv, (iy+1) * ty_inv);
+      }
+      ix -= 1; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+      ix  = 0; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+    }
+    pg.endShape();
+  }
+
+  
+  private void displayGridYZ(PShape pg, float[][] normals, int ix, PGraphics2D tex){
+    pg.beginShape(PConstants.TRIANGLE_STRIP);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(tex);
+    pg.fill(material_color);
+    int iz, iy;
+    for(iz = 0; iz < nodes_z-1; iz++){
+      for(iy = 0; iy < nodes_y; iy++){
+        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_y+iy], iy * ty_inv, (iz+0) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], iy * ty_inv, (iz+1) * tz_inv);
+      }
+      iy -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+      iy  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+    }
+    pg.endShape();
+  }
+  
+  
+  private void displayGridXZ(PShape pg, float[][] normals, int iy, PGraphics2D tex){
+    pg.beginShape(PConstants.TRIANGLE_STRIP);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(tex);
+    pg.fill(material_color);
+    int iz, ix;
+    for(iz = 0; iz < nodes_z-1; iz++){
+      for(ix = 0; ix < nodes_x; ix++){
+        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_x+ix], ix * tx_inv, (iz+0) * tz_inv);
+        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], ix * tx_inv, (iz+1) * tz_inv);
+      }
+      ix -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+      ix  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+    }
+    pg.endShape();
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   private final void normal(PGraphics pg, DwParticle3D p, float[] n, float nlen){
     if(p.all_springs_deactivated) return;
@@ -463,23 +558,45 @@ public class DwSoftGrid3D extends DwSoftBody3D{
     }
     pg.endShape();
   }
+  
 
   
-  @Override
-  public void displayMesh(PGraphics pg){
-    pg.fill(material_color);
-                    displayGridXY(pg, normals[0], 0        , texture_XYp);
-    if(nodes_z > 1) displayGridXY(pg, normals[1], nodes_z-1, texture_XYn);
-                    displayGridYZ(pg, normals[2], 0        , texture_YZp);
-    if(nodes_x > 1) displayGridYZ(pg, normals[3], nodes_x-1, texture_YZn);
-                    displayGridXZ(pg, normals[4], 0        , texture_XZp);
-    if(nodes_y > 1) displayGridXZ(pg, normals[5], nodes_y-1, texture_XZn);
-    
+  private PShape createShape(PGraphics pg){
+    PShape shp = pg.createShape(PConstants.GROUP);
+
+    PShape[] shp_grid = new PShape[6];
+    for(int i = 0; i < shp_grid.length; i++){
+      shp_grid[i] = pg.createShape();
+      shp.addChild(shp_grid[i]);
+    }
+ 
+                    displayGridXY(shp_grid[0], normals[0], 0        , texture_XYp);
+    if(nodes_z > 1) displayGridXY(shp_grid[1], normals[1], nodes_z-1, texture_XYn);
+                    displayGridYZ(shp_grid[2], normals[2], 0        , texture_YZp);
+    if(nodes_x > 1) displayGridYZ(shp_grid[3], normals[3], nodes_x-1, texture_YZn);
+                    displayGridXZ(shp_grid[4], normals[4], 0        , texture_XZp);
+    if(nodes_y > 1) displayGridXZ(shp_grid[5], normals[5], nodes_y-1, texture_XZn);
+    return shp;
   }
   
+  
+  
   @Override
-  public void displayWireFrame(PGraphics pg, float strokeWeight){
+  public void createMesh(PGraphics pg){
+    shp_mesh = createShape(pg);
+    shp_mesh.setStroke(false);
+  }
+
+
+  @Override
+  public void createWireframe(PGraphics pg, float strokeWeight){
+    shp_wireframe = createShape(pg);
     
+    shp_wireframe.setTexture(null);
+    shp_wireframe.setFill(false);
+    shp_wireframe.setStroke(true);
+    shp_wireframe.setStroke(pg.color(0));
+    shp_wireframe.setStrokeWeight(strokeWeight);
   }
   
    

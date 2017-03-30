@@ -9,6 +9,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
 
 import processing.core.PGraphics;
+import processing.core.PShape;
 
 public class DwSoftBall2D extends DwSoftBody2D{
   
@@ -112,21 +113,37 @@ public class DwSoftBall2D extends DwSoftBody2D{
 
 
   
-  @Override
-  public void displayMesh(PGraphics pg) {
-    pg.fill(material_color);
-    pg.beginShape();
+  private PShape createShape(PGraphics pg) {
+    PShape shp = pg.createShape();
+
+    shp.beginShape();
+    shp.fill(material_color);
+    shp.noStroke();
     for(int i = 0; i < num_nodes; i++){
       DwParticle2D pa = particles[i];
       if(pa.all_springs_deactivated) continue;
-      pg.vertex(pa.cx, pa.cy);
+      shp.vertex(pa.cx, pa.cy);
     }
-    pg.endShape();
+    shp.endShape();
+    return shp;
+  }
+  
+  
+  
+  @Override
+  public void createMesh(PGraphics pg) {
+    shp_mesh = createShape(pg);
   }
   
   @Override
-  public void displayWireFrame(PGraphics pg, float strokeWeight){
+  public void createWireframe(PGraphics pg, float strokeWeight){
+    shp_wireframe = createShape(pg);
     
+    shp_wireframe.setTexture(null);
+    shp_wireframe.setFill(false);
+    shp_wireframe.setStroke(true);
+    shp_wireframe.setStroke(pg.color(0));
+    shp_wireframe.setStrokeWeight(strokeWeight);
   }
 
 

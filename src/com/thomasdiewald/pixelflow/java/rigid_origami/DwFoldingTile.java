@@ -11,6 +11,7 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PMatrix3D;
+import processing.core.PShape;
 
 public class DwFoldingTile{
   
@@ -172,7 +173,7 @@ public class DwFoldingTile{
   // used for animation
   public float springs_scale_min = 0.025f;
   public float springs_scale_max = 1.000f;
-  public float springs_scale     = springs_scale_max;
+  public float springs_scale     = -1;
   
   
 
@@ -249,6 +250,9 @@ public class DwFoldingTile{
 
 
   public void scaleSprings(float springs_scale_new){
+    if(springs_scale == springs_scale_new){
+      return;
+    }
     springs_scale_new = Math.max(springs_scale_new, springs_scale_min);
     springs_scale_new = Math.min(springs_scale_new, springs_scale_max);
     
@@ -320,7 +324,43 @@ public class DwFoldingTile{
 //    pg.endShape();
   } 
   
+  public void displayMesh(PShape pg, DwIndexedFaceSet ifs){
+  //  pg.beginShape(PConstants.TRIANGLES);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(DEF.style.texture);
+    pg.noStroke();
+    int     s0,s1,s2;
+    int     i0,i1,i2;
+    float[] t0,t1,t2;
+    float[] v0,v1,v2;
+    for(int i = 0; i < DEF.FACES_COUNT; i++){
+      i0 = faces[i][0];  v0 = ifs.verts[i0];
+      i1 = faces[i][1];  v1 = ifs.verts[i1];
+      i2 = faces[i][2];  v2 = ifs.verts[i2];
+      
+      i0 = DEF.FACES[i][0]; s0 = DEF.HILO[i0];  t0 = DEF.TEX_COORDS[i0];
+      i1 = DEF.FACES[i][1]; s1 = DEF.HILO[i1];  t1 = DEF.TEX_COORDS[i1];
+      i2 = DEF.FACES[i][2]; s2 = DEF.HILO[i2];  t2 = DEF.TEX_COORDS[i2];
+      
+      int ci = DEF.FACES_COL[i];
+      
+      if(DEF.style.texture != null){
+        DwDisplayUtils.vertex(pg, v0, t0); 
+        DwDisplayUtils.vertex(pg, v1, t1); 
+        DwDisplayUtils.vertex(pg, v2, t2); 
+      } else {
+  //      pg.fill(DEF.style.COL[s0]); DwDisplayUtils.vertex(pg, v0);
+  //      pg.fill(DEF.style.COL[s1]); DwDisplayUtils.vertex(pg, v1);
+  //      pg.fill(DEF.style.COL[s2]); DwDisplayUtils.vertex(pg, v2);
+        pg.fill(DEF.style.RGBS[ci][s0]); DwDisplayUtils.vertex(pg, v0);
+        pg.fill(DEF.style.RGBS[ci][s1]); DwDisplayUtils.vertex(pg, v1);
+        pg.fill(DEF.style.RGBS[ci][s2]); DwDisplayUtils.vertex(pg, v2);
+      }
+    }
+  //  pg.endShape();
+  } 
 
+  
   public void displayMesh(PGraphics pg, DwParticle3D[] particles){
 //    pg.beginShape(PConstants.TRIANGLES);
     pg.textureMode(PConstants.NORMAL);
@@ -357,6 +397,52 @@ public class DwFoldingTile{
     }
 //    pg.endShape();
   }
+  
+  
+  
+  public void displayMesh(PShape pg, DwParticle3D[] particles){
+  //  pg.beginShape(PConstants.TRIANGLES);
+    pg.textureMode(PConstants.NORMAL);
+    pg.texture(DEF.style.texture);
+    pg.noStroke();
+    int          s0,s1,s2;
+    int          i0,i1,i2;
+    float[]      t0,t1,t2;
+    DwParticle3D v0,v1,v2;
+    for(int i = 0; i < DEF.FACES_COUNT; i++){
+      i0 = faces[i][0];  v0 = particles[i0];  if(v0.all_springs_deactivated) continue;
+      i1 = faces[i][1];  v1 = particles[i1];  if(v1.all_springs_deactivated) continue;
+      i2 = faces[i][2];  v2 = particles[i2];  if(v2.all_springs_deactivated) continue;
+      
+      i0 = DEF.FACES[i][0]; s0 = DEF.HILO[i0];  t0 = DEF.TEX_COORDS[i0];
+      i1 = DEF.FACES[i][1]; s1 = DEF.HILO[i1];  t1 = DEF.TEX_COORDS[i1];
+      i2 = DEF.FACES[i][2]; s2 = DEF.HILO[i2];  t2 = DEF.TEX_COORDS[i2];
+      
+      int ci = DEF.FACES_COL[i];
+      
+      if(DEF.style.texture != null){
+        DwDisplayUtils.vertex(pg, v0, t0); 
+        DwDisplayUtils.vertex(pg, v1, t1); 
+        DwDisplayUtils.vertex(pg, v2, t2); 
+      } else {
+  //      pg.fill(DEF.style.COL[s0]); DwDisplayUtils.vertex(pg, v0);
+  //      pg.fill(DEF.style.COL[s1]); DwDisplayUtils.vertex(pg, v1);
+  //      pg.fill(DEF.style.COL[s2]); DwDisplayUtils.vertex(pg, v2);
+  
+        pg.fill(DEF.style.RGBS[ci][s0]); DwDisplayUtils.vertex(pg, v0);
+        pg.fill(DEF.style.RGBS[ci][s1]); DwDisplayUtils.vertex(pg, v1);
+        pg.fill(DEF.style.RGBS[ci][s2]); DwDisplayUtils.vertex(pg, v2);
+      }
+    }
+  //  pg.endShape();
+  }
+  
+  
+  
+  
+  
+  
+  
   
 
   public void displayWireframe(PGraphics pg, DwParticle3D[] particles){

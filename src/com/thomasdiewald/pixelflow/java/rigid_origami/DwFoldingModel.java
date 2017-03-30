@@ -13,11 +13,13 @@ package com.thomasdiewald.pixelflow.java.rigid_origami;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSet;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PShape;
 
 
 public abstract class DwFoldingModel{
@@ -212,20 +214,37 @@ public abstract class DwFoldingModel{
     pg.endShape();
   }
   
+  public void display(PShape pg, DwSoftBody3D softbody){ 
+    if(softbody != null){
+      for(DwFoldingTile tile : tiles) tile.displayMesh(pg, softbody.particles);
+    } else {
+      for(DwFoldingTile tile : tiles) tile.displayMesh(pg, ifs);
+    }
+  }
+  
 
   public void displayWireFrame(PGraphics pg, float strokeWeight){
     displayWireFrame(pg, null, strokeWeight);
   }
   
   public void displayWireFrame(PGraphics pg, DwSoftBody3D softbody, float strokeWeight){
+//    PShape shp = pg.createShape();
     pg.beginShape(PConstants.LINES);
     pg.texture(null);
     if(softbody != null){
-      for(DwFoldingTile tile : tiles) tile.displayWireframe(pg, softbody.particles);
+   
+      for(DwFoldingTile tile : tiles){
+        tile.DEF.style.stroke_w = strokeWeight;
+        tile.displayWireframe(pg, softbody.particles);
+      }
     } else {
-      for(DwFoldingTile tile : tiles) tile.displayWireframe(pg, ifs);
+      for(DwFoldingTile tile : tiles){
+        tile.DEF.style.stroke_w = strokeWeight;
+        tile.displayWireframe(pg, ifs);
+      }
     }
     pg.endShape();
+//    pg.shape(shp);
   }
   
 

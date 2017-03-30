@@ -317,11 +317,15 @@ public class Softbody3D_Cloth extends PApplet {
       }
     }
     
-    // 3) mesh, solid
+    // 3) create mesh
     if(DISPLAY_MESH){
-      stroke(0);
-      strokeWeight(0.1f);
-      noStroke();
+      for(DwSoftBody3D body : softbodies){
+        body.createMesh(this.g);
+      }
+    }
+    
+    // 3) display mesh
+    if(DISPLAY_MESH){
       for(DwSoftBody3D body : softbodies){
         body.displayMesh(this.g);
       }

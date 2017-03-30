@@ -13,6 +13,7 @@ import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PShape;
 
 
 public class DwSoftBall3D extends DwSoftBody3D{
@@ -236,16 +237,18 @@ public class DwSoftBall3D extends DwSoftBody3D{
 
 
   boolean FLAT_SHADING = false;
-
-  @Override
-  public void displayMesh(PGraphics pg){
+  
+  
+  private PShape createShape(PGraphics pg){
     int     faces_count = mesh.ifs.getFacesCount();
     int[][] faces       = mesh.ifs.getFaces();
     
     float[] n = new float[3]; // normal buffer
     
-    pg.fill(material_color);
-    pg.beginShape(PConstants.TRIANGLES);
+    PShape shp = pg.createShape();
+    shp.beginShape(PConstants.TRIANGLES);
+    shp.noStroke();
+    shp.fill(material_color);
     for(int i = 0; i < faces_count; i++){
       int v0 = faces[i][0];
       int v1 = faces[i][1];
@@ -257,20 +260,37 @@ public class DwSoftBall3D extends DwSoftBody3D{
       if(FLAT_SHADING){
         n[0] = n[1] = n[2] = 0;
         DwParticle3D.crossAccum(p0, p1, p2, n);
-        pg.normal(n[0], n[1], n[2]); 
-        pg.vertex(p0.cx, p0.cy, p0.cz);
-        pg.vertex(p1.cx, p1.cy, p1.cz);
-        pg.vertex(p2.cx, p2.cy, p2.cz);
+        shp.normal(n[0], n[1], n[2]); 
+        shp.vertex(p0.cx, p0.cy, p0.cz);
+        shp.vertex(p1.cx, p1.cy, p1.cz);
+        shp.vertex(p2.cx, p2.cy, p2.cz);
       } else {
-        n = normals[v0];  pg.normal(n[0], n[1], n[2]);  pg.vertex(p0.cx, p0.cy, p0.cz);
-        n = normals[v1];  pg.normal(n[0], n[1], n[2]);  pg.vertex(p1.cx, p1.cy, p1.cz);
-        n = normals[v2];  pg.normal(n[0], n[1], n[2]);  pg.vertex(p2.cx, p2.cy, p2.cz);
+        n = normals[v0];  shp.normal(n[0], n[1], n[2]);  shp.vertex(p0.cx, p0.cy, p0.cz);
+        n = normals[v1];  shp.normal(n[0], n[1], n[2]);  shp.vertex(p1.cx, p1.cy, p1.cz);
+        n = normals[v2];  shp.normal(n[0], n[1], n[2]);  shp.vertex(p2.cx, p2.cy, p2.cz);
       }
     }
-    pg.endShape();
-    
+    shp.endShape();
+    return shp;
   }
   
+
+
+  @Override
+  public void createMesh(PGraphics pg){
+    shp_mesh = createShape(pg);
+  }
+  
+  @Override
+  public void createWireframe(PGraphics pg, float strokeWeight){
+    shp_wireframe = createShape(pg);
+    shp_wireframe.setTexture(null);
+    shp_wireframe.setFill(false);
+    shp_wireframe.setStroke(true);
+    shp_wireframe.setStroke(pg.color(0));
+    shp_wireframe.setStrokeWeight(strokeWeight);
+  }
+
 
   private final void normal(PGraphics pg, DwParticle3D p, float[] n, float nlen){
     if(p.all_springs_deactivated) return;
@@ -288,10 +308,6 @@ public class DwSoftBall3D extends DwSoftBody3D{
     pg.endShape();
   }
   
-  @Override
-  public void displayWireFrame(PGraphics pg, float strokeWeight){
-    
-  }
 
 
 }
