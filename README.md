@@ -5,7 +5,9 @@
 
 
 <br>
+
 ## Features
+
 ```
 + Fluid Simulation (GLSL)
 + Fluid Particle Systems (GLSL)
@@ -32,23 +34,28 @@
   - Ambient Occlusion
   - Diffuse Shading
   - ShadowMapping
++ AntiAliasing
+  - FXAA
+  - SMAA
+  - GBAA
 + Utils
   - HalfEdge
   - Subdivision Polyhedra
   - Sampling
-```    
+```  
+
 
 JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index.html
 
-
 <br>
+
 ## Download
-+ [Releases] (https://github.com/diwi/PixelFlow/releases)
-+ [PixelFlow Website] (http://thomasdiewald.com/processing/libraries/pixelflow)
++ [Releases](https://github.com/diwi/PixelFlow/releases)
++ [PixelFlow Website](http://thomasdiewald.com/processing/libraries/pixelflow)
 + Processing IDE -> Library Manager
  
-
 <br>
+
 ## videos
 
 #### Skylight Renderer
@@ -59,9 +66,8 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 #### Softbody Dynamics
 [<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="30%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
 [<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="30%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
-<br>
-[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="30%">](https://vimeo.com/184853892 SoftBody Dynamics 2D - Playground")
-[<img src="https://vimeo.com/184853883/og_image_watermark/594415377" alt="alt text" width="30%">](https://vimeo.com/184853883 SoftBody Dynamics 2D - Connected Bodies")
+[<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="30%">](https://vimeo.com/184853892 "SoftBody Dynamics 2D - Playground")
+[<img src="https://vimeo.com/184853883/og_image_watermark/594415377" alt="alt text" width="30%">](https://vimeo.com/184853883 "SoftBody Dynamics 2D - Connected Bodies")
 
 #### Computational Fluid Dynamics
 [<img src="https://vimeo.com/184850259/og_image_watermark/594412638" alt="alt text" width="30%">](https://vimeo.com/184850259 "WindTunnel")
@@ -74,6 +80,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 More Videos on [Vimeo](https://vimeo.com/user56436843).
 
 <br>
+
 ## Getting Started - FLuid Simulation
 
 
@@ -142,9 +149,10 @@ public void draw() {
 
 <br>
 <br>
+
 ## Installation, Processing IDE
 
-- Download [Processing 3.x.x] (https://processing.org/download/?processing)
+- Download [Processing 3](https://processing.org/download/?processing)
 - Install PixelFlow via the Library Manager.
 - Or manually, unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
 
@@ -152,8 +160,8 @@ public void draw() {
 Windows, Linux, MacOSX
 
 
-
 <br>
+
 ## Dependencies, to run the examples
 
  - **Video, by the Processing Foundation**<br>
