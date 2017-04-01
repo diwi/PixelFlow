@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import processing.core.*;
 
@@ -171,7 +172,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
       body.setParticleColor(color(0,128));
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -192,7 +193,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       body.setParam(param_spring_chain);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.setParticleColor(color(0,128));
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -218,7 +219,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       body.setParam(param_spring_circle);
       body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
       body.setParticleColor(color(0,160));
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -248,7 +249,7 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.setParticleColor(color(0,128));
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
   }
@@ -268,8 +269,10 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
     // update physics simulation
     physics.update(1);
     
+    
     // render
     background(DISPLAY_MODE == 0 ?  255 : 92);
+    
     
     // 1) particles
     if(DISPLAY_PARTICLES){
@@ -278,13 +281,14 @@ public class SoftBody2D_ConnectedBodies extends PApplet {
       }
     }
     
-    // 2) springs
+    
     for(DwSoftBody2D body : softbodies){
-      body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-      body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-      body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-      body.displaySprings(this.g, DISPLAY_MODE);
+      body.shade_springs_by_tension = (DISPLAY_MODE == 1);
+      body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+      body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+      body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
     }
+    
 
     // interaction stuff
     if(DELETE_SPRINGS){

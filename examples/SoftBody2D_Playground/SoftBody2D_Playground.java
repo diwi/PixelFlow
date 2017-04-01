@@ -23,7 +23,9 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -74,7 +76,7 @@ public class SoftBody2D_Playground extends PApplet {
   DwPhysics<DwParticle2D> physics;
   
   // list, that wills store the cloths
-  ArrayList<DwSoftBody2D> softbodies;
+  ArrayList<DwSoftBody2D> softbodies = new ArrayList<DwSoftBody2D>();
   
 
   // 0 ... default: particles, spring
@@ -141,17 +143,15 @@ public class SoftBody2D_Playground extends PApplet {
     
     createGUI();
     
-    
-    frameRate(60);
+    frameRate(600);
   }
   
   
   
   public void createBodies(){
-    
     physics.reset();
     
-    softbodies = new ArrayList<DwSoftBody2D>();
+    softbodies.clear();
     
     
     // create some particle-bodies: Cloth / SoftBody
@@ -182,7 +182,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(             0, 0).enable(false, false, false); // fix node to current location
       body.getNode(body.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -207,7 +207,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.setParam(param_particle);
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -233,7 +233,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.setParam(param_spring_softbody);
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -260,7 +260,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode(0, 0).enable(false, false, false); // fix node to current location
       body.getNode(0, 1).enable(false, false, false); // fix node to current location
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -289,7 +289,7 @@ public class SoftBody2D_Playground extends PApplet {
       body.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       body.getNode( 0, 0).enable(false, false, false); // fix node to current location
       body.getNode(35, 0).enable(false, false, false);
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
     
@@ -313,15 +313,15 @@ public class SoftBody2D_Playground extends PApplet {
       body.setParam(param_particle);
       body.setParam(param_spring_circle);
       body.create(physics, nodes_start_x, nodes_start_y, 70, nodes_r);
-      body.createParticlesShape(this);
+      body.createShapeParticles(this);
       softbodies.add(body);
     }
 
   }
 
 
+ 
   
-
   public void draw() {
 
     if(NEED_REBUILD){
@@ -329,8 +329,8 @@ public class SoftBody2D_Playground extends PApplet {
       NEED_REBUILD = false;
     }
     
-    updateMouseInteractions();    
-    
+    updateMouseInteractions();
+
     // update physics simulation
     physics.update(1);
     
@@ -338,7 +338,12 @@ public class SoftBody2D_Playground extends PApplet {
     background(DISPLAY_MODE == 0 ?  255 : 92);
     
     
-
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      for(DwSoftBody2D body : softbodies){
+        body.createShapeMesh(this.g);
+      }
+    }
     
     
     // 1) particles
@@ -349,38 +354,24 @@ public class SoftBody2D_Playground extends PApplet {
       }
     }
     
-    // 2) springs
-    if(DISPLAY_SRPINGS){
-      for(DwSoftBody2D body : softbodies){
-        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-        
-        // 3 different calls, to get control over the drawing order.
-        // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
-      }
-    }
-    
-    // 3) mesh, solid
-    if(DISPLAY_MESH){
-      for(DwSoftBody2D body : softbodies){
-        body.createMesh(this.g);
-      }
-    }
-    
-    
-    // 3) mesh, solid
+    // 2) mesh, solid
     if(DISPLAY_MESH){
       for(DwSoftBody2D body : softbodies){
         body.displayMesh(this.g);
       }
     }
+    
+    
+    if(DISPLAY_SRPINGS){
+      for(DwSoftBody2D body : softbodies){
+        body.shade_springs_by_tension = (DISPLAY_MODE == 1);
+        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
+      }
+    }
+    
 
-    
-    
 
     // interaction stuff
     if(DELETE_SPRINGS){
@@ -390,6 +381,7 @@ public class SoftBody2D_Playground extends PApplet {
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
     }
 
+
     // info
     int NUM_SPRINGS   = physics.getSpringCount();
     int NUM_PARTICLES = physics.getParticlesCount();
@@ -397,7 +389,6 @@ public class SoftBody2D_Playground extends PApplet {
     surface.setTitle(txt_fps);
   }
   
-
   
   
   
@@ -539,7 +530,7 @@ public class SoftBody2D_Playground extends PApplet {
   }
   
   public void setGravity(float val){
-    physics.param.GRAVITY[2] = -val;
+    physics.param.GRAVITY[1] = val;
   }
   
   public void togglePause(){
@@ -573,6 +564,7 @@ public class SoftBody2D_Playground extends PApplet {
       px = 10; 
       cp5.addSlider("gravity").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
           .setRange(0, 1).setValue(physics.param.GRAVITY[1]).plugTo(this, "setGravity");
+      
       
       cp5.addSlider("iter: springs").setGroup(group_physics).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 20).setValue(physics.param.iterations_springs).plugTo( physics.param, "iterations_springs");

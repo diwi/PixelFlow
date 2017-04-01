@@ -17,10 +17,13 @@ import java.util.ArrayList;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid2D;
+
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -100,7 +103,7 @@ public class SoftBody2D_Cloth extends PApplet {
   
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
-    smooth(4);
+    smooth(8);
   }
   
 
@@ -154,7 +157,7 @@ public class SoftBody2D_Cloth extends PApplet {
     
     createGUI();
     
-    frameRate(60);
+    frameRate(600);
   }
   
   public void createTexture(String text, DwSoftGrid2D cloth){
@@ -232,28 +235,30 @@ public class SoftBody2D_Cloth extends PApplet {
     cloth2.setParam(param_spring_cloth2);
 
     // both cloth are of the same size
-    int nodex_x = 30;
-    int nodes_y = 30;
+    int nodes_x = 25;
+    int nodes_y = nodes_x;
     int nodes_r = 8;
     int nodes_start_x = 0;
     int nodes_start_y = 80;
     
     int   num_cloth = softbodies.size();
-    float cloth_width = 2 * nodes_r * (nodex_x-1);
+    float cloth_width = 2 * nodes_r * (nodes_x-1);
     float spacing = ((viewport_w - gui_w) - num_cloth * cloth_width) / (float)(num_cloth+1);  
     
     // create all cloth in the list
     for(int i = 0; i < num_cloth; i++){
       nodes_start_x += spacing + cloth_width * i;
+//      if(i == 1){
+//        nodes_x = 5;
+//        nodes_y = 5;
+//      }
       DwSoftGrid2D cloth = (DwSoftGrid2D) softbodies.get(i);
-      cloth.create(physics, nodex_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
+      cloth.create(physics, nodes_x, nodes_y, nodes_r, nodes_start_x, nodes_start_y);
       cloth.getNode(              0, 0).enable(false, false, false); // fix node to current location
       cloth.getNode(cloth.nodes_x-1, 0).enable(false, false, false); // fix node to current location
-      cloth.createParticlesShape(this);
+      cloth.createShapeParticles(this);
     }
-    
-//    cloth1.texture_XYp = tex_cloth_left;
-    
+ 
     createTexture("PixelFlow", cloth1);
     createTexture("SoftBody", cloth2);
   }
@@ -277,44 +282,38 @@ public class SoftBody2D_Cloth extends PApplet {
     // render
     background(DISPLAY_MODE == 0 ?  255 : 92);
     
+      
     
-
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      for(DwSoftBody2D body : softbodies){
+        body.createShapeMesh(this.g);
+      }
+    }
+    
     
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody2D body : softbodies){
-//        body.use_particles_color = (DISPLAY_MODE == 0);
         body.displayParticles(this.g);
       }
     }
     
-    // 2) springs
-    if(DISPLAY_SRPINGS){
-      for(DwSoftBody2D body : softbodies){
-        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-        
-        // 3 different calls, to get control over the drawing order.
-        // body.displaySprings(this.g, DISPLAY_MODE); // faster, but order is ignored
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.BEND  );
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.SHEAR );
-        body.displaySprings(this.g, DISPLAY_MODE, DwSpringConstraint.TYPE.STRUCT);
-      }
-    }
-    
-    
-    // 3) mesh, solid
-    if(DISPLAY_MESH){
-      for(DwSoftBody2D body : softbodies){
-        body.createMesh(this.g);
-      }
-    }
-    
-    // 3) mesh, solid
+    // 2) mesh, solid
     if(DISPLAY_MESH){
       for(DwSoftBody2D body : softbodies){
         body.displayMesh(this.g);
+      }
+    }
+    
+    
+    // 3) springs
+    if(DISPLAY_SRPINGS){
+      for(DwSoftBody2D body : softbodies){
+        body.shade_springs_by_tension = (DISPLAY_MODE == 1);
+        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
     

@@ -5,6 +5,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -47,7 +48,11 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
     
     // add new particles to the physics-world
     physics.addParticles(particles, num_nodes);
+    
+    updateFoldValue();
   }
+  
+  
   public float fold_value_stp = 0.001f;
   float fold_value_cur = 1;
   float fold_value_dst = 1;
@@ -75,15 +80,11 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
   }
   
   public void updateFoldValue(){
-
     fold_value_cur += fold_value_stp;
-    
     float dval = fold_value_dst - fold_value_cur;
-    
     if(dval * fold_value_stp < 0){
       fold_value_cur = fold_value_dst;
     }
-    
     if(foldingmodel != null){
       foldingmodel.manipSprings(fold_value_cur);
     }
@@ -123,20 +124,25 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
   
   
   @Override
-  public void createMesh(PGraphics pg){
-    shp_mesh = createShape(pg);
+  public void createShapeMesh(PGraphics pg){
+    PShape shp = createShape(pg);
+    setShapeMesh(pg.parent, shp);
   }
+  
   
   @Override
-  public void createWireframe(PGraphics pg, float strokeWeight){
-    shp_wireframe = createShape(pg);
-    shp_wireframe.setTexture(null);
-    shp_wireframe.setFill(false);
-    shp_wireframe.setStroke(true);
-    shp_wireframe.setStroke(pg.color(0));
-    shp_wireframe.setStrokeWeight(strokeWeight);
+  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+    PShape shp = createShape(pg);
+    shp.setTexture(null);
+    shp.setFill(false);
+    shp.setStroke(true);
+    shp.setStroke(style.stroke_color);
+    shp.setStrokeWeight(style.stroke_weight);
+    
+    setShapeWireframe(pg.parent, shp);
   }
   
+
   
   
   

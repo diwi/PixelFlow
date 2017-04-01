@@ -9,14 +9,19 @@
 package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
 
+
 public abstract class DwSpringConstraint {
   
   static public enum TYPE{
-    STRUCT,
-    SHEAR,
-    BEND,
     VIRTUAL,
+    BEND,
+    SHEAR,
+    STRUCT,
+    ;
+   
   }
+  
+
   
   static public class Param{
     // resistance to compression -> strut 

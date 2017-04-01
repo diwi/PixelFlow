@@ -301,7 +301,7 @@ public class Skylight_ClothSimulation extends PApplet {
     cloth.setParam(param_cloth_particle);
     cloth.setParam(param_cloth_spring);
     cloth.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cloth.createParticlesShape(this, true);
+    cloth.createShapeParticles(this, true);
     // fix all 4 corners
     cloth.getNode(        0,         0, 0).enable(false, false, false);
     cloth.getNode(nodex_x-1,         0, 0).enable(false, false, false);
@@ -326,7 +326,7 @@ public class Skylight_ClothSimulation extends PApplet {
     cube1.setParam(param_cube_particle);
     cube1.setParam(param_cube_spring);
     cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cube1.createParticlesShape(this, true);
+    cube1.createShapeParticles(this, true);
  
 
   }
@@ -364,7 +364,7 @@ public class Skylight_ClothSimulation extends PApplet {
     // 3) mesh, solid
     if(DISPLAY_MESH){
       for(DwSoftBody3D body : softbodies){
-        body.createMesh(this.g);
+        body.createShapeMesh(this.g);
       }
     }
     
@@ -438,10 +438,11 @@ public class Skylight_ClothSimulation extends PApplet {
     // 2) springs
     if(DISPLAY_SRPINGS){
       for(DwSoftBody3D body : softbodies){
-        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-        body.displaySprings(canvas, DISPLAY_MODE);
+//        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
+//        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
+//        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
+//        body.displaySprings(canvas, DISPLAY_MODE);
+        // TODO
       }
     }
     
@@ -611,6 +612,7 @@ public class Skylight_ClothSimulation extends PApplet {
   
   
   public void displayMouseInteraction(){
+    pushStyle();
     if(SNAP_PARTICLE){
 
       int col_move_release = color(64, 200, 0);
@@ -645,6 +647,7 @@ public class Skylight_ClothSimulation extends PApplet {
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
       peasycam.endHUD();
     }
+    popStyle();
   }
   
   

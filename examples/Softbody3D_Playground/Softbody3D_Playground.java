@@ -21,8 +21,10 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringCons
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
 import controlP5.Accordion;
@@ -300,6 +302,7 @@ public class Softbody3D_Playground extends PApplet {
   
   public void createBodies(){
     
+    
     // first thing to do!
     physics.reset();
     
@@ -307,6 +310,8 @@ public class Softbody3D_Playground extends PApplet {
     int nodes_start_x, nodes_start_y, nodes_start_z;
     int ball_subdivisions, ball_radius;
     float r,g,b,s;
+    
+    boolean particles_volume = false;
     
     
     // add to global list
@@ -341,7 +346,7 @@ public class Softbody3D_Playground extends PApplet {
     cloth.setParam(param_cloth_particle);
     cloth.setParam(param_cloth_spring);
     cloth.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cloth.createParticlesShape(this);
+    cloth.createShapeParticles(this, particles_volume);
     cloth.getNode(              0, 0, 0).enable(false, false, false);
     cloth.getNode(cloth.nodes_x-1, 0, 0).enable(false, false, false);
 
@@ -364,7 +369,7 @@ public class Softbody3D_Playground extends PApplet {
     cube1.setParam(param_cube_particle);
     cube1.setParam(param_cube_spring);
     cube1.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cube1.createParticlesShape(this);
+    cube1.createShapeParticles(this, particles_volume);
     
     //////////////////// CUBE //////////////////////////////////////////////////
     nodex_x = 3;
@@ -383,7 +388,7 @@ public class Softbody3D_Playground extends PApplet {
     cube2.setParam(param_cube_particle);
     cube2.setParam(param_cube_spring);
     cube2.create(physics, nodex_x, nodes_y, nodes_z, nodes_r, nodes_start_x, nodes_start_y, nodes_start_z);
-    cube2.createParticlesShape(this);
+    cube2.createShapeParticles(this, particles_volume);
     
     //////////////////// BALL //////////////////////////////////////////////////
     ball_subdivisions = 3;
@@ -400,7 +405,7 @@ public class Softbody3D_Playground extends PApplet {
     ball.setParam(param_ball_particle);
     ball.setParam(param_ball_spring);
     ball.create(physics, ball_subdivisions, ball_radius, nodes_start_x, nodes_start_y, nodes_start_z);
-    ball.createParticlesShape(this);
+    ball.createShapeParticles(this, particles_volume);
     
   }
 
@@ -472,6 +477,14 @@ public class Softbody3D_Playground extends PApplet {
     shininess(5);
     
     
+    // 3) mesh, solid
+    if(DISPLAY_MESH){
+      for(DwSoftBody3D body : softbodies){
+        body.createShapeMesh(this.g);
+      }
+    }
+    
+
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody3D body : softbodies){
@@ -480,22 +493,17 @@ public class Softbody3D_Playground extends PApplet {
       }
     }
     
-    // 2) springs
+    
+
     if(DISPLAY_SRPINGS){
       for(DwSoftBody3D body : softbodies){
-        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-        body.displaySprings(this.g, DISPLAY_MODE);
+        body.shade_springs_by_tension = (DISPLAY_MODE == 1);
+        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
-    
-    // 3) mesh, solid
-    if(DISPLAY_MESH){
-      for(DwSoftBody3D body : softbodies){
-        body.createMesh(this.g);
-      }
-    }
+
     
     // 3) mesh, solid
     if(DISPLAY_MESH){
@@ -507,7 +515,7 @@ public class Softbody3D_Playground extends PApplet {
     
     if(DISPLAY_WIREFRAME){
       for(DwSoftBody3D body : softbodies){
-        body.createWireframe(this.g, 0.5f);
+        body.createShapeWireframe(this.g, new StrokeStyle(color(0), 0.5f));
       }
     }
     
@@ -680,6 +688,7 @@ public class Softbody3D_Playground extends PApplet {
   
   
   public void displayMouseInteraction(){
+    pushStyle();
     if(SNAP_PARTICLE){
 
       int col_move_release = color(64, 200, 0);
@@ -710,10 +719,10 @@ public class Softbody3D_Playground extends PApplet {
       strokeWeight(2);
       stroke(255,0,0);
       fill(255, 0, 0, 64);
- 
       ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
       peasycam.endHUD();
     }
+    popStyle();
   }
   
   

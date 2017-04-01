@@ -7,6 +7,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringCons
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import processing.core.PGraphics;
 import processing.core.PShape;
@@ -131,19 +132,22 @@ public class DwSoftBall2D extends DwSoftBody2D{
   
   
   @Override
-  public void createMesh(PGraphics pg) {
-    shp_mesh = createShape(pg);
+  public void createShapeMesh(PGraphics pg) {
+    PShape shp = createShape(pg);
+    shp.setStroke(false);
+    setShapeMesh(pg.parent, shp);
   }
   
   @Override
-  public void createWireframe(PGraphics pg, float strokeWeight){
-    shp_wireframe = createShape(pg);
+  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+    PShape shp = createShape(pg);
     
-    shp_wireframe.setTexture(null);
-    shp_wireframe.setFill(false);
-    shp_wireframe.setStroke(true);
-    shp_wireframe.setStroke(pg.color(0));
-    shp_wireframe.setStrokeWeight(strokeWeight);
+    shp.setTexture(null);
+    shp.setFill(false);
+    shp.setStroke(true);
+    shp.setStroke(style.stroke_color);
+    shp.setStrokeWeight(style.stroke_weight);
+    setShapeWireframe(pg.parent, shp);
   }
 
 

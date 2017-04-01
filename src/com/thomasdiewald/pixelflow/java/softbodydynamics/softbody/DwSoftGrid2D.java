@@ -6,6 +6,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -241,22 +242,24 @@ public class DwSoftGrid2D extends DwSoftBody2D{
   
   
   @Override
-  public void createMesh(PGraphics pg) {
-    shp_mesh = pg.createShape();
-    displayGridXY(shp_mesh, texture_XYp);
+  public void createShapeMesh(PGraphics pg) {
+    PShape shp = pg.createShape();
+    shp.setName("gridXYp");
+    displayGridXY(shp, texture_XYp);
+    setShapeMesh(pg.parent, shp);
   }
   
   @Override
-  public void createWireframe(PGraphics pg, float strokeWeight){
+  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+    PShape shp = pg.createShape();
+    displayGridXY(shp, texture_XYp);
+    shp.setTexture(null);
+    shp.setFill(false);
+    shp.setStroke(true);
+    shp.setStroke(style.stroke_color);
+    shp.setStrokeWeight(style.stroke_weight);
     
-    shp_wireframe = pg.createShape();
-    displayGridXY(shp_wireframe, texture_XYp);
-    
-    shp_wireframe.setTexture(null);
-    shp_wireframe.setFill(false);
-    shp_wireframe.setStroke(true);
-    shp_wireframe.setStroke(pg.color(0));
-    shp_wireframe.setStrokeWeight(strokeWeight);
+    setShapeWireframe(pg.parent, shp);
   }
   
 

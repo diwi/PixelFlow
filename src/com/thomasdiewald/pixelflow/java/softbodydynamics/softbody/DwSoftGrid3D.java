@@ -7,6 +7,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringCons
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -22,9 +23,9 @@ public class DwSoftGrid3D extends DwSoftBody3D{
   public int   nodes_z;
   public float nodes_r;
   
-  public float tx_inv;
-  public float ty_inv;
-  public float tz_inv;
+  private float tx_inv;
+  private float ty_inv;
+  private float tz_inv;
   
   
   public PGraphics2D texture_XYp = null;
@@ -569,7 +570,14 @@ public class DwSoftGrid3D extends DwSoftBody3D{
       shp_grid[i] = pg.createShape();
       shp.addChild(shp_grid[i]);
     }
- 
+    
+    shp_grid[0].setName("gridXYp");
+    shp_grid[1].setName("gridXYn");
+    shp_grid[2].setName("gridYZp");
+    shp_grid[3].setName("gridYZn");
+    shp_grid[4].setName("gridXZp");
+    shp_grid[5].setName("gridXZn");
+
                     displayGridXY(shp_grid[0], normals[0], 0        , texture_XYp);
     if(nodes_z > 1) displayGridXY(shp_grid[1], normals[1], nodes_z-1, texture_XYn);
                     displayGridYZ(shp_grid[2], normals[2], 0        , texture_YZp);
@@ -582,21 +590,24 @@ public class DwSoftGrid3D extends DwSoftBody3D{
   
   
   @Override
-  public void createMesh(PGraphics pg){
-    shp_mesh = createShape(pg);
-    shp_mesh.setStroke(false);
+  public void createShapeMesh(PGraphics pg){
+    PShape shp = createShape(pg);
+    shp.setStroke(false);
+    setShapeMesh(pg.parent, shp);
   }
 
 
   @Override
-  public void createWireframe(PGraphics pg, float strokeWeight){
-    shp_wireframe = createShape(pg);
+  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+    PShape shp = createShape(pg);
     
-    shp_wireframe.setTexture(null);
-    shp_wireframe.setFill(false);
-    shp_wireframe.setStroke(true);
-    shp_wireframe.setStroke(pg.color(0));
-    shp_wireframe.setStrokeWeight(strokeWeight);
+    shp.setTexture(null);
+    shp.setFill(false);
+    shp.setStroke(true);
+    shp.setStroke(style.stroke_color);
+    shp.setStrokeWeight(style.stroke_weight);
+    
+    setShapeWireframe(pg.parent, shp);
   }
   
    

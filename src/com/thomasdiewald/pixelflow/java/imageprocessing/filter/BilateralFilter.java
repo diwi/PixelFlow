@@ -26,6 +26,14 @@ public class BilateralFilter {
   public BilateralFilter(DwPixelFlow context){
     this.context = context;
   }
+  
+  public int     BILATERAL_RADIUS      = 5;
+  public float   BILATERAL_SIGMA_COLOR = 0.3f;
+  public float   BILATERAL_SIGMA_SPACE = 5;
+  
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
+    apply(src, dst, BILATERAL_RADIUS, BILATERAL_SIGMA_COLOR, BILATERAL_SIGMA_SPACE);
+  }
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, int radius, float sigma_color, float sigma_space) {
     if(src == dst){
