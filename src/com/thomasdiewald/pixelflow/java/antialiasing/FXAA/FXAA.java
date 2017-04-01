@@ -15,7 +15,6 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
-import processing.core.PConstants;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 

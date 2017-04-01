@@ -61,6 +61,7 @@ public class AntiAliasing extends PApplet {
   //    FXAA3_11.h, Version 3.11: 
   //    https://docs.nvidia.com/gameworks/content/gameworkslibrary/graphicssamples/opengl_samples/fxaa.htm
   //
+  //
   // 5) GBAA - GeometryBuffer AntiAliasing
   //    Shader Pipeline - Distance-to-Edge (GeometryShader) used for blending
   //    created by Emil Persson, 2011, http://www.humus.name
@@ -120,7 +121,7 @@ public class AntiAliasing extends PApplet {
   enum SMAA_MODE{ EGDES, BLEND, FINAL }
   
   // render stuff
-  PFont font;
+  PFont font48, font12;
   float gamma = 2.2f;
   float BACKGROUND_COLOR = 32;
   
@@ -154,13 +155,18 @@ public class AntiAliasing extends PApplet {
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     // processing font
-    font = createFont("Calibri", 48);
-    textFont(font);
+    font48 = createFont("SourceCodePro-Regular.ttf", 48);
+    font12 = createFont("SourceCodePro-Regular.ttf", 12);
     
     // load obj file into shape-object
     shape = loadShape("examples/data/skylight_demo_scene.obj");
     shape.scale(20);
 
+    
+    // main library context
+    context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
     
     // MSAA - main render-target for MSAA
     pg_render_msaa = (PGraphics3D) createGraphics(width, height, P3D);
@@ -187,8 +193,7 @@ public class AntiAliasing extends PApplet {
     pg_render_gbaa.smooth(0);
     pg_render_gbaa.textureSampling(5);
     
-    // main library context
-    context = new DwPixelFlow(this);
+
     
     // callback for scene display (used in GBAA)
     DwSceneDisplay scene_display = new DwSceneDisplay() {  
@@ -202,6 +207,7 @@ public class AntiAliasing extends PApplet {
     fxaa = new FXAA(context);
     smaa = new SMAA(context);
     gbaa = new GBAA(context, scene_display);
+
     
     frameRate(1000);
   }
@@ -294,9 +300,21 @@ public class AntiAliasing extends PApplet {
       fill(0,150);
       rect(0, height-65, mag_w, 65);
       
-      
-      int tx = 20;
-      int ty = height-20;
+      int tx, ty;
+//      
+      tx = 10;
+      ty = 20;
+      textFont(font12);
+      fill(200);
+      text("[1] NoAA", tx, ty);
+      text("[2] MSAA - MultiSample AA"           , tx, ty+=20);
+      text("[3] SMAA - SubPixel Morphological AA", tx, ty+=20);
+      text("[4] FXAA - Fast Approximate AA"      , tx, ty+=20);
+      text("[5] GBAA - GeometryBuffer AA"        , tx, ty+=20);
+
+      textFont(font48);
+      tx = 20;
+      ty = height-20;
       fill(0);
       text(mode + buffer, tx+2, ty+2);
       

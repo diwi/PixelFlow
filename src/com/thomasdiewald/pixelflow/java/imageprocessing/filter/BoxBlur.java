@@ -17,7 +17,6 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
-import processing.opengl.FrameBuffer;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 

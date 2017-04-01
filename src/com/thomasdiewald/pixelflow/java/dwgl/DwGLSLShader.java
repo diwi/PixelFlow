@@ -12,7 +12,6 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.Charset;
@@ -107,7 +106,7 @@ public class DwGLSLShader{
       System.out.printf("[%2d] #define %s %s\n", line, name, value);
     }
     public String get(){
-      return "#define "+name+" ("+value+")"+DwUtils.NL;
+      return "#define "+name+" "+value+""+DwUtils.NL;
     }
     @Override
     public String toString(){
@@ -137,15 +136,18 @@ public class DwGLSLShader{
         if(ltoken[0].contains("(")){
           // not my #define
         } else {
-          String name = ltoken[0].trim();
-          
-          int from = name.length();
-          int to = line.indexOf("//");
-          if( to == -1) to = line.length();
-
-          String value = line.substring(from, to).trim();
-          GLSLDefine define = new GLSLDefine(i, name, value);
-          glsl_defines.put(define.name, define);
+//          if(ltoken.length >= 2){
+            String name = ltoken[0].trim();
+            
+            int from = name.length();
+            int to = line.indexOf("//");
+            if( to == -1) to = line.length();
+  
+            String value = line.substring(from, to).trim();
+            GLSLDefine define = new GLSLDefine(i, name, value);
+//            System.out.print(define.get());
+            glsl_defines.put(define.name, define);
+//          }
         }
       }
     }

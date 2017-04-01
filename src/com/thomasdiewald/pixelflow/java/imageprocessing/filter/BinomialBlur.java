@@ -18,25 +18,25 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
-public class Binomial {
+public class BinomialBlur {
   
   public DwPixelFlow context;
   
-  public static enum BinomialSize{
-      KERNEL_3x3    (1, "BINOMIAL_3x3"  )
-    , KERNEL_5x5    (2, "BINOMIAL_5x5"  )
-    , KERNEL_7x7    (3, "BINOMIAL_7x7"  )
-    , KERNEL_9x9    (4, "BINOMIAL_9x9"  )
-    , KERNEL_11x11  (5, "BINOMIAL_11x11")
-    , KERNEL_13x13  (6, "BINOMIAL_13x13")
-    , KERNEL_15x15  (7, "BINOMIAL_15x15")
+  public static enum TYPE{
+      _3x3    (1, "BINOMIAL_3x3"  )
+    , _5x5    (2, "BINOMIAL_5x5"  )
+    , _7x7    (3, "BINOMIAL_7x7"  )
+    , _9x9    (4, "BINOMIAL_9x9"  )
+    , _11x11  (5, "BINOMIAL_11x11")
+    , _13x13  (6, "BINOMIAL_13x13")
+    , _15x15  (7, "BINOMIAL_15x15")
     ;
     
     protected DwGLSLProgram shader_horz, shader_vert;
     protected int radius;
     protected String define;
     
-    private BinomialSize(int radius, String define){
+    private TYPE(int radius, String define){
       this.radius = radius;
       this.define = define;
     }
@@ -99,13 +99,13 @@ public class Binomial {
 
   }
 
-  public Binomial(DwPixelFlow context){
+  public BinomialBlur(DwPixelFlow context){
     this.context = context;
   }
 
 
 
-  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, BinomialSize kernel) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, TYPE kernel) {
     if(src == tmp || dst == tmp){
       System.out.println("BoxBlur error: read-write race");
       return;

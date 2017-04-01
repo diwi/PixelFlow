@@ -13,8 +13,7 @@ package ImageProcessing_Filter;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Binomial;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Binomial.BinomialSize;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MedianFilter;
@@ -192,9 +191,6 @@ public class ImageProcessing_Filter extends PApplet {
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_C.smooth(4);
 
-    
-//    binomial.printCoeffs();
-      
     createGUI();
     
 //    frameRate(60);
@@ -311,7 +307,7 @@ public class ImageProcessing_Filter extends PApplet {
     }
     if( DISPLAY_FILTER == IDX++) {
       for(int i = 0; i < FILTER_STACKS; i++){
-        filter.binomial.apply(pg_src_A, pg_src_A, pg_src_B, BinomialSize.KERNEL_15x15);
+        filter.binomial.apply(pg_src_A, pg_src_A, pg_src_B, BinomialBlur.TYPE._15x15);
       }
     }
     if( DISPLAY_FILTER == IDX++) { 
