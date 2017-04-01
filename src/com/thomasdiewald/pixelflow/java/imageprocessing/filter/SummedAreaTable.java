@@ -85,8 +85,6 @@ public class SummedAreaTable {
   public void release(){
     sat_src.release();
     sat_dst.release();
-    shader_create.release();
-    shader_blur.release();
   }
   
   public void clear(){

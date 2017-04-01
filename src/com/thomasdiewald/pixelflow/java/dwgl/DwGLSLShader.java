@@ -17,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -31,6 +33,8 @@ public class DwGLSLShader{
   public String type_str;
   public String path;
   public String[] content;
+  
+  public HashMap<String, GLSLDefine> glsl_defines = new HashMap<String, GLSLDefine>();
 
   
   //  vertex shader (fullscreenquad) will be generated automatically.
@@ -65,7 +69,10 @@ public class DwGLSLShader{
     for(int i = 0; i < content.length; i++){
       content[i] += DwUtils.NL;
     }
-    build();
+    
+    parseDefines(content);
+    
+//    build();
   }
 
   public DwGLSLShader(DwPixelFlow context, int type, String path){
@@ -76,9 +83,37 @@ public class DwGLSLShader{
     
     this.content = loadSource(path);
     
-    build();
+    parseDefines(content);
+    
+//    build();
   }
   
+  
+  public GLSLDefine getDefine(String name){
+    return glsl_defines.get(name);
+  }
+
+  
+  public static class GLSLDefine{
+    public String name;
+    public String value;
+    public int line;
+    GLSLDefine(int line, String name, String value){
+      this.line = line;
+      this.name = name;
+      this.value = value;
+    }
+    public void print(){
+      System.out.printf("[%2d] #define %s %s\n", line, name, value);
+    }
+    public String get(){
+      return "#define "+name+" ("+value+")"+DwUtils.NL;
+    }
+    @Override
+    public String toString(){
+      return name;
+    }
+  }
   
   
   public String[] loadSource(String path){
@@ -88,8 +123,45 @@ public class DwGLSLShader{
     
     String[] content = new String[source.size()];
     source.toArray(content);
+
     return content;
   }
+  
+  public void parseDefines(String[] content){
+    for(int i = 0; i < content.length; i++){
+      String line = content[i].trim();
+      if(line.startsWith("#define ")){
+        line = line.substring("#define ".length());
+        String[] ltoken = line.split("\\s+");
+        
+        if(ltoken[0].contains("(")){
+          // not my #define
+        } else {
+          String name = ltoken[0].trim();
+          
+          int from = name.length();
+          int to = line.indexOf("//");
+          if( to == -1) to = line.length();
+
+          String value = line.substring(from, to).trim();
+          GLSLDefine define = new GLSLDefine(i, name, value);
+          glsl_defines.put(define.name, define);
+        }
+      }
+    }
+  }
+  
+  
+  public void printDefines(){
+    Set<String> keys = glsl_defines.keySet();
+    for(String key : keys ){
+      GLSLDefine def = glsl_defines.get(key);
+      System.out.printf("[%3d] %s", def.line, def.get());
+    }
+  }
+
+  
+  
   
   public void loadSource(int depth, ArrayList<String> source, File file){
 //    System.out.println("parsing file: "+file);
@@ -124,6 +196,14 @@ public class DwGLSLShader{
 
 
   public void build() {
+    
+    // update defines
+    Set<String> keys = glsl_defines.keySet();
+    for(String key : keys ){
+      GLSLDefine def = glsl_defines.get(key);
+      content[def.line] = def.get();
+    }
+    
     release(); // clear anything, in case the program gets rebuild
 
     HANDLE  = gl.glCreateShader(type);
@@ -168,7 +248,7 @@ public class DwGLSLShader{
 
 
   public static void getShaderSource(GL2ES2 gl, int shader_id){
-    if(shader_id==-1) return;
+    if(shader_id == -1) return;
 
     IntBuffer log_len = IntBuffer.allocate(1);
     gl.glGetShaderiv(shader_id, GL2ES2.GL_SHADER_SOURCE_LENGTH, log_len);
@@ -178,7 +258,7 @@ public class DwGLSLShader{
 
     String log = Charset.forName("US-ASCII").decode(buffer).toString();
 
-    if( log.length() > 1 && log.charAt(0) != 0){
+    if(log.length() > 1 && log.charAt(0) != 0){
       System.out.println(log);
     }
   }

@@ -35,6 +35,9 @@ public class DwGLSLProgram {
  
   public String name;
   
+  public static boolean BUILD_IN_CONSTRUCTOR = true;
+  
+  
   //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String geom_path, String frag_path) {
 
@@ -44,7 +47,9 @@ public class DwGLSLProgram {
     this.name = vert_path+"/"+geom_path+"/"+vert_path;
     this.gl = context.gl;
     this.context = context;
-    build();
+    if(BUILD_IN_CONSTRUCTOR){
+      build();
+    }
   }
   
   
@@ -62,23 +67,38 @@ public class DwGLSLProgram {
     this.name = vert_path+"/"+vert_path;
     this.gl = context.gl;
     this.context = context;
-    build();
+    
+    if(BUILD_IN_CONSTRUCTOR){
+      build();
+    }
   }
 
   public void release(){
-    vert.release();
-    frag.release();
+    if(vert != null) vert.release();
+    if(frag != null) frag.release();
+    if(geom != null) geom.release();
     gl.glDeleteProgram(HANDLE); HANDLE = 0;
   }
   
+  private void buildAndAttach(int program_handle, DwGLSLShader shader){
+    if(shader != null){ 
+      shader.build(); 
+      gl.glAttachShader(program_handle, shader.HANDLE);
+    }
+  }
+  
+
+  
   public DwGLSLProgram build() {
 
-    gl.glDeleteProgram(HANDLE); HANDLE = 0;
-
+    release();
+    
     HANDLE = gl.glCreateProgram();
-    if(vert != null) gl.glAttachShader(HANDLE, vert.HANDLE);
-    if(geom != null) gl.glAttachShader(HANDLE, geom.HANDLE);
-    if(frag != null) gl.glAttachShader(HANDLE, frag.HANDLE);
+    
+    buildAndAttach(HANDLE, vert);
+    buildAndAttach(HANDLE, geom);
+    buildAndAttach(HANDLE, frag);
+    
     gl.glLinkProgram(HANDLE);
     
 //    gl.glValidateProgram(HANDLE);

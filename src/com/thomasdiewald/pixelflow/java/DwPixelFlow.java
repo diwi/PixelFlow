@@ -247,9 +247,11 @@ public class DwPixelFlow{
     // given paths, when relative, could cause collisions.
     // to avoid this, pass "this" as the first argument
     String key = "";
-    if(o != null) key += "["+o.getClass().getCanonicalName()+"]";
+//    if(o != null) key += "["+o.getClass().getCanonicalName()+"]";
+    if(o != null) key += "["+o.hashCode()+"]";
     if(path_vertexshader != null) key += ""+path_vertexshader+"[]";
     key += ""+path_fragmentshader+"";
+    
      
     DwGLSLProgram shader = shader_cache.get(key);
     if(shader == null){
@@ -260,10 +262,6 @@ public class DwPixelFlow{
   }
    
 
-
-  
-  
-  
   
   
   
