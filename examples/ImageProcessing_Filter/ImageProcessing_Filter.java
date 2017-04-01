@@ -17,6 +17,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MedianFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 
 import controlP5.ControlP5;
 import controlP5.Group;
@@ -58,6 +59,7 @@ public class ImageProcessing_Filter extends PApplet {
   // filters
   DwFilter filter;
 
+  SummedAreaTable sat;
 
   int CONVOLUTION_KERNEL_INDEX = 0;
   
@@ -134,7 +136,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 9;
+  public int     DISPLAY_FILTER = 13;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -176,6 +178,8 @@ public class ImageProcessing_Filter extends PApplet {
     context.printGL();
     
     filter = new DwFilter(context);
+    
+    sat = new SummedAreaTable(context);
 
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_A.smooth(4);
@@ -353,6 +357,12 @@ public class ImageProcessing_Filter extends PApplet {
       filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
       filter.dog.apply(pg_src_A, pg_src_C, pg_src_A, new float[]{+2,-2f});
     }
+    if( DISPLAY_FILTER == 13) {
+      sat.create(pg_src_A);
+      sat.apply(pg_src_A, BLUR_RADIUS);
+    }
+    
+
 
     // display result
     background(0);
@@ -393,7 +403,7 @@ public class ImageProcessing_Filter extends PApplet {
 //    cp5.setAutoSpacing(10, 50);
     
     cp5.addSlider("blur radius").setGroup(group_filter).setSize(sx, sy)
-    .setRange(1, 100).setValue(BLUR_RADIUS)
+    .setRange(1, 200).setValue(BLUR_RADIUS)
     .plugTo(this, "BLUR_RADIUS").linebreak();
     
     cp5_slider_sigma = cp5.addSlider("gauss sigma").setGroup(group_filter).setSize(sx, sy)
@@ -455,6 +465,7 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("median + gauss + sobel(H)" , 10)
         .addItem("median + gauss + laplace"  , 11)
         .addItem("Dog"                       , 12)
+        .addItem("SummedAreaTable"           , 13)
         .activate(DISPLAY_FILTER)
         ;
 

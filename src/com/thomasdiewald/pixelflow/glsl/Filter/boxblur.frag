@@ -10,7 +10,9 @@
 
 #version 150
 
+
 out vec4 glFragColor;
+
 
 uniform sampler2D	tex;
 uniform vec2  wh; 
