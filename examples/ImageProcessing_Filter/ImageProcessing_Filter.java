@@ -135,7 +135,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 2;
+  public int     DISPLAY_FILTER = 15;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -218,6 +218,57 @@ public class ImageProcessing_Filter extends PApplet {
     if(rx > w-rs/2) {rx = w-rs/2; dx = -dx; }
     if(ry <   rs/2) {ry =   rs/2; dy = -dy; }
     if(ry > h-rs/2) {ry = h-rs/2; dy = -dy; }
+    
+    // pg_src_C is used for the bloom input
+    pg_src_C.beginDraw();
+    pg_src_C.rectMode(CENTER);
+    pg_src_C.background(0);
+    
+    
+    if(DISPLAY_GEOMETRY){
+      pg_src_C.strokeWeight(1);
+      pg_src_C.stroke(255);
+      pg_src_C.line(w/2, 0, w/2, h);
+      pg_src_C.line(0, h/2, w, h/2);
+      pg_src_C.line(0, 0, w, h);
+      pg_src_C.line(w, 0, 0, h);
+      
+      pg_src_C.strokeWeight(1);
+      pg_src_C.stroke(255);
+      pg_src_C.noFill();
+      pg_src_C.ellipse(w/2, h/2, 150, 150);
+      
+      pg_src_C.strokeWeight(1);
+      pg_src_C.stroke(255);
+      pg_src_C.noFill();
+      pg_src_C.rect(w/2, h/2, 300, 300);
+      
+      int PEPPER = 1000;
+      randomSeed(1);
+      for(int i = 0; i < PEPPER; i++){
+        float px = ((int) random(20, w-20));
+        float py = ((int) random(20, h-20));
+        
+        pg_src_C.noStroke();
+        pg_src_C.fill(255);
+        pg_src_C.rect(px, py, 1, 1);
+      }
+    }
+    
+    
+    
+    
+    
+    // moving rectangle
+    pg_src_C.fill(100, 175, 255);
+    pg_src_C.rect(rx, ry, rs, rs);
+    
+    // mouse-driven ellipse
+    pg_src_C.fill(255, 150, 0);
+    pg_src_C.noStroke();
+    pg_src_C.ellipse(mouseX, mouseY, 100, 100);
+    
+    pg_src_C.endDraw();
     
     
     // update input image
@@ -362,7 +413,15 @@ public class ImageProcessing_Filter extends PApplet {
       filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
       filter.dog.apply(pg_src_A, pg_src_C, pg_src_A, new float[]{+2,-2f});
     }
-
+    if( DISPLAY_FILTER == IDX++) {
+      
+//      filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB(); 
+      
+      filter.bloom.param.mult   = 5f;
+      filter.bloom.param.radius = 1f;
+      filter.bloom.apply(pg_src_C, pg_src_A);
+//      filter.copy.apply(pg_src_C, pg_src_A);
+    }
 
 
     // display result
@@ -448,7 +507,7 @@ public class ImageProcessing_Filter extends PApplet {
     cp5.addCheckBox("displayContent").setGroup(group_filter).setSize(18, 18).setPosition(10, 250)
     .setItemsPerRow(1).setSpacingColumn(2).setSpacingRow(2)
     .addItem("display image"   , 1)
-    .addItem("display geometry", 5)
+    .addItem("display geometry/noise", 2)
     .activate(0)
     .activate(1)
     ;
@@ -472,9 +531,10 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("median + gauss + sobel(H)" , IDX++)
         .addItem("median + gauss + laplace"  , IDX++)
         .addItem("Dog"                       , IDX++)
-
+        .addItem("Bloom"                     , IDX++)
         .activate(DISPLAY_FILTER)
         ;
+    System.out.println("number of filters: "+IDX);
 
     group_filter.open();
   }

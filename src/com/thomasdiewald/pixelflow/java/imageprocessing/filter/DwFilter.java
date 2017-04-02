@@ -14,6 +14,8 @@ import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
+import bloom.Bloom;
+
 public class DwFilter {
 
   public DwPixelFlow context;
@@ -35,9 +37,12 @@ public class DwFilter {
   public final RGBL            rgbl;
   public final BinomialBlur    binomial;
   public final SummedAreaTable summedareatable;
+  public final Bloom           bloom;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
+    
+    this.context.papplet.registerMethod("dispose", this);
     
     copy            = new Copy            (context);
     mix             = new Mix             (context);
@@ -56,6 +61,8 @@ public class DwFilter {
     rgbl            = new RGBL            (context);
     binomial        = new BinomialBlur    (context);
     summedareatable = new SummedAreaTable (context);
+    bloom           = new Bloom           (context);
+    
     filter_cache.put(context, this);
   }
   
@@ -68,6 +75,30 @@ public class DwFilter {
       filter_cache.put(context, filter);
     }
     return filter;
+  }
+  
+  public void dispose(){
+    release();
+  }
+  public void release(){
+//    copy           .release();
+//    mix            .release();
+//    add            .release();
+//    multiply       .release();
+//    luminance      .release();
+//    boxblur        .release();
+//    gaussblur      .release();
+//    median         .release();
+//    sobel          .release();
+//    laplace        .release();
+//    bilateral      .release();
+//    convolution    .release();
+//    dog            .release();
+//    gamma          .release();
+//    rgbl           .release();
+//    binomial       .release();
+    summedareatable.release();
+    bloom.release();
   }
   
 }

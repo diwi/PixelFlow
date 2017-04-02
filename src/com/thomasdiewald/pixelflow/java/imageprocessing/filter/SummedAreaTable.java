@@ -24,7 +24,7 @@ import processing.opengl.Texture;
 // Fast Summed-Area Table Generation and its Applications
 // http://www.shaderwrangler.com/publications/sat/SAT_EG2005.pdf
 
-public class SummedAreaTable {
+public class SummedAreaTable{
   
   protected DwPixelFlow context;
   protected DwGLSLProgram shader_create;
@@ -47,7 +47,6 @@ public class SummedAreaTable {
     sat_src = sat_dst;
     sat_dst = sat_tmp;
   }
-  
   
   static public enum InternalFormat{
     R32F    (GLES3.GL_R32F   , GLES3.GL_RED , 1),

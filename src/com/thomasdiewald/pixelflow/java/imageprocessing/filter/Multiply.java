@@ -26,6 +26,7 @@ public class Multiply {
     this.context = context;
   }
   
+  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
