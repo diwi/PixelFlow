@@ -135,7 +135,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 15;
+  public int     DISPLAY_FILTER = 16;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -186,7 +186,14 @@ public class ImageProcessing_Filter extends PApplet {
     
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_C.smooth(4);
-
+    
+    
+//    float thresh = 0.1f;
+//    float luma = 0.9f;
+//    float luma_mult = 1 + (luma - thresh);
+//    float result = luma_mult * luma;
+//    System.out.println(result);
+    
     createGUI();
     
 //    frameRate(60);
@@ -414,15 +421,15 @@ public class ImageProcessing_Filter extends PApplet {
       filter.dog.apply(pg_src_A, pg_src_C, pg_src_A, new float[]{+2,-2f});
     }
     if( DISPLAY_FILTER == IDX++) {
-      
-//      filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB(); 
-      
-      filter.bloom.param.mult   = 5f;
-      filter.bloom.param.radius = 1f;
       filter.bloom.apply(pg_src_C, pg_src_A);
-//      filter.copy.apply(pg_src_C, pg_src_A);
     }
-
+    if( DISPLAY_FILTER == IDX++) {
+      filter.luminance_threshold.apply(pg_src_A, pg_src_A);
+    }
+    if( DISPLAY_FILTER == IDX++) {
+      filter.luminance_threshold.apply(pg_src_A, pg_src_B);
+      filter.bloom.apply(pg_src_B, pg_src_A);
+    }
 
     // display result
     background(0);
@@ -497,6 +504,21 @@ public class ImageProcessing_Filter extends PApplet {
     .setRange(0, 10).setValue(BILATERAL_SIGMA_SPACE)
     .plugTo(this, "BILATERAL_SIGMA_SPACE").linebreak();
     
+    cp5.addSlider("luminance thresh").setGroup(group_filter).setSize(sx, sy)
+    .setRange(0, 1).setValue(filter.luminance_threshold.param.threshold)
+    .plugTo(filter.luminance_threshold.param, "threshold").linebreak();
+    
+    cp5.addSlider("luminance exponent").setGroup(group_filter).setSize(sx, sy)
+    .setRange(0, 20).setValue(filter.luminance_threshold.param.exponent)
+    .plugTo(filter.luminance_threshold.param, "exponent").linebreak();
+    
+    cp5.addSlider("bloom mul").setGroup(group_filter).setSize(sx, sy)
+    .setRange(0, 10).setValue(filter.bloom.param.mult)
+    .plugTo(filter.bloom.param, "mult").linebreak();
+    
+    cp5.addSlider("bloom radius").setGroup(group_filter).setSize(sx, sy)
+    .setRange(0, 1).setValue(filter.bloom.param.radius)
+    .plugTo(filter.bloom.param, "radius").linebreak();
     
     cp5.addSlider("filter stacks").setGroup(group_filter).setSize(sx, sy)
     .setRange(1, 10).setValue(FILTER_STACKS)
@@ -504,7 +526,7 @@ public class ImageProcessing_Filter extends PApplet {
     .plugTo(this, "FILTER_STACKS").linebreak();
     
     
-    cp5.addCheckBox("displayContent").setGroup(group_filter).setSize(18, 18).setPosition(10, 250)
+    cp5.addCheckBox("displayContent").setGroup(group_filter).setSize(18, 18).setPosition(10, 330)
     .setItemsPerRow(1).setSpacingColumn(2).setSpacingRow(2)
     .addItem("display image"   , 1)
     .addItem("display geometry/noise", 2)
@@ -514,7 +536,7 @@ public class ImageProcessing_Filter extends PApplet {
     
     int IDX  = 0;
     cp5.addRadio("displayFilter").setGroup(group_filter)
-        .setPosition(10, 310).setSize(18,18)
+        .setPosition(10, 390).setSize(18,18)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
         .addItem("luminance"                 , IDX++)
         .addItem("box blur"                  , IDX++)
@@ -532,6 +554,8 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("median + gauss + laplace"  , IDX++)
         .addItem("Dog"                       , IDX++)
         .addItem("Bloom"                     , IDX++)
+        .addItem("Luminance Threshold"       , IDX++)
+        .addItem("Luminance Threshold + Bloom", IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);

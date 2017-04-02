@@ -38,7 +38,7 @@ public class DwFilter {
   public final BinomialBlur    binomial;
   public final SummedAreaTable summedareatable;
   public final Bloom           bloom;
-  
+  public final LuminanceThreshold luminance_threshold;
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
     
@@ -62,7 +62,7 @@ public class DwFilter {
     binomial        = new BinomialBlur    (context);
     summedareatable = new SummedAreaTable (context);
     bloom           = new Bloom           (context);
-    
+    luminance_threshold = new LuminanceThreshold(context);
     filter_cache.put(context, this);
   }
   
