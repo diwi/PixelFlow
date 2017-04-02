@@ -13,7 +13,6 @@ package com.thomasdiewald.pixelflow.java.rigid_origami;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSet;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 

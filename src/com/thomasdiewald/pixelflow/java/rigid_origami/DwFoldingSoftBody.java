@@ -14,6 +14,71 @@ import processing.core.PShape;
 
 public class DwFoldingSoftBody extends DwSoftBody3D{
   
+  // for customizing the particle we just extends the original class and
+  // Override what we want to customize
+  public class FoldingParticle3D extends DwParticle3D{
+    
+    public FoldingParticle3D(int idx, float[] v, float rad) {
+      super(idx, v[0], v[1], v[2], rad);
+    }
+    
+    public FoldingParticle3D(int idx, float x, float y, float z, float rad) {
+      super(idx, x, y, z, rad);
+    }
+    
+    @Override
+    public void updateShapeColor(){
+//      System.out.println(shade_springs_by_tension);
+      if(!shade_springs_by_tension){
+        if(use_particles_color){
+          if(collision_group_id != this.collision_group){
+            setColor(particle_color2);
+            shp_particle.setStroke(particle_color2);
+          } else {
+            setColor(particle_color);
+            shp_particle.setStroke(particle_color);
+          }
+        } else {
+          setColor(particle_gray);
+          shp_particle.setStroke(particle_gray);
+        }
+        
+      } else {
+        int force_count = 0;
+        float force_sum = 0;
+        for(int i = 0; i < spring_count; i++){
+          DwSpringConstraint spring = this.springs[i];
+//          if(!spring.enabled){
+//            continue;
+//          }
+          float force_curr = spring.computeForce(); // the force, at this moment
+          float force_relx = spring.force;          // the force, remaining after the last relaxation step
+          float force = Math.abs(force_curr) + Math.abs(force_relx);
+          force_sum += force;
+          force_count++;
+        }
+        
+        if(force_count > 0){
+          force_sum /= force_count;
+          float r = force_sum * 10000;
+          float g = force_sum * 1000;
+          float b = 0;
+          
+          setColor(toARGB(r,g,b));
+          shp_particle.setStroke(particle_gray);
+          
+          
+        } else {
+          setColor(toARGB(200,200,200));
+        }
+      }
+      
+//      super.updateShapeColor();
+    }
+    
+  }
+  
+  
   public DwFoldingModel foldingmodel;
  
   public DwFoldingSoftBody(){
@@ -31,13 +96,13 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
     this.collision_group_id = physics.getNewCollisionGroupId();
     this.self_collisions    = true;
     this.num_nodes          = verts_count;
-    this.particles          = new CustomParticle3D[num_nodes];
+    this.particles          = new FoldingParticle3D[num_nodes];
     
     fold_value_cur = 1;
     fold_value_dst = 1;
 
     for(int i = 0; i < num_nodes; i++){
-      particles[i] = new CustomParticle3D(i + nodes_offset, verts[i], 1);
+      particles[i] = new FoldingParticle3D(i + nodes_offset, verts[i], 1);
       particles[i].setCollisionGroup(collision_group_id);
       particles[i].setParamByRef(param_particle);
     }
@@ -45,6 +110,10 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
     foldingmodel.createSprings(physics, particles, rigid, soft);
     
     foldingmodel.createNodeRadius(physics, particles);
+    
+//    for(int i = 0; i < num_nodes; i++){
+//      particles[i].rad = 10;
+//    }
     
     // add new particles to the physics-world
     physics.addParticles(particles, num_nodes);

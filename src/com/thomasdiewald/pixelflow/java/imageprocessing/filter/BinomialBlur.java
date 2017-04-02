@@ -14,6 +14,7 @@ package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
@@ -135,6 +136,31 @@ public class BinomialBlur {
     context.endDraw();
     context.end("Binomial.apply - VERT");
 //    dst.endDraw(); 
+  }
+  
+  
+  public void apply(DwGLTexture src, DwGLTexture dst, DwGLTexture tmp, TYPE kernel) {
+    if(src == tmp || dst == tmp){
+      System.out.println("BoxBlur error: read-write race");
+      return;
+    }
+    if(kernel == null){
+      return; 
+    }
+
+    kernel.buildShader(context);
+
+    context.begin();
+    context.beginDraw(tmp);
+    pass(src.HANDLE[0], tmp.w, tmp.h, kernel.shader_horz);
+    context.endDraw();
+    context.end("Binomial.apply - HORZ");
+
+    context.begin();
+    context.beginDraw(dst);
+    pass(tmp.HANDLE[0], dst.w, dst.h, kernel.shader_vert);
+    context.endDraw();
+    context.end("Binomial.apply - VERT");
   }
   
   

@@ -164,6 +164,9 @@ public class DwGLSLProgram {
   
   // Comfort Methods
   public DwGLSLProgram begin(){
+    if(HANDLE == 0){
+      build(); // TODO
+    }
     gl.glUseProgram(HANDLE);
 //    IS_ACTIVE = true;
     return this;

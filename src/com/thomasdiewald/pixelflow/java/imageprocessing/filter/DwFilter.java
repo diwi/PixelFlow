@@ -33,28 +33,29 @@ public class DwFilter {
   public final DoG             dog;
   public final GammaCorrection gamma;
   public final RGBL            rgbl;
-  public final BinomialBlur        binomial;
+  public final BinomialBlur    binomial;
+  public final SummedAreaTable summedareatable;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
     
-    copy        = new Copy            (context);
-    mix         = new Mix             (context);
-    add         = new Add             (context);
-    multiply    = new Multiply        (context);
-    luminance   = new Luminance       (context);
-    boxblur     = new BoxBlur         (context);
-    gaussblur   = new GaussianBlur    (context);
-    median      = new MedianFilter    (context);
-    sobel       = new SobelFilter     (context);
-    laplace     = new Laplace         (context);
-    bilateral   = new BilateralFilter (context);
-    convolution = new Convolution     (context);
-    dog         = new DoG             (context);
-    gamma       = new GammaCorrection (context);
-    rgbl        = new RGBL            (context);
-    binomial    = new BinomialBlur        (context);
-    
+    copy            = new Copy            (context);
+    mix             = new Mix             (context);
+    add             = new Add             (context);
+    multiply        = new Multiply        (context);
+    luminance       = new Luminance       (context);
+    boxblur         = new BoxBlur         (context);
+    gaussblur       = new GaussianBlur    (context);
+    median          = new MedianFilter    (context);
+    sobel           = new SobelFilter     (context);
+    laplace         = new Laplace         (context);
+    bilateral       = new BilateralFilter (context);
+    convolution     = new Convolution     (context);
+    dog             = new DoG             (context);
+    gamma           = new GammaCorrection (context);
+    rgbl            = new RGBL            (context);
+    binomial        = new BinomialBlur    (context);
+    summedareatable = new SummedAreaTable (context);
     filter_cache.put(context, this);
   }
   

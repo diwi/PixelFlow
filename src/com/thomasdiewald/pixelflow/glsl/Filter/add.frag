@@ -23,8 +23,9 @@ void main(){
   vec4 dataB = texture(texB, posn) * multiplier.y;
   
   // glFragColor = abs(dataA + dataB);
-  glFragColor = (dataA + dataB) * 0.5 + 0.5;
-  glFragColor.a = 1;
+  //glFragColor = (dataA + dataB) * 0.5 + 0.5;
+  glFragColor = (dataA + dataB);
+  //glFragColor.a = 1;
 }
 
 

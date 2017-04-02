@@ -28,9 +28,9 @@ public abstract class DwSoftBody{
   
 //  public DwParticle[] particles; // particles of this body
   
-  private PShape shp_particles;         // shape for drawing the particles
-  private PShape shp_mesh;              // shape for drawing the mesh
-  private PShape shp_wireframe;         // shape for drawing the edges
+  public PShape shp_particles;         // shape for drawing the particles
+  public PShape shp_mesh;              // shape for drawing the mesh
+  public PShape shp_wireframe;         // shape for drawing the edges
   
   public DwParticle.Param         param_particle = new DwParticle.Param();
   public DwSpringConstraint.Param param_spring   = new DwSpringConstraint.Param();

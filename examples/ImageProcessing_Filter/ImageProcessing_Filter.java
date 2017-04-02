@@ -60,8 +60,6 @@ public class ImageProcessing_Filter extends PApplet {
   // filters
   DwFilter filter;
 
-  SummedAreaTable sat;
-
   int CONVOLUTION_KERNEL_INDEX = 0;
   
   // custom convolution kernel
@@ -180,8 +178,6 @@ public class ImageProcessing_Filter extends PApplet {
     
     filter = new DwFilter(context);
     
-    sat = new SummedAreaTable(context);
-
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_A.smooth(4);
     
@@ -295,9 +291,9 @@ public class ImageProcessing_Filter extends PApplet {
     }
     if( DISPLAY_FILTER == IDX++) {
       for(int i = 0; i < FILTER_STACKS; i++){
-        sat.setFormat(SummedAreaTable.InternalFormat.RGBA32F);
-        sat.create(pg_src_A);
-        sat.apply(pg_src_A, BLUR_RADIUS);
+        filter.summedareatable.setFormat(SummedAreaTable.InternalFormat.RGBA32F);
+        filter.summedareatable.create(pg_src_A);
+        filter.summedareatable.apply(pg_src_A, BLUR_RADIUS);
       }
     }
     if( DISPLAY_FILTER == IDX++) { 
