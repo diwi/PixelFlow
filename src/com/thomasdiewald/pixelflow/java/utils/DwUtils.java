@@ -33,6 +33,15 @@ public class DwUtils {
   public DwUtils(DwPixelFlow context){
     this.context = context;
   }
+  
+  
+  final static public int log2ceil(double val){
+    return (int) Math.ceil(Math.log(val)/Math.log(2));
+  }
+  
+  final static public float mix(float a, float b, float mix){
+    return a*(1f-mix) + b * (mix);
+  }
 
 
   public String[] readASCIIfile(InputStream inputstream) {

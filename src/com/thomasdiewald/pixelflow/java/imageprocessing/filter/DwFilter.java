@@ -14,8 +14,6 @@ import java.util.HashMap;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
-import bloom.Bloom;
-
 public class DwFilter {
 
   public DwPixelFlow context;
