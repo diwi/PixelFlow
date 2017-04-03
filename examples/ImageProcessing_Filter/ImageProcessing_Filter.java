@@ -234,19 +234,19 @@ public class ImageProcessing_Filter extends PApplet {
     
     if(DISPLAY_GEOMETRY){
       pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(255);
+      pg_src_C.stroke(0, 255, 0);
       pg_src_C.line(w/2, 0, w/2, h);
       pg_src_C.line(0, h/2, w, h/2);
       pg_src_C.line(0, 0, w, h);
       pg_src_C.line(w, 0, 0, h);
       
       pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(255);
+      pg_src_C.stroke(0, 255, 0);
       pg_src_C.noFill();
       pg_src_C.ellipse(w/2, h/2, 150, 150);
       
       pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(255);
+      pg_src_C.stroke(0, 255, 0);
       pg_src_C.noFill();
       pg_src_C.rect(w/2, h/2, 300, 300);
       
@@ -257,8 +257,8 @@ public class ImageProcessing_Filter extends PApplet {
         float py = ((int) random(20, h-20));
         
         pg_src_C.noStroke();
-        pg_src_C.fill(255);
-        pg_src_C.rect(px, py, 1, 1);
+        pg_src_C.fill(0,255,0);
+        pg_src_C.rect(px, py, 2, 2);
       }
     }
     
@@ -421,9 +421,11 @@ public class ImageProcessing_Filter extends PApplet {
       filter.dog.apply(pg_src_A, pg_src_C, pg_src_A, new float[]{+2,-2f});
     }
     if( DISPLAY_FILTER == IDX++) {
+//      filter.gaussblur.apply(pg_src_C, pg_src_C, pg_src_B, BLUR_RADIUS);
       filter.bloom.apply(pg_src_C, pg_src_A);
     }
     if( DISPLAY_FILTER == IDX++) {
+//      filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
       filter.luminance_threshold.apply(pg_src_A, pg_src_A);
     }
     if( DISPLAY_FILTER == IDX++) {
@@ -435,7 +437,6 @@ public class ImageProcessing_Filter extends PApplet {
     background(0);
     blendMode(REPLACE);
     image(pg_src_A, 0, 0);
-    
     blendMode(BLEND);
 
     // info

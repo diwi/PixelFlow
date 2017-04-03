@@ -18,6 +18,9 @@ uniform sampler2D	tex_blur2;
 uniform sampler2D	tex_blur3;
 uniform sampler2D	tex_blur4;
 
+uniform sampler2D	tex_src;
+
+
 uniform float tex_weights[5] = float[](1.0, 1.0, 1.0, 1.0, 1.0);
 
 uniform vec2  wh_rcp; 
@@ -30,4 +33,17 @@ void main(){
 								tex_weights[2] * texture(tex_blur2, posn) + 
 								tex_weights[3] * texture(tex_blur3, posn) + 
 								tex_weights[4] * texture(tex_blur4, posn);
+                
+                
+  // vec4 bloom = tex_weights[0] * texture(tex_blur0, posn) + 
+	 						 // tex_weights[1] * texture(tex_blur1, posn) + 
+							 // tex_weights[2] * texture(tex_blur2, posn) + 
+							 // tex_weights[3] * texture(tex_blur3, posn) + 
+							 // tex_weights[4] * texture(tex_blur4, posn);     
+               
+  // vec4 color = texture(tex_src, posn);
+                
+             
+  // glFragColor = bloom + color;
+  // glFragColor.a = color.a;
 }

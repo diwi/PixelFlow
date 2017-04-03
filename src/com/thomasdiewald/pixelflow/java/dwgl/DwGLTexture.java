@@ -163,6 +163,9 @@ public class DwGLTexture{
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_REPEAT);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
+    
+    gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
+    
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
     
@@ -198,7 +201,11 @@ public class DwGLTexture{
     return true;
   }
   
-  
+  //  GL_CLAMP_TO_EDGE
+  //  GL_CLAMP_TO_BORDER
+  //  GL_MIRRORED_REPEAT 
+  //  GL_REPEAT
+  //  GL_MIRROR_CLAMP_TO_EDGE 
   public void setParam_WRAP_S_T(int param){
     gl.glBindTexture  (target, HANDLE[0]);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, param);

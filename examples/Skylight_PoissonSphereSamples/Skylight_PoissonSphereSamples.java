@@ -20,6 +20,7 @@ import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.sampling.PoissonDiscSamping3D;
@@ -75,11 +76,13 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   SMAA smaa;
   
   PGraphics3D pg_aa;
-
+  PGraphics3D pg_tmp;
   // state variables
   boolean DISPLAY_RADIUS = true;
   boolean GENERATE_SPHERES = true;
   
+  
+  boolean APPLY_BLOOM = true;
   
   public void settings(){
     size(viewport_w, viewport_h, P3D);
@@ -127,9 +130,10 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     pg_aa.smooth(0);
     pg_aa.textureSampling(5);
 
-    
 
-    
+    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_tmp.smooth(0);
+    pg_tmp.textureSampling(5);
     
     
     
@@ -220,7 +224,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     }
   }
   
-  
+
 
   public void draw(){
     updateCamActiveStatus();
@@ -238,10 +242,25 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     
     // AntiAliasing ... SMAA
     smaa.apply(skylight.renderer.pg_render, pg_aa);
-
+    
+    if(APPLY_BLOOM){
+      DwFilter filter = DwFilter.get(context);
+      
+      filter.luminance_threshold.param.threshold = 0.5f;
+      filter.luminance_threshold.param.exponent  = 1;
+      
+      filter.luminance_threshold.apply(pg_aa, pg_tmp);
+      
+      filter.bloom.param.mult   =  0.2f; //map(mouseX, 0, width, 0, 1);
+      filter.bloom.param.radius =  0.6f; //map(mouseY, 0, height, 0, 1);
+      
+      filter.bloom.apply(pg_tmp, pg_aa);
+    }
 
     cam.beginHUD();
+    blendMode(REPLACE);
     image(pg_aa, 0, 0);
+    blendMode(BLEND);
     cam.endHUD();
     
     // some info, window title
@@ -255,7 +274,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   
   public void displayScene(PGraphics3D canvas){
     if(canvas == skylight.renderer.pg_render){
-      canvas.background(32);
+      canvas.background(16);
       displaySamples(canvas);
     }
 
@@ -390,6 +409,8 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   public void keyReleased(){
     if(key == ' ') UPDATE_SPHERES = !UPDATE_SPHERES;
     if(key == 's') DISPLAY_SAMPLES = !DISPLAY_SAMPLES;
+    
+    if(key == 'b') APPLY_BLOOM = !APPLY_BLOOM;
     if(key == 'r') generatePoissonSampling();
   }
   

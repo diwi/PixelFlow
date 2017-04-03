@@ -22,7 +22,7 @@ public class LuminanceThreshold {
   
   static public class Param{
     public float threshold = 1.0f; // [0.0, 1.0]
-    public int   exponent  = 1; // [1, whatever]
+    public int   exponent  = 1;    // [1, whatever]
   }
   
   public Param param = new Param();
