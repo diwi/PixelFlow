@@ -35,7 +35,8 @@ public class BloomDemo extends PApplet {
   PFont font12;
 
   public void settings(){
-    size(viewport_w, viewport_h, P2D);
+//    size(viewport_w, viewport_h, P2D);
+    fullScreen(P2D);
     smooth(0);
   }
   
@@ -47,6 +48,8 @@ public class BloomDemo extends PApplet {
     context.printGL();
     
     filter = new DwFilter(context);
+    
+//    System.out.println("width/height "+width+"/"+height);
     
     pg_src_A = (PGraphics2D) createGraphics(width, height, P2D);
     pg_src_A.smooth(8);
@@ -110,7 +113,7 @@ public class BloomDemo extends PApplet {
       pg_src_A.stroke(255);
       pg_src_A.fill(0, 240);
       pg_src_A.strokeWeight(2);
-      pg_src_A.ellipse(mouseX, mouseY, 200, 200);
+      pg_src_A.ellipse(mouseX, mouseY, height/4, height/4);
     }
     pg_src_A.endDraw();
     
@@ -124,6 +127,7 @@ public class BloomDemo extends PApplet {
       // bloom pass
       // if the original image is used as source, the previous luminance pass 
       // can just be skipped
+//      filter.bloom.setBlurLayers(10);
       filter.bloom.param.mult   = map(mouseX, 0, width, 0, 10);
       filter.bloom.param.radius = map(mouseY, 0, height, 0, 1);
       filter.bloom.apply(pg_src_B, pg_src_A);
@@ -160,13 +164,19 @@ public class BloomDemo extends PApplet {
     line(0, s, mouseX, s);
     line(s, 0, s, mouseY);
     
+
+    
+    // info
+    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [mode %d]  [frame %d]   [fps %6.2f]", pg_src_A.width, pg_src_A.height, DISPLAY_MODE, frameCount, frameRate);
+    surface.setTitle(txt_fps);
+    
     // key hints
     textFont(font12);
-    int tx = 10;
-    int ty = 10;
+    int tx = 15;
+    int ty = 15;
     int gap = 15;
-    
     stroke(255);
+    text(txt_fps         , tx, ty+=gap);
     text("'0' bloom OFF" , tx, ty+=gap);
     text("'1' Bloom ON"  , tx, ty+=gap);
     text("'2' Luminance" , tx, ty+=gap);
@@ -177,10 +187,7 @@ public class BloomDemo extends PApplet {
     text("'7' Blur[4]"   , tx, ty+=gap);
     text("mouseX: bloom multiplier"   , tx, ty+=gap);
     text("mouseY: bloom radius"       , tx, ty+=gap);
-    
-    // info
-    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [mode %d]  [frame %d]   [fps %6.2f]", pg_src_A.width, pg_src_A.height, DISPLAY_MODE, frameCount, frameRate);
-    surface.setTitle(txt_fps);
+
     
   }
   

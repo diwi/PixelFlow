@@ -102,7 +102,7 @@ public class Bloom {
 
     // 2) init/release textures if needed
     if(tex_blur_dst.length != BLUR_LAYERS){
-      System.out.println("Bloom BLUR_LAYERS: "+BLUR_LAYERS);
+//      System.out.println("Bloom BLUR_LAYERS: "+BLUR_LAYERS);
       release();
       tex_blur_dst = new DwGLTexture[BLUR_LAYERS];
       tex_blur_tmp = new DwGLTexture[BLUR_LAYERS];

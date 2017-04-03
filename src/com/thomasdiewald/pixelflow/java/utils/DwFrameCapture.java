@@ -153,8 +153,6 @@ public class DwFrameCapture {
     totalMemory    = Runtime.getRuntime().totalMemory();
     
     usedMemory =  totalMemory;
-    
-    frame_count++;
   }
   
   
@@ -178,7 +176,7 @@ public class DwFrameCapture {
     if(!dir_new.exists()) {
       dir_new.mkdirs();
     }
-    String filename = String.format("%s_%07d%s" , this_.getSimpleName(), frame_count, ".jpg");
+    String filename = String.format("%s_%07d%s" , this_.getSimpleName(), frame_count++, ".jpg");
     File file = new File(dir_new, filename);
     return file;
   }

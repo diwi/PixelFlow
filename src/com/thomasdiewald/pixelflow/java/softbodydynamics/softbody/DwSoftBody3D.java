@@ -97,6 +97,12 @@ public abstract class DwSoftBody3D extends DwSoftBody{
     return shape;
   }
   
+  public void updateParticlesShapes(){
+    for(int i = 0; i < particles.length; i++){
+      particles[i].updateShape();
+    }
+  }
+  
 
   @Override
   public void displaySprings(PGraphics pg, StrokeStyle style, TYPE type){

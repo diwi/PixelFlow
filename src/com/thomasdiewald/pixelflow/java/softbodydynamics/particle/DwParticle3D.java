@@ -207,7 +207,7 @@ public class DwParticle3D extends DwParticle{
   public void setShape(PShape shape){
     shp_particle = shape;
     shp_transform = new PMatrix3D();
-    updateShapePosition();
+    updateShape();
   }
   
   @Override
