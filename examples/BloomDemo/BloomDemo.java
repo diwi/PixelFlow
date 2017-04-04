@@ -20,6 +20,12 @@ import processing.opengl.PGraphics2D;
 
 public class BloomDemo extends PApplet {
 
+  //
+  // Bloom Shader applied as post-processing effect on a simpl 2D scene.
+  //
+  
+  
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
