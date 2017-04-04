@@ -13,11 +13,8 @@ package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLShader.GLSLDefine;
-
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -52,19 +49,19 @@ public class Bloom {
   private boolean BLUR_LAYERS_auto = true;
 
   // blur textures
-  public DwGLTexture[] tex_blur_dst = new DwGLTexture[0];
-  public DwGLTexture[] tex_blur_tmp = new DwGLTexture[0];
-  public DwGLTexture   tex_luminance = null;
+  public DwGLTexture[] tex_blur = new DwGLTexture[0];
+  public DwGLTexture[] tex_temp = new DwGLTexture[0];
   
   // texture weights (merge pass)
   public float[] tex_weights;
   
-  // merge shader
-  public DwGLSLProgram shader_merge;
+  // Filter for merging the textures
+  public TextureMerge tex_merge;
   
   
   public Bloom(DwPixelFlow context){
     this.context = context;
+    this.tex_merge = new TextureMerge(context);
   }
   
   public void setBlurLayersMax(int BLUR_LAYERS_MAX){
@@ -82,11 +79,10 @@ public class Bloom {
   }
   
   public void release(){
-    for(int i = 0; i < tex_blur_dst.length; i++){
-      if(tex_blur_tmp[i] != null) tex_blur_tmp[i].release();
-      if(tex_blur_dst[i] != null) tex_blur_dst[i].release();
+    for(int i = 0; i < tex_blur.length; i++){
+      if(tex_temp[i] != null) tex_temp[i].release();
+      if(tex_blur[i] != null) tex_blur[i].release();
     }
-    if(tex_luminance != null) tex_luminance.release();
   }
   
 
@@ -101,54 +97,27 @@ public class Bloom {
     }
 
     // 2) init/release textures if needed
-    if(tex_blur_dst.length != BLUR_LAYERS){
-//      System.out.println("Bloom BLUR_LAYERS: "+BLUR_LAYERS);
+    if(tex_blur.length != BLUR_LAYERS){
       release();
-      tex_blur_dst = new DwGLTexture[BLUR_LAYERS];
-      tex_blur_tmp = new DwGLTexture[BLUR_LAYERS];
+      tex_blur = new DwGLTexture[BLUR_LAYERS];
+      tex_temp = new DwGLTexture[BLUR_LAYERS];
       for(int i = 0; i < BLUR_LAYERS; i++){
-        tex_blur_dst[i] = new DwGLTexture();
-        tex_blur_tmp[i] = new DwGLTexture();
+        tex_blur[i] = new DwGLTexture();
+        tex_temp[i] = new DwGLTexture();
       }
-      tex_luminance = new DwGLTexture();
     }
 
-    
     // 3) allocate textures
-    int internal_format = GLES3.GL_RGBA8;
-    int format          = GLES3.GL_RGBA;
-    int type            = GLES3.GL_UNSIGNED_BYTE;
-    int filter          = GLES3.GL_LINEAR;
-    int wrap            = GLES3.GL_CLAMP_TO_EDGE;
-    
-    tex_luminance.resize(context, internal_format, wi, hi, format, type, filter, 4, 1);
-    tex_luminance.setParam_WRAP_S_T(wrap);
-    
     for(int i = 0; i < BLUR_LAYERS; i++){
-      tex_blur_tmp[i].resize(context, internal_format, wi, hi, format, type, filter, 4, 1);
-      tex_blur_dst[i].resize(context, internal_format, wi, hi, format, type, filter, 4, 1);
-      tex_blur_tmp[i].setParam_WRAP_S_T(wrap);
-      tex_blur_dst[i].setParam_WRAP_S_T(wrap);
-      
+      tex_temp[i].resize(context, GLES3.GL_RGBA8, wi, hi, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, GLES3.GL_LINEAR, 4, 1);
+      tex_blur[i].resize(context, GLES3.GL_RGBA8, wi, hi, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, GLES3.GL_LINEAR, 4, 1);
+      tex_temp[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+      tex_blur[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
       wi >>= 1;
       hi >>= 1;
     }
-    
-
-    // 4) create/update shader
-    if(shader_merge == null){
-      shader_merge = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/bloom_merge.frag");
-    }
-    
-    GLSLDefine define = shader_merge.frag.glsl_defines.get("BLUR_LAYERS");
-    if(Integer.parseInt(define.value) != BLUR_LAYERS){
-      define.value = ""+BLUR_LAYERS;
-      shader_merge.build();
-    }
-
   }
   
-
 
   private float[] computeWeights(float[] weights){
     if(weights == null || weights.length != BLUR_LAYERS){
@@ -167,58 +136,26 @@ public class Bloom {
   }
   
   
-  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst){
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    int w = src.width;
-    int h = src.height;
+    // lazy init/allocation
+    resize(dst.width, dst.height);
     
-    // lazy init/allocation of all resources
-    resize(w, h);
+    // 1) use src-texture as base for blur-levels
+    DwFilter.get(context).copy.apply(src, tex_blur[0]);
     
-    // 1) luminance pass, use "src" as luminance
-    {
-      DwFilter.get(context).copy.apply(src, tex_luminance);
-    }
-
-    // 2) blur pass
-    {
-      DwGLTexture tex_blur_src = tex_luminance;
-      for(int i = 0; i < BLUR_LAYERS; i++){
-        int radius = i + 2;
-        DwFilter.get(context).gaussblur.apply(tex_blur_src, tex_blur_dst[i], tex_blur_tmp[i], radius);
-        tex_blur_src = tex_blur_dst[i];
-      }
+    // 2) blur passes
+    for(int i = 1; i < BLUR_LAYERS; i++){
+      DwFilter.get(context).gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i + 2);
     }
     
-   
-    // 3) composition: merge blur-textures
-    {
-      tex_weights = computeWeights(tex_weights);
-
-      context.begin();
-      context.beginDraw(dst);
-      
-      // additive blend
-      context.gl.glEnable(GLES3.GL_BLEND);
-      context.gl.glBlendEquationSeparate(GLES3.GL_FUNC_ADD, GLES3.GL_FUNC_ADD);
-      context.gl.glBlendFuncSeparate(GLES3.GL_SRC_ALPHA, GLES3.GL_ONE, GLES3.GL_ONE, GLES3.GL_ONE);
-      
-      shader_merge.begin();
-      shader_merge.uniform1fv("tex_weights", BLUR_LAYERS, tex_weights);
-      shader_merge.uniform2f ("wh_rcp"     , 1f/w,  1f/h);
-      for(int i = 0; i < BLUR_LAYERS; i++){
-        shader_merge.uniformTexture("tex_blur["+i+"]", tex_blur_dst[i]);
-      }
-      shader_merge.drawFullScreenQuad(0,0,w,h);
-      shader_merge.end();
-      
-      context.endDraw();
-      context.end("Bloom.apply");
-    }
+    // 3) compute blur-texture weights
+    tex_weights = computeWeights(tex_weights);
     
+    // 4) merge blur-textures
+    tex_merge.apply(dst, tex_blur, tex_weights);   
   }
   
 

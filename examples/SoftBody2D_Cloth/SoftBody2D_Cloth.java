@@ -156,7 +156,7 @@ public class SoftBody2D_Cloth extends PApplet {
     
     createGUI();
     
-    frameRate(600);
+    frameRate(60);
   }
   
   public void createTexture(String text, DwSoftGrid2D cloth){

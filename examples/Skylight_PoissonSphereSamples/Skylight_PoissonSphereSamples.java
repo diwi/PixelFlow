@@ -42,7 +42,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   // ... for testing and tweaking interactivity and realtime behaviour.
   //
   // AntiAliasing: SMAA
-  //
+  // Bloom Shader
   
   
   int viewport_w = 1280;
@@ -70,19 +70,18 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   PMatrix3D mat_scene_bounds;
   
   
-
-  
   DwPixelFlow context;
   SMAA smaa;
   
   PGraphics3D pg_aa;
   PGraphics3D pg_tmp;
+  
   // state variables
   boolean DISPLAY_RADIUS = true;
   boolean GENERATE_SPHERES = true;
   
-  
-  boolean APPLY_BLOOM = true;
+  // key 'b'
+  boolean APPLY_BLOOM = !true;
   
   public void settings(){
     size(viewport_w, viewport_h, P3D);
@@ -354,7 +353,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     shp_sphere.setFill(color(255));
     
     colorMode(HSB, 360, 1, 1);
-    float hsb_h = 20 + (float)(Math.random() - 0.5f) * 50 ;
+    float hsb_h = 15 + (float)(Math.random() - 0.5f) * 45 ;
     float hsb_s = (float) Math.random() * 0.99f + 0.01f;
     float hsb_b = hsb_s*3;
     

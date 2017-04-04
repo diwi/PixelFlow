@@ -63,7 +63,7 @@ public class BloomSphere extends PApplet {
 
   public void settings() {
     size(viewport_w, viewport_h, P3D);
-//    fullScreen();
+    fullScreen();
     smooth(8);
   }
  
@@ -123,19 +123,23 @@ public class BloomSphere extends PApplet {
 
   public void draw() {
 
+    // main color pass, rendered as usual
     pg_dst.beginDraw();
     displayScene(pg_dst, RENDER_PASS.COLOR);
     pg_dst.endDraw();
     
+    // additional pass where only bloom-relevant stuff is rendered
     pg_luminance.beginDraw();
     displayScene(pg_luminance, RENDER_PASS.LUMINANCE);
     pg_luminance.endDraw();
     
+    // apply bloom
     DwFilter filter = DwFilter.get(context);
     filter.bloom.param.mult   = 4;    //map(mouseX, 0, width, 0, 5);
     filter.bloom.param.radius = 0.5f; //map(mouseY, 0, height, 0, 1);
     filter.bloom.apply(pg_luminance, pg_dst);
     
+    // display result
     cam.beginHUD();
     image(pg_dst, 0, 0);
     cam.endHUD();
@@ -147,6 +151,7 @@ public class BloomSphere extends PApplet {
     String txt_fps = String.format(getClass().getName()+ "   [Verts %d]  [Faces %d]  [HalfEdges %d]  [fps %6.2f]", num_verts, num_faces, num_edges, frameRate);
     surface.setTitle(txt_fps);
   }
+  
   
   
   public void displayScene(PGraphics3D canvas, RENDER_PASS pass){
@@ -169,8 +174,7 @@ public class BloomSphere extends PApplet {
     if(RENDER_PASS.LUMINANCE == pass){
       canvas.pgl.colorMask(true, true, true, true);
     }
-  
-    
+      
     canvas.scale(radius);
     
     float rot_speed = 1f;
@@ -214,6 +218,7 @@ public class BloomSphere extends PApplet {
         face_center[2] += vi[2] * 0.25;
       }
       
+      // normal distances of face-center to planes
       float dist1 = abs(dot(face_center, plane1));
       float dist2 = abs(dot(face_center, plane2));
       
@@ -225,6 +230,7 @@ public class BloomSphere extends PApplet {
       float rgb_b = dist2;
       float rgb_a = 255;
       
+      // generated faces with normal-distance-shading
       canvas.fill(rgb_r, rgb_g, rgb_b, rgb_a); 
       for(int j = 0; j < 4; j++){
         float[] vi = verts[face[j]];
@@ -243,8 +249,6 @@ public class BloomSphere extends PApplet {
     }
     canvas.endShape();
     
-    
-
 
     // draw planes as circles
     canvas.noFill();
@@ -262,40 +266,16 @@ public class BloomSphere extends PApplet {
     canvas.stroke(0,128,255);
     canvas.ellipse(0, 0, 3f, 3f);
     canvas.popMatrix();
-
   }
   
   
-  
+ 
   float dot(float[] va, float[] vb){
     return va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2];
   }
   
-  public void vertex(PGraphics pg, float[] vtx){
-    pg.vertex(vtx[0], vtx[1], vtx[2]);
-  }
-  
 
-  PShape shp_gizmo;
-  public void displayGizmo(float s){
-    if(shp_gizmo == null){
-      strokeWeight(1);
-      shp_gizmo = createShape();
-      shp_gizmo.beginShape(LINES);
-      shp_gizmo.stroke(255,0,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(s,0,0);
-      shp_gizmo.stroke(0,255,0); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,s,0); 
-      shp_gizmo.stroke(0,0,255); shp_gizmo.vertex(0,0,0); shp_gizmo.vertex(0,0,s); 
-      shp_gizmo.endShape();
-    }
-    shape(shp_gizmo);
-  }
   
-  
-  public void keyReleased(){
-    if(key >= '1' && key <= '7') createMesh(key-'1');
-    if(key == 's') DISPLAY_STROKE = !DISPLAY_STROKE;
-  }
-
   
   public static void main(String args[]) {
     PApplet.main(new String[] { BloomSphere.class.getName() });

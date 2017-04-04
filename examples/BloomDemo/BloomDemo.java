@@ -41,7 +41,7 @@ public class BloomDemo extends PApplet {
   PFont font12;
 
   public void settings(){
-//    size(viewport_w, viewport_h, P2D);
+    size(viewport_w, viewport_h, P2D);
     fullScreen(P2D);
     smooth(0);
   }
@@ -143,11 +143,11 @@ public class BloomDemo extends PApplet {
 
     switch(DISPLAY_MODE){
       case 2: filter.copy.apply(pg_src_B, pg_src_A); break;
-      case 3: filter.copy.apply(filter.bloom.tex_blur_dst[0], pg_src_A); break;
-      case 4: filter.copy.apply(filter.bloom.tex_blur_dst[1], pg_src_A); break;
-      case 5: filter.copy.apply(filter.bloom.tex_blur_dst[2], pg_src_A); break;
-      case 6: filter.copy.apply(filter.bloom.tex_blur_dst[3], pg_src_A); break;
-      case 7: filter.copy.apply(filter.bloom.tex_blur_dst[4], pg_src_A); break;
+      case 3: filter.copy.apply(filter.bloom.tex_blur[0], pg_src_A); break;
+      case 4: filter.copy.apply(filter.bloom.tex_blur[1], pg_src_A); break;
+      case 5: filter.copy.apply(filter.bloom.tex_blur[2], pg_src_A); break;
+      case 6: filter.copy.apply(filter.bloom.tex_blur[3], pg_src_A); break;
+      case 7: filter.copy.apply(filter.bloom.tex_blur[4], pg_src_A); break;
     }
     
     // display result

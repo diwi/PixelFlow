@@ -29,6 +29,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
 
@@ -410,23 +411,11 @@ public class Skylight_ClothSimulation extends PApplet {
 //      displaySamples(canvas);
     }
     
-    
     // XY-grid, gizmo, scene-bounds
     canvas.strokeWeight(2);
-//    displayGridXY(canvas, 20, 100);
-//    displayGizmo(canvas, 1000);
     displayAABB(canvas, physics.param.bounds);
     
-    // lights, materials
-//    canvas.pointLight(220, 180, 140, -1000, -1000, -100);
-//    canvas.ambientLight(96, 96, 96);
-//    canvas.directionalLight(210, 210, 210, -1, -1.5f, -2);
-//    canvas.lightFalloff(1.0f, 0.001f, 0.0f);
-//    canvas.lightSpecular(255, 0, 0);
-//    canvas.specular(255, 0, 0);
-//    canvas.shininess(5);
-    
-    
+
     // 1) particles
     if(DISPLAY_PARTICLES){
       for(DwSoftBody3D body : softbodies){
@@ -436,17 +425,15 @@ public class Skylight_ClothSimulation extends PApplet {
     }
     
     // 2) springs
-    if(DISPLAY_SRPINGS){
+    if(DISPLAY_SRPINGS && COMPOSING_RENDERING){
       for(DwSoftBody3D body : softbodies){
-//        body.DISPLAY_SPRINGS_BEND   = DISPLAY_SPRINGS_BEND;
-//        body.DISPLAY_SPRINGS_SHEAR  = DISPLAY_SPRINGS_SHEAR;
-//        body.DISPLAY_SPRINGS_STRUCT = DISPLAY_SPRINGS_STRUCT;
-//        body.displaySprings(canvas, DISPLAY_MODE);
-        // TODO
+        body.shade_springs_by_tension = (DISPLAY_MODE == 1);
+        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 1.0f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 1.0f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
     
- 
     // 3) mesh, solid
     if(DISPLAY_MESH){
       for(DwSoftBody3D body : softbodies){
@@ -485,14 +472,7 @@ public class Skylight_ClothSimulation extends PApplet {
   
   
   
-  
-  
-  
 
-  
-  
-  
-  
   
   
   //////////////////////////////////////////////////////////////////////////////
@@ -828,7 +808,7 @@ public class Skylight_ClothSimulation extends PApplet {
       plane_zmin.beginShape(QUAD);
       plane_zmin.stroke(0);
       plane_zmin.strokeWeight(1);
-      plane_zmin.fill(32,128,192);
+      plane_zmin.fill(16,96,192);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmin, ymin, zmin);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmax, ymin, zmin);
       plane_zmin.normal(0, 0, 1); plane_zmin.vertex(xmax, ymax, zmin);
