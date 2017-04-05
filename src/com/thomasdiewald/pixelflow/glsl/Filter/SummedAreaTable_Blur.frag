@@ -21,7 +21,7 @@ uniform vec2 wh_sat;
 uniform int radius = 0;
 
 void main(){
-  ivec2 pos = ivec2(wh_sat*gl_FragCoord.xy/wh_dst);
+  ivec2 pos = ivec2(wh_sat * gl_FragCoord.xy / wh_dst);
   ivec4 bb  = ivec4(pos - radius - 1, pos + radius);
   
   bb = clamp(bb, ivec4(0), ivec4(wh_sat.xyxy - 1));

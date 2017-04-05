@@ -10,32 +10,57 @@
 
 #version 150
 
+#define SOBEL_3x3_HORZ 0
+#define SOBEL_3x3_VERT 0
+#define SOBEL_3x3_TLBR 0
+#define SOBEL_3x3_BLTR 0
+
 out vec4 glFragColor;
 uniform sampler2D	tex;
-uniform vec2      wh; 
-uniform ivec2     dir; // horz (1,0) ... vert (0,1)
+uniform vec2      wh_rcp;
+uniform vec2      mad = vec2(1.0, 0.0);
 
-// SOBEL 3x3      horz          vert            diag 1          diag 2
-//                +1  0 -1      +1  +2  +1      +2  +1   0       0  -1  -2
-//                +2  0 -2       0   0   0      +1   0  -1      +1   0  -1
-//                +1  0 -1      -1  -2  -1       0  -1  -2      +2  +1   0
+// SOBEL 3x3      HORZ          VERT            TLBR            BLTR         +y
+//                -1  0 +1      +1  +2  +1      -2  -1   0       0  +1  +2    |
+//                -2  0 +2       0   0   0      -1   0  +1      -1   0  +1    |
+//                -1  0 +1      -1  -2  -1       0  +1  +2      -2  -1   0    o- - - +x
 
 void main(){
-  vec2 posn = gl_FragCoord.xy / wh;
+  vec2 posn = gl_FragCoord.xy * wh_rcp;
   
   vec4 sobel = vec4(0);
-  
-  sobel += texture(tex, posn + (-dir - dir.yx)/wh) * -1;   //ivec2(-1,-1)
-  sobel += texture(tex, posn + (-dir         )/wh) * -2;   //ivec2(-1, 0)
-  sobel += texture(tex, posn + (-dir + dir.yx)/wh) * -1;   //ivec2(-1,+1)
- 
-  sobel += texture(tex, posn + (+dir - dir.yx)/wh) * +1;    //ivec2(+1,-1)
-  sobel += texture(tex, posn + (+dir         )/wh) * +2;    //ivec2(+1, 0)
-  sobel += texture(tex, posn + (+dir + dir.yx)/wh) * +1;    //ivec2(+1,+1)
-  
-  glFragColor = sobel;
-  // glFragColor = vec4(abs(sobel.xyz), 1); // for UNSIGNED_BYTE
-  // glFragColor = vec4(sobel.xyz * 0.5 + 0.5, 1); // for UNSIGNED_BYTE
+
+#if SOBEL_3x3_HORZ
+  sobel += textureOffset(tex, posn, ivec2(-1,-1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(-1, 0)) * -2;
+  sobel += textureOffset(tex, posn, ivec2(-1,+1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(+1,-1)) * +1;
+  sobel += textureOffset(tex, posn, ivec2(+1, 0)) * +2;
+  sobel += textureOffset(tex, posn, ivec2(+1,+1)) * +1;
+#elif SOBEL_3x3_VERT
+  sobel += textureOffset(tex, posn, ivec2(-1,-1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2( 0,-1)) * -2;
+  sobel += textureOffset(tex, posn, ivec2(+1,-1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(-1,+1)) * +1;
+  sobel += textureOffset(tex, posn, ivec2( 0,+1)) * +2;
+  sobel += textureOffset(tex, posn, ivec2(+1,+1)) * +1;
+#elif SOBEL_3x3_TLBR
+  sobel += textureOffset(tex, posn, ivec2(-1, 0)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(-1,+1)) * -2;
+  sobel += textureOffset(tex, posn, ivec2( 0,+1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(+1, 0)) * +1;
+  sobel += textureOffset(tex, posn, ivec2(+1,-1)) * +2;
+  sobel += textureOffset(tex, posn, ivec2( 0,-1)) * +1;
+#elif SOBEL_3x3_BLTR
+  sobel += textureOffset(tex, posn, ivec2(-1, 0)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(-1,-1)) * -2;
+  sobel += textureOffset(tex, posn, ivec2( 0,-1)) * -1;
+  sobel += textureOffset(tex, posn, ivec2(+1, 0)) * +1;
+  sobel += textureOffset(tex, posn, ivec2(+1,+1)) * +2;
+  sobel += textureOffset(tex, posn, ivec2( 0,+1)) * +1;
+#endif
+
+  glFragColor = sobel * mad.x + mad.y;
 }
 
 

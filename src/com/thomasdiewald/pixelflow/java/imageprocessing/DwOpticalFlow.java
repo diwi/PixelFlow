@@ -18,7 +18,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
@@ -103,19 +103,21 @@ public class DwOpticalFlow {
     // 0) resize(w/h) or reformat(rgba/grayscale)
     resize(frameCurr.w, frameCurr.h);
     
+    DwFilter filter =  DwFilter.get(context);
+    
     // 1) copy/grayscale
     if(param.grayscale){
-      DwFilter.get(context).luminance.apply(pg_curr, frameCurr.frame);
+      filter.luminance.apply(pg_curr, frameCurr.frame);
     } else {
-      DwFilter.get(context).copy.apply(pg_curr, frameCurr.frame);
+      filter.copy.apply(pg_curr, frameCurr.frame);
     }
     
     // 2) blur
-    DwFilter.get(context).gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
+    filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
 
     // 3) gradients
-    DwFilter.get(context).sobel.apply(frameCurr.frame, frameCurr.sobelH, SobelFilter.DIR.HORZ_3x3);
-    DwFilter.get(context).sobel.apply(frameCurr.frame, frameCurr.sobelV, SobelFilter.DIR.VERT_3x3);
+    filter.sobel.apply(frameCurr.frame, frameCurr.sobelH, Sobel.TYPE._3x3_HORZ);
+    filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT);
     
     // 4) compute optical flow
     context.begin();
@@ -141,11 +143,18 @@ public class DwOpticalFlow {
     context.end("OpticalFlow.update");
     
     // 5) blur the current velocity
-    DwFilter.get(context).gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
+    filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
     
-    // 6) mix with previous velocity
-    DwFilter.get(context).mix.apply(framePrev.velocity, frameCurr.velocity, frameCurr.velocity, param.temporal_smoothing);
+    // 6) mix with previous velocity 
+    float mix = param.temporal_smoothing;
+    if(mix < 0) mix = 0; else if(mix > 0.99999) mix = 0.99999f;
     
+    DwGLTexture dst = frameCurr.velocity;
+    DwGLTexture srcA = framePrev.velocity;
+    DwGLTexture srcB = frameCurr.velocity;
+    float[]     madA = {     mix, 0};
+    float[]     madB = {1f - mix, 0};
+    filter.merge.apply(dst, srcA, srcB, madA, madB);
     
     UPDATE_STEP++;
   }

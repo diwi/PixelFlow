@@ -13,12 +13,11 @@
 out vec4 glFragColor;
 
 uniform sampler2D	tex;
-uniform vec2 wh; 
+uniform vec2 wh_rcp; 
 uniform vec3 luminance = vec3(0.2989, 0.5870, 0.1140);
 
 void main(){
-  vec3 rgb = texture(tex, gl_FragCoord.xy / wh).rgb;
- 
+  vec3 rgb = texture(tex, gl_FragCoord.xy * wh_rcp).rgb;
   glFragColor = vec4(rgb, dot(rgb, luminance));
 }
 

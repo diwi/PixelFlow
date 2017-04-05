@@ -49,7 +49,11 @@ vec3 decodeNormal3f(in vec2 n2){
 }
 
 float getShadow(vec4 p_frag_shadow){
-  // return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
+  //return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
+
+  // if(p_frag_shadow.x < 0 || p_frag_shadow.x > 1) return 0.0;
+  // if(p_frag_shadow.y < 0 || p_frag_shadow.y > 1) return 0.0;
+  if(p_frag_shadow.z < 0 || p_frag_shadow.z > 2) return 0.0;
   return step(p_frag_shadow.z, texelFetch(tex_shadow, ivec2(p_frag_shadow.xy*wh_shadow), 0).r);
 }
 

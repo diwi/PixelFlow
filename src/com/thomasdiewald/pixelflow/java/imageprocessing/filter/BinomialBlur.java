@@ -21,7 +21,7 @@ import processing.opengl.Texture;
 
 public class BinomialBlur {
   
-  public DwPixelFlow context;
+
   
   public static enum TYPE{
       _3x3    (1, "BINOMIAL_3x3"  )
@@ -65,6 +65,15 @@ public class BinomialBlur {
     
   }
   
+  
+  public DwPixelFlow context;
+
+  public BinomialBlur(DwPixelFlow context){
+    this.context = context;
+  }
+  
+  
+  
   public void printCoeffs(){
     int r = 7;
     int N = r*2+1;
@@ -94,9 +103,6 @@ public class BinomialBlur {
 
   }
 
-  public BinomialBlur(DwPixelFlow context){
-    this.context = context;
-  }
 
 
 

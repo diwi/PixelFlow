@@ -136,8 +136,7 @@ public class BloomDemo extends PApplet {
 //      filter.bloom.setBlurLayers(10);
       filter.bloom.param.mult   = map(mouseX, 0, width, 0, 10);
       filter.bloom.param.radius = map(mouseY, 0, height, 0, 1);
-      filter.bloom.apply(pg_src_B, pg_src_A);
-//      filter.bloom.apply(pg_src_A, pg_src_A); // use src as luminance
+      filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
 
 

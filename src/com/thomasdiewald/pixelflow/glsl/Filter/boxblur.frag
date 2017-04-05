@@ -15,18 +15,16 @@ out vec4 glFragColor;
 
 
 uniform sampler2D	tex;
-uniform vec2  wh; 
+uniform vec2  wh_rcp; 
 uniform int   radius;
 uniform ivec2 dir;
 
 void main(){
-  vec2 wh_inv = 1.0 / wh;
-  
-  vec4 blur = texture(tex, gl_FragCoord.xy * wh_inv);
+  vec4 blur = texture(tex, gl_FragCoord.xy * wh_rcp);
 
   for(int i = 1; i <= +radius; i++){
-    blur += texture(tex, (gl_FragCoord.xy + dir * i) * wh_inv);
-    blur += texture(tex, (gl_FragCoord.xy - dir * i) * wh_inv);
+    blur += texture(tex, (gl_FragCoord.xy + dir * i) * wh_rcp);
+    blur += texture(tex, (gl_FragCoord.xy - dir * i) * wh_rcp);
   }
   
   glFragColor = blur / float(radius * 2 + 1);

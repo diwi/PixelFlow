@@ -22,6 +22,8 @@ public class RGBL {
   
   public DwPixelFlow context;
   
+  public DwGLSLProgram shader;
+  
   public float[] luminance = {0.2989f, 0.5870f, 0.1140f};
 //  public float[] luminance = {0.2126f, 0.7152f, 0.0722f};
 //  public float[] luminance = {0.3333f, 0.3333f, 0.3333f}; // rgb average
@@ -62,23 +64,14 @@ public class RGBL {
     context.end("RGBL.apply");
   }
   
-  DwGLSLProgram shader;
+
   public void apply(int tex_handle, int w, int h){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/RGBL.frag");
-    
-//    byte[] blend = new byte[1];
-//    context.gl.glGetBooleanv(GL2ES2.GL_BLEND, blend, 0);
-//    context.gl.glDisable(GL2ES2.GL_BLEND); // TODO check if this breaks something else
     shader.begin();
-    shader.uniform2f     ("wh" , w, h);
+    shader.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader.uniformTexture("tex", tex_handle);
     shader.uniform3fv("luminance", 1, luminance);
     shader.drawFullScreenQuad(0, 0, w, h);
-    
-//    if(blend[0] == 1){
-//      context.gl.glEnable(GL2ES2.GL_BLEND);
-//    }
-
     shader.end();
   }
   

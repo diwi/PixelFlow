@@ -120,7 +120,7 @@ public class BloomDebug_v0 extends PApplet {
       filter.bloom.apply(pg_src_A, pg_src_A);
     } else {
       filter.luminance_threshold.apply(pg_src_A, pg_src_B);
-      filter.bloom.apply(pg_src_B, pg_src_A);
+      filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
     
 //    blendMode(REPLACE);

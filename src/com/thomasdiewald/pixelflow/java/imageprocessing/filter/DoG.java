@@ -11,57 +11,52 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
+
+/**
+ * DoG - Difference of Gaussian
+ * 
+ * ... can be used for edge detection.
+ * 
+ * @author Thomas Diewald
+ *
+ */
 public class DoG {
   
+  public static class Param{
+    public int   kernel_A =  10; // radius of gauss kernel A
+    public int   kernel_B =   5; // radius of gauss kernel B
+    public float mult     = 2.5f;
+    public float shift    = 0.5f;
+  }
+  
+  public Param param = new Param();
   public DwPixelFlow context;
 
   public DoG(DwPixelFlow context){
     this.context = context;
   }
   
-  DwGLSLProgram shader_DoG;
-  DwGLSLProgram shader_DoG_UBYTE;
-  
-  //multiplier = {1,-1}
-  public void apply(PGraphicsOpenGL srcA, PGraphicsOpenGL srcB, PGraphicsOpenGL dst, float[] multiplier) {
-    Texture tex_srcA = srcA.getTexture(); if(!tex_srcA.available())   return;
-    Texture tex_srcB = srcB.getTexture(); if(!tex_srcB.available())   return;
-    Texture tex_dst  = dst .getTexture(); if(!tex_dst .available())   return;
-//    dst.beginDraw();
-    context.begin();
-    context.beginDraw(dst);
-    if(shader_DoG_UBYTE == null) shader_DoG_UBYTE = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/DoG_UBYTE.frag");
-    apply(shader_DoG_UBYTE, tex_srcA.glName, tex_srcB.glName, dst.width, dst.height, multiplier);
-    context.endDraw();
-    context.end("DoG.apply");
-//    dst.endDraw();
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp) {
+    Texture tex_src = src.getTexture(); if(!tex_src.available())   return;
+    Texture tex_dst = dst.getTexture(); if(!tex_dst .available())  return;
+    Texture tex_tmp = dst.getTexture(); if(!tex_tmp .available())  return;
+    
+    if(src == dst) System.out.println("WARNING: DoG.apply src == dst");
+    if(src == tmp) System.out.println("WARNING: DoG.apply src == tmp");
+    if(dst == tmp) System.out.println("WARNING: DoG.apply dst == tmp");
+    
+    DwFilter filter = DwFilter.get(context);
+    
+    filter.gaussblur.apply(src, dst, tmp, param.kernel_A);
+    filter.gaussblur.apply(src, src, tmp, param.kernel_B);
+    
+    float[] madA = { +param.mult, param.shift * 0.5f};
+    float[] madB = { -param.mult, param.shift * 0.5f};
+    filter.merge.apply(dst, src, dst, madA, madB);      
   }
   
-  
-  // multiplier = {1,-1}
-  public void apply(DwGLTexture srcA, DwGLTexture srcB, DwGLTexture dst, float[] multiplier) {
-    context.begin();
-    context.beginDraw(dst);
-    if(shader_DoG == null) shader_DoG = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/DoG.frag");
-    apply(shader_DoG, srcA.HANDLE[0], srcB.HANDLE[0], dst.w, dst.h, multiplier);
-    context.endDraw();
-    context.end("DoG.apply");
-  }
-  
-  private void apply(DwGLSLProgram shader, int tex_handle_A, int tex_handle_B, int w, int h, float[] multiplier){
-    shader.begin();
-    shader.uniform2f     ("wh" , w, h);
-    shader.uniform2fv    ("multiplier", 1, multiplier);
-    shader.uniformTexture("texA", tex_handle_A);
-    shader.uniformTexture("texB", tex_handle_B);
-    shader.drawFullScreenQuad(0, 0, w, h);
-    shader.end();
-  }
   
 }

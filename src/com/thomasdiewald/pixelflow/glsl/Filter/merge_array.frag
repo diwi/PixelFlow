@@ -10,22 +10,21 @@
 
 #version 150
 
-out vec4 glFragColor;
-
 #define TEX_LAYERS 0
 
-uniform sampler2D tex_src[TEX_LAYERS];
-uniform float tex_weights[TEX_LAYERS];
+out vec4 glFragColor;
 
-uniform vec2 wh_rcp; 
+uniform sampler2D tex_src[TEX_LAYERS];
+uniform vec2      tex_mad[TEX_LAYERS];
+uniform vec2      wh_rcp; 
 
 void main(){
   vec2 posn = gl_FragCoord.xy * wh_rcp;
 
   vec4 rgba = vec4(0.0);
   for(int i = 0; i < TEX_LAYERS; i++){
-    rgba += tex_weights[i] * texture(tex_src[i], posn);
+    rgba += texture(tex_src[i], posn) * tex_mad[i].x + tex_mad[i].y;
   }
          
-  glFragColor = clamp(rgba, vec4(0.0), vec4(1.0));                      
+  glFragColor = rgba;                      
 }

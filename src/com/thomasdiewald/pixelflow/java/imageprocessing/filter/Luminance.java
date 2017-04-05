@@ -68,7 +68,7 @@ public class Luminance {
   public void apply(int tex_handle, int w, int h){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/luminance.frag");
     shader.begin();
-    shader.uniform2f     ("wh" , w, h);
+    shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniformTexture("tex", tex_handle);
     shader.uniform3fv("luminance", 1, luminance);
     shader.drawFullScreenQuad(0, 0, w, h);

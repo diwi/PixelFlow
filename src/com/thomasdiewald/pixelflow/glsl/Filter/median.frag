@@ -10,9 +10,12 @@
 
 #version 150
 
+#define MEDIAN_3x3 0
+#define MEDIAN_5x5 0
+
 out vec4 glFragColor;
 uniform sampler2D	tex;
-uniform vec2   wh; 
+uniform vec2 wh_rcp; 
 
 // MIN MAX ELIMINATION 
 #define _S2_(a,b) data_a_ = data[a]; data[a] = min(data[a], data[b]); data[b] = max(data_a_, data[b]);
@@ -46,7 +49,32 @@ uniform vec2   wh;
 
 
 void main(){
-  vec2 posn = gl_FragCoord.xy / wh;
+  vec2 posn = gl_FragCoord.xy * wh_rcp;
+  
+  vec4 data_a_;
+  
+#if MEDIAN_3x3
+ 
+  vec4 data[9];
+  data[0] = textureOffset(tex, posn, ivec2(-1,-1));
+  data[1] = textureOffset(tex, posn, ivec2( 0,-1));
+  data[2] = textureOffset(tex, posn, ivec2(+1,-1));  
+  data[3] = textureOffset(tex, posn, ivec2(-1, 0));
+  data[4] = textureOffset(tex, posn, ivec2( 0, 0));
+  data[5] = textureOffset(tex, posn, ivec2(+1, 0));
+  data[6] = textureOffset(tex, posn, ivec2(-1,+1));
+  data[7] = textureOffset(tex, posn, ivec2( 0,+1));
+  data[8] = textureOffset(tex, posn, ivec2(+1,+1));
+
+  _MNMX_6_(0,1,2,3,4,5);
+  _MNMX_5_(1,2,3,4,6);
+  _MNMX_4_(2,3,4,7);
+  _MNMX_3_(3,4,8);
+  
+#endif // MEDIAN_3x3 
+  
+  
+#if MEDIAN_5x5
   
   vec4 data[25];
   data[ 0] = textureOffset(tex, posn, ivec2(-2,-2));
@@ -79,8 +107,6 @@ void main(){
   data[23] = textureOffset(tex, posn, ivec2(+1,+2));
   data[24] = textureOffset(tex, posn, ivec2(+2,+2));
 
-  vec4 data_a_;
-  
   _MNMX_14_(0,1,2,3,4,5,6,7,8,9,10,11,12,13);
   _MNMX_13_(1,2,3,4,5,6,7,8,9,10,11,12,14);
   _MNMX_12_(2,3,4,5,6,7,8,9,10,11,12,15);
@@ -93,6 +119,8 @@ void main(){
   _MNMX_5_(9,10,11,12,22);
   _MNMX_4_(10,11,12,23);
   _MNMX_3_(11,12,24);
+  
+#endif // MEDIAN_5x5
   
   glFragColor = data_a_;
 }

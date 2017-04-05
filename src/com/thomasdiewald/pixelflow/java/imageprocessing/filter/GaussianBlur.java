@@ -79,7 +79,7 @@ public class GaussianBlur {
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, int radius, float sigma) {
     if(src == tmp || dst == tmp){
-      System.out.println("GaussBlur error: read-write race");
+      System.out.println("GaussianBlur error: read-write race");
       return;
     }
     if(radius <= 0){
@@ -139,7 +139,7 @@ public class GaussianBlur {
   private void pass(int tex_handle, int w, int h, int radius, float sigma, int[] dir ){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/gauss.frag");
     shader.begin();
-    shader.uniform2f     ("wh"    , w, h);
+    shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniform1i     ("radius", radius);
     shader.uniform1f     ("sigma" , sigma);
     shader.uniform2i     ("dir"   , dir[0], dir[1]);

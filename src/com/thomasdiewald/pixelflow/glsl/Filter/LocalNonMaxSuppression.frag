@@ -13,11 +13,11 @@
 out float glFragColor;
 
 uniform sampler2D tex_harrisCorner;
-uniform vec2 wh; 
+uniform vec2 wh_rcp; 
 
 void main(){
 
-  vec2 posn = gl_FragCoord.xy / wh;
+  vec2 posn = gl_FragCoord.xy * wh_rcp;
   float hC  = texture(tex_harrisCorner, posn).x;
   
   float maxima = hC

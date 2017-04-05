@@ -18,12 +18,12 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
-public class Laplace {
+public class Median {
+  
   
   public static enum TYPE{
-      _3x3_W4  ("LAPLACE_3x3_W4")
-    , _3x3_W8  ("LAPLACE_3x3_W8")
-    , _3x3_W12 ("LAPLACE_3x3_W12")
+      _3x3_  ("MEDIAN_3x3")
+    , _5x5_  ("MEDIAN_5x5")
     ;
     
     protected DwGLSLProgram shader;
@@ -38,69 +38,65 @@ public class Laplace {
         return; // no need to rebuild
       }
       Object id = this.name();
-      shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/laplace.frag");
+      shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/median.frag");
       shader.frag.getDefine(define).value = "1";
       shader.build();
     }
   }
-  
+    
   public DwPixelFlow context;
 
-  public Laplace(DwPixelFlow context){
+  public Median(DwPixelFlow context){
     this.context = context;
   }
-  
-  DwGLSLProgram[] shader       = new DwGLSLProgram[TYPE.values().length];
-  DwGLSLProgram[] shader_ubyte = new DwGLSLProgram[TYPE.values().length];
 
-  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Laplace.TYPE kernel) {
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Median.TYPE kernel) {
     if(src == dst){
-      System.out.println("Laplace error: read-write race");
+      System.out.println("Median error: read-write race");
       return;
     }
+    
     if(kernel == null){
       return;
     }
     kernel.buildShader(context);
+
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    float[] mad = new float[]{0.5f,0.5f};
 //    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
-    apply(kernel.shader, tex_src.glName, dst.width, dst.height, mad);
+    apply(kernel.shader, tex_src.glName, dst.width, dst.height);
     context.endDraw();
-    context.end("LaplaceFilter.apply");
+    context.end("Median.apply");
 //    dst.endDraw();
   }
   
-  public void apply(DwGLTexture src, DwGLTexture dst, TYPE type, Laplace.TYPE kernel) {
+  public void apply(DwGLTexture src, DwGLTexture dst, Median.TYPE kernel) {
     if(src == dst){
-      System.out.println("Laplace error: read-write race");
+      System.out.println("Median error: read-write race");
       return;
     }
+    
     if(kernel == null){
-      return; 
+      return;
     }
-    
     kernel.buildShader(context);
-    float[] mad = new float[]{1,0};
-    
+
     context.begin();
     context.beginDraw(dst);
-    apply(kernel.shader, src.HANDLE[0], dst.w, dst.h, mad);
+    apply(kernel.shader, src.HANDLE[0], dst.w, dst.h);
     context.endDraw();
-    context.end("Laplace.apply");
+    context.end("Median.apply");
   }
   
-  public void apply(DwGLSLProgram shader, int tex_handle, int w, int h, float[] mad){
+  public void apply(DwGLSLProgram shader, int tex_handle, int w, int h){
     shader.begin();
-    shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
-    shader.uniform2f     ("mad", mad[0], mad[1]);
+    shader.uniform2f     ("wh_rcp"     , 1f/w, 1f/h);
     shader.uniformTexture("tex", tex_handle);
     shader.drawFullScreenQuad(0, 0, w, h);
     shader.end();
   }
-
+  
 }

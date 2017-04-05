@@ -12,7 +12,7 @@
 
 out vec4 glFragColor;
 uniform sampler2D	tex;
-uniform vec2      wh; 
+uniform vec2      wh_rcp; 
 uniform float     kernel[9];
           
 // kernel: 0 1 2
@@ -20,7 +20,7 @@ uniform float     kernel[9];
 //         6 7 8  
 
 void main(){
-  vec2 posn = gl_FragCoord.xy / wh;
+  vec2 posn = gl_FragCoord.xy * wh_rcp;
   
   vec4 convolution = vec4(0);
   

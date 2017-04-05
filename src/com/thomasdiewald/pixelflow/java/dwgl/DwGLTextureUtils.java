@@ -8,6 +8,8 @@
  */
 package com.thomasdiewald.pixelflow.java.dwgl;
 
+import java.nio.FloatBuffer;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -45,8 +47,6 @@ public class DwGLTextureUtils {
 //    pgl.texParameteri(tex.glTarget, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY); 
     pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
 
-
-
     pgl.bindTexture(tex.glTarget, 0);
     pg.endPGL();
   }
@@ -60,9 +60,15 @@ public class DwGLTextureUtils {
     pgl = pg.beginPGL();
     pgl.bindTexture(tex.glTarget, tex.glName);
     
+//    float[] border =  new float[]{0,0,0,0};
+
+  
+//    pgl.texParameterfv(tex.glTarget, GL2ES2.GL_TEXTURE_BORDER_COLOR, FloatBuffer.wrap(border));
+//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
+//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_EDGE);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_EDGE);
     
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST); // GL_NEAREST, GL_LINEAR
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     
@@ -72,8 +78,6 @@ public class DwGLTextureUtils {
     
     
     pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
-
-
 
     pgl.bindTexture(tex.glTarget, 0);
     pg.endPGL();

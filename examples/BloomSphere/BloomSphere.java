@@ -62,7 +62,7 @@ public class BloomSphere extends PApplet {
 
 
   public void settings() {
-    size(viewport_w, viewport_h, P3D);
+//    size(viewport_w, viewport_h, P3D);
     fullScreen();
     smooth(8);
   }
@@ -139,7 +139,7 @@ public class BloomSphere extends PApplet {
     DwFilter filter = DwFilter.get(context);
     filter.bloom.param.mult   = 4;    //map(mouseX, 0, width, 0, 5);
     filter.bloom.param.radius = 0.5f; //map(mouseY, 0, height, 0, 1);
-    filter.bloom.apply(pg_luminance, pg_dst);
+    filter.bloom.apply(pg_luminance, pg_luminance, pg_dst);
     
     // display result
     cam.beginHUD();

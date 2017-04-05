@@ -15,6 +15,8 @@ import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
+import processing.core.PConstants;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -56,12 +58,12 @@ public class Bloom {
   public float[] tex_weights;
   
   // Filter for merging the textures
-  public TextureMerge tex_merge;
+  public Merge tex_merge;
   
   
   public Bloom(DwPixelFlow context){
     this.context = context;
-    this.tex_merge = new TextureMerge(context);
+    this.tex_merge = new Merge(context);
   }
   
   public void setBlurLayersMax(int BLUR_LAYERS_MAX){
@@ -120,31 +122,45 @@ public class Bloom {
   
 
   private float[] computeWeights(float[] weights){
-    if(weights == null || weights.length != BLUR_LAYERS){
-      weights = new float[BLUR_LAYERS];
+    if(weights == null || weights.length != BLUR_LAYERS*2){
+      weights = new float[BLUR_LAYERS*2];
     }
     
     float step = 1f / BLUR_LAYERS;
     for(int i = 0; i < BLUR_LAYERS; i++){
       float fac = 1f - step * i;
       float weight = DwUtils.mix(fac, 1.0f + step - fac, param.radius);
-      weights[i] = param.mult * weight;
+      weights[i*2 + 0] = param.mult * weight;
+      weights[i*2 + 1] = 0;
 
 //      weights[i] = param.mult * step;
     }
     return weights;
   }
   
-  
-  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst){
-    Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
-    Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
+  /**
+   * 
+   * "src_luminance" serves as the source texture for the bloom pass.
+   * 
+   * "dst_bloom" is the merged result of several iterations of gaussian-blurs.
+   * 
+   * "dst_bloom" still needs to be additively blended with the main source texture.
+   * 
+   * apply(src_luminance, dst_bloom, dst_composition) can be called instead.
+   * 
+   * 
+   * @param src_luminance
+   * @param dst_bloom
+   */
+  public void apply(PGraphicsOpenGL src_luminance, PGraphicsOpenGL dst_bloom){
+    Texture tex_src = src_luminance.getTexture(); if(!tex_src.available())  return;
+    Texture tex_dst = dst_bloom    .getTexture(); if(!tex_dst.available())  return;
     
     // lazy init/allocation
-    resize(dst.width, dst.height);
+    resize(tex_dst.glWidth, tex_dst.glHeight);
     
     // 1) use src-texture as base for blur-levels
-    DwFilter.get(context).copy.apply(src, tex_blur[0]);
+    DwFilter.get(context).copy.apply(src_luminance, tex_blur[0]);
     
     // 2) blur passes
     for(int i = 1; i < BLUR_LAYERS; i++){
@@ -155,7 +171,55 @@ public class Bloom {
     tex_weights = computeWeights(tex_weights);
     
     // 4) merge blur-textures
-    tex_merge.apply(dst, tex_blur, tex_weights);   
+    tex_merge.apply(dst_bloom, tex_blur, tex_weights);
+  }
+  
+  /**
+   * 
+   * "src_luminance" serves as the source texture for the bloom pass.
+   * e.g this texture can be the result of a brightness-prepass on dst_composition.
+   *  
+   * "dst_bloom" is the merged result of several iterations of gaussian-blurs.
+   * 
+   * "dst_composition" is the final result of additive blending with "dst_bloom".
+   * 
+   * 
+   * @param src_luminance
+   * @param dst_bloom
+   * @param dst_composition
+   */
+  public void apply(PGraphicsOpenGL src_luminance, PGraphicsOpenGL dst_bloom, PGraphicsOpenGL dst_composition){
+    
+    // compute bloom, based on src_luminance
+    apply(src_luminance, dst_bloom);
+    
+    if(dst_composition == dst_bloom){
+      System.out.println("Bloom.apply WARNING: dst_composition == dst_bloom");
+    }
+    
+    int w = dst_composition.width;
+    int h = dst_composition.height;
+
+    // additive blend: dst_composition +  dst_bloom
+    dst_composition.beginDraw();
+    dst_composition.pushStyle();
+    dst_composition.pushMatrix();
+    dst_composition.pushProjection();
+    
+    dst_composition.resetMatrix();
+    if(dst_composition.is3D()){
+      dst_composition.ortho(0, w, -h, 0, 0, 1);
+    }
+
+    dst_composition.hint(PConstants.DISABLE_DEPTH_TEST);
+    dst_composition.blendMode(PConstants.ADD);
+    dst_composition.image(dst_bloom, 0, 0);
+    dst_composition.hint(PConstants.ENABLE_DEPTH_TEST);
+    
+    dst_composition.popProjection();
+    dst_composition.popMatrix();
+    dst_composition.popStyle();
+    dst_composition.endDraw();
   }
   
 

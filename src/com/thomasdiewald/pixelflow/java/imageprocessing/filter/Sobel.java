@@ -18,12 +18,14 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
-public class Laplace {
+public class Sobel {
+  
   
   public static enum TYPE{
-      _3x3_W4  ("LAPLACE_3x3_W4")
-    , _3x3_W8  ("LAPLACE_3x3_W8")
-    , _3x3_W12 ("LAPLACE_3x3_W12")
+      _3x3_HORZ  ("SOBEL_3x3_HORZ")
+    , _3x3_VERT  ("SOBEL_3x3_VERT")
+    , _3x3_TLBR  ("SOBEL_3x3_TLBR")
+    , _3x3_BLTR  ("SOBEL_3x3_BLTR")
     ;
     
     protected DwGLSLProgram shader;
@@ -38,46 +40,47 @@ public class Laplace {
         return; // no need to rebuild
       }
       Object id = this.name();
-      shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/laplace.frag");
+      shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/sobel.frag");
       shader.frag.getDefine(define).value = "1";
       shader.build();
     }
   }
-  
+
   public DwPixelFlow context;
 
-  public Laplace(DwPixelFlow context){
+  public Sobel(DwPixelFlow context){
     this.context = context;
   }
   
-  DwGLSLProgram[] shader       = new DwGLSLProgram[TYPE.values().length];
-  DwGLSLProgram[] shader_ubyte = new DwGLSLProgram[TYPE.values().length];
-
-  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Laplace.TYPE kernel) {
+  
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Sobel.TYPE kernel) {
     if(src == dst){
-      System.out.println("Laplace error: read-write race");
+      System.out.println("Sobel error: read-write race");
       return;
     }
     if(kernel == null){
-      return;
+      return; 
     }
+    
     kernel.buildShader(context);
+ 
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
     float[] mad = new float[]{0.5f,0.5f};
+    
 //    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
     apply(kernel.shader, tex_src.glName, dst.width, dst.height, mad);
     context.endDraw();
-    context.end("LaplaceFilter.apply");
+    context.end("Sobel.apply");
 //    dst.endDraw();
   }
   
-  public void apply(DwGLTexture src, DwGLTexture dst, TYPE type, Laplace.TYPE kernel) {
+  public void apply(DwGLTexture src, DwGLTexture dst, Sobel.TYPE kernel) {
     if(src == dst){
-      System.out.println("Laplace error: read-write race");
+      System.out.println("Sobel error: read-write race");
       return;
     }
     if(kernel == null){
@@ -91,7 +94,7 @@ public class Laplace {
     context.beginDraw(dst);
     apply(kernel.shader, src.HANDLE[0], dst.w, dst.h, mad);
     context.endDraw();
-    context.end("Laplace.apply");
+    context.end("Sobel.apply");
   }
   
   public void apply(DwGLSLProgram shader, int tex_handle, int w, int h, float[] mad){
@@ -102,5 +105,5 @@ public class Laplace {
     shader.drawFullScreenQuad(0, 0, w, h);
     shader.end();
   }
-
+  
 }

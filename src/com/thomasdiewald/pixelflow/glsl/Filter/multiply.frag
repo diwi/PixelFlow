@@ -13,11 +13,11 @@
 out vec4 glFragColor;
 
 uniform sampler2D	tex;
-uniform vec2 wh; 
+uniform vec2 wh_rcp; 
 uniform vec4 multiplier;
 
 void main(){
-  glFragColor = texture(tex, gl_FragCoord.xy / wh) * multiplier;
+  glFragColor = texture(tex, gl_FragCoord.xy * wh_rcp) * multiplier;
 }
 
 

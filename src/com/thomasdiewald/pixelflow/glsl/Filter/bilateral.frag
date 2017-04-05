@@ -13,25 +13,23 @@
 out vec4 glFragColor;
 
 uniform sampler2D	tex;
-uniform vec2  wh; 
+uniform vec2  wh_rcp; 
 uniform int   radius;
 uniform float sigma_color;
 uniform float sigma_space;
 
 void main(){
-  vec2 wh_inv = 1.0 / wh;
-
   float sigma_color_sqinv = -0.5 / (sigma_color * sigma_color);
   float sigma_space_sqinv = -0.5 / (sigma_space * sigma_space);
   
-  vec3 pC = texture(tex, gl_FragCoord.xy * wh_inv).xyz;
+  vec3 pC = texture(tex, gl_FragCoord.xy * wh_rcp).xyz;
   vec3 pS = vec3(0);
   float norm = 0;
   
   for(int y = -radius; y <= radius; y++){
   for(int x = -radius; x <= radius; x++){
   
-    vec3 pN = texture(tex, (gl_FragCoord.xy + ivec2(x, y)) * wh_inv).xyz;
+    vec3 pN = texture(tex, (gl_FragCoord.xy + ivec2(x, y)) * wh_rcp).xyz;
     vec3 pD = pC - pN;
     
     float domain = (x*x + y*y) * sigma_space_sqinv;

@@ -18,7 +18,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
@@ -88,15 +88,17 @@ public class DwHarrisCorner {
     // 0) resize(w/h) or reformat(rgba/grayscale)
     resize(frameCurr.w, frameCurr.h);
     
+    DwFilter filter = DwFilter.get(context);
+    
     // 1) grayscale
-    DwFilter.get(context).luminance.apply(pg_curr, frameCurr.frame);
+    filter.luminance.apply(pg_curr, frameCurr.frame);
 
     // 2) blur
-    DwFilter.get(context).gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
+    filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
 
     // 3) gradients
-    DwFilter.get(context).sobel.apply(frameCurr.frame, frameCurr.sobelH, SobelFilter.DIR.HORZ_3x3); 
-    DwFilter.get(context).sobel.apply(frameCurr.frame, frameCurr.sobelV, SobelFilter.DIR.VERT_3x3); 
+    filter.sobel.apply(frameCurr.frame, frameCurr.sobelH, Sobel.TYPE._3x3_HORZ); 
+    filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT); 
     
     // 4) harrisMatrix
     context.begin();
@@ -111,7 +113,7 @@ public class DwHarrisCorner {
     context.end("HarrisCorner.harrisMatrix");
     
     // 5) blur harrisMatrix
-    DwFilter.get(context).gaussblur.apply(frameCurr.harrisMatrix, frameCurr.harrisMatrix, frameCurr.tmp, param.blur_harris);
+    filter.gaussblur.apply(frameCurr.harrisMatrix, frameCurr.harrisMatrix, frameCurr.tmp, param.blur_harris);
     
     // 6) harrisCorner
     context.begin();
@@ -139,10 +141,10 @@ public class DwHarrisCorner {
       context.end("HarrisCorner.nonMaxSuppression");
       
       // copy back
-      DwFilter.get(context).copy.apply(frameCurr.tmp, frameCurr.harrisCorner);
+      filter.copy.apply(frameCurr.tmp, frameCurr.harrisCorner);
     }
     
-    DwFilter.get(context).gaussblur.apply(frameCurr.harrisCorner, frameCurr.harrisCorner, frameCurr.tmp, param.blur_final);
+    filter.gaussblur.apply(frameCurr.harrisCorner, frameCurr.harrisCorner, frameCurr.tmp, param.blur_final);
 
   }
   

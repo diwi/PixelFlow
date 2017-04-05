@@ -90,7 +90,7 @@ public class BoxBlur {
   private void pass(int tex_handle, int w, int h, int radius, int[] dir ){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/boxblur.frag");
     shader.begin();
-    shader.uniform2f     ("wh"    , w, h);
+    shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniform1i     ("radius", radius);
     shader.uniform2i     ("dir"   , dir[0], dir[1]);
     shader.uniformTexture("tex"   , tex_handle);

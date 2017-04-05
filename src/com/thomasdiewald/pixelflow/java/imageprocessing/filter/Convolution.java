@@ -68,7 +68,7 @@ public class Convolution {
   private void apply(int tex_handle, int w, int h, float[] kernel){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/convolution3x3.frag");
     shader.begin();
-    shader.uniform2f     ("wh"    , w, h);
+    shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniform1fv    ("kernel", 9, kernel);
     shader.uniformTexture("tex"   , tex_handle);
     shader.drawFullScreenQuad(0, 0, w, h);

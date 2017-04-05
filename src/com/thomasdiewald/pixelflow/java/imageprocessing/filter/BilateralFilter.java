@@ -68,7 +68,7 @@ public class BilateralFilter {
   private void apply(int tex_handle, int w, int h, int radius, float sigma_color, float sigma_space){
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/bilateral.frag");
     shader.begin();
-    shader.uniform2f     ("wh"         , w, h);
+    shader.uniform2f     ("wh_rcp"     , 1f/w, 1f/h);
     shader.uniform1i     ("radius"     , radius);
     shader.uniform1f     ("sigma_color", sigma_color);
     shader.uniform1f     ("sigma_space", sigma_space);

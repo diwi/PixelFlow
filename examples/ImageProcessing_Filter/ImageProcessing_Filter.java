@@ -16,8 +16,8 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MedianFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SobelFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Median;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 
 import controlP5.ControlP5;
@@ -25,6 +25,7 @@ import controlP5.Group;
 import controlP5.Slider;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+
 
 
 public class ImageProcessing_Filter extends PApplet {
@@ -366,29 +367,7 @@ public class ImageProcessing_Filter extends PApplet {
     }
     if( DISPLAY_FILTER == IDX++) { 
       for(int i = 0; i < FILTER_STACKS; i++){
-        filter.median.apply(pg_src_A, pg_src_B, MedianFilter.TYPE._3x3_); swapAB(); 
-      }
-    }
-    if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.median.apply(pg_src_A, pg_src_B, MedianFilter.TYPE._5x5_); swapAB(); 
-      }
-    }
-    if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, SobelFilter.DIR.HORZ_3x3); swapAB(); 
-//        filter.sobel.apply(pg_src_A, pg_src_B, SobelFilter.DIR.TLBR_3x3); swapAB(); 
-      }
-    }
-    if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, SobelFilter.DIR.VERT_3x3); swapAB(); 
-//        filter.sobel.apply(pg_src_A, pg_src_B, SobelFilter.DIR.BRTL_3x3); swapAB(); 
-      }
-    }
-    if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB(); 
+        filter.bilateral.apply(pg_src_A, pg_src_B, BILATERAL_RADIUS, BILATERAL_SIGMA_COLOR, BILATERAL_SIGMA_SPACE); swapAB(); 
       }
     }
     if( DISPLAY_FILTER == IDX++) { 
@@ -398,31 +377,69 @@ public class ImageProcessing_Filter extends PApplet {
     }
     if( DISPLAY_FILTER == IDX++) { 
       for(int i = 0; i < FILTER_STACKS; i++){
-        filter.bilateral.apply(pg_src_A, pg_src_B, BILATERAL_RADIUS, BILATERAL_SIGMA_COLOR, BILATERAL_SIGMA_SPACE); swapAB(); 
+        filter.median.apply(pg_src_A, pg_src_B, Median.TYPE._3x3_); swapAB(); 
+      }
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      for(int i = 0; i < FILTER_STACKS; i++){
+        filter.median.apply(pg_src_A, pg_src_B, Median.TYPE._5x5_); swapAB(); 
+      }
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      for(int i = 0; i < FILTER_STACKS; i++){
+        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB(); 
+      }
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      for(int i = 0; i < FILTER_STACKS; i++){
+        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_VERT); swapAB(); 
+      }
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      for(int i = 0; i < FILTER_STACKS; i++){
+        filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB(); 
       }
     }
     if( DISPLAY_FILTER == IDX++) {
-      filter.median.apply(pg_src_A, pg_src_B, MedianFilter.TYPE._3x3_); swapAB();
+      filter.dog.param.kernel_A = BLUR_RADIUS * 2;
+      filter.dog.param.kernel_B = BLUR_RADIUS * 1;
+      filter.dog.param.mult  = 2.5f;
+      filter.dog.param.shift = 0.5f;
+      filter.dog.apply(pg_src_A, pg_src_B, pg_src_C);
+      swapAB();
+    }
+    if( DISPLAY_FILTER == IDX++) {
+      filter.median.apply(pg_src_A, pg_src_B, Median.TYPE._3x3_); swapAB();
       for(int i = 0; i < FILTER_STACKS; i++){
         filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS, GAUSSBLUR_SIGMA);
       }
-      filter.sobel.apply(pg_src_A, pg_src_B, SobelFilter.DIR.HORZ_3x3); swapAB();
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB();
     }
     if( DISPLAY_FILTER == IDX++) {
-      filter.median.apply(pg_src_A, pg_src_B, MedianFilter.TYPE._3x3_); swapAB();
+      filter.median.apply(pg_src_A, pg_src_B, Median.TYPE._3x3_); swapAB();
       for(int i = 0; i < FILTER_STACKS; i++){
         filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS, GAUSSBLUR_SIGMA);
       }
       filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB();
     }
     if( DISPLAY_FILTER == IDX++) {
-      filter.gaussblur.apply(pg_src_A, pg_src_C, pg_src_B, (int)(BLUR_RADIUS*2f));
-      filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
-      filter.dog.apply(pg_src_A, pg_src_C, pg_src_A, new float[]{+2,-2f});
-    }
-    if( DISPLAY_FILTER == IDX++) {
 //      filter.gaussblur.apply(pg_src_C, pg_src_C, pg_src_B, BLUR_RADIUS);
-      filter.bloom.apply(pg_src_C, pg_src_A);
+//      filter.bloom.apply(pg_src_C, pg_src_A);
+//      filter.bloom.apply(pg_src_C, pg_src_C);
+      filter.bloom.apply(pg_src_C, pg_src_C, pg_src_A);
+//      pg_src_A.beginDraw();
+//      pg_src_A.blendMode(ADD);
+//      pg_src_A.image(pg_src_C, 0, 0);
+//      pg_src_A.blendMode(BLEND);
+//      pg_src_A.endDraw();
+      
+      
+//      blendMode(REPLACE);
+//      image(pg_src_A, 0, 0);
+//      blendMode(ADD);
+//      image(pg_src_C, 0, 0);
+//      blendMode(BLEND);
+      
     }
     if( DISPLAY_FILTER == IDX++) {
 //      filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
@@ -430,7 +447,8 @@ public class ImageProcessing_Filter extends PApplet {
     }
     if( DISPLAY_FILTER == IDX++) {
       filter.luminance_threshold.apply(pg_src_A, pg_src_B);
-      filter.bloom.apply(pg_src_B, pg_src_A);
+//      filter.bloom.apply(pg_src_B, pg_src_A);
+      filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
 
     // display result
@@ -544,16 +562,16 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("Summed Area Table blur"    , IDX++)
         .addItem("gauss blur"                , IDX++)
         .addItem("binomial blur"             , IDX++)
+        .addItem("bilateral"                 , IDX++)
+        .addItem("convolution"               , IDX++)
         .addItem("median 3x3"                , IDX++)
         .addItem("median 5x5"                , IDX++)
         .addItem("sobel 3x3 horz"            , IDX++)
         .addItem("sobel 3x3 vert"            , IDX++)
         .addItem("laplace"                   , IDX++)
-        .addItem("convolution"               , IDX++)
-        .addItem("bilateral"                 , IDX++)
+        .addItem("Dog"                       , IDX++)
         .addItem("median + gauss + sobel(H)" , IDX++)
         .addItem("median + gauss + laplace"  , IDX++)
-        .addItem("Dog"                       , IDX++)
         .addItem("Bloom"                     , IDX++)
         .addItem("Luminance Threshold"       , IDX++)
         .addItem("Luminance Threshold + Bloom", IDX++)

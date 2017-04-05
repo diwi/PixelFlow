@@ -19,13 +19,13 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
-public class GammaCorrection {
+public class Gamma {
   
   float gamma = 2.2f;
   
   public DwPixelFlow context;
 
-  public GammaCorrection(DwPixelFlow context){
+  public Gamma(DwPixelFlow context){
     this.context = context;
   }
   
@@ -62,7 +62,7 @@ public class GammaCorrection {
   private void apply(int tex_handle, int w, int h, float gamma){
     if(shader == null) shader = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/gamma.frag");
     shader.begin();
-    shader.uniform2f     ("wh" , w, h);
+    shader.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader.uniform1f     ("GAMMA_CORRECTION", gamma);
     shader.uniformTexture("tex", tex_handle);
     shader.drawFullScreenQuad(0, 0, w, h);
