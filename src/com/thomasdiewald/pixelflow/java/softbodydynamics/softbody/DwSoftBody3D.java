@@ -7,6 +7,8 @@ import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -105,7 +107,7 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   
 
   @Override
-  public void displaySprings(PGraphics pg, StrokeStyle style, TYPE type){
+  public void displaySprings(PGraphics pg, DwStrokeStyle style, TYPE type){
     pg.beginShape(PConstants.LINES);
     pg.strokeWeight(style.stroke_weight);
     pg.stroke(style.stroke_color);

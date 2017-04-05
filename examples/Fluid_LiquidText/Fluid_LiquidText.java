@@ -185,7 +185,7 @@ public class Fluid_LiquidText extends PApplet {
     fluid.addCallback_FluiData(cb_fluid_data);
 
     // processing font
-    font = createFont("SourceCodePro-Regular.ttf", 128);
+    font = createFont("../data/SourceCodePro-Regular.ttf", 128);
 
     // fluid render target
     pg_fluid = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
@@ -217,7 +217,7 @@ public class Fluid_LiquidText extends PApplet {
     drawText(pg_text);
 
     // sprite for fluid particles
-    img_sprite = loadImage("sprite.png");
+    img_sprite = loadImage("../data/sprite.png");
     
     createGUI();
 

@@ -7,7 +7,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringCons
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody2D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 
 import processing.core.PGraphics;
 import processing.core.PShape;
@@ -139,7 +139,7 @@ public class DwSoftBall2D extends DwSoftBody2D{
   }
   
   @Override
-  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+  public void createShapeWireframe(PGraphics pg, DwStrokeStyle style){
     PShape shp = createShape(pg);
     
     shp.setTexture(null);

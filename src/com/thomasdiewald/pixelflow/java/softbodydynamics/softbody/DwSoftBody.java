@@ -5,6 +5,8 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -175,7 +177,7 @@ public abstract class DwSoftBody{
     }
   }
   
-  public abstract void displaySprings(PGraphics pg, StrokeStyle style, TYPE type);
+  public abstract void displaySprings(PGraphics pg, DwStrokeStyle style, TYPE type);
 
   
   
@@ -184,7 +186,7 @@ public abstract class DwSoftBody{
   public abstract void createShapeParticles(PApplet papplet, boolean icosahedron);
   public abstract void createShapeParticles(PApplet papplet);
   public abstract void createShapeMesh(PGraphics pg);
-  public abstract void createShapeWireframe(PGraphics pg, StrokeStyle style);
+  public abstract void createShapeWireframe(PGraphics pg, DwStrokeStyle style);
   
   
   
@@ -204,15 +206,7 @@ public abstract class DwSoftBody{
 //  
   
   
-  static public class StrokeStyle{
-    public int stroke_color = 0xFF000000;
-    public float stroke_weight = 1.0f;
-    public StrokeStyle(){}
-    public StrokeStyle(int stroke_color, float stroke_weight){
-      this.stroke_color = stroke_color;
-      this.stroke_weight = stroke_weight;
-    }
-  }
+
   
 //  static public class MeshStyle{
 //    public int fill_color = 0xFF000000;

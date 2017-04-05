@@ -184,7 +184,7 @@ public class Fluid_WindTunnel extends PApplet {
     fluid.addCallback_FluiData(cb_fluid_data);
 
     // processing font
-    font = createFont("SourceCodePro-Regular.ttf", 48);
+    font = createFont("../data/SourceCodePro-Regular.ttf", 48);
 
     // fluid render target
     pg_fluid = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);

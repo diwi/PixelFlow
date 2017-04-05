@@ -37,10 +37,7 @@ public class TextureMerge {
   private void updateShader(int TEX_LAYERS){
     // 4) create/update shader
     if(shader == null){
-      boolean state = DwGLSLProgram.BUILD_IN_CONSTRUCTOR;
-      DwGLSLProgram.BUILD_IN_CONSTRUCTOR = false;
       shader = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/texture_merge.frag");
-      DwGLSLProgram.BUILD_IN_CONSTRUCTOR = state;
     }
     
     // update shader

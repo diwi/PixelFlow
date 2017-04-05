@@ -29,9 +29,9 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 
 import peasy.CameraState;
 import peasy.PeasyCam;
@@ -223,11 +223,7 @@ public class Skylight_ClothSimulation extends PApplet {
       }
     };
     
-    // library context
-    DwPixelFlow context = new DwPixelFlow(this);
-    context.print();
-    context.printGL();
-    
+
     // init skylight renderer
     skylight = new DwSkyLight(context, scene_display, mat_scene_bounds);
     
@@ -428,9 +424,9 @@ public class Skylight_ClothSimulation extends PApplet {
     if(DISPLAY_SRPINGS && COMPOSING_RENDERING){
       for(DwSoftBody3D body : softbodies){
         body.shade_springs_by_tension = (DISPLAY_MODE == 1);
-        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 1.0f), DwSpringConstraint.TYPE.BEND);
-        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 1.0f), DwSpringConstraint.TYPE.SHEAR);
-        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
+        body.displaySprings(this.g, new DwStrokeStyle(color(255,  90,  30), 1.0f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new DwStrokeStyle(color( 70, 140, 255), 1.0f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new DwStrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
     

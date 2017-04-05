@@ -125,7 +125,7 @@ public class AntiAliasing extends PApplet {
   float gamma = 2.2f;
   float BACKGROUND_COLOR = 32;
   
-  PShape shape;
+//  PShape shape;
 
   
   public void settings() {
@@ -155,12 +155,12 @@ public class AntiAliasing extends PApplet {
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     // processing font
-    font48 = createFont("SourceCodePro-Regular.ttf", 48);
-    font12 = createFont("SourceCodePro-Regular.ttf", 12);
+    font48 = createFont("../data/SourceCodePro-Regular.ttf", 48);
+    font12 = createFont("../data/SourceCodePro-Regular.ttf", 12);
     
     // load obj file into shape-object
-    shape = loadShape("examples/data/skylight_demo_scene.obj");
-    shape.scale(20);
+//    shape = loadShape("examples/data/skylight_demo_scene.obj");
+//    shape.scale(20);
 
     
     // main library context
@@ -372,7 +372,7 @@ public class AntiAliasing extends PApplet {
 
     Random rand = new Random(0);
 
-    canvas.colorMode(HSB, 360, 1, 1);
+    colorMode(HSB, 360, 1, 1);
     canvas.noStroke();
 //    canvas.stroke(0);
 //    canvas.strokeWeight(1f);
@@ -388,7 +388,7 @@ public class AntiAliasing extends PApplet {
       float hsb_h = 0;
       float hsb_s = 0;
       float hsb_b = random(0.1f,1.0f);
-      int shading = canvas.color(hsb_h, hsb_s, hsb_b);
+      int shading = color(hsb_h, hsb_s, hsb_b);
       
 //      if(random(0,1) > 0.5f){
 ////        canvas.noStroke();
@@ -425,7 +425,7 @@ public class AntiAliasing extends PApplet {
       float hsb_h = (facets ? 210 : 90) + (float)(rand.nextFloat() - 0.5f) * 20 ;
       float hsb_s = (float) rand.nextFloat() * 0.99f + 0.01f;
       float hsb_b = random(0.6f,1.0f);
-      int shading = canvas.color(hsb_h, hsb_s, hsb_b);
+      int shading = color(hsb_h, hsb_s, hsb_b);
       
       PShape shp_sphere = facets ? shp_sphere_smooth : shp_sphere_facets;
       
@@ -438,7 +438,7 @@ public class AntiAliasing extends PApplet {
       canvas.popMatrix();
     }
 
-    canvas.colorMode(RGB, 255, 255, 255);
+    colorMode(RGB, 255, 255, 255);
     
 //    PShape grid = createGridXY(30,40);
 //    grid.setStroke(true);

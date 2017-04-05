@@ -63,7 +63,7 @@ public class BloomDemo extends PApplet {
     pg_src_B = (PGraphics2D) createGraphics(width, height, P2D);
     pg_src_B.smooth(8);
     
-    font12 = createFont("SourceCodePro-Regular.ttf", 12);
+    font12 = createFont("../data/SourceCodePro-Regular.ttf", 12);
 
     background(0);
 

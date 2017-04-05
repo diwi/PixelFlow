@@ -75,6 +75,8 @@ public class BloomSphere extends PApplet {
     createMesh(5);
 
     context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
     
     pg_dst       = (PGraphics3D) createGraphics(width, height, P3D);
     pg_luminance = (PGraphics3D) createGraphics(width, height, P3D);

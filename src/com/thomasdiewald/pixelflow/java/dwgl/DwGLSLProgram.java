@@ -35,42 +35,25 @@ public class DwGLSLProgram {
  
   public String name;
   
-  public static boolean BUILD_IN_CONSTRUCTOR = true;
-  
-  
+
   //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String geom_path, String frag_path) {
-
+    this.context = context;
+    this.gl = context.gl;
+    
     this.vert = new DwGLSLShader(context, GL3.GL_VERTEX_SHADER  , vert_path);
     this.geom = new DwGLSLShader(context, GL3.GL_GEOMETRY_SHADER, geom_path);
     this.frag = new DwGLSLShader(context, GL3.GL_FRAGMENT_SHADER, frag_path);
-    this.name = vert_path+"/"+geom_path+"/"+vert_path;
-    this.gl = context.gl;
-    this.context = context;
-    if(BUILD_IN_CONSTRUCTOR){
-      build();
-    }
+    this.name = vert.path+"/"+geom.path+"/"+frag.path;
   }
   
-  
-  
-  //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String frag_path) {
-    if(vert_path != null) {
-      this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER, vert_path);
-    } else {
-      this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER);
-      vert_path = this.vert.path;
-    }
-    
-    this.frag = new DwGLSLShader(context, GL2ES2.GL_FRAGMENT_SHADER, frag_path);
-    this.name = vert_path+"/"+vert_path;
-    this.gl = context.gl;
     this.context = context;
+    this.gl = context.gl;
     
-    if(BUILD_IN_CONSTRUCTOR){
-      build();
-    }
+    this.vert = new DwGLSLShader(context, GL2ES2.GL_VERTEX_SHADER  , vert_path);
+    this.frag = new DwGLSLShader(context, GL2ES2.GL_FRAGMENT_SHADER, frag_path);
+    this.name = vert.path+"/"+frag.path;
   }
 
   public void release(){
@@ -150,17 +133,8 @@ public class DwGLSLProgram {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-//  boolean IS_ACTIVE = false;
+
+
   
   // Comfort Methods
   public DwGLSLProgram begin(){
@@ -168,13 +142,11 @@ public class DwGLSLProgram {
       build(); // TODO
     }
     gl.glUseProgram(HANDLE);
-//    IS_ACTIVE = true;
     return this;
   }
   
   public void end(){
     clearUniformTextures();
-//    IS_ACTIVE = false; 
     gl.glUseProgram(0);
   }
   

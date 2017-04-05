@@ -47,10 +47,6 @@ public class BinomialBlur {
         return; // no need to rebuild
       }
       
-      boolean push_state = DwGLSLProgram.BUILD_IN_CONSTRUCTOR;
-      
-      DwGLSLProgram.BUILD_IN_CONSTRUCTOR = false;
-
       Object id_horz = this.name() + "horz";
       Object id_vert = this.name() + "vert";
       
@@ -65,8 +61,6 @@ public class BinomialBlur {
       
       shader_horz.build();
       shader_vert.build();
-      
-      DwGLSLProgram.BUILD_IN_CONSTRUCTOR = push_state;
     }
     
   }

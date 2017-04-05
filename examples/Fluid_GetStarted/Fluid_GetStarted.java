@@ -39,6 +39,8 @@ public class Fluid_GetStarted extends PApplet {
        
     // library context
     DwPixelFlow context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
     
     // fluid simulation
     fluid = new DwFluid2D(context, width, height, 1);

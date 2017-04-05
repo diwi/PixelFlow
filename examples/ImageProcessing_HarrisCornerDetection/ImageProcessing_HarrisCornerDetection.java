@@ -61,7 +61,7 @@ public class ImageProcessing_HarrisCornerDetection extends PApplet {
   int gui_w = 200;
   
   public void settings() {
-    img = loadImage("mc_escher.jpg");
+    img = loadImage("../data/mc_escher.jpg");
     
     view_w = img.width;
     view_h = img.height;

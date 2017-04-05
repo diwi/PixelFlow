@@ -21,8 +21,8 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 
 import peasy.CameraState;
 import peasy.PeasyCam;
@@ -232,9 +232,9 @@ public class Softbody3D_Cloth extends PApplet {
     nodes_start_x = 100;
     nodes_start_y = 200;
     nodes_start_z = 600;
-    r = 180;
-    g = 32;
-    b = 96;
+    r = 32;
+    g = 128;
+    b = 255;
     s = 1f;
     cube1.setMaterialColor(color(r  ,g  ,b  ));
     cube1.setParticleColor(color(r*s,g*s,b*s));
@@ -325,9 +325,9 @@ public class Softbody3D_Cloth extends PApplet {
     if(DISPLAY_SRPINGS){
       for(DwSoftBody3D body : softbodies){
         body.shade_springs_by_tension = (DISPLAY_MODE == 1);
-        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
-        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
-        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
+        body.displaySprings(this.g, new DwStrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new DwStrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new DwStrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
     

@@ -5,7 +5,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -200,7 +200,7 @@ public class DwFoldingSoftBody extends DwSoftBody3D{
   
   
   @Override
-  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+  public void createShapeWireframe(PGraphics pg, DwStrokeStyle style){
     PShape shp = createShape(pg);
     shp.setTexture(null);
     shp.setFill(false);

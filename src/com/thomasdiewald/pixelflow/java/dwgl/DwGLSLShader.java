@@ -35,19 +35,32 @@ public class DwGLSLShader{
   
   public HashMap<String, GLSLDefine> glsl_defines = new HashMap<String, GLSLDefine>();
 
-  
-  //  vertex shader (fullscreenquad) will be generated automatically.
-  public DwGLSLShader(DwPixelFlow context, int type){
 
+  
+
+  public DwGLSLShader(DwPixelFlow context, int type, String path){
     this.context = context;
     this.gl = context.gl;
-    if(type != GL2ES2.GL_VERTEX_SHADER){
-      System.out.println("ERROR: DwGLSLShader is not of type \"GL_VERTEX_SHADER\"");
-    }
-
     this.type = type;
-    this.path = "fullscreenquad.vert";
+    this.path = path;
+    
+    if(type == GL2ES2.GL_VERTEX_SHADER && path == null || path.length() == 0){
+      createDefaultVertexShader();
+    } else {
+      this.content = loadSource(path);
+    }
+    
+    parseDefines(content);
+    
+//    build();
+  }
+  
+  
 
+
+  // vertex shader (fullscreenquad) 
+  private void createDefaultVertexShader(){
+    this.path = "fullscreenquad.vert";
     content = new String[]
         {
            " "
@@ -64,27 +77,9 @@ public class DwGLSLShader{
           ," "
         };
     
-    
     for(int i = 0; i < content.length; i++){
       content[i] += DwUtils.NL;
     }
-    
-    parseDefines(content);
-    
-//    build();
-  }
-
-  public DwGLSLShader(DwPixelFlow context, int type, String path){
-    this.context = context;
-    this.gl = context.gl;
-    this.type = type;
-    this.path = path;
-    
-    this.content = loadSource(path);
-    
-    parseDefines(content);
-    
-//    build();
   }
   
   
@@ -117,9 +112,9 @@ public class DwGLSLShader{
   
   public String[] loadSource(String path){
     ArrayList<String> source = new ArrayList<String>();
-    
+   
     loadSource(0, source, new File(path));
-    
+     
     String[] content = new String[source.size()];
     source.toArray(content);
 
@@ -167,7 +162,9 @@ public class DwGLSLShader{
   
   public void loadSource(int depth, ArrayList<String> source, File file){
 //    System.out.println("parsing file: "+file);
-    String[] lines = context.utils.readASCIIfile(file.getPath());
+    
+    String path = file.getPath().replace("\\", "/");
+    String[] lines = context.utils.readASCIIfile(path);
     
     if(depth++ > 5){
       throw new StackOverflowError("recursive #include: "+file);

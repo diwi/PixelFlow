@@ -8,7 +8,7 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
 import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
 
@@ -285,7 +285,7 @@ public class DwSoftBall3D extends DwSoftBody3D{
   }
   
   @Override
-  public void createShapeWireframe(PGraphics pg, StrokeStyle style){
+  public void createShapeWireframe(PGraphics pg, DwStrokeStyle style){
     PShape shp = createShape(pg);
     shp.setTexture(null);
     shp.setFill(false);

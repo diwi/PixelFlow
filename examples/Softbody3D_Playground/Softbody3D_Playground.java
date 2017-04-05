@@ -23,8 +23,8 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBall3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody3D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftGrid3D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.softbody.DwSoftBody.StrokeStyle;
 import com.thomasdiewald.pixelflow.java.utils.DwCoordinateTransform;
+import com.thomasdiewald.pixelflow.java.utils.DwStrokeStyle;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -497,9 +497,9 @@ public class Softbody3D_Playground extends PApplet {
     if(DISPLAY_SRPINGS){
       for(DwSoftBody3D body : softbodies){
         body.shade_springs_by_tension = (DISPLAY_MODE == 1);
-        body.displaySprings(this.g, new StrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
-        body.displaySprings(this.g, new StrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
-        body.displaySprings(this.g, new StrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
+        body.displaySprings(this.g, new DwStrokeStyle(color(255,  90,  30), 0.3f), DwSpringConstraint.TYPE.BEND);
+        body.displaySprings(this.g, new DwStrokeStyle(color( 70, 140, 255), 0.6f), DwSpringConstraint.TYPE.SHEAR);
+        body.displaySprings(this.g, new DwStrokeStyle(color(  0,   0,   0), 1.0f), DwSpringConstraint.TYPE.STRUCT);
       }
     }
 
@@ -514,7 +514,7 @@ public class Softbody3D_Playground extends PApplet {
     
     if(DISPLAY_WIREFRAME){
       for(DwSoftBody3D body : softbodies){
-        body.createShapeWireframe(this.g, new StrokeStyle(color(0), 0.5f));
+        body.createShapeWireframe(this.g, new DwStrokeStyle(color(0), 0.5f));
       }
     }
     
