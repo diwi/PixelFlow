@@ -15,6 +15,18 @@
     - Flow Field Visualisation
     - Streamlines
     - ...
++ Softbody Dynamics (CPU, GLSL is coming)
+    - 2D and 3D
+    - Collision Detection
+    - Cloth, Grids, Chains, Rigid Folding ...
+    - Particle Systems
+    - ...
++ Skylight Renderer (GLSL)
+    - Interactive/Realtime Viewport Renderer
+    - Ambient Occlusion
+    - Diffuse Shading
+    - ShadowMapping
+    - ...
 + PostProcessing Filters (GLSL)
     - Box Blur
     - Binomial Blur
@@ -34,19 +46,7 @@
     - Summed Area Table (SAT)
     - Distance Transform (Jumpflood)
     - ...
-+ Softbody Dynamics (CPU, GLSL is coming)
-    - 2D and 3D
-    - Collision Detection
-    - Cloth, Grids, Chains, Rigid Folding ...
-    - Particle Systems
-    - ...
-+ Skylight Renderer
-    - Interactive/Realtime Viewport Renderer
-    - Ambient Occlusion
-    - Diffuse Shading
-    - ShadowMapping
-    - ...
-+ AntiAliasing
++ AntiAliasing (GLSL)
     - FXAA
     - SMAA
     - GBAA/DEAA
@@ -54,6 +54,7 @@
     - HalfEdge
     - Subdivision Polyhedra
     - Sampling
+    - GLSL-Shader PreProcessor (#define, #include)
     - ...
 ```  
 
