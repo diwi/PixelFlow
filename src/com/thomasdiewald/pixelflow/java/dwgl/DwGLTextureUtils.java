@@ -8,8 +8,6 @@
  */
 package com.thomasdiewald.pixelflow.java.dwgl;
 
-import java.nio.FloatBuffer;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;

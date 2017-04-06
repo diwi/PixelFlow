@@ -136,7 +136,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 16;
+  public int     DISPLAY_FILTER = 18;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -187,6 +187,11 @@ public class ImageProcessing_Filter extends PApplet {
     
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_C.smooth(4);
+    
+    
+    pg_src_B.beginDraw();
+    pg_src_B.clear();
+    pg_src_B.endDraw();
     
     
 //    float thresh = 0.1f;
@@ -450,6 +455,19 @@ public class ImageProcessing_Filter extends PApplet {
 //      filter.bloom.apply(pg_src_B, pg_src_A);
       filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
+    
+    if( DISPLAY_FILTER == IDX++) {
+      pg_src_B.beginDraw();
+      pg_src_B.background(0);
+      pg_src_B.noStroke();
+      pg_src_B.fill(255);
+      pg_src_B.rectMode(CENTER);
+      pg_src_B.ellipse(mouseX, mouseY, 200, 200);
+      pg_src_B.endDraw();
+      filter.distancetransform.create(pg_src_B);
+      filter.distancetransform.apply(pg_src_A, pg_src_C);
+      swapAC();
+    }
 
     // display result
     background(0);
@@ -467,6 +485,12 @@ public class ImageProcessing_Filter extends PApplet {
     PGraphics2D tmp = pg_src_A;
     pg_src_A = pg_src_B;
     pg_src_B = tmp;
+  }
+  
+  void swapAC(){
+    PGraphics2D tmp = pg_src_A;
+    pg_src_A = pg_src_C;
+    pg_src_C = tmp;
   }
   
   
@@ -575,6 +599,7 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("Bloom"                     , IDX++)
         .addItem("Luminance Threshold"       , IDX++)
         .addItem("Luminance Threshold + Bloom", IDX++)
+        .addItem("Distance Transform"        , IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);

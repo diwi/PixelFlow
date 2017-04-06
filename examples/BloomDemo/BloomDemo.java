@@ -24,6 +24,7 @@ public class BloomDemo extends PApplet {
   // Bloom Shader applied as post-processing effect on a simpl 2D scene.
   //
   
+  boolean START_FULLSCREEN = true;
   
   
   int viewport_w = 1280;
@@ -35,19 +36,27 @@ public class BloomDemo extends PApplet {
 
   DwFilter filter;
   
-  PGraphics2D pg_src_A;
-  PGraphics2D pg_src_B;
+  PGraphics2D pg_render;
+  PGraphics2D pg_luminance;
+  PGraphics2D pg_bloom;
   
   PFont font12;
 
   public void settings(){
-    size(viewport_w, viewport_h, P2D);
-    fullScreen(P2D);
+    if(START_FULLSCREEN){
+      fullScreen(P2D);
+      viewport_w = width;
+      viewport_h = height;
+    } else {
+      size(viewport_w, viewport_h, P2D);
+    }
     smooth(0);
   }
   
   public void setup(){
-    surface.setLocation(viewport_x, viewport_y);
+    if(!START_FULLSCREEN){
+      surface.setLocation(viewport_x, viewport_y);
+    }
     
     context = new DwPixelFlow(this);
     context.print();
@@ -57,12 +66,15 @@ public class BloomDemo extends PApplet {
     
 //    System.out.println("width/height "+width+"/"+height);
     
-    pg_src_A = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_src_A.smooth(8);
+    pg_render = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_render.smooth(8);
     
-    pg_src_B = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_src_B.smooth(8);
+    pg_luminance = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_luminance.smooth(8);
     
+    pg_bloom = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_bloom.smooth(8);
+
     font12 = createFont("../data/SourceCodePro-Regular.ttf", 12);
 
     background(0);
@@ -76,11 +88,11 @@ public class BloomDemo extends PApplet {
 
     
     // just draw something into pg_src_A
-    pg_src_A.beginDraw();
+    pg_render.beginDraw();
     {
-      pg_src_A.blendMode(BLEND); // default
-      pg_src_A.rectMode(CENTER);
-      pg_src_A.background(0);
+      pg_render.blendMode(BLEND); // default
+      pg_render.rectMode(CENTER);
+      pg_render.background(0);
       
       int num_x = 20;
       int num_y = ceil(num_x / (width / (float) height));
@@ -102,33 +114,33 @@ public class BloomDemo extends PApplet {
           float rgb_b = norm_y * 255;
           int col =  color(rgb_r, rgb_g, rgb_b);
           
-          pg_src_A.pushMatrix();
-          pg_src_A.translate(px, py);
-          pg_src_A.strokeWeight(2f);
-          pg_src_A.stroke(col);
+          pg_render.pushMatrix();
+          pg_render.translate(px, py);
+          pg_render.strokeWeight(2f);
+          pg_render.stroke(col);
           if( ((x^y)&1) == 0){
-            pg_src_A.fill(col);
+            pg_render.fill(col);
           }else {
-            pg_src_A.noFill();
+            pg_render.noFill();
           }
-          pg_src_A.rect(0, 0, size_x * scale_xy, size_y * scale_xy, 0);
-          pg_src_A.popMatrix();
+          pg_render.rect(0, 0, size_x * scale_xy, size_y * scale_xy, 0);
+          pg_render.popMatrix();
         }
       }
 
-      pg_src_A.stroke(255);
-      pg_src_A.fill(0, 240);
-      pg_src_A.strokeWeight(2);
-      pg_src_A.ellipse(mouseX, mouseY, height/4, height/4);
+      pg_render.stroke(255);
+      pg_render.fill(0, 240);
+      pg_render.strokeWeight(2);
+      pg_render.ellipse(mouseX, mouseY, height/4, height/4);
     }
-    pg_src_A.endDraw();
+    pg_render.endDraw();
     
 
     if(DISPLAY_MODE != 0){
       // luminance pass
       filter.luminance_threshold.param.threshold = 0.0f; // when 0, all colors are used
       filter.luminance_threshold.param.exponent  = 5;
-      filter.luminance_threshold.apply(pg_src_A, pg_src_B);
+      filter.luminance_threshold.apply(pg_render, pg_luminance);
       
       // bloom pass
       // if the original image is used as source, the previous luminance pass 
@@ -136,23 +148,24 @@ public class BloomDemo extends PApplet {
 //      filter.bloom.setBlurLayers(10);
       filter.bloom.param.mult   = map(mouseX, 0, width, 0, 10);
       filter.bloom.param.radius = map(mouseY, 0, height, 0, 1);
-      filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
+      filter.bloom.apply(pg_luminance, pg_bloom, pg_render);
     }
 
 
     switch(DISPLAY_MODE){
-      case 2: filter.copy.apply(pg_src_B, pg_src_A); break;
-      case 3: filter.copy.apply(filter.bloom.tex_blur[0], pg_src_A); break;
-      case 4: filter.copy.apply(filter.bloom.tex_blur[1], pg_src_A); break;
-      case 5: filter.copy.apply(filter.bloom.tex_blur[2], pg_src_A); break;
-      case 6: filter.copy.apply(filter.bloom.tex_blur[3], pg_src_A); break;
-      case 7: filter.copy.apply(filter.bloom.tex_blur[4], pg_src_A); break;
+      case 2: filter.copy.apply(pg_bloom, pg_render); break;
+      case 3: filter.copy.apply(pg_luminance, pg_render); break;
+      case 4: filter.copy.apply(filter.bloom.tex_blur[0], pg_render); break;
+      case 5: filter.copy.apply(filter.bloom.tex_blur[1], pg_render); break;
+      case 6: filter.copy.apply(filter.bloom.tex_blur[2], pg_render); break;
+      case 7: filter.copy.apply(filter.bloom.tex_blur[3], pg_render); break;
+      case 8: filter.copy.apply(filter.bloom.tex_blur[4], pg_render); break;
     }
     
     // display result
     blendMode(REPLACE);
     background(0);
-    image(pg_src_A, 0, 0);
+    image(pg_render, 0, 0);
     
     // mouse position hints
     int s = 3;
@@ -172,7 +185,7 @@ public class BloomDemo extends PApplet {
 
     
     // info
-    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [mode %d]  [frame %d]   [fps %6.2f]", pg_src_A.width, pg_src_A.height, DISPLAY_MODE, frameCount, frameRate);
+    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [mode %d]  [frame %d]   [fps %6.2f]", pg_render.width, pg_render.height, DISPLAY_MODE, frameCount, frameRate);
     surface.setTitle(txt_fps);
     
     // key hints
@@ -184,12 +197,13 @@ public class BloomDemo extends PApplet {
     text(txt_fps         , tx, ty+=gap);
     text("'0' bloom OFF" , tx, ty+=gap);
     text("'1' Bloom ON"  , tx, ty+=gap);
-    text("'2' Luminance" , tx, ty+=gap);
-    text("'3' Blur[0]"   , tx, ty+=gap);
-    text("'4' Blur[1]"   , tx, ty+=gap);
-    text("'5' Blur[2]"   , tx, ty+=gap);
-    text("'6' Blur[3]"   , tx, ty+=gap);
-    text("'7' Blur[4]"   , tx, ty+=gap);
+    text("'2' bloom only", tx, ty+=gap);
+    text("'3' Luminance" , tx, ty+=gap);
+    text("'4' Blur[0]"   , tx, ty+=gap);
+    text("'5' Blur[1]"   , tx, ty+=gap);
+    text("'6' Blur[2]"   , tx, ty+=gap);
+    text("'7' Blur[3]"   , tx, ty+=gap);
+    text("'8' Blur[4]"   , tx, ty+=gap);
     text("mouseX: bloom multiplier"   , tx, ty+=gap);
     text("mouseY: bloom radius"       , tx, ty+=gap);
 
@@ -199,14 +213,9 @@ public class BloomDemo extends PApplet {
   int DISPLAY_MODE = 1;
   
   public void keyReleased(){
-    if(key == '0') DISPLAY_MODE = 0;
-    if(key == '1') DISPLAY_MODE = 1;
-    if(key == '2') DISPLAY_MODE = 2;
-    if(key == '3') DISPLAY_MODE = 3;
-    if(key == '4') DISPLAY_MODE = 4;
-    if(key == '5') DISPLAY_MODE = 5;
-    if(key == '6') DISPLAY_MODE = 6;
-    if(key == '7') DISPLAY_MODE = 7;
+    if(key >= '0' && key <= '8'){
+      DISPLAY_MODE = key - '0';
+    }
   }
 
   public static void main(String args[]) {

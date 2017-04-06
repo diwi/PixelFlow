@@ -49,7 +49,7 @@ public abstract class DwSoftBody{
     }
   }
   
-  private void printChilds(PShape shp, String indent){
+  protected void printChilds(PShape shp, String indent){
     if(shp == null){
       return;
     }

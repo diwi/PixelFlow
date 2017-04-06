@@ -13,6 +13,7 @@ package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
@@ -152,27 +153,27 @@ public class Bloom {
    * @param src_luminance
    * @param dst_bloom
    */
-  public void apply(PGraphicsOpenGL src_luminance, PGraphicsOpenGL dst_bloom){
-    Texture tex_src = src_luminance.getTexture(); if(!tex_src.available())  return;
-    Texture tex_dst = dst_bloom    .getTexture(); if(!tex_dst.available())  return;
-    
-    // lazy init/allocation
-    resize(tex_dst.glWidth, tex_dst.glHeight);
-    
-    // 1) use src-texture as base for blur-levels
-    DwFilter.get(context).copy.apply(src_luminance, tex_blur[0]);
-    
-    // 2) blur passes
-    for(int i = 1; i < BLUR_LAYERS; i++){
-      DwFilter.get(context).gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i + 2);
-    }
-    
-    // 3) compute blur-texture weights
-    tex_weights = computeWeights(tex_weights);
-    
-    // 4) merge blur-textures
-    tex_merge.apply(dst_bloom, tex_blur, tex_weights);
-  }
+//  private void apply(PGraphicsOpenGL src_luminance, PGraphicsOpenGL dst_bloom){
+//    Texture tex_src = src_luminance.getTexture(); if(!tex_src.available())  return;
+//    Texture tex_dst = dst_bloom    .getTexture(); if(!tex_dst.available())  return;
+//    
+//    // lazy init/allocation
+//    resize(tex_dst.glWidth, tex_dst.glHeight);
+//    
+//    // 1) use src-texture as base for blur-levels
+//    DwFilter.get(context).copy.apply(src_luminance, tex_blur[0]);
+//    
+//    // 2) blur passes
+//    for(int i = 1; i < BLUR_LAYERS; i++){
+//      DwFilter.get(context).gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i + 2);
+//    }
+//    
+//    // 3) compute blur-texture weights
+//    tex_weights = computeWeights(tex_weights);
+//    
+//    // 4) merge blur-textures
+//    tex_merge.apply(dst_bloom, tex_blur, tex_weights);
+//  }
   
   /**
    * 
@@ -189,38 +190,106 @@ public class Bloom {
    * @param dst_composition
    */
   public void apply(PGraphicsOpenGL src_luminance, PGraphicsOpenGL dst_bloom, PGraphicsOpenGL dst_composition){
+//    if(dst_bloom == null){
+//      return;
+//    }
+//    
+//      // compute bloom, based on src_luminance
+//    apply(src_luminance, dst_bloom);
+//    
+//    if(dst_composition == null){
+//      return;
+//    }
+//    
+//    if(dst_composition == dst_bloom){
+//      System.out.println("Bloom.apply WARNING: dst_composition == dst_bloom");
+//    }
+//    
+//    int w = dst_composition.width;
+//    int h = dst_composition.height;
+//
+//    // additive blend: dst_composition +  dst_bloom
+//    dst_composition.beginDraw();
+//    dst_composition.pushStyle();
+//    dst_composition.pushMatrix();
+//    dst_composition.pushProjection();
+//    
+//    dst_composition.resetMatrix();
+//    if(dst_composition.is3D()){
+//      dst_composition.ortho(0, w, -h, 0, 0, 1);
+//    }
+//
+//    dst_composition.hint(PConstants.DISABLE_DEPTH_TEST);
+//    dst_composition.blendMode(PConstants.ADD);
+//    dst_composition.image(dst_bloom, 0, 0);
+//    dst_composition.hint(PConstants.ENABLE_DEPTH_TEST);
+//    
+//    dst_composition.popProjection();
+//    dst_composition.popMatrix();
+//    dst_composition.popStyle();
+//    dst_composition.endDraw();
     
-    // compute bloom, based on src_luminance
-    apply(src_luminance, dst_bloom);
+    int w = 0;
+    int h = 0;
     
-    if(dst_composition == dst_bloom){
-      System.out.println("Bloom.apply WARNING: dst_composition == dst_bloom");
+    if(dst_composition != null){
+      w = dst_composition.width;
+      h = dst_composition.height;
+    } else if(dst_bloom != null){
+      w = dst_bloom.width;
+      h = dst_bloom.height;
+    } else {
+      return;
+    }
+
+    
+    DwFilter filter = DwFilter.get(context);
+    
+    // 0) lazy init/allocation
+    resize(w, h);
+   
+    // 1) use src-texture as base for blur-levels
+    filter.copy.apply(src_luminance, tex_blur[0]);
+    
+    // 2) blur passes
+    filter.gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 3);
+    for(int i = 1; i < BLUR_LAYERS; i++){
+      filter.gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + 2);
     }
     
-    int w = dst_composition.width;
-    int h = dst_composition.height;
-
-    // additive blend: dst_composition +  dst_bloom
-    dst_composition.beginDraw();
-    dst_composition.pushStyle();
-    dst_composition.pushMatrix();
-    dst_composition.pushProjection();
+    // 3) compute blur-texture weights
+    tex_weights = computeWeights(tex_weights);
     
-    dst_composition.resetMatrix();
-    if(dst_composition.is3D()){
-      dst_composition.ortho(0, w, -h, 0, 0, 1);
+    
+    // 4a) merge + blend: dst_bloom is not null, therefore the extra pass
+    if(dst_bloom != null){
+      tex_merge.apply(dst_bloom, tex_blur, tex_weights);
+      if(dst_composition != null){
+        context.pushRenderSettings(additive_blend);
+        filter.copy.apply(dst_bloom, dst_composition);
+        context.popRenderSettings();
+      }
+      return;
     }
-
-    dst_composition.hint(PConstants.DISABLE_DEPTH_TEST);
-    dst_composition.blendMode(PConstants.ADD);
-    dst_composition.image(dst_bloom, 0, 0);
-    dst_composition.hint(PConstants.ENABLE_DEPTH_TEST);
     
-    dst_composition.popProjection();
-    dst_composition.popMatrix();
-    dst_composition.popStyle();
-    dst_composition.endDraw();
+    // 4b) merge + blend:  dst_bloom is null, so we merge + blend into dst_composition
+    context.pushRenderSettings(additive_blend);
+    tex_merge.apply(dst_composition, tex_blur, tex_weights);
+    context.popRenderSettings();
+
   }
+  
+  
+  
+  DwGLRenderSettingsCallback additive_blend = new DwGLRenderSettingsCallback() {
+    @Override
+    public void set(DwPixelFlow context, int x, int y, int w, int h) {
+      context.gl.glEnable(GLES3.GL_BLEND);
+      context.gl.glBlendEquationSeparate(GLES3.GL_FUNC_ADD, GLES3.GL_FUNC_ADD);
+      context.gl.glBlendFuncSeparate(GLES3.GL_SRC_ALPHA, GLES3.GL_ONE, GLES3.GL_ONE, GLES3.GL_ONE);
+    }
+  };
+  
   
 
 }

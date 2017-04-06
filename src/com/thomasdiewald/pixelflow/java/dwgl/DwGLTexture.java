@@ -214,7 +214,6 @@ public class DwGLTexture{
   }
   
   
-  
   public void generateMipMap(){
     gl.glBindTexture   (GL2ES2.GL_TEXTURE_2D, HANDLE[0]);
     gl.glTexParameteri (GL2ES2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
@@ -457,7 +456,7 @@ public class DwGLTexture{
 
 
   static public class TexturePingPong{
-    public DwGLTexture src  = new DwGLTexture(); 
+    public DwGLTexture src = new DwGLTexture(); 
     public DwGLTexture dst = new DwGLTexture(); 
 
     public TexturePingPong(){
@@ -474,10 +473,10 @@ public class DwGLTexture{
     }
 
     public void swap(){
-      DwGLTexture temp;
-      temp = src;
+      DwGLTexture tmp;
+      tmp = src;
       src = dst;
-      dst = temp;
+      dst = tmp;
     }
     
     public void clear(float v){

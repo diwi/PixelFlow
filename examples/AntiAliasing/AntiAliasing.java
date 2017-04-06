@@ -311,7 +311,7 @@ public class AntiAliasing extends PApplet {
       text("[3] SMAA - SubPixel Morphological AA", tx, ty+=20);
       text("[4] FXAA - Fast Approximate AA"      , tx, ty+=20);
       text("[5] GBAA - GeometryBuffer AA"        , tx, ty+=20);
-
+      
       textFont(font48);
       tx = 20;
       ty = height-20;

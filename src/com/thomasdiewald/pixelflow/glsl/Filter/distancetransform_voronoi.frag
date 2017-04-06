@@ -1,0 +1,28 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - http://thomasdiewald.com
+ * 
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
+
+#version 150
+
+out vec4 glFragColor;
+
+uniform  sampler2D tex_src;
+uniform isampler2D tex_dtnn;
+
+void main(){
+  ivec2 pos = ivec2(gl_FragCoord.xy);
+  ivec2 dtnn = texelFetch(tex_dtnn, pos, 0).xy;
+  vec4  data = texelFetch(tex_src, dtnn, 0);
+  glFragColor = data;
+}
+
+
+
+
+

@@ -32,7 +32,9 @@ public class BloomSphere extends PApplet {
   // the plane
   //
   //
-
+  
+  boolean START_FULLSCREEN = true;
+  
 
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -62,13 +64,21 @@ public class BloomSphere extends PApplet {
 
 
   public void settings() {
-//    size(viewport_w, viewport_h, P3D);
-    fullScreen();
+    if(START_FULLSCREEN){
+      fullScreen(P3D);
+      viewport_w = width;
+      viewport_h = height;
+    } else {
+      size(viewport_w, viewport_h, P2D);
+    }
     smooth(8);
   }
  
   public void setup() {
-    surface.setLocation(viewport_x, viewport_y);
+    background(0);
+    if(!START_FULLSCREEN){
+      surface.setLocation(viewport_x, viewport_y);
+    }
     
     cam = new PeasyCam(this, 600);
     
@@ -139,7 +149,7 @@ public class BloomSphere extends PApplet {
     DwFilter filter = DwFilter.get(context);
     filter.bloom.param.mult   = 4;    //map(mouseX, 0, width, 0, 5);
     filter.bloom.param.radius = 0.5f; //map(mouseY, 0, height, 0, 1);
-    filter.bloom.apply(pg_luminance, pg_luminance, pg_dst);
+    filter.bloom.apply(pg_luminance, null, pg_dst);
     
     // display result
     cam.beginHUD();

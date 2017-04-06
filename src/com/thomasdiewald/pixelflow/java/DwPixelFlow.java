@@ -14,11 +14,13 @@ package com.thomasdiewald.pixelflow.java;
 
 
 import java.util.HashMap;
+import java.util.Stack;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GLContext;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLFrameBuffer;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
@@ -34,7 +36,7 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "0.46";
+    static public final String version = "0.47";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "http://www.thomasdiewald.com";
@@ -164,17 +166,25 @@ public class DwPixelFlow{
   
   
   
+  
+  public boolean ACTIVE_FRAMEBUFFER = false;
+  
 
   public void beginDraw(DwGLTexture ... dst){
+//    if(ACTIVE_FRAMEBUFFER) return;
+    ACTIVE_FRAMEBUFFER = true;
     framebuffer.bind(dst);
     defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
   }
   
   PGraphicsOpenGL pgl_dst = null;
   public void beginDraw(PGraphicsOpenGL dst){
+    ACTIVE_FRAMEBUFFER = true;
     beginDraw(dst, true);
   }
+  
   public void beginDraw(PGraphicsOpenGL dst, boolean multisample){
+    ACTIVE_FRAMEBUFFER = true;
     FrameBuffer fbo = dst.getFrameBuffer(multisample);
     if(fbo == null){
       multisample = false;
@@ -188,6 +198,7 @@ public class DwPixelFlow{
     this.pgl_dst = dst;
   }
   public void endDraw(){
+    ACTIVE_FRAMEBUFFER = false;
     if(framebuffer != null && framebuffer.isActive()){
       framebuffer.unbind();
     } else {
@@ -200,6 +211,11 @@ public class DwPixelFlow{
     }
   }
   
+  public void endDraw(String error_msg){
+    endDraw();
+    errorCheck(error_msg);
+  }
+  
   // apparently this needs to be done. 
   // instead, loadTexture() needs to be called, ...i guess
   private void updateFBO(PGraphicsOpenGL pg){
@@ -210,22 +226,44 @@ public class DwPixelFlow{
     }
   }
   
-  public void endDraw(String error_msg){
-    endDraw();
-    errorCheck("smaa - pass2");
-  }
   
  
   public void defaultRenderSettings(int x, int y, int w, int h){
-    gl.glViewport(0, 0, w, h);
-    gl.glColorMask(true, true, true, true);
-    gl.glDepthMask(false);
-    gl.glDisable(GL.GL_DEPTH_TEST);
-    gl.glDisable(GL.GL_SCISSOR_TEST);
-    gl.glDisable(GL.GL_STENCIL_TEST);
-    gl.glDisable(GL.GL_BLEND);
-    gl.glDisable(GL.GL_MULTISAMPLE);
+    rendersettings_default.set(this, 0, 0, w, h);
+    if(!rendersettings_user.isEmpty()){
+      rendersettings_user.peek().set(this, 0, 0, w, h);
+    }
   }
+  
+  private static class DefaultRenderSettings implements DwGLRenderSettingsCallback{
+    @Override
+    public void set(DwPixelFlow context, int x, int y, int w, int h) {
+      GL2ES2 gl = context.gl;
+      gl.glViewport(x, x, w, h);
+      gl.glColorMask(true, true, true, true);
+      gl.glDepthMask(false);
+      gl.glDisable(GL.GL_DEPTH_TEST);
+      gl.glDisable(GL.GL_SCISSOR_TEST);
+      gl.glDisable(GL.GL_STENCIL_TEST);
+      gl.glDisable(GL.GL_BLEND);
+      gl.glDisable(GL.GL_MULTISAMPLE);
+    }
+  }
+  
+  final private DwGLRenderSettingsCallback rendersettings_default = new DefaultRenderSettings();
+
+  Stack<DwGLRenderSettingsCallback> rendersettings_user = new Stack<DwGLRenderSettingsCallback>();
+  
+  public void pushRenderSettings(DwGLRenderSettingsCallback rendersettings){
+    rendersettings_user.push(rendersettings);
+  }
+  public void popRenderSettings(){
+    rendersettings_user.pop();
+  }
+  
+  
+  
+  
   
   
   

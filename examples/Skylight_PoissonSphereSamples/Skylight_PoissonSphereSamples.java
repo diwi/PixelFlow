@@ -253,7 +253,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
       filter.bloom.param.mult   =  0.2f; //map(mouseX, 0, width, 0, 1);
       filter.bloom.param.radius =  0.6f; //map(mouseY, 0, height, 0, 1);
       
-      filter.bloom.apply(pg_tmp, pg_aa);
+      filter.bloom.apply(pg_tmp, pg_tmp, pg_aa);
     }
 
     cam.beginHUD();

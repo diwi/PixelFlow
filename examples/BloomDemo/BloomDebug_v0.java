@@ -13,8 +13,6 @@ package BloomDemo;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.LuminanceThreshold;
-
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -117,7 +115,7 @@ public class BloomDebug_v0 extends PApplet {
     
 //    System.out.println("mult/radius: "+filter.bloom.param.mult+"/"+filter.bloom.param.radius);
     if(keyPressed){
-      filter.bloom.apply(pg_src_A, pg_src_A);
+      filter.bloom.apply(pg_src_A, pg_src_A, null);
     } else {
       filter.luminance_threshold.apply(pg_src_A, pg_src_B);
       filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);

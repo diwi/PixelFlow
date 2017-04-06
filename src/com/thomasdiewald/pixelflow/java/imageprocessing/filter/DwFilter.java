@@ -36,7 +36,7 @@ public class DwFilter {
   public final SummedAreaTable    summedareatable;
   public final Bloom              bloom;
   public final LuminanceThreshold luminance_threshold;
-  
+  public final DistanceTransform  distancetransform;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
@@ -61,6 +61,7 @@ public class DwFilter {
     summedareatable     = new SummedAreaTable   (context);
     bloom               = new Bloom             (context);
     luminance_threshold = new LuminanceThreshold(context);
+    distancetransform   = new DistanceTransform (context);
     
     filter_cache.put(context, this);
   }
@@ -83,6 +84,7 @@ public class DwFilter {
   }
   
   public void release(){
+    distancetransform.release();
     summedareatable.release();
     bloom.release();
   }
