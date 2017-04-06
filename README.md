@@ -10,38 +10,51 @@
 
 ```
 + Fluid Simulation (GLSL)
-+ Fluid Particle Systems (GLSL)
-+ Optical Flow  (GLSL)
-+ Harris Corner Detection  (GLSL)
-+ Image Processing Filters (GLSL)
-	- Bilateral Filter
-	- Box Blur
-	- Custom Convolution Kernel
-	- DoG (Difference of Gaussian)
-	- Gaussian Blur
-	- Laplace
-	- MedianFilter
-	- Sobel
-	- ...
+    - Jos Stam, Real-Time Fluid Dynamics for Games
+    - Particle Sytems
+    - Flow Field Visualisation
+    - Streamlines
+    - ...
++ PostProcessing Filters (GLSL)
+    - Box Blur
+    - Binomial Blur
+    - Gauss Blur
+    - Median
+    - Bilateral Filter
+    - Custom Convolution Kernel
+    - DoG (Difference of Gaussian)
+    - Laplace
+    - Sobel
+    - Gamma Correction
+    - Luminace
+    - Thresholding
+    - Harris Corner Detection
+    - Optical Flow
+    - Bloom
+    - Summed Area Table (SAT)
+    - Distance Transform (Jumpflood)
+    - ...
 + Softbody Dynamics (CPU, GLSL is coming)
-  - 2D and 3D
-  - Collision Detection
-  - Cloth, Grids, Chains, ...
-  - Particle Systems
-  - etc ...
+    - 2D and 3D
+    - Collision Detection
+    - Cloth, Grids, Chains, Rigid Folding ...
+    - Particle Systems
+    - ...
 + Skylight Renderer
-  - Interactive/realtime viewport renderer
-  - Ambient Occlusion
-  - Diffuse Shading
-  - ShadowMapping
+    - Interactive/Realtime Viewport Renderer
+    - Ambient Occlusion
+    - Diffuse Shading
+    - ShadowMapping
+    - ...
 + AntiAliasing
-  - FXAA
-  - SMAA
-  - GBAA
+    - FXAA
+    - SMAA
+    - GBAA/DEAA
 + Utils
-  - HalfEdge
-  - Subdivision Polyhedra
-  - Sampling
+    - HalfEdge
+    - Subdivision Polyhedra
+    - Sampling
+    - ...
 ```  
 
 
