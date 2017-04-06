@@ -136,7 +136,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 18;
+  public int     DISPLAY_FILTER = 15;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -428,23 +428,7 @@ public class ImageProcessing_Filter extends PApplet {
       filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB();
     }
     if( DISPLAY_FILTER == IDX++) {
-//      filter.gaussblur.apply(pg_src_C, pg_src_C, pg_src_B, BLUR_RADIUS);
-//      filter.bloom.apply(pg_src_C, pg_src_A);
-//      filter.bloom.apply(pg_src_C, pg_src_C);
       filter.bloom.apply(pg_src_C, pg_src_C, pg_src_A);
-//      pg_src_A.beginDraw();
-//      pg_src_A.blendMode(ADD);
-//      pg_src_A.image(pg_src_C, 0, 0);
-//      pg_src_A.blendMode(BLEND);
-//      pg_src_A.endDraw();
-      
-      
-//      blendMode(REPLACE);
-//      image(pg_src_A, 0, 0);
-//      blendMode(ADD);
-//      image(pg_src_C, 0, 0);
-//      blendMode(BLEND);
-      
     }
     if( DISPLAY_FILTER == IDX++) {
 //      filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);

@@ -17,9 +17,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
-import processing.core.PConstants;
 import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.Texture;
 
 /**
  * @author Thomas Diewald
@@ -277,6 +275,14 @@ public class Bloom {
     tex_merge.apply(dst_composition, tex_blur, tex_weights);
     context.popRenderSettings();
 
+  }
+  
+  /**
+   * applies the bloom directly on dst
+   * @param dst
+   */
+  public void apply(PGraphicsOpenGL dst){
+    apply(dst, null, dst);
   }
   
   
