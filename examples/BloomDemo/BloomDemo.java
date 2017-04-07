@@ -21,7 +21,7 @@ import processing.opengl.PGraphics2D;
 public class BloomDemo extends PApplet {
 
   //
-  // Bloom Shader applied as post-processing effect on a simpl 2D scene.
+  // Bloom Shader applied as post-processing effect on a simple 2D scene.
   //
   
   boolean START_FULLSCREEN = true;

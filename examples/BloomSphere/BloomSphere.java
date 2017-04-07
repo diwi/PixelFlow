@@ -173,7 +173,7 @@ public class BloomSphere extends PApplet {
     canvas.noLights();
 
     // for the luminance pass we don't want to fill the colorbuffer, just 
-    // the depthtest matters.
+    // the depth-test matters.
     if(RENDER_PASS.LUMINANCE == pass){
       canvas.pgl.colorMask(false, false, false, false);
     }

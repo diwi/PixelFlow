@@ -28,6 +28,7 @@ import processing.opengl.PGraphics2D;
 
 
 
+
 public class ImageProcessing_Filter extends PApplet {
   
   //
@@ -57,7 +58,8 @@ public class ImageProcessing_Filter extends PApplet {
   PGraphics2D pg_src_A;
   PGraphics2D pg_src_B;
   PGraphics2D pg_src_C; // just another buffer for temporary results
-  
+  PGraphics2D pg_voronoi_centers; // mask for the distance transform (voronoi)
+
   // filters
   DwFilter filter;
 
@@ -136,7 +138,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 18;
+  public int     DISPLAY_FILTER = 16;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -162,6 +164,7 @@ public class ImageProcessing_Filter extends PApplet {
   int view_h;
   int gui_w = 200;
   
+
   public void settings() {
     img = loadImage("../data/mc_escher.jpg");
     
@@ -189,17 +192,35 @@ public class ImageProcessing_Filter extends PApplet {
     pg_src_C.smooth(4);
     
     
+    
+    // random distribution of white pixels, that are used as voronoi centers
+    // and serve as a mask for the distance transform.
+    int gap = 8;
+    int num_x = width/gap;
+    int num_y = height/gap;
+    randomSeed(0);
+    pg_voronoi_centers = (PGraphics2D) createGraphics(view_w, view_h, P2D);
+    pg_voronoi_centers.smooth(0);
+    pg_voronoi_centers.beginDraw();
+    pg_voronoi_centers.background(0);
+    pg_voronoi_centers.stroke(255);
+    for(int y = 0; y < num_y; y++){
+      for(int x = 0; x < num_x; x++){
+        float px = (int) (x * gap + random(gap));
+        float py = (int) (y * gap + random(gap));
+        pg_voronoi_centers.point(px+0.5f,  py+0.5f);
+      }
+    }
+    pg_voronoi_centers.endDraw();
+    
+
+    
+    
     pg_src_B.beginDraw();
     pg_src_B.clear();
     pg_src_B.endDraw();
     
-    
-//    float thresh = 0.1f;
-//    float luma = 0.9f;
-//    float luma_mult = 1 + (luma - thresh);
-//    float result = luma_mult * luma;
-//    System.out.println(result);
-    
+
     createGUI();
     
 //    frameRate(60);
@@ -391,14 +412,16 @@ public class ImageProcessing_Filter extends PApplet {
       }
     }
     if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB(); 
-      }
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB(); 
     }
     if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_VERT); swapAB(); 
-      }
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_VERT); swapAB(); 
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ);
+      filter.sobel.apply(pg_src_A, pg_src_C, Sobel.TYPE._3x3_VERT);
+      float[] mad = {0.5f, 0};
+      filter.merge.apply(pg_src_A, pg_src_B, pg_src_C, mad, mad);
     }
     if( DISPLAY_FILTER == IDX++) { 
       for(int i = 0; i < FILTER_STACKS; i++){
@@ -448,7 +471,7 @@ public class ImageProcessing_Filter extends PApplet {
       pg_src_B.rectMode(CENTER);
       pg_src_B.ellipse(mouseX, mouseY, 200, 200);
       pg_src_B.endDraw();
-      filter.distancetransform.create(pg_src_B);
+      filter.distancetransform.create(pg_voronoi_centers);
       filter.distancetransform.apply(pg_src_A, pg_src_C);
       swapAC();
     }
@@ -565,25 +588,26 @@ public class ImageProcessing_Filter extends PApplet {
     cp5.addRadio("displayFilter").setGroup(group_filter)
         .setPosition(10, 390).setSize(18,18)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-        .addItem("luminance"                 , IDX++)
-        .addItem("box blur"                  , IDX++)
-        .addItem("Summed Area Table blur"    , IDX++)
-        .addItem("gauss blur"                , IDX++)
-        .addItem("binomial blur"             , IDX++)
-        .addItem("bilateral"                 , IDX++)
-        .addItem("convolution"               , IDX++)
-        .addItem("median 3x3"                , IDX++)
-        .addItem("median 5x5"                , IDX++)
-        .addItem("sobel 3x3 horz"            , IDX++)
-        .addItem("sobel 3x3 vert"            , IDX++)
-        .addItem("laplace"                   , IDX++)
-        .addItem("Dog"                       , IDX++)
-        .addItem("median + gauss + sobel(H)" , IDX++)
-        .addItem("median + gauss + laplace"  , IDX++)
-        .addItem("Bloom"                     , IDX++)
-        .addItem("Luminance Threshold"       , IDX++)
-        .addItem("Luminance Threshold + Bloom", IDX++)
-        .addItem("Distance Transform"        , IDX++)
+        .addItem("luminance"                   , IDX++)
+        .addItem("box blur"                    , IDX++)
+        .addItem("Summed Area Table blur"      , IDX++)
+        .addItem("gauss blur"                  , IDX++)
+        .addItem("binomial blur"               , IDX++)
+        .addItem("bilateral"                   , IDX++)
+        .addItem("convolution"                 , IDX++)
+        .addItem("median 3x3"                  , IDX++)
+        .addItem("median 5x5"                  , IDX++)
+        .addItem("sobel 3x3 horz"              , IDX++)
+        .addItem("sobel 3x3 vert"              , IDX++)
+        .addItem("sobel 3x3 horz/vert"         , IDX++)
+        .addItem("laplace"                     , IDX++)
+        .addItem("Dog"                         , IDX++)
+        .addItem("median + gauss + sobel(H)"   , IDX++)
+        .addItem("median + gauss + laplace"    , IDX++)
+        .addItem("Bloom"                       , IDX++)
+        .addItem("Luminance Threshold"         , IDX++)
+        .addItem("Luminance Threshold + Bloom" , IDX++)
+        .addItem("Distance Transform / Voronoi", IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);

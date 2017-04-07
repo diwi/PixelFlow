@@ -19,6 +19,13 @@ void main(){
   ivec2 pos = ivec2(gl_FragCoord.xy);
   ivec2 dtnn = texelFetch(tex_dtnn, pos, 0).xy;
   vec4  data = texelFetch(tex_src, dtnn, 0);
+  
+  // shade by distance
+  float dis = length(vec2(dtnn - pos)) / 10.0;
+  //data *= (1.0 - dis*dis);
+  //data *= (1.0 - dis)* 1.5f; 
+  data *= sqrt(dis) * 1.4f;
+  
   glFragColor = data;
 }
 

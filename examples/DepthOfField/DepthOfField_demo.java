@@ -37,7 +37,7 @@ public class DepthOfField_demo extends PApplet {
   //
   // Depth of Field (DoF) Demo
   //
-  // Still experimenting here ... so dont use it.
+  // WIP, I am still experimenting here ... so don't use it.
   // 
   //
 

@@ -36,7 +36,7 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "0.47";
+    static public final String version = "0.48";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "http://www.thomasdiewald.com";
