@@ -10,7 +10,7 @@
  */
 
 
-package DepthOfField;
+package DepthOfField_Demo;
 
 import java.util.Locale;
 import com.jogamp.opengl.GL2;
@@ -32,7 +32,7 @@ import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 
 
-public class DepthOfField_demo extends PApplet {
+public class DepthOfField_Demo extends PApplet {
   
   //
   // Depth of Field (DoF) Demo
@@ -367,6 +367,6 @@ public class DepthOfField_demo extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { DepthOfField_demo.class.getName() });
+    PApplet.main(new String[] { DepthOfField_Demo.class.getName() });
   }
 }
