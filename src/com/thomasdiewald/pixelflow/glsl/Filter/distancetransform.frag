@@ -11,7 +11,7 @@
  //
  // resouces
  //
- // JFA - Jumping Flooding Algorithm
+ // Jumpflood Algorithm (JFA)
  //
  // Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform
  // www.comp.nus.edu.sg/~tants/jfa/i3d06.pdf
@@ -83,11 +83,12 @@ void DTNN(const ivec2 off){
   }
 }
 
+
 void main(){
   DTNN(jump.xx); DTNN(jump.yx); DTNN(jump.zx);
   DTNN(jump.xy); DTNN(jump.yy); DTNN(jump.zy);
   DTNN(jump.xz); DTNN(jump.yz); DTNN(jump.zz);
-  
+
   glFragColor = dtnn;
 }
 

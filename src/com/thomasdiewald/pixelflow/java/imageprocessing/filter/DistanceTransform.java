@@ -26,7 +26,7 @@ import processing.opengl.Texture;
  * 
  * Distance Transform:
  * 
- *  JFA - Jumping Flooding Algorithm
+ *  Jumpflood Algorithm (JFA)
  *
  *  Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform
  *  www.comp.nus.edu.sg/~tants/jfa/i3d06.pdf

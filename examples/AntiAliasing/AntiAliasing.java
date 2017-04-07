@@ -13,8 +13,6 @@
 package AntiAliasing;
 
 import java.util.Locale;
-import java.util.Random;
-
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.GBAA.GBAA;
@@ -353,15 +351,22 @@ public class AntiAliasing extends PApplet {
     canvas.ambientLight(64, 64, 64);
     
 //    canvas.shape(shape);
-    boxes(canvas);
+    sceneShape(canvas);
   }
   
   
+  PShape shp_scene;
   
-  public void boxes(PGraphics3D canvas){
+  public void sceneShape(PGraphics3D canvas){
+    if(shp_scene != null){
+      canvas.shape(shp_scene);
+      return;
+    }
+    
+    shp_scene = createShape(GROUP);
+    
     int num_boxes = 50;
     int num_spheres = 50;
-    
     float bb_size = 800;
     float xmin = -bb_size;
     float xmax = +bb_size;
@@ -370,12 +375,7 @@ public class AntiAliasing extends PApplet {
     float zmin =  0;
     float zmax = +bb_size;
 
-    Random rand = new Random(0);
-
     colorMode(HSB, 360, 1, 1);
-    canvas.noStroke();
-//    canvas.stroke(0);
-//    canvas.strokeWeight(1f);
     randomSeed(0);
 
     for(int i = 0; i < num_boxes; i++){
@@ -385,71 +385,66 @@ public class AntiAliasing extends PApplet {
       float sy = random(200) + 10;
       float sz = random(zmin, zmax);
 
-      float hsb_h = 0;
-      float hsb_s = 0;
+      
+      float off = 45;
+      float base = 0;
+      float hsb_h = base + random(-off,off);
+      float hsb_s = 1;
       float hsb_b = random(0.1f,1.0f);
       int shading = color(hsb_h, hsb_s, hsb_b);
       
-//      if(random(0,1) > 0.5f){
-////        canvas.noStroke();
-//      } else {
-////        canvas.stroke(0);
-////        canvas.strokeWeight(1f);
-//      }
-      
-      canvas.pushMatrix();
-      canvas.translate(px, py, sz/2);
-      canvas.fill(shading);
-      canvas.box(sx,sy,sz);
-      canvas.popMatrix();
+      PShape shp_box = createShape(BOX, sx, sy, sz);
+      shp_box.setFill(true);
+      shp_box.setStroke(false);
+      shp_box.setFill(shading);
+      shp_box.translate(px, py, sz/2);
+      shp_scene.addChild(shp_box);
     }
     
-    DwCube cube_smooth = new DwCube(4);
-    PShape shp_sphere_smooth = createShape(PShape.GEOMETRY);
-    DwMeshUtils.createPolyhedronShape(shp_sphere_smooth, cube_smooth, 1, 4, true);
-    
-    DwCube cube_facets = new DwCube(2);
-    PShape shp_sphere_facets = createShape(PShape.GEOMETRY);
-    DwMeshUtils.createPolyhedronShape(shp_sphere_facets, cube_facets, 1, 4, false);
 
-//    shp_sphere.setFill(color(210, 1,1));
+    DwCube cube_smooth = new DwCube(4);
+    DwCube cube_facets = new DwCube(2);
+
     for(int i = 0; i < num_spheres; i++){
       float px = random(xmin, xmax);
       float py = random(ymin, ymax);
       float pz = random(zmin, zmax);
       float rr = random(50) + 50;
-      
-      
-      boolean facets = (i%2 == 0);
+      boolean facets = true;//(i%2 == 0);
 
-      float hsb_h = (facets ? 210 : 90) + (float)(rand.nextFloat() - 0.5f) * 20 ;
-      float hsb_s = (float) rand.nextFloat() * 0.99f + 0.01f;
-      float hsb_b = random(0.6f,1.0f);
+      float off = 20;
+      float base = 225;
+      float hsb_h = base + random(-off,off);
+      float hsb_s = random(0.1f,1.0f);
+      float hsb_b = 1;
       int shading = color(hsb_h, hsb_s, hsb_b);
       
-      PShape shp_sphere = facets ? shp_sphere_smooth : shp_sphere_facets;
-      
+      PShape shp_sphere = createShape(PShape.GEOMETRY);
+      if(facets){
+        DwMeshUtils.createPolyhedronShape(shp_sphere, cube_facets, 1, 4, false);
+      } else {
+        DwMeshUtils.createPolyhedronShape(shp_sphere, cube_smooth, 1, 4, true);
+      }
+
+      shp_sphere.setStroke(false);
+      shp_sphere.setStroke(color(0));
+      shp_sphere.setStrokeWeight(0.01f / rr);
+      shp_sphere.setFill(true);
       shp_sphere.setFill(shading);
-
-      canvas.pushMatrix();
-      canvas.translate(px, py, pz);
-      canvas.scale(rr);
-      canvas.shape(shp_sphere);
-      canvas.popMatrix();
+      shp_sphere.resetMatrix();
+      shp_sphere.scale(rr);
+      shp_sphere.translate(px, py, pz);
+      shp_scene.addChild(shp_sphere);
     }
-
     colorMode(RGB, 255, 255, 255);
     
-//    PShape grid = createGridXY(30,40);
-//    grid.setStroke(true);
-//    grid.setStrokeWeight(1.0f);
-//    grid.setStroke(color(164, 64, 0));
-//    canvas.shape(grid);
+    PShape shp_rect = createShape(RECT, -1000, -1000, 2000, 2000);
+    shp_rect.setStroke(false);
+    shp_rect.setFill(true);
+    shp_rect.setFill(color(255));
     
-    canvas.rectMode(CENTER);
-    canvas.rect(0, 0, 2000, 2000);
+    shp_scene.addChild(shp_rect);
   }
-  
   
   
   public PShape createGridXY(int lines, float s){

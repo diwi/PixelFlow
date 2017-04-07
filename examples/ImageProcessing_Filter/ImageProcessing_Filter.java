@@ -136,7 +136,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_GEOMETRY = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 15;
+  public int     DISPLAY_FILTER = 18;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;

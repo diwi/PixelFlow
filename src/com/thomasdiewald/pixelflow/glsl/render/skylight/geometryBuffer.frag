@@ -96,5 +96,9 @@ void main(void) {
   // gl_FragColor = vec4(vert_normal, gl_FragCoord.z);
   gl_FragColor = vec4(vert_normal, 1.0 / gl_FragCoord.w);
   // gl_FragColor = vec4(endcodeNormal2F(vert_normal), 1.0, 1.0 / gl_FragCoord.w);
+  
+  
+  // gl_FragColor = vec4(1.0 / gl_FragCoord.w);
+  // gl_FragColor.a = 1;
 }
 
