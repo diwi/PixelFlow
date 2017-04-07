@@ -43,8 +43,9 @@
     - Harris Corner Detection
     - Optical Flow
     - Bloom
+    - Depth of Field (DoF)
     - Summed Area Table (SAT)
-    - Distance Transform (Jumpflood)
+    - Distance Transform (Jumpflood), Voronoi, Distance Map
     - ...
 + AntiAliasing (GLSL)
     - FXAA
