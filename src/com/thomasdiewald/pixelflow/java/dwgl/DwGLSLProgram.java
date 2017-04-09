@@ -157,11 +157,15 @@ public class DwGLSLProgram {
   
   public boolean LOG_WARNINGS = true;
   
+  int warning_count = 0;
+  
   private int getUniformLocation(String uniform_name){
     int LOC_name = gl.glGetUniformLocation(HANDLE, uniform_name);
     if(LOC_name == -1){
-      if(LOG_WARNINGS){
+      if(LOG_WARNINGS && warning_count < 20){
+       
         System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
+        warning_count++;
       }
     }
     return LOC_name;
@@ -179,9 +183,9 @@ public class DwGLSLProgram {
     int active_uniform_location_cur = -1;
     int LOC_name = getUniformLocation(uniform_name);
     if(LOC_name == -1){
-      if(LOG_WARNINGS){
-        System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
-      }
+//      if(LOG_WARNINGS){
+//        System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
+//      }
     } else {
       active_uniform_location_cur = ++active_uniform_location;
       gl.glUniform1i(LOC_name, active_uniform_location_cur); 

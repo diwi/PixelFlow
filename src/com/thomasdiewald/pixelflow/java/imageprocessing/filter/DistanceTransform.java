@@ -33,6 +33,14 @@ import processing.opengl.Texture;
  *
  */
 public class DistanceTransform {
+  
+  public static class Param{
+    // just a visual scale for the voronoi example
+    public float voronoi_distance_normalization = 0.1f;
+  }
+  
+  public Param param = new Param();
+  
   protected DwPixelFlow context;
   
   protected DwGLSLProgram shader_init;
@@ -61,7 +69,7 @@ public class DistanceTransform {
 
       shader_init.frag.getDefine("PASS_INIT").value = "1";
       shader_dtnn.frag.getDefine("PASS_DTNN").value = "1";
-      shader_dtnn.frag.getDefine("VERSION"  ).value = "1";
+      shader_dtnn.frag.getDefine("TEXACCESS").value = "0";
       
       int POS_MAX_LIMIT = 0x7FFF;
       int POS_MAX = Math.max(w, h) * 2;
@@ -93,7 +101,7 @@ public class DistanceTransform {
     shader_init.uniformTexture("tex_mask", tex_mask.glName);
     shader_init.drawFullScreenQuad();
     shader_init.end();
-    context.endDraw("DistanceTransform.apply init");  
+    context.endDraw("DistanceTransform.create init");  
     tex_dtnn.swap();
     
     
@@ -107,7 +115,7 @@ public class DistanceTransform {
       shader_dtnn.uniformTexture("tex_dtnn", tex_dtnn.src);
       shader_dtnn.drawFullScreenQuad();
       shader_dtnn.end();
-      context.endDraw("DistanceTransform.apply update");
+      context.endDraw("DistanceTransform.create update");
       tex_dtnn.swap();
     }
     
@@ -139,6 +147,7 @@ public class DistanceTransform {
     shader_voronoi.begin();
     shader_voronoi.uniformTexture("tex_src", tex_src.glName);
     shader_voronoi.uniformTexture("tex_dtnn", tex_dtnn.src);
+    shader_voronoi.uniform1f     ("dist_norm", param.voronoi_distance_normalization);
     shader_voronoi.drawFullScreenQuad();
     shader_voronoi.end();
     context.endDraw();

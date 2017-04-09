@@ -39,9 +39,8 @@ uniform sampler2D	tex_mask;
 
 void main(){
   ivec2 pos = ivec2(gl_FragCoord.xy);
-  int mask = int(texelFetch(tex_mask, pos, 0).r);     // mask is 0 or 1
-  //glFragColor = mask * pos + ((1 - mask) * POS_MAX); // (mask == 1) ? pos : ivec2(POS_MAX)
-  glFragColor = (mask == 1) ? pos : ivec2(POS_MAX);
+  bool mask = any(notEqual(texelFetch(tex_mask, pos, 0).rgb, vec3(0.0)));
+  glFragColor = mask ? pos : ivec2(POS_MAX);
 }
 
 #endif // PASS_INIT
@@ -52,6 +51,17 @@ void main(){
 // PASS 2 - update positions (nearest)
 // --------------------------------------------------------------
 #if PASS_DTNN
+
+#define TEXACCESS 0
+
+#if (TEX_READ_VERSION == 0) 
+  // needs the position to be clamped
+  #define getDTNN(tex, off) texelFetch(tex, clamp(pos + off, ivec2(0), wh - 1), 0).xy
+#endif
+#if (TEX_READ_VERSION == 1) 
+  // needs wrap-param GL_CLAMP_TO_EDGE
+  #define getDTNN(tex, off) texture(tex, (gl_FragCoord.xy + off) / wh).xy
+#endif
 
 out ivec2 glFragColor;
 
@@ -64,17 +74,7 @@ ivec2 dtnn = ivec2(POS_MAX);
 int   dmin = LENGTH_SQ(dtnn);
 
 void DTNN(const ivec2 off){
-
-#define VERSION 1
-#if VERSION == 0
-  // needs the position to be clamped
-  ivec2 dtnn_cur = texelFetch(tex_dtnn, clamp(pos + off, ivec2(0), wh - 1), 0).xy;
-#endif
-#if VERSION == 1
-  // needs wrap-param GL_CLAMP_TO_EDGE
-  ivec2 dtnn_cur = texture(tex_dtnn, (gl_FragCoord.xy + off) / wh).xy;
-#endif
-  
+  ivec2 dtnn_cur = getDTNN(tex_dtnn, off);
   ivec2 ddxy = dtnn_cur - pos;
   int dcur = LENGTH_SQ(ddxy);
   if(dcur < dmin){

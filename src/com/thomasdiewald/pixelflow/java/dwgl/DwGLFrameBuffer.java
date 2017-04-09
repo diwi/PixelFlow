@@ -84,6 +84,7 @@ public class DwGLFrameBuffer {
       gl.glFramebufferTexture2D(GL2ES2.GL_FRAMEBUFFER, color_attachments[i], GL2ES2.GL_TEXTURE_2D, tex[i].HANDLE[0], 0);
     }
     
+    
     gl.glDrawBuffers(color_attachments.length, color_attachments, 0);
     IS_ACTIVE = true;
   }
