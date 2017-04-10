@@ -65,15 +65,15 @@ public class DwShadowMap {
   public void resize(int wh){
     pg_shadowmap = (PGraphics3D) papplet.createGraphics(wh, wh, PConstants.P3D);
     pg_shadowmap.smooth(0);
-
+    pg_shadowmap.textureSampling(2);
+    
     DwGLTextureUtils.changeShadowTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT);
 
     pg_shadowmap.beginDraw();
     pg_shadowmap.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_shadowmap.textureSampling(2);
+    
     pg_shadowmap.background(0xFFFFFFFF);
     pg_shadowmap.blendMode(PConstants.REPLACE);
-    
     pg_shadowmap.shader(shader_shadow);
     pg_shadowmap.noStroke();
     pg_shadowmap.endDraw();

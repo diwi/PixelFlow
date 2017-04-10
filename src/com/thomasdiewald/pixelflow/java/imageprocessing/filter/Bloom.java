@@ -250,10 +250,12 @@ public class Bloom {
     filter.copy.apply(src_luminance, tex_blur[0]);
     
     // 2) blur passes
+    context.begin();
     filter.gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 3);
     for(int i = 1; i < BLUR_LAYERS; i++){
       filter.gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + 2);
     }
+    context.end("Bloom.gaussian bluring");
     
     // 3) compute blur-texture weights
     tex_weights = computeWeights(tex_weights);
@@ -274,6 +276,9 @@ public class Bloom {
     context.pushRenderSettings(additive_blend);
     tex_merge.apply(dst_composition, tex_blur, tex_weights);
     context.popRenderSettings();
+    
+    
+
 
   }
   

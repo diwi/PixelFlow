@@ -94,12 +94,12 @@ public class DwSkyLightShader {
     for(int i = 0; i < pg_shading.length; i++){
       pg_shading[i] = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
       pg_shading[i].smooth(0);
+      pg_shading[i].textureSampling(5);
       
       DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT);
       
       pg_shading[i].beginDraw();
       pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-      pg_shading[i].textureSampling(5);
       pg_shading[i].background(0xFFFFFFFF);
       pg_shading[i].blendMode(PConstants.REPLACE);
       pg_shading[i].shader(shader);

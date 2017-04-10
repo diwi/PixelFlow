@@ -203,6 +203,10 @@ public class DwGLSLProgram {
     }
   }
   
+
+  
+  
+  
   
   public void uniform1fv(String uniform_name, int count, float[] vec1){
     gl.glUniform1fv(getUniformLocation(uniform_name), count, vec1, 0);
@@ -215,6 +219,17 @@ public class DwGLSLProgram {
   }
   public void uniform4fv(String uniform_name, int count, float[] vec4){
     gl.glUniform4fv(getUniformLocation(uniform_name), count, vec4, 0);
+  }
+  
+  
+  public void uniformMatrix2fv(String uniform_name, int count, boolean transpose, float[] buffer, int offset){
+    gl.glUniformMatrix2fv(getUniformLocation(uniform_name), count, transpose, buffer, offset);
+  }
+  public void uniformMatrix3fv(String uniform_name, int count, boolean transpose, float[] buffer, int offset){
+    gl.glUniformMatrix3fv(getUniformLocation(uniform_name), count, transpose, buffer, offset);
+  }
+  public void uniformMatrix4fv(String uniform_name, int count, boolean transpose, float[] buffer, int offset){
+    gl.glUniformMatrix4fv(getUniformLocation(uniform_name), count, transpose, buffer, offset);
   }
   
   
@@ -244,6 +259,10 @@ public class DwGLSLProgram {
   public void uniform4i(String uniform_name, int v0, int v1, int v2, int v3){
     gl.glUniform4i(getUniformLocation(uniform_name), v0, v1, v2, v3);
   }
+  
+  
+
+  
   
   
   

@@ -59,7 +59,7 @@ public class DistanceTransformDemo extends PApplet {
   
   PGraphics2D pg_a;
   PGraphics2D pg_b;
-  PGraphics2D pg_c;
+
   
   DwPixelFlow context;
 
@@ -86,8 +86,9 @@ public class DistanceTransformDemo extends PApplet {
     pg_b = (PGraphics2D) createGraphics(width, height, P2D);
     pg_b.smooth(0);
     
-    pg_c = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_c.smooth(0);
+    pg_a.beginDraw();
+    pg_a.background(0);
+    pg_a.endDraw();
     
     context = new DwPixelFlow(this);
     context.print();
@@ -97,54 +98,47 @@ public class DistanceTransformDemo extends PApplet {
   }
   
   
+  PVector mc2 = new PVector();
+  
   public void draw(){
-    
-    float col_r = map(mouseX, 0, width, 0, 255);
-    float col_g = map(mouseY, 0, height, 0, 255);
-    float rot = frameCount/60f;
+
+    // draw something
+    PVector mc = new PVector( mouseX,  mouseY);    
+    float mdist = PVector.dist(mc, mc2);
+    float rect_size = 100;
     
     pg_a.beginDraw();
-    pg_a.background(0);
     pg_a.rectMode(CENTER);
-    pg_a.noFill();
-    pg_a.strokeWeight(2);
-    pg_a.stroke(col_r, col_g, 255);
-    pg_a.rect(width/2, height/2, width-100,  height-100);
-    
-    pg_a.line(width/2, 0, width/2, height);
-    
-    pg_a.pushMatrix();
-    pg_a.translate(mouseX,  mouseY);
-    pg_a.rotate(rot);
-    pg_a.stroke(255-col_r*0.5f, 255-col_g, 0);
-    pg_a.rect(0, 0, 250, 250);
-    pg_a.popMatrix();
-    
-    pg_a.pushMatrix();
-    pg_a.translate(width-mouseX,  mouseY);
-    pg_a.rotate(-rot);
-    pg_a.stroke(255-col_r*0.5f, 255-col_g, 0);
-    pg_a.rect(0, 0, 250, 250);
-    pg_a.popMatrix();
-    
+    pg_a.translate(mc.x, mc.y);
+    if(mousePressed){
+      pg_a.noStroke();
+      pg_a.fill(0);
+      pg_a.rect(0, 0, rect_size, rect_size);
+    } else {
+      if(mdist > rect_size){
+        pg_a.noFill();
+//        pg_a.fill(0);
+        pg_a.strokeWeight(1);
+        pg_a.stroke(200, 220, 255);
+        pg_a.rect(0, 0, rect_size, rect_size);
+        mc2 = mc.copy();
+      }
+    }
     pg_a.endDraw();
     
-    DwFilter filter =  DwFilter.get(context);
-    
-    // if any color component (r, g or b) is not 0.0, then the pixel is used 
-    // for the mask
-    filter.copy.apply(pg_a, pg_c);
 
     
     // Distance Transform:
     
-    // 1) The distance-field/distance-map is created of the mask "pg_c"
+    // 1) The distance-field/distance-map is created of the mask "pg_a"
     // 2) a voronoi is created by reading the position in the distance map
     //    and copying the texel data from the source texture "pg_a"
     
-    filter.distancetransform.param.voronoi_distance_normalization = 0.0035f;
+    DwFilter filter =  DwFilter.get(context);
+    
+    filter.distancetransform.param.voronoi_distance_normalization = 0.0075f;
     // create distance map
-    filter.distancetransform.create(pg_c);
+    filter.distancetransform.create(pg_a);
     // create voronoi. just an example, better create your own shader for this.
     filter.distancetransform.apply(pg_a, pg_b);
 
@@ -158,15 +152,6 @@ public class DistanceTransformDemo extends PApplet {
   }
   
   
-
-  
-  
-  public void swapAB(){
-    PGraphics2D tmp = pg_a; pg_a = pg_b; pg_b = tmp;
-  }
-  public void swapAC(){
-    PGraphics2D tmp = pg_a; pg_a = pg_c; pg_c = tmp;
-  }
 
   public static void main(String args[]) {
     PApplet.main(new String[] { DistanceTransformDemo.class.getName() });
