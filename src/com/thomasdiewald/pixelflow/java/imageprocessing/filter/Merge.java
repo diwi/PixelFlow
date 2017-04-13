@@ -64,12 +64,7 @@ public class Merge {
       shader_merge_array = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_array.frag");
     }
     
-    // update shader
-    GLSLDefine define = shader_merge_array.frag.glsl_defines.get("TEX_LAYERS");
-    if(Integer.parseInt(define.value) != TEX_LAYERS){
-      define.value = ""+TEX_LAYERS;
-      shader_merge_array.build();
-    }
+    shader_merge_array.frag.setDefine("TEX_LAYERS", TEX_LAYERS);
   }
   
   

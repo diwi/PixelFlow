@@ -41,8 +41,7 @@ public class Sobel {
       }
       Object id = this.name();
       shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/sobel.frag");
-      shader.frag.getDefine(define).value = "1";
-      shader.build();
+      shader.frag.setDefine(define, 1);
     }
   }
 

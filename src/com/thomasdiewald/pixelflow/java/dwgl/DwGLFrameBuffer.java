@@ -13,6 +13,7 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GLES3;
 
 public class DwGLFrameBuffer {
   public GL2ES2 gl;
@@ -45,6 +46,10 @@ public class DwGLFrameBuffer {
   }
   
   
+  public void bind(){
+    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+  }
+  
 
   // textures must be of the same size
   public void bind(int ... HANDLE_tex){
@@ -55,7 +60,7 @@ public class DwGLFrameBuffer {
     
     color_attachments = new int[HANDLE_tex.length];
     
-    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+    bind();
     for(int i = 0; i < HANDLE_tex.length; i++){
       color_attachments[i] = GL2ES2.GL_COLOR_ATTACHMENT0 + i;
       gl.glFramebufferTexture2D(GL2ES2.GL_FRAMEBUFFER, color_attachments[i], GL2ES2.GL_TEXTURE_2D, HANDLE_tex[i], 0);
@@ -119,6 +124,24 @@ public class DwGLFrameBuffer {
   
   public void clearTexture(float v, DwGLTexture ... tex){
     clearTexture(v,v,v,v,tex);
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  public void setRenderBuffer(int HANDLE_rbo, boolean depth, boolean stencil){
+    boolean is_active = isActive();
+    if(!is_active) bind();
+  
+    if(depth  )gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_DEPTH_ATTACHMENT  , GLES3.GL_RENDERBUFFER, HANDLE_rbo);
+    if(stencil)gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_STENCIL_ATTACHMENT, GLES3.GL_RENDERBUFFER, HANDLE_rbo);
+    
+    if(!is_active) unbind();
   }
   
 }

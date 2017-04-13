@@ -179,7 +179,7 @@ public class DepthOfField_Demo extends PApplet {
       float fpx = (       dof.param.focus_pos[0]) * width;
       float fpy = (1.0f - dof.param.focus_pos[1]) * height;
       
-      blendMode(EXCLUSION   );
+      blendMode(EXCLUSION);
       translate(fpx, fpy);
       strokeWeight(1);
       stroke(255,200);

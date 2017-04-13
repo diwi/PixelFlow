@@ -66,11 +66,11 @@ public class DistanceTransform {
     if(shader_init == null || shader_dtnn == null){
       shader_init = context.createShader((Object)"dt_init", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
       shader_dtnn = context.createShader((Object)"dt_dtnn", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
-
-      shader_init.frag.getDefine("PASS_INIT").value = "1";
-      shader_dtnn.frag.getDefine("PASS_DTNN").value = "1";
-      shader_dtnn.frag.getDefine("TEXACCESS").value = "0";
       
+      shader_init.frag.setDefine("PASS_INIT", 1);
+      shader_dtnn.frag.setDefine("PASS_DTNN", 1);
+      shader_dtnn.frag.setDefine("TEXACCESS", 0);
+
       int POS_MAX_LIMIT = 0x7FFF;
       int POS_MAX = Math.max(w, h) * 2;
       

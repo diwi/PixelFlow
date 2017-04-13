@@ -39,8 +39,7 @@ public class Laplace {
       }
       Object id = this.name();
       shader = context.createShader(id, DwPixelFlow.SHADER_DIR+"Filter/laplace.frag");
-      shader.frag.getDefine(define).value = "1";
-      shader.build();
+      shader.frag.setDefine(define, 1);
     }
   }
   

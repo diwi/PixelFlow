@@ -34,9 +34,9 @@ public class DwGLSLShader{
   public String[] content;
   
   public HashMap<String, GLSLDefine> glsl_defines = new HashMap<String, GLSLDefine>();
-
-
   
+  public boolean flag_rebuild = true;
+
 
   public DwGLSLShader(DwPixelFlow context, int type, String path){
     this.context = context;
@@ -56,8 +56,6 @@ public class DwGLSLShader{
   }
   
   
-
-
   // vertex shader (fullscreenquad) 
   private void createDefaultVertexShader(){
     this.path = "fullscreenquad.vert";
@@ -86,16 +84,33 @@ public class DwGLSLShader{
   public GLSLDefine getDefine(String name){
     return glsl_defines.get(name);
   }
+  public void setDefine(String name, String value){
+    glsl_defines.get(name).setValue(value);
+  }
+  public void setDefine(String name, int value){
+    glsl_defines.get(name).setValue(""+value);
+  }
+  public void setDefine(String name, float value){
+    glsl_defines.get(name).setValue(""+value);
+  }
 
-  
   public static class GLSLDefine{
-    public String name;
-    public String value;
-    public int line;
-    GLSLDefine(int line, String name, String value){
+    private DwGLSLShader parent;
+    private String name;
+    private String value;
+    private int line;
+    GLSLDefine(DwGLSLShader parent, int line, String name, String value){
+      this.parent = parent;
       this.line = line;
       this.name = name;
       this.value = value;
+    }
+    public void setValue(String value){
+      parent.flag_rebuild |= !this.value.equals(value);
+      this.value = value;
+    }
+    public String getValue(){
+      return value;
     }
     public void print(){
       System.out.printf("[%2d] #define %s %s\n", line, name, value);
@@ -139,7 +154,7 @@ public class DwGLSLShader{
             if( to == -1) to = line.length();
   
             String value = line.substring(from, to).trim();
-            GLSLDefine define = new GLSLDefine(i, name, value);
+            GLSLDefine define = new GLSLDefine(this, i, name, value);
 //            System.out.print(define.get());
             glsl_defines.put(define.name, define);
 //          }
@@ -157,8 +172,6 @@ public class DwGLSLShader{
     }
   }
 
-  
-  
   
   public void loadSource(int depth, ArrayList<String> source, File file){
 //    System.out.println("parsing file: "+file);
@@ -185,32 +198,33 @@ public class DwGLSLShader{
     }
   }
   
-  
-  
-
-
   public void release(){
     gl.glDeleteShader(HANDLE); HANDLE = 0;
+    flag_rebuild = true;
   }
 
-
-  public void build() {
-    
-    // update defines
-    Set<String> keys = glsl_defines.keySet();
-    for(String key : keys ){
-      GLSLDefine def = glsl_defines.get(key);
-      content[def.line] = def.get();
+  public boolean build() {
+    if(flag_rebuild){
+      // update defines
+      Set<String> keys = glsl_defines.keySet();
+      for(String key : keys ){
+        GLSLDefine def = glsl_defines.get(key);
+        content[def.line] = def.get();
+      }
+      
+      release(); // clear anything, in case the program gets rebuild
+  
+      HANDLE  = gl.glCreateShader(type);
+      gl.glShaderSource(HANDLE, content.length, content, (int[]) null, 0);
+      gl.glCompileShader(HANDLE);
+      
+      flag_rebuild = false;
+      DwGLSLShader.getShaderInfoLog (gl, HANDLE, type_str+" ("+path+")");
+      DwGLError.debug(gl, "DwGLSLShader.build");
+      return true;
+    } else {
+      return false;
     }
-    
-    release(); // clear anything, in case the program gets rebuild
-
-    HANDLE  = gl.glCreateShader(type);
-    gl.glShaderSource(HANDLE, content.length, content, (int[]) null, 0);
-    gl.glCompileShader(HANDLE);
-    DwGLSLShader.getShaderInfoLog (gl, HANDLE, type_str+" ("+path+")");
-
-    DwGLError.debug(gl, "DwGLSLShader.build");
   }
 
 

@@ -53,14 +53,11 @@ public class BinomialBlur {
       shader_horz = context.createShader(id_horz, DwPixelFlow.SHADER_DIR+"Filter/binomial.frag");
       shader_vert = context.createShader(id_vert, DwPixelFlow.SHADER_DIR+"Filter/binomial.frag");
       
-      shader_horz.frag.getDefine("HORZ").value = "1";
-      shader_horz.frag.getDefine(define).value = "1";
+      shader_horz.frag.setDefine("HORZ", 1);
+      shader_horz.frag.setDefine(define, 1);
       
-      shader_vert.frag.getDefine("VERT").value = "1";
-      shader_vert.frag.getDefine(define).value = "1";
-      
-      shader_horz.build();
-      shader_vert.build();
+      shader_vert.frag.setDefine("VERT", 1);
+      shader_vert.frag.setDefine(define, 1);
     }
     
   }

@@ -19,6 +19,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 public class DwGLTexture{
@@ -213,16 +214,32 @@ public class DwGLTexture{
     gl.glBindTexture  (target, 0);
   }
   
-  
-  public void generateMipMap(){
-    gl.glBindTexture   (GL2ES2.GL_TEXTURE_2D, HANDLE[0]);
-    gl.glTexParameteri (GL2ES2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-    gl.glGenerateMipmap(GL2ES2.GL_TEXTURE_2D);
-    gl.glBindTexture   (GL2ES2.GL_TEXTURE_2D, 0);
+  public void setParam_WRAP_S_T(int param, float[] border_color){
+    gl.glBindTexture   (target, HANDLE[0]);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, param);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, param);
+    gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
+    gl.glBindTexture   (target, 0);
   }
   
   
- 
+  public void generateMipMap(){
+    gl.glBindTexture   (target, HANDLE[0]);
+    gl.glTexParameteri (target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+    gl.glGenerateMipmap(target);
+    gl.glBindTexture   (target, 0);
+  }
+  
+  public void setParam_Border(float[] border){
+    gl.glBindTexture   (target, HANDLE[0]);
+    gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border, 0);
+    gl.glBindTexture   (target, 0);
+  }
+  public void setParam_Border(int[] border){
+    gl.glBindTexture    (target, HANDLE[0]);
+    gl.glTexParameterIiv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border, 0);
+    gl.glBindTexture    (target, 0);
+  }
 
   
   /**
@@ -434,7 +451,9 @@ public class DwGLTexture{
 
   
   public void clear(float v){
-    framebuffer.clearTexture(v, this);
+    if(framebuffer != null){
+      framebuffer.clearTexture(v, this);
+    }
   }
   
 //  public void beginDraw(){

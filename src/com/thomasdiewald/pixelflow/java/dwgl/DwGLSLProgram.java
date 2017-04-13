@@ -36,7 +36,6 @@ public class DwGLSLProgram {
   public String name;
   
 
-  //  if vert_path is null, the shader (fullscreenquad) will be generated automatically.
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String geom_path, String frag_path) {
     this.context = context;
     this.gl = context.gl;
@@ -63,32 +62,27 @@ public class DwGLSLProgram {
     gl.glDeleteProgram(HANDLE); HANDLE = 0;
   }
   
-  private void buildAndAttach(int program_handle, DwGLSLShader shader){
-    if(shader != null){ 
-      shader.build(); 
-      gl.glAttachShader(program_handle, shader.HANDLE);
-    }
+  private boolean build(DwGLSLShader shader){
+    return (shader != null) && shader.build();
   }
   
-
-  
   public DwGLSLProgram build() {
-
-    release();
-    
-    HANDLE = gl.glCreateProgram();
-    
-    buildAndAttach(HANDLE, vert);
-    buildAndAttach(HANDLE, geom);
-    buildAndAttach(HANDLE, frag);
-    
-    gl.glLinkProgram(HANDLE);
-    
-//    gl.glValidateProgram(HANDLE);
-    DwGLSLProgram.getProgramValidateStatus(gl, HANDLE);
-    DwGLSLProgram.getProgramInfoLog(gl, HANDLE, ">> PROGRAM_INFOLOG: "+vert+" / "+frag+":\n");
-
-    DwGLError.debug(gl, "DwGLSLProgram.build");
+    if((build(vert) | build(geom) | build(frag)) || (HANDLE == 0)){
+     
+      if(HANDLE == 0) HANDLE = gl.glCreateProgram();
+      
+      if(vert != null) gl.glAttachShader(HANDLE, vert.HANDLE); 
+      if(geom != null) gl.glAttachShader(HANDLE, geom.HANDLE); 
+      if(frag != null) gl.glAttachShader(HANDLE, frag.HANDLE); 
+  
+      gl.glLinkProgram(HANDLE);
+      
+  //    gl.glValidateProgram(HANDLE);
+      DwGLSLProgram.getProgramValidateStatus(gl, HANDLE);
+      DwGLSLProgram.getProgramInfoLog(gl, HANDLE, ">> PROGRAM_INFOLOG: "+name+":\n");
+  
+      DwGLError.debug(gl, "DwGLSLProgram.build");
+    }
     return this;
   }
 
@@ -137,12 +131,9 @@ public class DwGLSLProgram {
 
   
   // Comfort Methods
-  public DwGLSLProgram begin(){
-    if(HANDLE == 0){
-      build(); // TODO
-    }
+  public void begin(){
+    build();
     gl.glUseProgram(HANDLE);
-    return this;
   }
   
   public void end(){
@@ -233,6 +224,18 @@ public class DwGLSLProgram {
   }
   
   
+  public void uniformMatrix2fv(String uniform_name, int count, float[] buffer, int offset){
+    gl.glUniformMatrix2fv(getUniformLocation(uniform_name), count, false, buffer, offset);
+  }
+  public void uniformMatrix3fv(String uniform_name, int count, float[] buffer, int offset){
+    gl.glUniformMatrix3fv(getUniformLocation(uniform_name), count, false, buffer, offset);
+  }
+  public void uniformMatrix4fv(String uniform_name, int count, float[] buffer, int offset){
+    gl.glUniformMatrix4fv(getUniformLocation(uniform_name), count, false, buffer, offset);
+  }
+  
+  
+  
   public void uniform1f(String uniform_name, float v0){
     gl.glUniform1f(getUniformLocation(uniform_name), v0);
   }
@@ -263,12 +266,18 @@ public class DwGLSLProgram {
   
 
   
-  
+  public void drawFullScreenQuad(int[] viewport){
+    if(viewport != null){
+      drawFullScreenQuad(viewport[0], viewport[1], viewport[2], viewport[3]);
+    } else {
+      drawFullScreenQuad();
+    }
+  }
   
   
   public void drawFullScreenQuad(int x, int y, int w, int h){
     gl.glViewport(x, y, w, h);
-    gl.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, 0, 4);
+    drawFullScreenQuad();
   }
   public void drawFullScreenQuad(){
     gl.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, 0, 4);

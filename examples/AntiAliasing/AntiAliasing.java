@@ -270,11 +270,12 @@ public class AntiAliasing extends PApplet {
       int my = mouseY - sy / 2;
       PImage window = display.get(mx, my, sx, sy);
       
+      blendMode(EXCLUSION);
       strokeWeight(1);
-      stroke(200,0,0,200);
+      stroke(255);
       noFill();
       rect(mx, my, sx, sy);
-      
+      blendMode(BLEND);
       
       ((PGraphicsOpenGL)g).textureSampling(2);
       int mag_w = ceil(sx * magnification);
