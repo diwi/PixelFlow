@@ -13,7 +13,6 @@ package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLShader.GLSLDefine;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
 import processing.opengl.PGraphicsOpenGL;

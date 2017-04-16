@@ -22,6 +22,7 @@ import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
+import com.thomasdiewald.pixelflow.java.utils.DwMagnifier;
 
 import peasy.*;
 import processing.core.PApplet;
@@ -124,6 +125,8 @@ public class AntiAliasing extends PApplet {
   float BACKGROUND_COLOR = 32;
   
 //  PShape shape;
+  
+  DwMagnifier magnifier;
 
   
   public void settings() {
@@ -207,6 +210,9 @@ public class AntiAliasing extends PApplet {
     gbaa = new GBAA(context, scene_display);
 
     
+    int mag_h = (int) (height/3f);
+    magnifier = new DwMagnifier(this, 4, 0, height-mag_h, mag_h, mag_h);
+    
     frameRate(1000);
   }
 
@@ -252,6 +258,10 @@ public class AntiAliasing extends PApplet {
       case FXAA: display = pg_render_fxaa; break;
       case GBAA: display = pg_render_gbaa; break;
     }
+    
+    
+    magnifier.apply(display, mouseX, mouseY);
+    magnifier.displayTool();
 
 
     peasycam.beginHUD();
@@ -262,29 +272,8 @@ public class AntiAliasing extends PApplet {
       image(display, 0, 0);
       blendMode(BLEND);
       
-      float magnification = 4f;
-      
-      int sx = width / 20;
-      int sy = sx;
-      int mx = mouseX - sx / 2;
-      int my = mouseY - sy / 2;
-      PImage window = display.get(mx, my, sx, sy);
-      
-      blendMode(EXCLUSION);
-      strokeWeight(1);
-      stroke(255);
-      noFill();
-      rect(mx, my, sx, sy);
-      blendMode(BLEND);
-      
-      ((PGraphicsOpenGL)g).textureSampling(2);
-      int mag_w = ceil(sx * magnification);
-      int mag_h = mag_w;
-      int mag_x = 0;
-      int mag_y = height-mag_h;
-      image(window, mag_x, mag_y, mag_w, mag_h);
-      
-      rect(mag_x, mag_y, mag_w, mag_h);
+      // display magnifer
+      magnifier.display(this.g);
       
       // display AA name
       String mode = aa_mode.name();
@@ -294,13 +283,12 @@ public class AntiAliasing extends PApplet {
         if(smaa_mode == SMAA_MODE.BLEND ) buffer = " ["+smaa_mode.name()+"]";
       }
       
-      
       noStroke();
       fill(0,150);
-      rect(0, height-65, mag_w, 65);
+      rect(0, height-65, magnifier.w, 65);
       
       int tx, ty;
-//      
+      
       tx = 10;
       ty = 20;
       textFont(font12);

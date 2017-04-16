@@ -119,7 +119,6 @@ public class DwFluid2D{
     shader_renderFluid           = context.createShader(DwPixelFlow.SHADER_DIR+"Fluid/renderFluid.frag");
     shader_renderVelocityStreams = context.createShader(DwPixelFlow.SHADER_DIR+"Fluid/renderVelocityStreams.vert", DwPixelFlow.SHADER_DIR+"Fluid/renderVelocityStreams.frag");
    
-    
     shader_addVelocityBlob       = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addVelocityBlob.frag"   );
     shader_addDensityBlob        = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addDensityBlob.frag"    );
     shader_addTemperatureBlob    = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addTemperatureBlob.frag");

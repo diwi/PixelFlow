@@ -222,6 +222,13 @@ public class DwGLTexture{
     gl.glBindTexture   (target, 0);
   }
   
+  public void setParam_Filter(int minfilter, int magfilter){
+    gl.glBindTexture  (target, HANDLE[0]);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, minfilter);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, magfilter);
+    gl.glBindTexture  (target, 0);
+  }
+  
   
   public void generateMipMap(){
     gl.glBindTexture   (target, HANDLE[0]);

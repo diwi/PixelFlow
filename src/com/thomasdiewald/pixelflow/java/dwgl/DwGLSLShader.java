@@ -37,7 +37,6 @@ public class DwGLSLShader{
   
   public boolean flag_rebuild = true;
 
-
   public DwGLSLShader(DwPixelFlow context, int type, String path){
     this.context = context;
     this.gl = context.gl;
@@ -51,8 +50,6 @@ public class DwGLSLShader{
     }
     
     parseDefines(content);
-    
-//    build();
   }
   
   
@@ -106,7 +103,7 @@ public class DwGLSLShader{
       this.value = value;
     }
     public void setValue(String value){
-      parent.flag_rebuild |= !this.value.equals(value);
+      this.parent.flag_rebuild |= !this.value.equals(value);
       this.value = value;
     }
     public String getValue(){
@@ -116,7 +113,7 @@ public class DwGLSLShader{
       System.out.printf("[%2d] #define %s %s\n", line, name, value);
     }
     public String get(){
-      return "#define "+name+" "+value+""+DwUtils.NL;
+      return "#define "+name+" "+value;
     }
     @Override
     public String toString(){
@@ -168,7 +165,7 @@ public class DwGLSLShader{
     Set<String> keys = glsl_defines.keySet();
     for(String key : keys ){
       GLSLDefine def = glsl_defines.get(key);
-      System.out.printf("[%3d] %s", def.line, def.get());
+      System.out.printf("[%3d] %s\n", def.line, def.get());
     }
   }
 
@@ -200,21 +197,20 @@ public class DwGLSLShader{
   
   public void release(){
     gl.glDeleteShader(HANDLE); HANDLE = 0;
-    flag_rebuild = true;
   }
 
   public boolean build() {
-    if(flag_rebuild){
-      // update defines
+    if(flag_rebuild || HANDLE == 0){
+      
+      // apply defines
       Set<String> keys = glsl_defines.keySet();
       for(String key : keys ){
         GLSLDefine def = glsl_defines.get(key);
-        content[def.line] = def.get();
+        content[def.line] = def.get() + DwUtils.NL;
       }
       
-      release(); // clear anything, in case the program gets rebuild
-  
-      HANDLE  = gl.glCreateShader(type);
+      if(HANDLE == 0) HANDLE  = gl.glCreateShader(type);
+      
       gl.glShaderSource(HANDLE, content.length, content, (int[]) null, 0);
       gl.glCompileShader(HANDLE);
       

@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuffer;
+import com.thomasdiewald.pixelflow.java.utils.DwMagnifier;
 
 import peasy.*;
 import processing.core.PApplet;
@@ -61,8 +62,9 @@ public class DepthOfField_Demo extends PApplet {
   
   SummedAreaTable sat;
   
-
   DepthOfField dof;
+  
+  DwMagnifier magnifier;
   
   public void settings() {
     if(START_FULLSCREEN){
@@ -131,6 +133,10 @@ public class DepthOfField_Demo extends PApplet {
     
     dof = new DepthOfField(context);
     
+
+    int mag_h = (int) (height/3f);
+    magnifier = new DwMagnifier(this, 4, 0, height-mag_h, mag_h, mag_h);
+    
     frameRate(1000);
   }
 
@@ -160,8 +166,8 @@ public class DepthOfField_Demo extends PApplet {
       dof.apply(pg_render, pg_render, sat, geombuffer);
     }
     
-    
-    
+    magnifier.apply(pg_render, mouseX, mouseY);
+    magnifier.displayTool();
 
     peasycam.beginHUD();
     {
@@ -169,6 +175,8 @@ public class DepthOfField_Demo extends PApplet {
       clear();
       image(pg_render, 0, 0);
 //      image(geombuffer.pg_geom, 0, 0);
+      
+      magnifier.display(this.g);
       
 
       blendMode(BLEND);

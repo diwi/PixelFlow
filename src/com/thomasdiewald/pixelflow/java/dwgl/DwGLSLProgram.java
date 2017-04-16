@@ -35,7 +35,6 @@ public class DwGLSLProgram {
  
   public String name;
   
-
   public DwGLSLProgram(DwPixelFlow context, String vert_path, String geom_path, String frag_path) {
     this.context = context;
     this.gl = context.gl;
@@ -69,12 +68,18 @@ public class DwGLSLProgram {
   public DwGLSLProgram build() {
     if((build(vert) | build(geom) | build(frag)) || (HANDLE == 0)){
      
-      if(HANDLE == 0) HANDLE = gl.glCreateProgram();
+      if(HANDLE == 0){
+        HANDLE = gl.glCreateProgram();
+      } else {
+        if(vert != null) gl.glDetachShader(HANDLE, vert.HANDLE);
+        if(geom != null) gl.glDetachShader(HANDLE, geom.HANDLE);
+        if(frag != null) gl.glDetachShader(HANDLE, frag.HANDLE);
+      }
       
-      if(vert != null) gl.glAttachShader(HANDLE, vert.HANDLE); 
-      if(geom != null) gl.glAttachShader(HANDLE, geom.HANDLE); 
-      if(frag != null) gl.glAttachShader(HANDLE, frag.HANDLE); 
-  
+      if(vert != null) gl.glAttachShader(HANDLE, vert.HANDLE);  DwGLError.debug(gl, "DwGLSLProgram.build  1");
+      if(geom != null) gl.glAttachShader(HANDLE, geom.HANDLE);  DwGLError.debug(gl, "DwGLSLProgram.build 2");
+      if(frag != null) gl.glAttachShader(HANDLE, frag.HANDLE);  DwGLError.debug(gl, "DwGLSLProgram.build 3");
+      
       gl.glLinkProgram(HANDLE);
       
   //    gl.glValidateProgram(HANDLE);
