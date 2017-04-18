@@ -16,15 +16,15 @@ uniform mat3 normalMatrix;
 // uniform mat4 mat_shadow;   // app
 // uniform vec3 dir_light;    // app
 
-attribute vec4 vertex;
-attribute vec4 color;
-attribute vec3 normal;
+in vec4 vertex;
+in vec4 color;
+in vec3 normal;
 
-// varying vec4 vertColor;
-// varying vec4 vertPosition;
-varying vec3 vertNormal;
-// varying vec4 shadowCoord;
-// varying float kd;
+// out vec4 vertColor;
+// out vec4 vertPosition;
+out vec3 vertNormal;
+// out vec4 shadowCoord;
+// out float kd;
 
 void main() {
   // vertColor = color;

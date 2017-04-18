@@ -67,8 +67,10 @@
 
 #version 150
 
-// varying vec4 vertPosition;
-varying vec3 vertNormal;
+// in vec4 vertPosition;
+in vec3 vertNormal;
+
+out vec4 glFragColor;
 
 // uniform mat4 projection;
 // uniform mat4 modelview;
@@ -93,12 +95,12 @@ void main(void) {
   if(!gl_FrontFacing) vert_normal = -vert_normal;
   
   // vec3 vert_normal = normalize(vertNormal);
-  // gl_FragColor = vec4(vert_normal, gl_FragCoord.z);
-  gl_FragColor = vec4(vert_normal, 1.0 / gl_FragCoord.w);
-  // gl_FragColor = vec4(endcodeNormal2F(vert_normal), 1.0, 1.0 / gl_FragCoord.w);
+  // glFragColor = vec4(vert_normal, gl_FragCoord.z);
+  glFragColor = vec4(vert_normal, 1.0 / gl_FragCoord.w);
+  // glFragColor = vec4(endcodeNormal2F(vert_normal), 1.0, 1.0 / gl_FragCoord.w);
   
   
-  // gl_FragColor = vec4(1.0 / gl_FragCoord.w);
-  // gl_FragColor.a = 1;
+  // glFragColor = vec4(1.0 / gl_FragCoord.w);
+  // glFragColor.a = 1;
 }
 

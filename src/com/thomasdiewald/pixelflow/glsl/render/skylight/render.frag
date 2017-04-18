@@ -9,10 +9,11 @@
  
 #version 150
 
-varying vec4 vertColor;
-varying vec4 vertPosition;
-varying vec3 vertNormal;
+in vec4 vertColor;
+in vec4 vertPosition;
+in vec3 vertNormal;
 
+out vec4 glFragColor;
 
 uniform mat4 projection;
 uniform mat4 modelview;
@@ -41,7 +42,7 @@ void main(void) {
   // apply some gamma correction
   shading = pow(shading, vec3(1.0/gamma));
   
-  gl_FragColor = vec4(shading, 1);
+  glFragColor = vec4(shading, 1);
   
   // vec3 normal = normalize(normalMatrix * vertNormal);
 
@@ -57,7 +58,7 @@ void main(void) {
   // eye.xyz /= eye.w;
   
   // if( abs(eye.x - vertPosition.x) < 0.001){
-    // gl_FragColor = vec4(1,0,0, 1);
+    // glFragColor = vec4(1,0,0, 1);
   // }
   
   // {
@@ -66,7 +67,7 @@ void main(void) {
     // vec4 p_frag = vec4((p_ndc * 0.5 + 0.5) * vec3(wh, 1), 1.0 / p_clip.w);
     
     // if( abs(p_frag.w - gl_FragCoord.w) < 0.001){
-      // gl_FragColor = vec4(1,1,0, 1);
+      // glFragColor = vec4(1,1,0, 1);
     // }
   // }
   
@@ -137,18 +138,18 @@ void main(void) {
   // p_eye.xy = p_eye.z * (L * p_ndc - vec2(I, J)) / vec2(A, F);
   
   // if( length(p_eye-vertPosition) < 1){
-    // gl_FragColor = vec4(abs(p_eye.xyz-vertPosition.xyz)*100, 1);
+    // glFragColor = vec4(abs(p_eye.xyz-vertPosition.xyz)*100, 1);
   // }
   
   // if( fract(gl_FragCoord).z <= 0.5){
-    // gl_FragColor = vec4(1,0,0,1);
+    // glFragColor = vec4(1,0,0,1);
   // }
   
   // float kd_eye = dot(normal, normalize(-p_eye.xyz));
   // if( kd_eye <= 0.0){
-    // gl_FragColor = vec4(1,0,0,1);
+    // glFragColor = vec4(1,0,0,1);
   // } else {
-    // gl_FragColor.xyz *= 0.1;
+    // glFragColor.xyz *= 0.1;
   // }
   
 }

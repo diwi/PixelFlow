@@ -10,6 +10,7 @@
  
 #version 150
 
+out vec4 glFragColor;
 
 uniform mat4 projection;
 uniform mat4 modelview;
@@ -56,12 +57,12 @@ void main(void) {
 
   // apply some gamma correction
   shading = pow(shading, vec3(1.0/gamma));
-  gl_FragColor = vec4(shading, 1);
+  glFragColor = vec4(shading, 1);
   
-  // gl_FragColor = vec4(0,0,0, 1);
+  // glFragColor = vec4(0,0,0, 1);
   
   // if(kd_eye < 0 ){
-    // gl_FragColor = vec4(1,0,0, 1);
+    // glFragColor = vec4(1,0,0, 1);
   // }
 }
 

@@ -13,7 +13,7 @@ uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat3 normalMatrix;
 
-attribute vec4 vertex;
+in vec4 vertex;
 
 void main() {
   gl_Position = projection * modelview * vertex;

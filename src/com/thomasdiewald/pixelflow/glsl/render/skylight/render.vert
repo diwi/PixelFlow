@@ -13,13 +13,13 @@ uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat3 normalMatrix;
 
-attribute vec4 vertex;
-attribute vec4 color;
-attribute vec3 normal;
+in vec4 vertex;
+in vec4 color;
+in vec3 normal;
 
-varying vec4 vertColor;
-varying vec4 vertPosition;
-varying vec3 vertNormal;
+out vec4 vertColor;
+out vec4 vertPosition;
+out vec3 vertNormal;
 
 void main() {
   vertColor = color;

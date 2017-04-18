@@ -11,6 +11,9 @@
 #version 150
 
 
+out vec4 glFragColor;
+
+
 uniform mat4 projection;
 uniform mat4 modelview;
 uniform mat3 normalMatrix;
@@ -118,6 +121,6 @@ void main(void) {
   // average
   float shading_old = texelFetch(tex_src, ivec2(gl_FragCoord.xy), 0).r;
   float shading_new = mix(shading_cur, shading_old, pass_mix);
-  gl_FragColor = vec4(shading_new);
+  glFragColor = vec4(shading_new);
 }
 
