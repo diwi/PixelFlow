@@ -7,7 +7,7 @@
  * 
  */
  
- #version 150
+#version 150
 
 varying vec4 vertColor;
 varying vec4 vertPosition;

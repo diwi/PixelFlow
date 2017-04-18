@@ -11,11 +11,7 @@
 package ColorPicker;
 
 
-
-import java.util.Locale;
-
 import com.thomasdiewald.pixelflow.java.utils.DwColorPicker;
-
 import processing.core.*;
 
 
@@ -51,7 +47,7 @@ public class ColorPicker extends PApplet {
     cp2.selectColorByRGB(255, 255, 125);
     cp3.selectColorByNormalizedCoords(0.5f, 0.5f);
     
-    font = createFont("SourceCodePro-Regular.ttf", 12);
+    font = createFont("../data/SourceCodePro-Regular.ttf", 12);
     textFont(font);
     
     frameRate(1000);

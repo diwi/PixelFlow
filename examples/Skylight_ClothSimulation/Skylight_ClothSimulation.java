@@ -49,7 +49,9 @@ public class Skylight_ClothSimulation extends PApplet {
   //
   // AntiAliasing: SMAA
   //
-  // Controls:
+  //
+  // -- CONTROLS --
+  //
   // LMB: drag particles
   // MMB: drag + fix particles to a location
   // RMB: disable springs, to deform objects
@@ -58,7 +60,18 @@ public class Skylight_ClothSimulation extends PApplet {
   // ALT + MMB: Camera PAN
   // ALT + RMB: Camera ZOOM
   //
-  
+  // 'r'      restart
+  // ' '      toggle physics update
+  //
+  // '1'      display-mode colors
+  // '2'      display-mode tension (affects only springs)
+  // '3'      toggle  display particles
+  // '4'      toggle display mesh
+  // '5'      toggle display springs
+  // '6'      toggle display normals
+  //
+  //
+
   
   int viewport_w = 1280;
   int viewport_h = 720;

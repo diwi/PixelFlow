@@ -210,7 +210,7 @@ public class AntiAliasing extends PApplet {
     gbaa = new GBAA(context, scene_display);
 
     
-    int mag_h = (int) (height/3f);
+    int mag_h = (int) (height/2.5f);
     magnifier = new DwMagnifier(this, 4, 0, height-mag_h, mag_h, mag_h);
     
     frameRate(1000);

@@ -21,7 +21,7 @@
  *
  */
  
- #version 150
+#version 150
 
 in FragData {
   noperspective vec3  dist;

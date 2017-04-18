@@ -43,7 +43,23 @@ public class Skylight_PoissonSphereSamples extends PApplet {
   //
   // AntiAliasing: SMAA
   // Bloom Shader
+  //
+  //
+  // -- CONTROLS -- 
+  //
+  // LMB: camera orbit
+  // MMB: camera pan
+  // RMB: camera zoom
+  //
+  // key ' ': toggle sphere animation
+  // key 's': toggle skylight samples display
+  // key 'b': toggle bloom
+  // key 'r': restart
+  //
+  //
   
+  
+
   
   int viewport_w = 1280;
   int viewport_h = 720;
@@ -362,8 +378,10 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     
     shp_sphere.resetMatrix();
     shp_sphere.translate(sample.x(), sample.y(), sample.z());
+    
+    boolean flat_shading = random(1) > 0.5f;
    
-    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, true);
+    DwMeshUtils.createPolyhedronShape(shp_sphere, ifs, sample.rad(), verts_per_face, flat_shading);
     
     shp_samples_spheres.addChild(shp_sphere);
   }
