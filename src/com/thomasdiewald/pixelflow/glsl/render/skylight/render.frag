@@ -34,8 +34,8 @@ void main(void) {
   // shading = vec3(1);
 
   vec2 fragCoordn = (gl_FragCoord.xy)/wh;
-  vec3 shading_SKY = texture2D(tex_sky, fragCoordn).r * mult_sky;
-  vec3 shading_SUN = texture2D(tex_sun, fragCoordn).r * mult_sun;
+  vec3 shading_SKY = texture(tex_sky, fragCoordn).r * mult_sky;
+  vec3 shading_SUN = texture(tex_sun, fragCoordn).r * mult_sun;
 
   shading *= (shading_SUN + shading_SKY);
 
@@ -80,7 +80,7 @@ void main(void) {
 //
 // vertex' = projection * vertex
 // vx' = A * vx + I * vz
-// vy' = F * vy + J * z
+// vy' = F * vy + J * vz
 // vz' =          K * vz + O
 // vw' =          L * vz
 

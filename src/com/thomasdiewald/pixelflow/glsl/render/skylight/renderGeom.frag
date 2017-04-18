@@ -50,8 +50,8 @@ void main(void) {
   
   vec3 shading = vec3(1);
 
-  float shading_SKY = texture2D(tex_sky, fragcoordn).r * mult_sky;
-  float shading_SUN = texture2D(tex_sun, fragcoordn).r * mult_sun;
+  float shading_SKY = texture(tex_sky, fragcoordn).r * mult_sky;
+  float shading_SUN = texture(tex_sun, fragcoordn).r * mult_sun;
 
   shading *= (shading_SUN + shading_SKY);
 

@@ -12,7 +12,7 @@
 out vec4 glFragColor;
 
 void main(void) {
-  // gl_FragColor = vec4(gl_FragCoord.z, 1.0/gl_FragCoord.w, 0, 0);
+  // glFragColor = vec4(gl_FragCoord.z, 1.0/gl_FragCoord.w, 0, 0);
   glFragColor = vec4(gl_FragCoord.z, 0, 0, 0);
 }
 

@@ -16,7 +16,7 @@
 //
 // vertex' = projection * vertex
 // vx' = A * vx + I * vz
-// vy' = F * vy + J * z
+// vy' = F * vy + J * vz
 // vz' =          K * vz + O
 // vw' =          L * vz
 
