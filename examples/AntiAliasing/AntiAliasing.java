@@ -28,10 +28,8 @@ import peasy.*;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
-import processing.core.PImage;
 import processing.core.PShape;
 import processing.opengl.PGraphics3D;
-import processing.opengl.PGraphicsOpenGL;
 
 
 public class AntiAliasing extends PApplet {

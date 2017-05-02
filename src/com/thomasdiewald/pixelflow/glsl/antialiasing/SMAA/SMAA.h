@@ -270,6 +270,40 @@
  *
  * That's it!
  */
+ 
+ 
+#ifndef SMAA_PRESET_LOW
+#define SMAA_PRESET_LOW 0
+#endif
+#ifndef SMAA_PRESET_MEDIUM
+#define SMAA_PRESET_MEDIUM 0
+#endif
+#ifndef SMAA_PRESET_HIGH
+#define SMAA_PRESET_HIGH 0
+#endif
+#ifndef SMAA_PRESET_ULTRA
+#define SMAA_PRESET_ULTRA 0
+#endif
+
+
+#ifndef SMAA_HLSL_3
+#define SMAA_HLSL_3 0
+#endif
+#ifndef SMAA_HLSL_4
+#define SMAA_HLSL_4 0
+#endif
+#ifndef SMAA_HLSL_4_1
+#define SMAA_HLSL_4_1 0
+#endif
+#ifndef SMAA_GLSL_3
+#define SMAA_GLSL_3 0
+#endif
+#ifndef SMAA_GLSL_4
+#define SMAA_GLSL_4 0
+#endif
+ 
+ 
+ 
 
 //-----------------------------------------------------------------------------
 // SMAA Presets
@@ -278,23 +312,23 @@
  * Note that if you use one of these presets, the corresponding macros below
  * won't be used.
  */
-
-#if SMAA_PRESET_LOW == 1
+ 
+#if (SMAA_PRESET_LOW == 1)
 #define SMAA_THRESHOLD 0.15
 #define SMAA_MAX_SEARCH_STEPS 4
 #define SMAA_MAX_SEARCH_STEPS_DIAG 0
 #define SMAA_CORNER_ROUNDING 100
-#elif SMAA_PRESET_MEDIUM == 1
+#elif (SMAA_PRESET_MEDIUM == 1)
 #define SMAA_THRESHOLD 0.1
 #define SMAA_MAX_SEARCH_STEPS 8
 #define SMAA_MAX_SEARCH_STEPS_DIAG 0
 #define SMAA_CORNER_ROUNDING 100
-#elif SMAA_PRESET_HIGH == 1
+#elif (SMAA_PRESET_HIGH == 1)
 #define SMAA_THRESHOLD 0.1
 #define SMAA_MAX_SEARCH_STEPS 16
 #define SMAA_MAX_SEARCH_STEPS_DIAG 8
 #define SMAA_CORNER_ROUNDING 25
-#elif SMAA_PRESET_ULTRA == 1
+#elif (SMAA_PRESET_ULTRA == 1)
 #define SMAA_THRESHOLD 0.05
 #define SMAA_MAX_SEARCH_STEPS 32
 #define SMAA_MAX_SEARCH_STEPS_DIAG 16
@@ -483,7 +517,7 @@
 //-----------------------------------------------------------------------------
 // Porting Functions
 
-#if SMAA_HLSL_3 == 1
+#if (SMAA_HLSL_3 == 1)
 #define SMAATexture2D sampler2D
 #define SMAASampleLevelZero(tex, coord) tex2Dlod(tex, float4(coord, 0.0, 0.0))
 #define SMAASampleLevelZeroPoint(tex, coord) tex2Dlod(tex, float4(coord, 0.0, 0.0))
@@ -497,7 +531,7 @@
 #define SMAA_FLATTEN [flatten]
 #define SMAA_BRANCH [branch]
 #endif
-#if SMAA_HLSL_4 == 1 || SMAA_HLSL_4_1 == 1
+#if (SMAA_HLSL_4 == 1) || (SMAA_HLSL_4_1 == 1)
 SamplerState LinearSampler { Filter = MIN_MAG_LINEAR_MIP_POINT; AddressU = Clamp; AddressV = Clamp; };
 SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; AddressV = Clamp; };
 #define SMAATexture2D Texture2D
@@ -515,10 +549,10 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #define SMAATexture2DMS2 Texture2DMS<float4, 2>
 #define SMAALoad(tex, pos, sample) tex.Load(pos, sample)
 #endif
-#if SMAA_HLSL_4_1 == 1
+#if (SMAA_HLSL_4_1 == 1)
 #define SMAAGather(tex, coord) tex.Gather(LinearSampler, coord, 0)
 #endif
-#if SMAA_GLSL_3 == 1 || SMAA_GLSL_4 == 1
+#if (SMAA_GLSL_3 == 1) || (SMAA_GLSL_4 == 1)
 #define SMAATexture2D sampler2D
 #define SMAASampleLevelZero(tex, coord) textureLod(tex, coord, 0.0)
 #define SMAASampleLevelZeroPoint(tex, coord) textureLod(tex, coord, 0.0)
@@ -537,10 +571,10 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #define int3 ivec3
 #define int4 ivec4
 #endif
-#if SMAA_GLSL_3 == 1
+#if (SMAA_GLSL_3 == 1)
 #define SMAAMad(a, b, c) (a * b + c)
 #endif
-#if SMAA_GLSL_4 == 1
+#if (SMAA_GLSL_4 == 1)
 #define SMAAMad(a, b, c) fma(a, b, c)
 #define SMAAGather(tex, coord) textureGather(tex, coord)
 #endif
@@ -554,7 +588,7 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 float3 SMAAGatherNeighbours(float2 texcoord,
                             float4 offset[3],
                             SMAATexture2D tex) {
-    #if SMAA_HLSL_4_1 == 1 || SMAA_GLSL_4 == 1
+    #if (SMAA_HLSL_4_1 == 1) || (SMAA_GLSL_4 == 1)
     return SMAAGather(tex, texcoord + SMAA_PIXEL_SIZE * float2(-0.5, -0.5)).grb;
     #else
     float P = SMAASample(tex, texcoord).r;
@@ -577,7 +611,7 @@ float2 SMAACalculatePredicatedThreshold(float2 texcoord,
     return SMAA_PREDICATION_SCALE * SMAA_THRESHOLD * (1.0 - SMAA_PREDICATION_STRENGTH * edges);
 }
 
-#if SMAA_ONLY_COMPILE_PS == 0
+#if (SMAA_ONLY_COMPILE_PS == 0)
 //-----------------------------------------------------------------------------
 // Vertex Shaders
 
@@ -649,7 +683,7 @@ void SMAASeparateVS(float4 position,
 }
 #endif // SMAA_ONLY_COMPILE_PS == 0
 
-#if SMAA_ONLY_COMPILE_VS == 0
+#if (SMAA_ONLY_COMPILE_VS == 0)
 //-----------------------------------------------------------------------------
 // Edge Detection Pixel Shaders (First Pass)
 
@@ -667,7 +701,7 @@ float4 SMAALumaEdgeDetectionPS(float2 texcoord,
                                #endif
                                ) {
     // Calculate the threshold:
-    #if SMAA_PREDICATION == 1
+    #if (SMAA_PREDICATION == 1)
     float2 threshold = SMAACalculatePredicatedThreshold(texcoord, offset, colorTex, predicationTex);
     #else
     float2 threshold = float2(SMAA_THRESHOLD, SMAA_THRESHOLD);
@@ -729,12 +763,12 @@ float4 SMAALumaEdgeDetectionPS(float2 texcoord,
 float4 SMAAColorEdgeDetectionPS(float2 texcoord,
                                 float4 offset[3],
                                 SMAATexture2D colorTex
-                                #if SMAA_PREDICATION == 1
+                                #if (SMAA_PREDICATION == 1)
                                 , SMAATexture2D predicationTex
                                 #endif
                                 ) {
     // Calculate the threshold:
-    #if SMAA_PREDICATION == 1
+    #if (SMAA_PREDICATION == 1)
     float2 threshold = SMAACalculatePredicatedThreshold(texcoord, offset, colorTex, predicationTex);
     #else
     float2 threshold = float2(SMAA_THRESHOLD, SMAA_THRESHOLD);
@@ -808,7 +842,7 @@ float4 SMAADepthEdgeDetectionPS(float2 texcoord,
 //-----------------------------------------------------------------------------
 // Diagonal Search Functions
 
-#if SMAA_MAX_SEARCH_STEPS_DIAG > 0 || SMAA_FORCE_DIAGONAL_DETECTION == 1
+#if (SMAA_MAX_SEARCH_STEPS_DIAG > 0) || (SMAA_FORCE_DIAGONAL_DETECTION == 1)
 
 /**
  * These functions allows to perform diagonal pattern searches.
@@ -855,7 +889,7 @@ float2 SMAAAreaDiag(SMAATexture2D areaTex, float2 dist, float2 e, float offset) 
     texcoord.y += SMAA_AREATEX_SUBTEX_SIZE * offset;
 
     // Do it!
-    #if SMAA_HLSL_3 == 1
+    #if (SMAA_HLSL_3 == 1)
     return SMAASampleLevelZero(areaTex, texcoord).ra;
     #else
     return SMAASampleLevelZero(areaTex, texcoord).rg;
@@ -1024,7 +1058,7 @@ float2 SMAAArea(SMAATexture2D areaTex, float2 dist, float e1, float e2, float of
     texcoord.y += SMAA_AREATEX_SUBTEX_SIZE * offset;
 
     // Do it!
-    #if SMAA_HLSL_3 == 1
+    #if (SMAA_HLSL_3 == 1)
     return SMAASampleLevelZero(areaTex, texcoord).ra;
     #else
     return SMAASampleLevelZero(areaTex, texcoord).rg;
@@ -1035,7 +1069,7 @@ float2 SMAAArea(SMAATexture2D areaTex, float2 dist, float e1, float e2, float of
 // Corner Detection Functions
 
 void SMAADetectHorizontalCornerPattern(SMAATexture2D edgesTex, inout float2 weights, float2 texcoord, float2 d) {
-    #if SMAA_CORNER_ROUNDING < 100 || SMAA_FORCE_CORNER_DETECTION == 1
+    #if (SMAA_CORNER_ROUNDING < 100) || (SMAA_FORCE_CORNER_DETECTION == 1)
     float4 coords = SMAAMad(float4(d.x, 0.0, d.y, 0.0),
                             SMAA_PIXEL_SIZE.xyxy, texcoord.xyxy);
     float2 e;
@@ -1051,7 +1085,7 @@ void SMAADetectHorizontalCornerPattern(SMAATexture2D edgesTex, inout float2 weig
 }
 
 void SMAADetectVerticalCornerPattern(SMAATexture2D edgesTex, inout float2 weights, float2 texcoord, float2 d) {
-    #if SMAA_CORNER_ROUNDING < 100 || SMAA_FORCE_CORNER_DETECTION == 1
+    #if (SMAA_CORNER_ROUNDING < 100) || (SMAA_FORCE_CORNER_DETECTION == 1)
     float4 coords = SMAAMad(float4(0.0, d.x, 0.0, d.y),
                             SMAA_PIXEL_SIZE.xyxy, texcoord.xyxy);
     float2 e;
@@ -1082,7 +1116,7 @@ float4 SMAABlendingWeightCalculationPS(float2 texcoord,
 
     SMAA_BRANCH
     if (e.g > 0.0) { // Edge at north
-        #if SMAA_MAX_SEARCH_STEPS_DIAG > 0 || SMAA_FORCE_DIAGONAL_DETECTION == 1
+        #if (SMAA_MAX_SEARCH_STEPS_DIAG > 0) || (SMAA_FORCE_DIAGONAL_DETECTION == 1)
         // Diagonals have both north and west edges, so searching for them in
         // one of the boundaries is enough.
         weights.rg = SMAACalculateDiagWeights(edgesTex, areaTex, texcoord, e, subsampleIndices);
@@ -1128,7 +1162,7 @@ float4 SMAABlendingWeightCalculationPS(float2 texcoord,
         // Fix corners:
         SMAADetectHorizontalCornerPattern(edgesTex, weights.rg, texcoord, d);
 
-        #if SMAA_MAX_SEARCH_STEPS_DIAG > 0 || SMAA_FORCE_DIAGONAL_DETECTION == 1
+        #if (SMAA_MAX_SEARCH_STEPS_DIAG > 0) || (SMAA_FORCE_DIAGONAL_DETECTION == 1)
         } else
             e.r = 0.0; // Skip vertical processing.
         #endif
@@ -1204,7 +1238,7 @@ float4 SMAANeighborhoodBlendingPS(float2 texcoord,
         else
             offset.x = 0.0;
 
-        #if SMAA_REPROJECTION == 1
+        #if (SMAA_REPROJECTION == 1)
         // Fetch the opposite color and lerp by hand:
         float4 C = SMAASampleLevelZero(colorTex, texcoord);
         texcoord += sign(offset) * SMAA_PIXEL_SIZE;
@@ -1221,7 +1255,7 @@ float4 SMAANeighborhoodBlendingPS(float2 texcoord,
         // Unpack velocity and return the resulting value:
         Caa.a = sqrt(Caa.a);
         return Caa;
-        #elif SMAA_HLSL_4 == 1 || SMAA_DIRECTX9_LINEAR_BLEND == 0
+        #elif (SMAA_HLSL_4 == 1) || (SMAA_DIRECTX9_LINEAR_BLEND == 0)
         // We exploit bilinear filtering to mix current pixel with the chosen
         // neighbor:
         texcoord += offset * SMAA_PIXEL_SIZE;
@@ -1243,11 +1277,11 @@ float4 SMAANeighborhoodBlendingPS(float2 texcoord,
 float4 SMAAResolvePS(float2 texcoord,
                      SMAATexture2D colorTexCurr,
                      SMAATexture2D colorTexPrev
-                     #if SMAA_REPROJECTION == 1
+                     #if (SMAA_REPROJECTION == 1)
                      , SMAATexture2D velocityTex
                      #endif
                      ) {
-    #if SMAA_REPROJECTION == 1
+    #if (SMAA_REPROJECTION == 1)
     // Velocity is calculated from previous to current position, so we need to
     // inverse it:
     float2 velocity = -SMAASample(velocityTex, texcoord).rg;
@@ -1275,7 +1309,7 @@ float4 SMAAResolvePS(float2 texcoord,
 //-----------------------------------------------------------------------------
 // Separate Multisamples Pixel Shader (Optional Pass)
 
-#if SMAA_HLSL_4 == 1 || SMAA_HLSL_4_1 == 1
+#if (SMAA_HLSL_4 == 1) || (SMAA_HLSL_4_1 == 1)
 void SMAASeparatePS(float4 position : SV_POSITION,
                     float2 texcoord : TEXCOORD0,
                     out float4 target0,

@@ -64,20 +64,28 @@ public class DwMagnifier{
   protected int mag_py = 0;
   
   public void apply(PGraphics pg_mag, int mag_px, int mag_py){
+    setMagPosition(mag_px, mag_py);
+    apply(pg_mag);
+  }
+  
+  public void setMagPosition(int mag_px, int mag_py){
     if(center){
       mag_px -= pg_region.width /2;
       mag_py -= pg_region.height/2;
     }
     
+    this.mag_px = mag_px;
+    this.mag_py = mag_py;
+  }
+  
+  public void apply(PGraphics pg_mag){
+    this.pg_mag = pg_mag;
     pg_region.beginDraw();
     pg_region.background(0);
     pg_region.image(pg_mag, -mag_px, -mag_py);
     pg_region.endDraw();
-    
-    this.mag_px = mag_px;
-    this.mag_py = mag_py;
-    this.pg_mag = pg_mag;
   }
+  
   
   public void displayTool(){
     if(pg_mag != null){

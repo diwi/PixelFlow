@@ -168,17 +168,20 @@ public class DwFrameCapture {
     return img;
   }
   
-
-  public File createFilename(){
+  public File createFilename(String ext){
     Class<?> this_ = papplet.getClass();
     File dir_cur = new File(root_dir+this_.getCanonicalName().replaceAll("[.]", "/")+"/");
     File dir_new = new File(dir_cur.getParent()+"/out/"+this_.getSimpleName()+"_"+start_ms+"/");
     if(!dir_new.exists()) {
       dir_new.mkdirs();
     }
-    String filename = String.format("%s_%07d%s" , this_.getSimpleName(), frame_count++, ".jpg");
+    String filename = String.format("%s_%07d%s" , this_.getSimpleName(), frame_count++, "."+ext);
     File file = new File(dir_new, filename);
     return file;
+  }
+
+  public File createFilename(){
+    return createFilename("jpg");
   }
 
 
