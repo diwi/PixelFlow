@@ -160,7 +160,7 @@ public class DwParticle2D extends DwParticle{
     final float[] bd = bounds;
     float vx, vy;
     float damping = param.DAMP_BOUNDS;
-    float r = rad;    
+    float r = radCollision();
     if ((cx - r) < bd[0]) {vx=cx-px;vy=cy-py; cx=bd[0]+r;px=cx+vx*damping;py=cy-vy*damping;}
     if ((cx + r) > bd[2]) {vx=cx-px;vy=cy-py; cx=bd[2]-r;px=cx+vx*damping;py=cy-vy*damping;}
     if ((cy - r) < bd[1]) {vx=cx-px;vy=cy-py; cy=bd[1]+r;px=cx-vx*damping;py=cy+vy*damping;}
