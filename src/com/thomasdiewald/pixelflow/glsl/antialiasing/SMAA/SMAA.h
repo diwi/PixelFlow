@@ -621,7 +621,7 @@ float2 SMAACalculatePredicatedThreshold(float2 texcoord,
 void SMAAEdgeDetectionVS(float4 position,
                          out float4 svPosition,
                          inout float2 texcoord,
-                         out float4 offset[3]) {
+                         inout float4 offset[3]) {
     svPosition = position;
 
     offset[0] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4(-1.0, 0.0, 0.0, -1.0);
@@ -636,7 +636,7 @@ void SMAABlendingWeightCalculationVS(float4 position,
                                      out float4 svPosition,
                                      inout float2 texcoord,
                                      out float2 pixcoord,
-                                     out float4 offset[3]) {
+                                     inout float4 offset[3]) {
     svPosition = position;
 
     pixcoord = texcoord / SMAA_PIXEL_SIZE;
@@ -657,7 +657,7 @@ void SMAABlendingWeightCalculationVS(float4 position,
 void SMAANeighborhoodBlendingVS(float4 position,
                                 out float4 svPosition,
                                 inout float2 texcoord,
-                                out float4 offset[2]) {
+                                inout float4 offset[2]) {
     svPosition = position;
 
     offset[0] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4(-1.0, 0.0, 0.0, -1.0);
