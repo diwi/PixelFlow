@@ -584,11 +584,18 @@ public class SoftBody2D_Trees extends PApplet {
           float radius = Math.max(depthn * tree.style.LEAF_RADIUS, 1);
           DwParticle2D pb = parent.particle;  
           if(shp_leaf == null){
+            
+            int r = (int) (tree.style.LEAF_RGBA[0] * depthn);
+            int g = (int) (tree.style.LEAF_RGBA[1] * depthn);
+            int b = (int) (tree.style.LEAF_RGBA[2] * depthn);
+            int a = (int) (tree.style.LEAF_RGBA[3]         );
+            int argb = a << 24 | r << 16 | g << 8 | b;
+            
             shp_leaf = papplet.createShape(PConstants.ELLIPSE, 0, 0, radius, radius);
             shp_leaf.setStroke(false);
             shp_leaf.setFill(true);
-            shp_leaf.setFill(papplet.color(tree.style.LEAF_RGBA[0] * depthn, tree.style.LEAF_RGBA[1] * depthn, tree.style.LEAF_RGBA[2] * depthn, tree.style.LEAF_RGBA[3]));
-            shp_tree.addChild(shp_leaf);
+            shp_leaf.setFill(argb);
+               shp_tree.addChild(shp_leaf);
           }
           shp_leaf.resetMatrix();
           shp_leaf.translate(pb.cx, pb.cy);
