@@ -30,6 +30,18 @@ import processing.opengl.PGraphics2D;
 
 public class SoftBody2D_Trees extends PApplet {
   
+  //
+  // Fractal Tree as a 2D Verlet Particle System.
+  // 
+  // Adjacent tree nodes are linked together with constraints to retain the shape 
+  // during the physics simulation.
+  //
+  // Changing wind-direction is used as external force.
+  //
+  // A bloomshader is applied during postprocessing.
+  //
+  
+  
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
