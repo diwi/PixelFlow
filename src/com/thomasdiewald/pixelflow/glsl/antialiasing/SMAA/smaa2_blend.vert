@@ -34,5 +34,5 @@ void main(){
   gl_Position = vec4(x,y,0,1);
   texcoord = gl_Position.xy * 0.5 + 0.5;
 
-  SMAABlendingWeightCalculationVS(gl_Position, gl_Position, texcoord, pixcoord, offset);
+  SMAABlendingWeightCalculationVS(texcoord, pixcoord, offset);
 }

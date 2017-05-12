@@ -23,30 +23,28 @@
  
 #version 150
 
-in FragData {
-  noperspective vec3  dist;
-  flat          bvec3 horz;
-} FragIn;
+noperspective in vec3  dist;
+flat          in ivec3 horz;
 
 out vec4 fragColor;
 
 void main() {
 
 	// get smallest distance
-	float dist = FragIn.dist.x;
-	bool  horz = FragIn.horz.x;
+	float min_dist = dist.x;
+	int   min_horz = horz.x;
 
-	if (abs(FragIn.dist.y) < abs(dist)){
-		dist = FragIn.dist.y;
-		horz = FragIn.horz.y;
+	if (abs(dist.y) < abs(min_dist)){
+		min_dist = dist.y;
+		min_horz = horz.y;
 	}
-	if (abs(FragIn.dist.z) < abs(dist)){
-		dist = FragIn.dist.z;
-		horz = FragIn.horz.z;
+	if (abs(dist.z) < abs(min_dist)){
+		min_dist = dist.z;
+		min_horz = horz.z;
 	}
 
 	// get sample offset
-  vec2 offset = horz ? vec2(dist, 0.5) : vec2(0.5, dist);
+  vec2 offset = (min_horz == 0) ? vec2(min_dist, 0.5) : vec2(0.5, min_dist);
   fragColor = vec4(offset, 0, 1);
 }
 

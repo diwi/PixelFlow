@@ -618,11 +618,8 @@ float2 SMAACalculatePredicatedThreshold(float2 texcoord,
 /**
  * Edge Detection Vertex Shader
  */
-void SMAAEdgeDetectionVS(float4 position,
-                         out float4 svPosition,
-                         inout float2 texcoord,
+void SMAAEdgeDetectionVS(inout float2 texcoord,
                          inout float4 offset[3]) {
-    svPosition = position;
 
     offset[0] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4(-1.0, 0.0, 0.0, -1.0);
     offset[1] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4( 1.0, 0.0, 0.0,  1.0);
@@ -632,12 +629,9 @@ void SMAAEdgeDetectionVS(float4 position,
 /**
  * Blend Weight Calculation Vertex Shader
  */
-void SMAABlendingWeightCalculationVS(float4 position,
-                                     out float4 svPosition,
-                                     inout float2 texcoord,
+void SMAABlendingWeightCalculationVS(inout float2 texcoord,
                                      out float2 pixcoord,
                                      inout float4 offset[3]) {
-    svPosition = position;
 
     pixcoord = texcoord / SMAA_PIXEL_SIZE;
 
@@ -647,19 +641,14 @@ void SMAABlendingWeightCalculationVS(float4 position,
 
     // And these for the searches, they indicate the ends of the loops:
     offset[2] = float4(offset[0].xz, offset[1].yw) + 
-                float4(-2.0, 2.0, -2.0, 2.0) *
-                SMAA_PIXEL_SIZE.xxyy * float(SMAA_MAX_SEARCH_STEPS);
+                float4(-2.0, 2.0, -2.0, 2.0) * SMAA_PIXEL_SIZE.xxyy * float(SMAA_MAX_SEARCH_STEPS);
 }
 
 /**
  * Neighborhood Blending Vertex Shader
  */
-void SMAANeighborhoodBlendingVS(float4 position,
-                                out float4 svPosition,
-                                inout float2 texcoord,
+void SMAANeighborhoodBlendingVS(inout float2 texcoord,
                                 inout float4 offset[2]) {
-    svPosition = position;
-
     offset[0] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4(-1.0, 0.0, 0.0, -1.0);
     offset[1] = texcoord.xyxy + SMAA_PIXEL_SIZE.xyxy * float4( 1.0, 0.0, 0.0,  1.0);
 }

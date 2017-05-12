@@ -29,20 +29,22 @@ layout (triangle_strip, max_vertices = 3) out;
  
 uniform vec2 wh;
  
-out FragData {
-  noperspective vec3  dist;
-  flat          bvec3 horz;
-} FragOut;
+noperspective out vec3  dist;
+flat          out ivec3 horz;
 
-
-float ComputeDist(vec2 pos0, vec2 pos1, vec2 pos2, out bool major_dir){
+float ComputeDist(vec2 pos0, vec2 pos1, vec2 pos2, inout int major_dir){
 	vec2 dir = normalize(pos1 - pos0);
 	vec2 normal = vec2(-dir.y, dir.x);
 	float dist = dot(pos0, normal) - dot(pos2, normal);
 
 	// Check major direction
-	major_dir = (abs(normal.x) > abs(normal.y));
-	return dist / (major_dir ? normal.x : normal.y);
+  if(abs(normal.x) > abs(normal.y)){
+    major_dir = 0;
+    return dist / normal.x;
+  } else {
+    major_dir = 1;
+    return dist / normal.y;
+  }
 }
 
 
@@ -57,22 +59,22 @@ void main(){
   vec2 v0 = (v0_in.xy/v0_in.w * 0.5 + 0.5) * wh;
   vec2 v1 = (v1_in.xy/v1_in.w * 0.5 + 0.5) * wh;
   vec2 v2 = (v2_in.xy/v2_in.w * 0.5 + 0.5) * wh;
-            
+         
   // normal distances to opposite triangle side in screen space            
-	float v0_dist = ComputeDist(v1, v2, v0, FragOut.horz.x);
-	float v1_dist = ComputeDist(v2, v0, v1, FragOut.horz.y);               
-  float v2_dist = ComputeDist(v0, v1, v2, FragOut.horz.z);   
+	float v0_dist = ComputeDist(v1, v2, v0, horz.x);
+	float v1_dist = ComputeDist(v2, v0, v1, horz.y);               
+  float v2_dist = ComputeDist(v0, v1, v2, horz.z);   
  
   gl_Position = v0_in;                    
-  FragOut.dist = vec3(v0_dist, 0, 0);
+  dist = vec3(v0_dist, 0, 0);
   EmitVertex();
   
   gl_Position = v1_in;                     
-  FragOut.dist = vec3(0, v1_dist, 0);
+  dist = vec3(0, v1_dist, 0);
   EmitVertex();
   
   gl_Position = v2_in;                
-  FragOut.dist = vec3(0, 0, v2_dist);
+  dist = vec3(0, 0, v2_dist);
   EmitVertex();
   
   EndPrimitive();
