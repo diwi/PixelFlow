@@ -24,3 +24,5 @@
 
 # tested Platforms
 Windows, Linux, MacOS
+
+Make sure you have the latest graphics card driver installed!
