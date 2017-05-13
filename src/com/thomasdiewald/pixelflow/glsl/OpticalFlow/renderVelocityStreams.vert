@@ -16,13 +16,12 @@ precision mediump int;
 out vec2  velocity;    // used for rgb-color in the fragrment shader
 out float line_domain; // used for alpha channel in the fragmentshader
 
-uniform vec2  wh;
+uniform vec2  wh_rcp;
 uniform vec2  spacing;
-uniform int   display_mode;
+uniform int   display_mode = 0;
 uniform ivec2 num_lines;
 uniform float velocity_scale;
 uniform sampler2D tex_velocity;
-
 
 void main(){
 
@@ -39,7 +38,7 @@ void main(){
   vec2 origin = offset + vec2(col, row) * spacing;
   
   // get velocity from texture at origin location
-  velocity = texture(tex_velocity, origin / wh).xy;
+  velocity = texture(tex_velocity, origin * wh_rcp).xy;
   
   // scale velocity
   vec2 dir = velocity * velocity_scale;
@@ -48,21 +47,19 @@ void main(){
   dir = dir / sqrt(len * 0.1);
   
   // for fragmentshader ... coloring
-  velocity = dir*0.2;
+  velocity = dir * 0.2;
   
   // compute current vertex position (based on vtx_id)
-  vec2 vtx_pos = vec2(0);
+  vec2 vtx_pos = vec2(0.0);
   
   // lines, in velocity direction
-  if(display_mode == 0)
-  {
+  if(display_mode == 0){
     vtx_pos = origin + dir * vtx_id;
     line_domain = 1.0 - float(vtx_id);
   }
 
   // lines, normal to velocity direction
-  if(display_mode == 1)
-  {
+  if(display_mode == 1){
     dir *= 0.5;
     vec2 dir_n = vec2(dir.y, -dir.x);
     vtx_pos = origin + dir - dir_n + dir_n * vtx_id * 2;
@@ -70,7 +67,7 @@ void main(){
   }
   
   // finish vertex coordinate
-  vec2 vtx_pos_n = (vtx_pos + 0.5) / wh; // [0, 1]
+  vec2 vtx_pos_n = (vtx_pos + 0.5) * wh_rcp; // [0, 1]
   gl_Position = vec4(vtx_pos_n * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   
 }

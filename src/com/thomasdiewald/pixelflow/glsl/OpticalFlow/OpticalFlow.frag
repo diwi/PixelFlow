@@ -24,13 +24,13 @@ uniform sampler2D	tex_curr_sobelV; // current  gradient vertical
 uniform sampler2D	tex_prev_sobelH; // previous gradient horizontal
 uniform sampler2D	tex_prev_sobelV; // previous gradient vertical
 
-uniform vec2  wh;                  // size rendertarget
-uniform float scale;               // scale flow
+uniform vec2  wh_rcp;              // size rendertarget
+uniform float scale = -10.0;       // scale flow
 uniform float threshold = 1.0;     // flow intensity threshold
 
 void main(){
   
-  vec2 posn = gl_FragCoord.xy / wh;
+  vec2 posn = gl_FragCoord.xy * wh_rcp;
   
   // dt, dx, dy
   vec3 dt_ = texture(tex_curr_frame , posn).rgb - texture(tex_prev_frame , posn).rgb; // dt
@@ -53,7 +53,7 @@ void main(){
 #elif (VERSION == 1)
   
   // sum (or average) rgb-channels
-  float dt = SUM_RGB(dt_), dx = SUM_RGB(dx_),  dy = SUM_RGB(dy_);
+  float dt = SUM_RGB(dt_), dx = SUM_RGB(dx_), dy = SUM_RGB(dy_);
   // gradient length
   float dd = sqrt(dx*dx + dy*dy + 1.0);
   // optical flow
@@ -67,10 +67,7 @@ void main(){
   // len_new = len_new * len_old/(len_new + 0.00001);
   flow = (len_new * flow)/len_old;
   
-
   glFragColor = flow;
-
-
 }
 
 

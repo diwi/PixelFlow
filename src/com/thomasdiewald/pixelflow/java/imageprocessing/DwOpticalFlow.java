@@ -100,17 +100,25 @@ public class DwOpticalFlow {
     frameCurr = framePrev;
     framePrev = frame_T;
     
-    // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(frameCurr.w, frameCurr.h);
+    int w = frameCurr.w;
+    int h = frameCurr.h;
     
-    DwFilter filter =  DwFilter.get(context);
+    // 0) resize(w/h) or reformat(rgba/grayscale)
+    resize(w, h);
+    
+    DwFilter filter = DwFilter.get(context);
+    DwGLSLProgram shader_oflow;
     
     // 1) copy/grayscale
     if(param.grayscale){
       filter.luminance.apply(pg_curr, frameCurr.frame);
+      shader_oflow = shader_OF_gray;
     } else {
       filter.copy.apply(pg_curr, frameCurr.frame);
+      shader_oflow = shader_OF_rgba;
     }
+    
+    context.begin();
     
     // 2) blur
     filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
@@ -120,41 +128,34 @@ public class DwOpticalFlow {
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT);
     
     // 4) compute optical flow
-    context.begin();
     context.beginDraw(frameCurr.velocity);
-    
+    shader_oflow.begin();
+    shader_oflow.uniform2f     ("wh_rcp"          , 1f/w, 1f/h);
+    shader_oflow.uniform1f     ("scale"           , param.flow_scale * -1f);
+    shader_oflow.uniform1f     ("threshold"       , param.threshold);
+    shader_oflow.uniformTexture("tex_curr_frame"  , frameCurr.frame);
+    shader_oflow.uniformTexture("tex_prev_frame"  , framePrev.frame);
+    shader_oflow.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
+    shader_oflow.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
+    shader_oflow.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
+    shader_oflow.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
+    shader_oflow.drawFullScreenQuad();
+    shader_oflow.end();
+    context.endDraw("OpticalFlow shader");
 
-    DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
-    
-    shader.begin();
-    shader.uniform2f     ("wh"              , frameCurr.velocity.w, frameCurr.velocity.h);
-    shader.uniform1f     ("scale"           , param.flow_scale * -1f);
-    shader.uniform1f     ("threshold"       , param.threshold);
-    shader.uniformTexture("tex_curr_frame"  , frameCurr.frame);
-    shader.uniformTexture("tex_prev_frame"  , framePrev.frame);
-    shader.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
-    shader.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
-    shader.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
-    shader.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
-    shader.drawFullScreenQuad();
-    shader.end();
-    
-    context.endDraw();
-    context.end("OpticalFlow.update");
-    
     // 5) blur the current velocity
     filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
     
     // 6) mix with previous velocity 
-    float mix = param.temporal_smoothing;
-    if(mix < 0) mix = 0; else if(mix > 0.99999) mix = 0.99999f;
-    
-    DwGLTexture dst = frameCurr.velocity;
+    DwGLTexture dst  = frameCurr.velocity;
     DwGLTexture srcA = framePrev.velocity;
     DwGLTexture srcB = frameCurr.velocity;
+    float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99999f);
     float[]     madA = {     mix, 0};
     float[]     madB = {1f - mix, 0};
     filter.merge.apply(dst, srcA, srcB, madA, madB);
+    
+    context.end("OpticalFlow.update");
     
     UPDATE_STEP++;
   }
@@ -169,17 +170,20 @@ public class DwOpticalFlow {
     int w = dst.width;
     int h = dst.height;
     
-    dst.beginDraw();
-    dst.blendMode(PConstants.BLEND);
+//    dst.beginDraw();
+//    dst.blendMode(PConstants.BLEND);
     
     context.begin();
+    context.beginDraw(dst);
     shader_OF_renderVelocity.begin();
-    shader_OF_renderVelocity.uniform2f     ("wh"            , w, h);
-    shader_OF_renderVelocity.uniformTexture("tex_velocity"  , frameCurr.velocity);
+    shader_OF_renderVelocity.uniform2f     ("wh_rcp"       , 1f/w, 1f/h);
+    shader_OF_renderVelocity.uniformTexture("tex_velocity" , frameCurr.velocity);
     shader_OF_renderVelocity.drawFullScreenQuad(0, 0, w, h);
     shader_OF_renderVelocity.end();
+    context.endDraw();
     context.end("OpticalFlow.renderFluidVectors");
-    dst.endDraw();
+
+//    dst.endDraw();
   }
   
   
@@ -200,12 +204,13 @@ public class DwOpticalFlow {
     float scale      = (space_x + space_y) * 1;
     float line_width = 1.0f;
     
-    dst.beginDraw();
-    dst.blendMode(PConstants.BLEND);
+//    dst.beginDraw();
+//    dst.blendMode(PConstants.BLEND);
     
     context.begin();
+    context.beginDraw(dst);
     shader_OF_renderVelocityStreams.begin();
-    shader_OF_renderVelocityStreams.uniform2f     ("wh"            , frameCurr.velocity.w, frameCurr.velocity.h);
+    shader_OF_renderVelocityStreams.uniform2f     ("wh_rcp"        , 1f/frameCurr.velocity.w, 1f/frameCurr.velocity.h);
     shader_OF_renderVelocityStreams.uniform1i     ("display_mode"  , param.display_mode);
     shader_OF_renderVelocityStreams.uniform2i     ("num_lines"     , lines_x, lines_y);
     shader_OF_renderVelocityStreams.uniform2f     ("spacing"       , space_x, space_y);
@@ -213,9 +218,10 @@ public class DwOpticalFlow {
     shader_OF_renderVelocityStreams.uniformTexture("tex_velocity"  , frameCurr.velocity);
     shader_OF_renderVelocityStreams.drawFullScreenLines(0, 0, w, h, num_lines, line_width);
     shader_OF_renderVelocityStreams.end();
+    context.endDraw();
     context.end("OpticalFlow.renderVelocityStreams");
     
-    dst.endDraw();
+//    dst.endDraw();
   }
   
 
@@ -287,11 +293,11 @@ public class DwOpticalFlow {
       context.begin();
       boolean resized = false;
 
-      resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,4);
-      resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,4);
-      resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,4);
-      resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       ,4);
-      resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       ,4);
+      resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
+      resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
+      resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
+      resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       ,2);
+      resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       ,2);
       if(resized) updateParams();
       context.end();
     }

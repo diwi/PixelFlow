@@ -41,7 +41,7 @@ public class OpticalFlow_Basic extends PApplet {
   
   public void settings() {
     size(viewport_w, viewport_h, P2D);
-    smooth(4);
+    smooth(8);
   }
 
   public void setup() {
@@ -63,11 +63,11 @@ public class OpticalFlow_Basic extends PApplet {
     
     // render target
     pg_oflow = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_oflow.smooth(4);
-    
+    pg_oflow.smooth(8);
+
     // drawing canvas, used as input for the optical flow
     pg_src = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_src.smooth(4);
+    pg_src.smooth(8);
   
     frameRate(60);
 //    frameRate(1000);
