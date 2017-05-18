@@ -311,7 +311,6 @@ public class DwGLTexture{
 
   
   /**
-   * TODO: currently, this only works on float textures (32 bit, half-float?) i guess?
    * 
    * @param cx
    * @param cy
