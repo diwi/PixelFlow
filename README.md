@@ -171,6 +171,8 @@ public void draw() {
 - Install PixelFlow via the Library Manager.
 - Or manually, unzip and put the extracted PixelFlow folder into the libraries folder of your Processing sketches. Reference and examples are included in the PixelFlow folder. 
 
+- Also make sure you have the latest graphics card driver installed!
+
 #### Platforms
 Windows, Linux, MacOSX
 
