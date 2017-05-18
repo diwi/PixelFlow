@@ -54,7 +54,11 @@ public class DwGLTexture{
   public DwGLTexture(){
   }
   
-  
+  public DwGLTexture createEmtpyCopy(){
+    DwGLTexture tex = new DwGLTexture();
+    tex.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+    return tex;
+  }
 
   public void release(){
     if(gl != null){
@@ -286,10 +290,47 @@ public class DwGLTexture{
   }
   
   
+  private DwGLTexture createTexSubImage(int x, int y, int w, int h){
+    // create/resize texture from the size of the subregion
+    if(texsub == null){
+      texsub = new DwGLTexture();
+    }
+    
+    if(x + w > this.w) { System.out.println("Error DwGLTexture.createTexSubImage: region-x is not within texture bounds"); }
+    if(y + h > this.h) { System.out.println("Error DwGLTexture.createTexSubImage: region-y is not within texture bounds "); }
+    
+    texsub.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
+    
+    // copy the subregion to the texture
+    context.beginDraw(this);
+    gl.glBindTexture(target, texsub.HANDLE[0]);
+    gl.glCopyTexSubImage2D(target, 0, 0, 0, x, y,  w, h);
+    gl.glBindTexture(target, 0);
+    context.endDraw("DwGLTexture.createTexSubImage");
+    return texsub;
+  }
+  
+  
+  
+  
+  public void getData_GL2GL3(int x, int y, int w, int h, Buffer buffer){
+    DwGLTexture tex = this;
+    
+    // create a new texture, the size of the given region, and copy the pixels to it
+    if(!(x == 0 && y == 0 && w == this.w && h == this.h)){
+      tex = createTexSubImage(x,y,w,h);
+    }
+    
+    // transfer pixels from the subregion texture to the host application
+    tex.getData_GL2GL3(buffer);
+  }
+
+
   // copy texture-data to given float array
   public void getData_GL2GL3(Buffer buffer){
     int data_len = w * h * num_channel;
-    if( buffer.capacity() < data_len){
+    
+    if(buffer.capacity() < data_len){
       System.out.println("ERROR DwGLTexture.getData_GL2GL3: buffer to small: "+buffer.capacity() +" < "+data_len);
       return;
     }
@@ -302,41 +343,6 @@ public class DwGLTexture{
     DwGLError.debug(gl, "DwGLTexture.getData_GL2GL3");
   }
   
-
-  
-  public void getData_GL2GL3(int x, int y, int w, int h, Buffer buffer){
-    DwGLTexture tex = this;
-    
-    // create a new texture, the size of the given region, and copy the pixels to it
-    if( x != 0 && y != 0 && w != this.w && h != this.h){
-      tex = createTexSubImage(x,y,w,h);
-    }
-    
-    // transfer pixels from the subregion texture to the host application
-    tex.getData_GL2GL3(buffer);
-  }
-  
-  private DwGLTexture createTexSubImage(int x, int y, int w, int h){
-    // create/resize texture from the size of the subregion
-    if(texsub == null){
-      texsub = new DwGLTexture();
-    }
-    
-    if(x + w > this.w) System.out.println("ERROR: region-x is not within texture bounds"); 
-    if(y + h > this.h) System.out.println("ERROR: region-y is not within texture bounds"); 
-    
-    texsub.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
-    
-    // copy the subregion to the texture
-    context.beginDraw(this);
-    gl.glBindTexture(target, texsub.HANDLE[0]);
-    gl.glCopyTexSubImage2D(target, 0, 0, 0, x, y,  w, h);
-    gl.glBindTexture(target, 0);
-    context.endDraw();
-    
-    DwGLError.debug(gl, "DwGLTexture.createTexSubImage");
-    return texsub;
-  }
   
   
  
@@ -349,11 +355,7 @@ public class DwGLTexture{
     // 0) a lot faster for the full texture. only slightly slower for single texels.
     if(GPU_DATA_READ == 0)
     {
-      int data_len = w * h * num_channel;
-      if(data == null || data.length != data_len){
-        data = new float[data_len];
-      }
-      getData_GL2GL3(x, y, w, h, FloatBuffer.wrap(data));
+      data = getFloatTextureData(data, x, y, w, h, 0);
     }
     // 1) very slow for the full texture, takes twice as long as "getData_GL2GL3()"
     if(GPU_DATA_READ == 1)
@@ -366,6 +368,29 @@ public class DwGLTexture{
     }
     return data;
   }
+  
+  public float[] getFloatTextureData(float[] data, int x, int y, int w, int h, int buffer_offset){
+    int data_len = w * h * num_channel;
+    if(data == null || data.length < buffer_offset + data_len){
+      float[] data_new = new float[buffer_offset + data_len];
+      if(data != null){
+        System.arraycopy(data, 0, data_new, 0, data.length);
+      }
+      data = data_new;
+    }
+    
+    FloatBuffer buffer = FloatBuffer.wrap(data);
+    if(buffer_offset != 0){
+      buffer.position(buffer_offset);
+      buffer = buffer.slice();
+    }
+
+    getData_GL2GL3(x, y, w, h, buffer);
+    return data;
+  }
+  
+  
+  
   
   /**
    * 
@@ -394,11 +419,7 @@ public class DwGLTexture{
     // 0) a lot faster for the full texture. only slightly slower for single texels.
     if(GPU_DATA_READ == 0)
     {
-      int data_len = w * h * num_channel;
-      if(data == null || data.length != data_len){
-        data = new byte[data_len];
-      }
-      getData_GL2GL3(x, y, w, h, ByteBuffer.wrap(data));
+      getByteTextureData(data, x, y, w, h, 0);
     }
     // 1) very slow for the full texture, takes twice as long as "getData_GL2GL3()"
     if(GPU_DATA_READ == 1)
@@ -415,7 +436,25 @@ public class DwGLTexture{
 
 
   
-  
+  public byte[] getByteTextureData(byte[] data, int x, int y, int w, int h, int buffer_offset){
+    int data_len = w * h * num_channel;
+    if(data == null || data.length < buffer_offset + data_len){
+      byte[] data_new = new byte[buffer_offset + data_len];
+      if(data != null){
+        System.arraycopy(data, 0, data_new, 0, data.length);
+      }
+      data = data_new;
+    }
+    
+    ByteBuffer buffer = ByteBuffer.wrap(data);
+    if(buffer_offset != 0){
+      buffer.position(buffer_offset);
+      buffer = buffer.slice();
+    }
+
+    getData_GL2GL3(x, y, w, h, buffer);
+    return data;
+  }
   
   
   
@@ -460,6 +499,12 @@ public class DwGLTexture{
   public void clear(float v){
     if(framebuffer != null){
       framebuffer.clearTexture(v, this);
+    }
+  }
+  
+  public void clear(float r, float g, float b, float a){
+    if(framebuffer != null){
+      framebuffer.clearTexture(r,g,b,a, this);
     }
   }
   
@@ -508,6 +553,10 @@ public class DwGLTexture{
     public void clear(float v){
       src.clear(v);
       dst.clear(v);
+    }
+    public void clear(float r, float g, float b, float a){
+      src.clear(r,g,b,a);
+      dst.clear(r,g,b,a);
     }
     
   }

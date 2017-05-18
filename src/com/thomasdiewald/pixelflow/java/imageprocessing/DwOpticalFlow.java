@@ -19,7 +19,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
-import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
 public class DwOpticalFlow {

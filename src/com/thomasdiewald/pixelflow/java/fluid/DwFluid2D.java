@@ -584,13 +584,16 @@ public class DwFluid2D{
   // either do everything in shaders, and avoid memory transfer when possible, 
   // or do it very rarely. however, this is just an example for convenience.
   
-  public int GPU_DATA_READ = 0;
-  
+
   // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
   // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
   public float[] getVelocity(float[] data_F4, int x, int y, int w, int h){
+    return getVelocity(data_F4, x, y, w, h, 0);
+  }
+  
+  public float[] getVelocity(float[] data_F4, int x, int y, int w, int h, int buffer_offset){
     context.begin();
-    float[] data = tex_velocity.src.getFloatTextureData(data_F4, x, y, w, h);
+    float[] data = tex_velocity.src.getFloatTextureData(data_F4, x, y, w, h, buffer_offset);
     context.end("Fluid.getVelocity");
     return data;
   }
@@ -632,8 +635,12 @@ public class DwFluid2D{
    * @return
    */
   public float[] getDensity(float[] data_F4, int x, int y, int w, int h){
+    return getDensity(data_F4, x, y, w, h, 0);
+  }
+  
+  public float[] getDensity(float[] data_F4, int x, int y, int w, int h, int buffer_offset){
     context.begin();
-    float[] data = tex_density.src.getFloatTextureData(data_F4, x, y, w, h);
+    float[] data = tex_density.src.getFloatTextureData(data_F4, x, y, w, h, buffer_offset);
     context.end("Fluid.getDensity");
     return data;
   }

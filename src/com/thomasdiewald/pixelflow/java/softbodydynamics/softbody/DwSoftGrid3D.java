@@ -361,74 +361,73 @@ public class DwSoftGrid3D extends DwSoftBody3D{
   private DwParticle3D lastp;
   private boolean degenerated = false;
   
-  private final void vertex(PGraphics pg, DwParticle3D p, float[] n, float tu, float tv){
-    if(p.all_springs_deactivated){
-      degenerated = true;
-      if(lastp != null){
-        pg.vertex(lastp.cx,lastp.cy,lastp.cz, 0, 0);
-      }
-    } else {
-      if(degenerated){
-        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
-        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
-        degenerated = false;
-      }
-      pg.normal(n[0], n[1], n[2]); 
-      pg.vertex(p.cx, p.cy, p.cz, tu, tv);
-      lastp = p;
-    }
-  }
-  
-  private void displayGridXY(PGraphics pg, float[][] normals, int iz, PGraphics2D tex){
-    pg.beginShape(PConstants.TRIANGLE_STRIP);
-    pg.textureMode(PConstants.NORMAL);
-    pg.texture(tex);
-    int ix, iy;
-    for(iy = 0; iy < nodes_y-1; iy++){
-      for(ix = 0; ix < nodes_x; ix++){
-        vertex(pg, getNode3D(ix, iy+0, iz), normals[(iy+0)*nodes_x+ix], ix * tx_inv, (iy+0) * ty_inv);
-        vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], ix * tx_inv, (iy+1) * ty_inv);
-      }
-      ix -= 1; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
-      ix  = 0; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
-    }
-    pg.endShape();
-  }
-
-  
-  private void displayGridYZ(PGraphics pg, float[][] normals, int ix, PGraphics2D tex){
-    pg.beginShape(PConstants.TRIANGLE_STRIP);
-    pg.textureMode(PConstants.NORMAL);
-    pg.texture(tex);
-    int iz, iy;
-    for(iz = 0; iz < nodes_z-1; iz++){
-      for(iy = 0; iy < nodes_y; iy++){
-        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_y+iy], iy * ty_inv, (iz+0) * tz_inv);
-        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], iy * ty_inv, (iz+1) * tz_inv);
-      }
-      iy -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
-      iy  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
-    }
-    pg.endShape();
-  }
-  
-  
-  private void displayGridXZ(PGraphics pg, float[][] normals, int iy, PGraphics2D tex){
-    pg.beginShape(PConstants.TRIANGLE_STRIP);
-    pg.textureMode(PConstants.NORMAL);
-    pg.texture(tex);
-    int iz, ix;
-    for(iz = 0; iz < nodes_z-1; iz++){
-      for(ix = 0; ix < nodes_x; ix++){
-        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_x+ix], ix * tx_inv, (iz+0) * tz_inv);
-        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], ix * tx_inv, (iz+1) * tz_inv);
-      }
-      ix -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
-      ix  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
-    }
-    pg.endShape();
-  }
-  
+//  private final void vertex(PGraphics pg, DwParticle3D p, float[] n, float tu, float tv){
+//    if(p.all_springs_deactivated){
+//      degenerated = true;
+//      if(lastp != null){
+//        pg.vertex(lastp.cx,lastp.cy,lastp.cz, 0, 0);
+//      }
+//    } else {
+//      if(degenerated){
+//        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
+//        pg.vertex(p.cx,p.cy,p.cz, 0, 0);
+//        degenerated = false;
+//      }
+//      pg.normal(n[0], n[1], n[2]); 
+//      pg.vertex(p.cx, p.cy, p.cz, tu, tv);
+//      lastp = p;
+//    }
+//  }
+//  
+//  private void displayGridXY(PGraphics pg, float[][] normals, int iz, PGraphics2D tex){
+//    pg.beginShape(PConstants.TRIANGLE_STRIP);
+//    pg.textureMode(PConstants.NORMAL);
+//    pg.texture(tex);
+//    int ix, iy;
+//    for(iy = 0; iy < nodes_y-1; iy++){
+//      for(ix = 0; ix < nodes_x; ix++){
+//        vertex(pg, getNode3D(ix, iy+0, iz), normals[(iy+0)*nodes_x+ix], ix * tx_inv, (iy+0) * ty_inv);
+//        vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], ix * tx_inv, (iy+1) * ty_inv);
+//      }
+//      ix -= 1; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+//      ix  = 0; vertex(pg, getNode3D(ix, iy+1, iz), normals[(iy+1)*nodes_x+ix], 0, 0);
+//    }
+//    pg.endShape();
+//  }
+//
+//  
+//  private void displayGridYZ(PGraphics pg, float[][] normals, int ix, PGraphics2D tex){
+//    pg.beginShape(PConstants.TRIANGLE_STRIP);
+//    pg.textureMode(PConstants.NORMAL);
+//    pg.texture(tex);
+//    int iz, iy;
+//    for(iz = 0; iz < nodes_z-1; iz++){
+//      for(iy = 0; iy < nodes_y; iy++){
+//        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_y+iy], iy * ty_inv, (iz+0) * tz_inv);
+//        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], iy * ty_inv, (iz+1) * tz_inv);
+//      }
+//      iy -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+//      iy  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_y+iy], 0, 0);
+//    }
+//    pg.endShape();
+//  }
+//  
+//  
+//  private void displayGridXZ(PGraphics pg, float[][] normals, int iy, PGraphics2D tex){
+//    pg.beginShape(PConstants.TRIANGLE_STRIP);
+//    pg.textureMode(PConstants.NORMAL);
+//    pg.texture(tex);
+//    int iz, ix;
+//    for(iz = 0; iz < nodes_z-1; iz++){
+//      for(ix = 0; ix < nodes_x; ix++){
+//        vertex(pg, getNode3D(ix, iy, iz+0), normals[(iz+0)*nodes_x+ix], ix * tx_inv, (iz+0) * tz_inv);
+//        vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], ix * tx_inv, (iz+1) * tz_inv);
+//      }
+//      ix -= 1; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+//      ix  = 0; vertex(pg, getNode3D(ix, iy, iz+1), normals[(iz+1)*nodes_x+ix], 0, 0);
+//    }
+//    pg.endShape();
+//  }
   
   
   

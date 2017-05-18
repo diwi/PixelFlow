@@ -126,10 +126,8 @@ public class DwGLFrameBuffer {
     clearTexture(v,v,v,v,tex);
   }
   
-  
-  
-  
-  
+
+
   
   
   

@@ -16,7 +16,7 @@ public class DwCollisionCube{
   private float CELL_SIZE = 10f;
   private int   GRID_X; 
   private int   GRID_Y;
-  private int   GRID_Z;
+//  private int   GRID_Z;
   private int               HEAD_PTR;
   private int[]             HEAD = new int[0];
   private int[]             NEXT = new int[0];
@@ -52,7 +52,7 @@ public class DwCollisionCube{
     // set grid size
     GRID_X = gx;
     GRID_Y = gy;
-    GRID_Z = gz;
+//    GRID_Z = gz;
   }
   
   
