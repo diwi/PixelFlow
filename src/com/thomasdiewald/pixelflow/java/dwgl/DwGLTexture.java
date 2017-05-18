@@ -15,6 +15,8 @@ package com.thomasdiewald.pixelflow.java.dwgl;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
@@ -59,6 +61,7 @@ public class DwGLTexture{
     tex.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
     return tex;
   }
+ 
 
   public void release(){
     if(gl != null){
@@ -119,9 +122,12 @@ public class DwGLTexture{
         );
   }
   
+  public boolean resize(DwPixelFlow context, int w, int h){
+    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+  }
+  
   public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
     return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
- 
   }
 
   public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
@@ -251,6 +257,57 @@ public class DwGLTexture{
     gl.glTexParameterIiv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border, 0);
     gl.glBindTexture    (target, 0);
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  private DwGLTexture createTexSubImage(int x, int y, int w, int h){
+    // create/resize texture from the size of the subregion
+    if(texsub == null){
+      texsub = new DwGLTexture();
+    }
+    
+    if(x + w > this.w) { System.out.println("Error DwGLTexture.createTexSubImage: region-x is not within texture bounds"); }
+    if(y + h > this.h) { System.out.println("Error DwGLTexture.createTexSubImage: region-y is not within texture bounds "); }
+    
+    texsub.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
+    
+    // copy the subregion to the texture
+    context.beginDraw(this);
+    gl.glBindTexture(target, texsub.HANDLE[0]);
+    gl.glCopyTexSubImage2D(target, 0, 0, 0, x, y, w, h);
+    gl.glBindTexture(target, 0);
+    context.endDraw("DwGLTexture.createTexSubImage");
+    return texsub;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /**
+   *  GPU_DATA_READ == 0 ... a lot faster for the full texture. 
+   *                         only slightly slower for single texels.
+   *                        
+   *  GPU_DATA_READ == 1 ... very slow for the full texture, 
+   *                         takes twice as long as "getData_GL2GL3()".
+   *                                              
+   */
+  public static int GPU_DATA_READ = 0;
+  
+  
+  
 
   
   /**
@@ -268,15 +325,13 @@ public class DwGLTexture{
   }
   
   public ByteBuffer getData_GL2ES3(int x, int y, int w, int h){
-    
-    int data_len = w * h * 4; // 4 ... GL_RGBA
+    int data_len = w * h * num_channel;
     int buffer_size = data_len * byte_per_channel;
   
     context.beginDraw(this);
-//  gl.glReadBuffer(GL2ES3.GL_COLOR_ATTACHMENT0);
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
     gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, buffer_size, null, GL2ES3.GL_DYNAMIC_READ);
-    gl.glReadPixels(x, y, w, h, GL2ES3.GL_RGBA, type, 0);
+    gl.glReadPixels(x, y, w, h, format, type, 0);
     
     ByteBuffer bbuffer = gl.glMapBufferRange(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, buffer_size, GL2ES3.GL_MAP_READ_BIT);
 //    ByteBuffer bbuffer = gl.glMapBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, GL2ES3.GL_READ_ONLY);
@@ -289,26 +344,11 @@ public class DwGLTexture{
     return bbuffer;
   }
   
+
   
-  private DwGLTexture createTexSubImage(int x, int y, int w, int h){
-    // create/resize texture from the size of the subregion
-    if(texsub == null){
-      texsub = new DwGLTexture();
-    }
-    
-    if(x + w > this.w) { System.out.println("Error DwGLTexture.createTexSubImage: region-x is not within texture bounds"); }
-    if(y + h > this.h) { System.out.println("Error DwGLTexture.createTexSubImage: region-y is not within texture bounds "); }
-    
-    texsub.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
-    
-    // copy the subregion to the texture
-    context.beginDraw(this);
-    gl.glBindTexture(target, texsub.HANDLE[0]);
-    gl.glCopyTexSubImage2D(target, 0, 0, 0, x, y,  w, h);
-    gl.glBindTexture(target, 0);
-    context.endDraw("DwGLTexture.createTexSubImage");
-    return texsub;
-  }
+
+  
+  
   
   
   
@@ -320,17 +360,16 @@ public class DwGLTexture{
     if(!(x == 0 && y == 0 && w == this.w && h == this.h)){
       tex = createTexSubImage(x,y,w,h);
     }
-    
-    // transfer pixels from the subregion texture to the host application
+
+    // transfer pixels from the sub-region texture to the host application
     tex.getData_GL2GL3(buffer);
   }
-
 
   // copy texture-data to given float array
   public void getData_GL2GL3(Buffer buffer){
     int data_len = w * h * num_channel;
     
-    if(buffer.capacity() < data_len){
+    if(buffer.remaining() < data_len){
       System.out.println("ERROR DwGLTexture.getData_GL2GL3: buffer to small: "+buffer.capacity() +" < "+data_len);
       return;
     }
@@ -345,52 +384,64 @@ public class DwGLTexture{
   
   
   
- 
-  public float[] getFloatTextureData(float[] data){
-    return getFloatTextureData(data, 0, 0, w, h);
-  }
   
-   
-  public float[] getFloatTextureData(float[] data, int x, int y, int w, int h){
-    // 0) a lot faster for the full texture. only slightly slower for single texels.
-    if(GPU_DATA_READ == 0)
-    {
-      data = getFloatTextureData(data, x, y, w, h, 0);
-    }
-    // 1) very slow for the full texture, takes twice as long as "getData_GL2GL3()"
-    if(GPU_DATA_READ == 1)
-    {
-      int data_len =  w * h * 4; // 4 ... GL_RGBA, always
-      if(data == null || data.length != data_len){
-        data = new float[data_len];
-      }
-      getData_GL2ES3(x, y, w, h).asFloatBuffer().get(data);
-    }
-    return data;
-  }
   
-  public float[] getFloatTextureData(float[] data, int x, int y, int w, int h, int buffer_offset){
-    int data_len = w * h * num_channel;
-    if(data == null || data.length < buffer_offset + data_len){
-      float[] data_new = new float[buffer_offset + data_len];
-      if(data != null){
-        System.arraycopy(data, 0, data_new, 0, data.length);
-      }
-      data = data_new;
-    }
-    
-    FloatBuffer buffer = FloatBuffer.wrap(data);
-    if(buffer_offset != 0){
-      buffer.position(buffer_offset);
-      buffer = buffer.slice();
-    }
+  
+  
 
-    getData_GL2GL3(x, y, w, h, buffer);
-    return data;
+  
+  
+  
+  
+  
+  
+  
+  ////////////////////Texture Data Transfer - Integer //////////////////////////
+  
+  public int[] getIntegerTextureData(int[] data){
+    return getIntegerTextureData(data, 0, 0, w, h, 0);
+  }
+  
+  public int[] getIntegerTextureData(int[] data, int x, int y, int w, int h){
+    return getIntegerTextureData(data, x, y, w, h, 0);
+  }
+  
+  public int[] getIntegerTextureData(int[] data, int x, int y, int w, int h, int data_off){
+    int data_len = w * h * num_channel;
+    data = realloc(data, data_off + data_len);
+    if(GPU_DATA_READ == 0){
+      getData_GL2GL3(x, y, w, h, IntBuffer.wrap(data).position(data_off));
+    } else if(GPU_DATA_READ == 1){
+      getData_GL2ES3(x, y, w, h).asIntBuffer().get(data, data_off, data_len);
+    }
+    return data; 
+  }
+  
+  
+  //////////////////// Texture Data Transfer - Float ///////////////////////////
+
+  public float[] getFloatTextureData(float[] data){
+    return getFloatTextureData(data, 0, 0, w, h, 0);
+  }
+  
+  public float[] getFloatTextureData(float[] data, int x, int y, int w, int h){
+    return getFloatTextureData(data, x, y, w, h, 0);
+  }
+  
+  public float[] getFloatTextureData(float[] data, int x, int y, int w, int h, int data_off){
+    int data_len = w * h * num_channel;
+    data = realloc(data, data_off + data_len);
+    if(GPU_DATA_READ == 0){
+      getData_GL2GL3(x, y, w, h, FloatBuffer.wrap(data).position(data_off));
+    } else if(GPU_DATA_READ == 1){
+      getData_GL2ES3(x, y, w, h).asFloatBuffer().get(data, data_off, data_len);
+    }
+    return data; 
   }
   
   
   
+  //////////////////// Texture Data Transfer - Byte ///////////////////////////
   
   /**
    * 
@@ -410,65 +461,69 @@ public class DwGLTexture{
    */
   
   public byte[] getByteTextureData(byte[] data){
-    return getByteTextureData(data, 0, 0, w, h);
+    return getByteTextureData(data, 0, 0, w, h, 0);
   }
-  
-  public static int GPU_DATA_READ = 0;
   
   public byte[] getByteTextureData(byte[] data, int x, int y, int w, int h){
-    // 0) a lot faster for the full texture. only slightly slower for single texels.
-    if(GPU_DATA_READ == 0)
-    {
-      getByteTextureData(data, x, y, w, h, 0);
-    }
-    // 1) very slow for the full texture, takes twice as long as "getData_GL2GL3()"
-    if(GPU_DATA_READ == 1)
-    {
-      int data_len =  w * h * 4; // 4 ... GL_RGBA, always
-      if(data == null || data.length != data_len){
-        data = new byte[data_len];
-      }
-      getData_GL2ES3(x, y, w, h).get(data);
-    }
-    return data;
+    return getByteTextureData(data, x, y, w, h, 0);
   }
   
-
-
-  
-  public byte[] getByteTextureData(byte[] data, int x, int y, int w, int h, int buffer_offset){
+  public byte[] getByteTextureData(byte[] data, int x, int y, int w, int h, int data_off){
     int data_len = w * h * num_channel;
-    if(data == null || data.length < buffer_offset + data_len){
-      byte[] data_new = new byte[buffer_offset + data_len];
+    data = realloc(data, data_off + data_len);
+    if(GPU_DATA_READ == 0){
+      getData_GL2GL3(x, y, w, h, ByteBuffer.wrap(data).position(data_off));
+    } else if(GPU_DATA_READ == 1){
+      getData_GL2ES3(x, y, w, h).get(data, data_off, data_len);
+    }
+    return data; 
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  static private final float[] realloc(float[] data, int size){
+    if(data == null || data.length < size){
+      float[] data_new = new float[size];
       if(data != null){
         System.arraycopy(data, 0, data_new, 0, data.length);
       }
       data = data_new;
     }
-    
-    ByteBuffer buffer = ByteBuffer.wrap(data);
-    if(buffer_offset != 0){
-      buffer.position(buffer_offset);
-      buffer = buffer.slice();
+    return data;
+  }
+  
+  static private final int[] realloc(int[] data, int size){
+    if(data == null || data.length < size){
+      int[] data_new = new int[size];
+      if(data != null){
+        System.arraycopy(data, 0, data_new, 0, data.length);
+      }
+      data = data_new;
     }
-
-    getData_GL2GL3(x, y, w, h, buffer);
     return data;
   }
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  static private final byte[] realloc(byte[] data, int size){
+    if(data == null || data.length < size){
+      byte[] data_new = new byte[size];
+      if(data != null){
+        System.arraycopy(data, 0, data_new, 0, data.length);
+      }
+      data = data_new;
+    }
+    return data;
+  }
   
   
   
