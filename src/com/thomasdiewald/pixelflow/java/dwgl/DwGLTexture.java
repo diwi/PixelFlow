@@ -33,15 +33,18 @@ public class DwGLTexture{
 
   public int[] HANDLE = null;
 
-  public int target;
-  public int internalFormat;
+  // some default values. TODO
+  public int target           = GL2ES2.GL_TEXTURE_2D;
+  public int internalFormat   = GL2ES2.GL_RGBA8;
+  public int format           = GL2ES2.GL_RGBA;
+  public int type             = GL2ES2.GL_UNSIGNED_BYTE;
+  public int filter           = GL2ES2.GL_NEAREST;
+  public int num_channel      = 4;
+  public int byte_per_channel = 1;
+  
+  // dimension
   public int w = 0; 
   public int h = 0;
-  public int format;
-  public int type;
-  public int filter;
-  public int num_channel;
-  public int byte_per_channel;
 
   // Framebuffer
   public DwGLFrameBuffer framebuffer;
@@ -68,13 +71,13 @@ public class DwGLTexture{
       if(HANDLE != null){
         gl.glDeleteTextures(1, HANDLE, 0); 
         HANDLE = null;
-        this.target = 0;
-        this.internalFormat = 0;
+//        this.target = 0;
+//        this.internalFormat = 0;
         this.w = 0;
         this.h = 0;
-        this.format = 0;
-        this.type = 0;
-        this.filter = 0;
+//        this.format = 0;
+//        this.type = 0;
+//        this.filter = 0;
         --TEX_COUNT;
         if(TEX_COUNT < 0){
           System.out.println("ERROR: released to many textures"); 
@@ -143,7 +146,6 @@ public class DwGLTexture{
     release();
     this.context = context;
     this.gl = context.gl;
-    this.target = GL2ES2.GL_TEXTURE_2D;
     this.internalFormat = internalFormat;
     this.w = w;
     this.h = h;
@@ -155,7 +157,7 @@ public class DwGLTexture{
 
     HANDLE = new int[1];
     gl.glGenTextures(1, HANDLE, 0);
-    gl.glBindTexture  (target, HANDLE[0]);
+    gl.glBindTexture(target, HANDLE[0]);
     
 //    int[] val = new int[1];
 //    gl.glGetIntegerv(GL2ES2.GL_UNPACK_ALIGNMENT, val, 0);

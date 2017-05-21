@@ -65,7 +65,7 @@ public class DwCoordinateTransform{
   public void screenToWorld(float[] src_screen, float[] dst_world){
     src_screen[0] = ((src_screen[0]/(float) pg.width ) * 2 - 1) * +1;
     src_screen[1] = ((src_screen[1]/(float) pg.height) * 2 - 1) * -1;
-    src_screen[2] = ((src_screen[2]              ) * 2 - 1) * +1;
+    src_screen[2] = ((src_screen[2]                  ) * 2 - 1) * +1;
     src_screen[3] = 1;
     mat_projmodelview_inv.mult(src_screen, dst_world);
     float w_inv = 1f/dst_world[3];
@@ -77,7 +77,7 @@ public class DwCoordinateTransform{
   public void screenToWorld(float x, float y, float z, float[] dst_world){
     screen[0] = ((x/(float) pg.width ) * 2 - 1) * +1;
     screen[1] = ((y/(float) pg.height) * 2 - 1) * -1;
-    screen[2] = ((z              ) * 2 - 1) * +1;
+    screen[2] = ((z                  ) * 2 - 1) * +1;
     screen[3] = 1;
     mat_projmodelview_inv.mult(screen, dst_world);
     float w_inv = 1f/dst_world[3];

@@ -43,7 +43,7 @@ public class DwSkyLightShader {
     public float   solar_zenith  = 0;
     public float   sample_focus  = 1f;
     
-    public float   iterations = 20;
+    public int     iterations = 20;
 //    public boolean singlesided = true;
     public int     shadowmap_size = 1024;
   }

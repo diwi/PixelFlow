@@ -38,7 +38,7 @@ public class DepthOfField_Demo extends PApplet {
   //
   // Depth of Field (DoF) Demo
   //
-  // WIP, I am still experimenting here ... so don't use it.
+  // WIP, I am still experimenting here ... so better do not use it yet.
   // 
   //
 
@@ -57,6 +57,7 @@ public class DepthOfField_Demo extends PApplet {
 
   
   PGraphics3D pg_render;
+  PGraphics3D pg_dof;
   PGraphics3D pg_tmp;
   DwScreenSpaceGeometryBuffer geombuffer;
   
@@ -98,6 +99,13 @@ public class DepthOfField_Demo extends PApplet {
     
     pg_render = (PGraphics3D) createGraphics(width, height, P3D);
     pg_render.smooth(8);
+    
+    pg_dof = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_dof.smooth(8);
+    
+    pg_dof.beginDraw();
+    pg_dof.endDraw();
+
     
     pg_tmp    = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
@@ -163,17 +171,17 @@ public class DepthOfField_Demo extends PApplet {
 //      dof.param.focus_pos[0] =   map(mouseX, 0, width , 0, 1);
 //      dof.param.focus_pos[1] = 1-map(mouseY, 0, height, 0, 1);
       dof.param.mult_blur = mult_blur;
-      dof.apply(pg_render, pg_render, sat, geombuffer);
+      dof.apply(pg_render, pg_dof, sat, geombuffer);
     }
     
-    magnifier.apply(pg_render, mouseX, mouseY);
+    magnifier.apply(pg_dof, mouseX, mouseY);
     magnifier.displayTool();
 
     peasycam.beginHUD();
     {
       blendMode(REPLACE);
       clear();
-      image(pg_render, 0, 0);
+      image(pg_dof, 0, 0);
 //      image(geombuffer.pg_geom, 0, 0);
       
       magnifier.display(this.g);

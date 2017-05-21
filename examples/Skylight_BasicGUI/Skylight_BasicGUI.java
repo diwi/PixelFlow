@@ -103,6 +103,7 @@ public class Skylight_BasicGUI extends PApplet {
     scene_bs.compute(vertex_recorder.verts, vertex_recorder.verts_count);
     
     PMatrix3D mat_bs = scene_bs.getUnitSphereMatrix();
+//    mat_bs.scale(1, -1, 1);
     //  mat_bs.transpose();
     //  mat_bs.rotateX(-PI/2);
     //  mat_bs.transpose();
