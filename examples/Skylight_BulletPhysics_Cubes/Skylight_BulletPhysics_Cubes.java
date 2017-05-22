@@ -62,7 +62,7 @@ public class Skylight_BulletPhysics_Cubes extends PApplet {
   //
   //
   // This Example shows how to combine the PixelFlow Skylight-Renderer and 
-  // Bullet-Physics. Rigid Bodies are created from a Voronoi-Tesselation.
+  // Bullet-Physics.
   //
   // Features:
   //
