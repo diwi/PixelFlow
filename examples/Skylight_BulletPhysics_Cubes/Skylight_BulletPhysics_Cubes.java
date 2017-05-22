@@ -12,28 +12,16 @@
 package Skylight_BulletPhysics_Cubes;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.linearmath.Transform;
-import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.opengl.GL2;
 
 import peasy.*;
 import bRigid.*;
-
-import wblut.geom.WB_AABB;
-import wblut.geom.WB_Coord;
-import wblut.geom.WB_Mesh;
-import wblut.geom.WB_Point;
-import wblut.geom.WB_Vector;
-import wblut.geom.WB_Voronoi;
-import wblut.geom.WB_VoronoiCell3D;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
@@ -84,7 +72,6 @@ public class Skylight_BulletPhysics_Cubes extends PApplet {
   // - bRigid (jBullet-Physics for Processing),
   //   library for rigid body simulation, by Daniel Koehler
   //   http://www.lab-eds.org/bRigid
-  //
   //
   // - PixelFlow
   //   library for skylight, post-fx, lots of GLSL, etc..., by Thomas Diewald
