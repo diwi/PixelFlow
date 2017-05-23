@@ -599,7 +599,7 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
   
 
 
-      // this one gives better results, than the coronoi center
+      // this one gives better results, than the voronoi center
       DwBoundingSphere cell_bs = new DwBoundingSphere();
       cell_bs.compute(pnts, pnts.length);
       Vector3f center_of_mass = new Vector3f(cell_bs.pos);

@@ -54,7 +54,6 @@ public class Skylight_BulletPhysics_Cubes extends PApplet {
   //
   // Features:
   //
-  // - CellFracture from Voronoi-Tesselation - HE_Mesh
   // - Rigid Body Simulation - bRigid, Bullet Physics
   // - Skylight Renderer, Sun + AO
   // - DoF

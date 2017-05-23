@@ -150,10 +150,39 @@ public class DwSampling {
     return float3(X,Y,Z);
   }
   
+  /**
+   * @param index sample-index
+   * @param pow_dist radius 
+   * 
+   * 
+   * pow_dist = 0.5 .... uniform disk
+   * pow_dist = 1.0 .... focused to center
+   * 
+   */
+  public static float[] sampleDisk_Halton(int index, float pow_dist){
+    double phi = halton(index, 2) * PI_TWO ;
+    double rnd = halton(index, 3);
+    double rad = Math.pow(rnd, pow_dist);
+    double X   = Math.cos(phi) * rad;
+    double Y   = Math.sin(phi) * rad;
+    return float2(X,Y);
+  }
+  
+  
+  
+  
+  
   public static float[] float3(double x, double y, double z){
     return new float[]{(float)x, (float)y, (float)z};
   }
   public static float[] float3(float x, float y, float z){
     return new float[]{x, y, z};
+  }
+  
+  public static float[] float2(double x, double y){
+    return new float[]{(float)x, (float)y};
+  }
+  public static float[] float2(float x, float y){
+    return new float[]{x, y};
   }
 }

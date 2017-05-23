@@ -55,7 +55,6 @@ public class Skylight_BulletPhysics_MengerSponge extends PApplet {
   //
   // Features:
   //
-  // - CellFracture from Voronoi-Tesselation - HE_Mesh
   // - Rigid Body Simulation - bRigid, Bullet Physics
   // - Skylight Renderer, Sun + AO
   // - DoF
