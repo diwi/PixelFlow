@@ -154,9 +154,9 @@ public class DwSampling {
    * @param index sample-index
    * @param pow_dist radius 
    * 
-   * 
-   * pow_dist = 0.5 .... uniform disk
-   * pow_dist = 1.0 .... focused to center
+   * <br>
+   * pow_dist = 0.5 .... uniform disk<br>
+   * pow_dist = 1.0 .... focused to center<br>
    * 
    */
   public static float[] sampleDisk_Halton(int index, float pow_dist){
@@ -168,7 +168,9 @@ public class DwSampling {
     return float2(X,Y);
   }
   
-  
+  public static float[] uniformSampleDisk_Halton(int index){
+    return sampleDisk_Halton(index, 0.5f);
+  }
   
   
   

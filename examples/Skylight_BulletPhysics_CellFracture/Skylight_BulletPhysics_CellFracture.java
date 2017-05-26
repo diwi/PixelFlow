@@ -20,6 +20,7 @@ import java.util.Locale;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
+import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.opengl.GL2;
@@ -547,6 +548,17 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
   
   
   
+  static class MyBConvexHull extends BConvexHull{
+
+    public MyBConvexHull(PApplet p, float mass,  ObjectArrayList<Vector3f> vertices, Vector3f position,  boolean inertia) {
+      super(p, mass, vertices, position, inertia);
+    }
+
+    @Override
+    public PShape drawToPShape(CollisionShape shape) {
+      return displayShape;
+    }
+  }
   
   public void createFractureShape(){
     long timer = System.currentTimeMillis();
@@ -620,7 +632,7 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
       
       // create rigid body
       int mass = 5000;
-      BConvexHull body = new BConvexHull(this, mass, vertices, new Vector3f(), true);
+      BConvexHull body = new MyBConvexHull(this, mass, vertices, new Vector3f(), true);
       physics.addBody(body);
       
       // setup initial body transform-matrix
