@@ -24,6 +24,13 @@ public class DwCoordinateTransform{
   
   public PMatrix3D mat_projmodelview     = new PMatrix3D();
   public PMatrix3D mat_projmodelview_inv = new PMatrix3D();
+  
+  public void useCurrentTransformationMatrix(PGraphics3D pg, PMatrix3D mvp){
+    this.pg = pg;
+    this.mat_projmodelview    .set(mvp);
+    this.mat_projmodelview_inv.set(mvp);
+    this.mat_projmodelview_inv.invert();
+  }
 
   public void useCurrentTransformationMatrix(PGraphics3D pg){
     this.pg = pg;

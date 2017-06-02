@@ -316,7 +316,7 @@ public class DwGLTexture{
    * 
    * @param cx
    * @param cy
-   * @param w
+   * @param canvas_w
    * @param h
    * @param data array, for the returned opengl-texture-data
    * @return

@@ -738,7 +738,7 @@ public class Skylight_BulletPhysics_Breakable extends PApplet {
     createFitting(win1_mat, window1_dim);
     
     PMatrix3D win2_mat = new PMatrix3D();
-    win2_mat.rotateZ(90 * toRadians);
+//    win2_mat.rotateZ(90 * toRadians);
     win2_mat.translate(0, 0, 125 * 2);
     window2.initBody(window2_dim, win2_mat, window2_rgb);
     createFitting(win2_mat, window2_dim);
