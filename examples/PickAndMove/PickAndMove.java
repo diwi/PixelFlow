@@ -23,7 +23,7 @@ import processing.opengl.PGraphics3D;
 public class PickAndMove extends PApplet {
 
   //
-  // Demo: Picking, Coordinate Transform (screen<->world), Object Transform (screen-aligned)
+  // Demo: Picking, Coordinate Transform (screen <-> world), Object Transform (screen-aligned)
   //
   // controls:
   //

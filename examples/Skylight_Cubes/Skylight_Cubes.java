@@ -17,14 +17,9 @@ package Skylight_Cubes;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.geometry.DwIcosahedron;
-import com.thomasdiewald.pixelflow.java.geometry.DwIndexedFaceSetAble;
-import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
-import com.thomasdiewald.pixelflow.java.sampling.PoissonDiscSamping3D;
-import com.thomasdiewald.pixelflow.java.sampling.PoissonSample;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 
 import peasy.PeasyCam;
@@ -333,11 +328,10 @@ public class Skylight_Cubes extends PApplet {
   
   public void createScene(){
     
-    int res = 4;
+//    int res = 4;
     
     num_x = 100;
     num_y = 100;
-    
     
     
     if(group_cubes == null){

@@ -21,9 +21,12 @@ import processing.opengl.Texture;
 public class Copy {
   
   public DwPixelFlow context;
+  
+  public DwGLSLProgram shader;
 
   public Copy(DwPixelFlow context){
     this.context = context;
+    this.shader = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/copy.frag");
   }
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
@@ -55,7 +58,6 @@ public class Copy {
     apply(src.HANDLE[0], dst.width, dst.height);
     context.endDraw();
     context.end("Copy.apply");
-    
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst) {
@@ -65,10 +67,8 @@ public class Copy {
     context.endDraw();
     context.end("Copy.apply");
   }
-  
-  DwGLSLProgram shader;
+
   private void apply(int tex_handle, int w, int h){
-    if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/copy.frag");
     shader.begin();
     shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniformTexture("tex"   , tex_handle);

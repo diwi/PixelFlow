@@ -81,14 +81,19 @@ public class DwGLSLShader{
   public GLSLDefine getDefine(String name){
     return glsl_defines.get(name);
   }
-  public void setDefine(String name, String value){
-    glsl_defines.get(name).setValue(value);
-  }
   public void setDefine(String name, int value){
-    glsl_defines.get(name).setValue(""+value);
+    setDefine(name, Integer.toString(value));
   }
   public void setDefine(String name, float value){
-    glsl_defines.get(name).setValue(""+value);
+    setDefine(name, Float.toString(value));
+  }
+  public void setDefine(String name, String value){
+    GLSLDefine define = glsl_defines.get(name);
+    if(define == null){
+      System.out.println("DwGLSLShader ERROR: "+type_str+" ("+path+") - GLSLDefine \""+name+"\" does not exist");
+      return;
+    }
+    define.setValue(value);
   }
 
   public static class GLSLDefine{
@@ -124,7 +129,7 @@ public class DwGLSLShader{
   
   public String[] loadSource(String path){
     ArrayList<String> source = new ArrayList<String>();
-   
+
     loadSource(0, source, new File(path));
      
     String[] content = new String[source.size()];
