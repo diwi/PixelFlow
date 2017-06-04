@@ -12,6 +12,8 @@ package SpoutDemo.Fluid_SpoutReceiver;
 
 
 
+import java.io.Console;
+
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
@@ -111,7 +113,7 @@ public class Fluid_SpoutReceiver extends PApplet {
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
-    
+
     // fluid simulation
     fluid = new DwFluid2D(context, width, height, 1);
     
