@@ -51,8 +51,13 @@ public class Laplace {
   
   DwGLSLProgram[] shader       = new DwGLSLProgram[TYPE.values().length];
   DwGLSLProgram[] shader_ubyte = new DwGLSLProgram[TYPE.values().length];
-
+  
+  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Laplace.TYPE kernel) {
+    apply(src, dst, kernel, new float[]{0.5f,0.5f});
+  }
+
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Laplace.TYPE kernel, float[] mad) {
     if(src == dst){
       System.out.println("Laplace error: read-write race");
       return;
@@ -64,7 +69,6 @@ public class Laplace {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    float[] mad = new float[]{0.5f,0.5f};
 //    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
@@ -74,7 +78,11 @@ public class Laplace {
 //    dst.endDraw();
   }
   
-  public void apply(DwGLTexture src, DwGLTexture dst, TYPE type, Laplace.TYPE kernel) {
+  public void apply(DwGLTexture src, DwGLTexture dst, Laplace.TYPE kernel) {
+    apply(src, dst, kernel, new float[]{1,0});
+  }
+  
+  public void apply(DwGLTexture src, DwGLTexture dst, Laplace.TYPE kernel, float[] mad) {
     if(src == dst){
       System.out.println("Laplace error: read-write race");
       return;
@@ -84,8 +92,7 @@ public class Laplace {
     }
     
     kernel.buildShader(context);
-    float[] mad = new float[]{1,0};
-    
+
     context.begin();
     context.beginDraw(dst);
     apply(kernel.shader, src.HANDLE[0], dst.w, dst.h, mad);

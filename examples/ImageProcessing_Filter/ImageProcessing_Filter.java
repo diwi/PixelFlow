@@ -181,7 +181,6 @@ public class ImageProcessing_Filter extends PApplet {
     context.printGL();
     
     filter = new DwFilter(context);
-    
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_A.smooth(4);
     

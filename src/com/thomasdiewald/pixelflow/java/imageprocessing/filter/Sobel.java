@@ -51,8 +51,11 @@ public class Sobel {
     this.context = context;
   }
   
-  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Sobel.TYPE kernel) {
+    apply(src, dst, kernel, new float[]{0.5f,0.5f});
+  }
+  
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, Sobel.TYPE kernel, float[] mad) {
     if(src == dst){
       System.out.println("Sobel error: read-write race");
       return;
@@ -66,8 +69,6 @@ public class Sobel {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     
-    float[] mad = new float[]{0.5f,0.5f};
-    
 //    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
@@ -78,6 +79,10 @@ public class Sobel {
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, Sobel.TYPE kernel) {
+    apply(src, dst, kernel, new float[]{1,0});
+  }
+  
+  public void apply(DwGLTexture src, DwGLTexture dst, Sobel.TYPE kernel, float[] mad) {
     if(src == dst){
       System.out.println("Sobel error: read-write race");
       return;
@@ -87,8 +92,7 @@ public class Sobel {
     }
     
     kernel.buildShader(context);
-    float[] mad = new float[]{1,0};
-    
+
     context.begin();
     context.beginDraw(dst);
     apply(kernel.shader, src.HANDLE[0], dst.w, dst.h, mad);
