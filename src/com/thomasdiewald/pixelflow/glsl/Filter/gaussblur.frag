@@ -18,7 +18,7 @@ uniform sampler2D	tex;
 uniform vec2  wh_rcp; 
 uniform int   radius;
 uniform float sigma;
-uniform ivec2 dir;
+uniform vec2  dir;
 
 // void main(){
   // vec4 blur = texture(tex, gl_FragCoord.xy * wh_rcp);
