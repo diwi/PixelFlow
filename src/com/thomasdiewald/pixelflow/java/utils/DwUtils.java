@@ -28,6 +28,8 @@ public class DwUtils {
 
   final static public String NL = System.getProperty("line.separator");
   
+  final static public double _1_DIV_3 = 1.0 / 3.0;
+  
   DwPixelFlow context;
   
   public DwUtils(DwPixelFlow context){

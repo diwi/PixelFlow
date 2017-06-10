@@ -11,6 +11,7 @@ package com.thomasdiewald.pixelflow.java.softbodydynamics.particle;
 
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwCollisionObject;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PMatrix3D;
 import processing.core.PShape;
@@ -75,6 +76,7 @@ public class DwParticle3D extends DwParticle{
     this.az += gravity[2];
   }
   
+
   @Override
   public void updatePosition(float timestep) {
     if(enable_forces){
@@ -86,6 +88,18 @@ public class DwParticle3D extends DwParticle{
       px = cx;
       py = cy;
       pz = cz;
+      
+      
+      // clamp velocity
+      float vv_cur = vx*vx + vy*vy + vz*vz;
+      float vv_max = rad_collision * rad_collision * rad_collision * 8;
+      if(vv_cur > vv_max){
+        float damp = (float) Math.pow(vv_max / vv_cur, DwUtils._1_DIV_3);
+        vx *= damp;
+        vy *= damp;
+        vz *= damp;
+      }
+      
   
       // verlet integration
       cx += vx + ax * 0.5 * timestep * timestep;

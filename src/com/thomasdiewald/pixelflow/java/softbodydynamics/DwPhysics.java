@@ -118,7 +118,9 @@ public class DwPhysics<T extends DwParticle> {
     
     // iterative spring refinement
     for(int k = 0; k < param.iterations_springs; k++){
-      for(DwSpringConstraint spring : springs) spring.update();
+      for(DwSpringConstraint spring : springs) {
+        spring.update();
+      }
       for(int i = 0; i < particles_count; i++){
         particles[i].updateBounds(param.bounds);
       }

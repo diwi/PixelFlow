@@ -87,7 +87,16 @@ public class DwParticle2D extends DwParticle{
       
       px = cx;
       py = cy;
-  
+          
+      // clamp velocity
+      float vv_cur = vx*vx + vy*vy;
+      float vv_max = rad_collision * rad_collision * 8;
+      if(vv_cur > vv_max){
+        float damp = (float) Math.sqrt(vv_max / vv_cur);
+        vx *= damp;
+        vy *= damp;
+      }
+      
       // verlet integration
       cx += vx + ax * 0.5 * timestep * timestep;
       cy += vy + ay * 0.5 * timestep * timestep;
