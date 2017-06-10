@@ -38,7 +38,8 @@ public class DwFilter {
   public final LuminanceThreshold luminance_threshold;
   public final DistanceTransform  distancetransform;
   public final Threshold          threshold;
-  public final GaussianPyramid    gausspyramid;
+  public final GaussianBlurPyramid    gausspyramid;
+  public final Mad                mad;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
@@ -65,8 +66,8 @@ public class DwFilter {
     luminance_threshold = new LuminanceThreshold(context);
     distancetransform   = new DistanceTransform (context);
     threshold           = new Threshold         (context);
-    gausspyramid        = new GaussianPyramid   (context);
-    
+    gausspyramid        = new GaussianBlurPyramid   (context);
+    mad                 = new Mad               (context);
     filter_cache.put(context, this);
   }
   

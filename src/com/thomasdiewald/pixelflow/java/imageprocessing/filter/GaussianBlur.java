@@ -28,7 +28,7 @@ public class GaussianBlur {
   
   public DwPixelFlow context;
 
-
+  public float tex_offset_scale = 1.0f;
   public float DEFAULT_RADIUS_SIGMA_RATIO = 0.5f;
   
   public GaussianBlur(DwPixelFlow context){
@@ -142,7 +142,7 @@ public class GaussianBlur {
     shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniform1i     ("radius", radius);
     shader.uniform1f     ("sigma" , sigma);
-    shader.uniform2f     ("dir"   , dir[0], dir[1]);
+    shader.uniform2f     ("dir"   , dir[0] * tex_offset_scale, dir[1] * tex_offset_scale);
     shader.uniformTexture("tex"   , tex_handle);
     shader.drawFullScreenQuad(0, 0, w, h);
     shader.end();

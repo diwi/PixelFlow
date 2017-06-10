@@ -31,13 +31,28 @@ void main(){
 
   // if(color.r < threshold.r || color.g < threshold.g || color.b < threshold.b) color *= 0.5;
 
+  if(color.r  < threshold.r){
+     color.r /= threshold.r;
+     color.r  = pow(color.r, 5);
+     color.r *= threshold.r;
+  }
+  
+  if(color.g  < threshold.g){
+     color.g /= threshold.g;
+     color.g  = pow(color.g, 5);
+     color.g *= threshold.g;
+  }
+  
+  if(color.b  < threshold.b){
+     color.b /= threshold.b;
+     color.b  = pow(color.b, 5);
+     color.b *= threshold.b;
+  }
   
   if(color.a < threshold.a){
-  
     color.a /= threshold.a;
     color.a = pow(color.a, 5);
     color.a *= threshold.a;
-    //color.a = 0;
   }
   
   glFragColor = color;

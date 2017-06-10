@@ -18,6 +18,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
@@ -263,7 +264,54 @@ public class DwGLTexture{
   
   
   
+  public void glTexParameteri(int param, int value, boolean bind){
+    if(bind) bind();
+    glTexParameteri(param, value);
+    if(bind) unbind();
+  }
+  public void glTexParameteriv(int param, int[] value, boolean bind){
+    if(bind) bind();
+    glTexParameteriv(param, value);
+    if(bind) unbind();
+  }
+  public void glTexParameterf(int param, float value, boolean bind){
+    if(bind) bind();
+    glTexParameterf(param, value);
+    if(bind) unbind();
+  }
+  public void glTexParameterfv(int param, float[] value, boolean bind){
+    if(bind) bind();
+    glTexParameterfv(param, value);
+    if(bind) unbind();
+  }
   
+  
+  public void glTexParameteri(int param, int value){
+    gl.glTexParameteri (target, param, value);
+  }
+  public void glTexParameteriv(int param, int[] value){
+    gl.glTexParameteriv (target, param, value, 0);
+  }
+  public void glTexParameterf(int param, float value){
+    gl.glTexParameterf (target, param, value);
+  }
+  public void glTexParameterfv(int param, float[] value){
+    gl.glTexParameterfv(target, param, value, 0);
+  }
+  
+  
+  
+  public void bind(){
+    gl.glBindTexture(target, HANDLE[0]);
+  }
+  public void unbind(){
+    gl.glBindTexture(target, 0);
+  }
+  
+  
+  public void swizzle(int[] i4_GL_TEXTURE_SWIZZLE_RGBA){
+    glTexParameteriv(GL2.GL_TEXTURE_SWIZZLE_RGBA, i4_GL_TEXTURE_SWIZZLE_RGBA, true);
+  }
   
   
   

@@ -249,11 +249,13 @@ public class Bloom {
     // 1) use src-texture as base for blur-levels
     filter.copy.apply(src_luminance, tex_blur[0]);
     
+    int radius = 2;
+    
     // 2) blur passes
     context.begin();
-    filter.gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 3);
+    filter.gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 1 + radius);
     for(int i = 1; i < BLUR_LAYERS; i++){
-      filter.gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + 2);
+      filter.gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + radius);
     }
     context.end("Bloom.gaussian bluring");
     

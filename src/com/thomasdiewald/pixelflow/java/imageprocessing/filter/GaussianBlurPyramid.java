@@ -32,22 +32,21 @@ import processing.opengl.PGraphicsOpenGL;
  * 3) http://www.gamasutra.com/view/feature/130520/realtime_glow.php
  *
  */
-public class GaussianPyramid {
+public class GaussianBlurPyramid {
   
   public DwPixelFlow context;
   
   // number of mip-levels for bluring
   private int     BLUR_LAYERS_MAX = 10;
   private int     BLUR_LAYERS = 5;
-  private boolean BLUR_LAYERS_auto = true;
-  
+
   public GaussianBlur gaussblur;
 
   // blur textures
   public DwGLTexture[] tex_blur = new DwGLTexture[0];
   public DwGLTexture[] tex_temp = new DwGLTexture[0];
   
-  public GaussianPyramid(DwPixelFlow context){
+  public GaussianBlurPyramid(DwPixelFlow context){
     this.context = context;
     this.gaussblur = new GaussianBlur(context);
   }
@@ -59,7 +58,6 @@ public class GaussianPyramid {
   
   public void setBlurLayers(int BLUR_LAYERS){
     this.BLUR_LAYERS = Math.min(BLUR_LAYERS, BLUR_LAYERS_MAX);
-    this.BLUR_LAYERS_auto = false;
   }
   
   public int getNumBlurLayers(){
@@ -73,18 +71,25 @@ public class GaussianPyramid {
     }
   }
   
-  public void resize(int w, int h){
+  public void resize(PGraphicsOpenGL src){
+    resize(src.width, src.height, GLES3.GL_RGBA8, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, 4, 1);
+  }
+  
+  public void resize(DwGLTexture src){
+    resize(src.w, src.h, src.internalFormat, src.format, src.type, src.num_channel, src.byte_per_channel);
+  }
+
+  public void resize(int w, int h, int internal_format, int format, int type, int num_channels, int bbp){
     int wi = w;
     int hi = h;
     
     // 1) compute number of blur layers
-    if(BLUR_LAYERS_auto){
-      BLUR_LAYERS = Math.max(DwUtils.log2ceil(wi), DwUtils.log2ceil(hi)) >> 1;
-      BLUR_LAYERS = Math.min(BLUR_LAYERS, BLUR_LAYERS_MAX);
-    }
-
+    int layers_limit = Math.max(DwUtils.log2ceil(wi), DwUtils.log2ceil(hi)) >> 1;
+    BLUR_LAYERS_MAX = Math.min(BLUR_LAYERS_MAX, layers_limit);
+    BLUR_LAYERS     = Math.min(BLUR_LAYERS_MAX, BLUR_LAYERS);
+    
     // 2) init/release textures if needed
-    if(tex_blur.length != BLUR_LAYERS){
+    if(tex_blur.length < BLUR_LAYERS){
       release();
       tex_blur = new DwGLTexture[BLUR_LAYERS];
       tex_temp = new DwGLTexture[BLUR_LAYERS];
@@ -96,22 +101,18 @@ public class GaussianPyramid {
 
     // 3) allocate textures
     for(int i = 0; i < BLUR_LAYERS; i++){
-      tex_temp[i].resize(context, GLES3.GL_RGBA8, wi, hi, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, GLES3.GL_LINEAR, 4, 1);
-      tex_blur[i].resize(context, GLES3.GL_RGBA8, wi, hi, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, GLES3.GL_LINEAR, 4, 1);
+      tex_temp[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
+      tex_blur[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
       tex_temp[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
       tex_blur[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
-//      wi >>= 1;
-//      hi >>= 1;
-      
-      wi = (int) Math.ceil(wi/2f);
-      hi = (int) Math.ceil(hi/2f);
+      wi = (int) Math.ceil(wi * 0.5f);
+      hi = (int) Math.ceil(hi * 0.5f);
     }
   }
   
 
   public void apply(PGraphicsOpenGL src, int radius){
-   
-    resize(src.width, src.height);
+    resize(src);
    
     DwFilter.get(context).copy.apply(src, tex_blur[0]);
     
@@ -123,8 +124,9 @@ public class GaussianPyramid {
     context.end("GaussianPyramid.gaussian bluring");
   }
   
+  
   public void apply(DwGLTexture src, int radius){
-    resize(src.w, src.h);
+    resize(src);
    
     DwFilter.get(context).copy.apply(src, tex_blur[0]);
     
