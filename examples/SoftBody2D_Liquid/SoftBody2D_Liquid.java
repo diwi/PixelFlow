@@ -8,10 +8,11 @@
  */
 
 
-package SoftBody2D_ParticleCollisionSystem;
+package SoftBody2D_Liquid;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwParticleFluidFX;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
@@ -19,10 +20,11 @@ import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
 import processing.core.*;
+import processing.opengl.PGraphics2D;
 
 
 
-public class SoftBody2D_ParticleCollisionSystem extends PApplet {
+public class SoftBody2D_Liquid extends PApplet {
   //
   // 2D Verlet Particle System.
   // 
@@ -41,7 +43,10 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
   
   // particle system, cpu
   ParticleSystem particlesystem;
-
+  
+  DwParticleFluidFX particle_fluid_fx;
+  
+  PGraphics2D pg_particles;
   
   // physics parameters
   DwPhysics.Param param_physics = new DwPhysics.Param();
@@ -50,8 +55,11 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
   DwPhysics<DwParticle2D> physics;
   
   // some state variables for the GUI/display
-  int     BACKGROUND_COLOR    = 255;
+  int     BACKGROUND_COLOR    = 0;
   boolean COLLISION_DETECTION = true;
+  
+  
+
   
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -61,23 +69,26 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     
+    pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
+    
     // main library context
     DwPixelFlow context = new DwPixelFlow(this);
     context.print();
-//    context.printGL();
+    context.printGL();
+    
+    particle_fluid_fx = new DwParticleFluidFX(context);
     
     // particle system object
     particlesystem = new ParticleSystem(this, width, height);
     
     // set some parameters
-    particlesystem.PARTICLE_COUNT              = 1000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.60f;
+    particlesystem.PARTICLE_COUNT              = 4000;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.30f;
 
-    particlesystem.MULT_GRAVITY                = 2.00f;
-
-    particlesystem.particle_param.DAMP_BOUNDS    = 0.99999f;
-    particlesystem.particle_param.DAMP_COLLISION = 0.99999f;
-    particlesystem.particle_param.DAMP_VELOCITY  = 0.99999f;
+    particlesystem.MULT_GRAVITY                  = 0.40f;
+    particlesystem.particle_param.DAMP_BOUNDS    = 0.89999f;
+    particlesystem.particle_param.DAMP_COLLISION = 0.89999f;
+    particlesystem.particle_param.DAMP_VELOCITY  = 0.9999f;
     
     particlesystem.initParticles();
     
@@ -99,10 +110,10 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
     //  add force: Middle Mouse Button (MMB) -> particle[0]
     if(mousePressed){
       float[] mouse = {mouseX, mouseY};
-      particlesystem.particles[0].moveTo(mouse, 0.3f);
-      particlesystem.particles[0].enableCollisions(false);
+      particlesystem.getParticleHand().moveTo(mouse, 0.3f);
+      particlesystem.getParticleHand().enableCollisions(false);
     } else {
-      particlesystem.particles[0].enableCollisions(true);
+      particlesystem.getParticleHand().enableCollisions(true);
     }
     
     // update physics step
@@ -115,15 +126,34 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
     physics.update(1);
 
     // RENDER
-    background(BACKGROUND_COLOR);
 
-    // draw particlesystem
-    PGraphics pg = this.g;
-    pg.hint(DISABLE_DEPTH_MASK);
+    PGraphics2D pg = pg_particles;
+    
+    pg.beginDraw();
+    pg.background(BACKGROUND_COLOR, 0);
+//    pg.hint(DISABLE_DEPTH_MASK);
     pg.blendMode(BLEND);
 //    pg.blendMode(ADD);
     particlesystem.display(pg);
     pg.blendMode(BLEND);
+    pg.endDraw();
+    
+    DwParticleFluidFX.Param param = particle_fluid_fx.param;
+    param.level_of_detail            = 0;
+    param.blur_radius                = 1;
+    param.apply_hightlights          = true;
+    param.apply_subsurfacescattering = !true;
+    particle_fluid_fx.apply(pg_particles);
+    
+    param.level_of_detail            = 1;
+    param.blur_radius                = 2;
+    param.apply_hightlights          = true;
+    param.apply_subsurfacescattering = true;
+    particle_fluid_fx.apply(pg_particles);
+    
+    
+    background(BACKGROUND_COLOR);
+    image(pg, 0, 0);
     
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
@@ -213,6 +243,6 @@ public class SoftBody2D_ParticleCollisionSystem extends PApplet {
 
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { SoftBody2D_ParticleCollisionSystem.class.getName() });
+    PApplet.main(new String[] { SoftBody2D_Liquid.class.getName() });
   }
 }
