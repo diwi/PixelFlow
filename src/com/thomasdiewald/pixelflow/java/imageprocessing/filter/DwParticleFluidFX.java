@@ -1,3 +1,16 @@
+/**
+ * 
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * 
+ * src - www.github.com/diwi/PixelFlow
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
+ * MIT License: https://opensource.org/licenses/MIT
+ * 
+ */
+
+
+
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.jogamp.opengl.GL2;
@@ -10,14 +23,15 @@ import processing.opengl.PGraphicsOpenGL;
 
 public class DwParticleFluidFX {
 
-  
   static public class Param{
-    public int     level_of_detail               = 1;
-    public int     blur_radius                   = 1;
-    public boolean apply_hightlights             = true;
-    public float   highlight                     = 0.60f;
-    public boolean apply_subsurfacescattering    = true;
-    public float   subsurfacescattering          = 0.5f;
+    public int        level_of_detail            = 1;
+    public int        blur_radius                = 0;
+    public boolean    apply_hightlights          = true;
+    public float      highlight                  = 0.50f;
+    public boolean    apply_subsurfacescattering = true;
+    public float      subsurfacescattering       = 0.50f;
+    public Sobel.TYPE edge                       = Sobel.TYPE._3x3_VERT;
+    public boolean    edge_invert                = true;
   }
   
   // parameter
@@ -42,16 +56,12 @@ public class DwParticleFluidFX {
   protected final int SWIZZLE_1 = GL2.GL_ONE;
 
   protected int[] swizzle_RGBA = {SWIZZLE_R, SWIZZLE_G, SWIZZLE_B, SWIZZLE_A};
-  protected int[] swizzle_RGB0 = {SWIZZLE_R, SWIZZLE_G, SWIZZLE_B, SWIZZLE_0};
-  protected int[] swizzle_RGB1 = {SWIZZLE_R, SWIZZLE_G, SWIZZLE_B, SWIZZLE_1};
   protected int[] swizzle_AAA0 = {SWIZZLE_A, SWIZZLE_A, SWIZZLE_A, SWIZZLE_0};
   protected int[] swizzle_AAA1 = {SWIZZLE_A, SWIZZLE_A, SWIZZLE_A, SWIZZLE_1};
-  protected int[] swizzle_AAAA = {SWIZZLE_A, SWIZZLE_A, SWIZZLE_A, SWIZZLE_A};
-  
+  protected int[] swizzle_000A = {SWIZZLE_0, SWIZZLE_0, SWIZZLE_0, SWIZZLE_A};
 
   protected float[] mad_A = new float[]{1,0};
   protected float[] mad_B = new float[]{1,0};
-  
   
   public void apply(PGraphicsOpenGL pg_particles){
     apply(pg_particles, pg_particles);
@@ -64,9 +74,7 @@ public class DwParticleFluidFX {
     tex_particles.resize(context, GL2.GL_RGBA8, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
     
     DwFilter.get(context).copy.apply(pg_src, tex_particles);
-    
     apply(tex_particles);
-    
     DwFilter.get(context).copy.apply(tex_particles, pg_dst);
   }
   
@@ -87,6 +95,8 @@ public class DwParticleFluidFX {
    
     // make sure to not get any OOB
     LOD = Math.min(LOD, filter.gausspyramid.getNumBlurLayers() - 3);
+
+    float[] mad_sobel = {param.edge_invert ? -0.5f : 0.5f,0};
     
     DwGLTexture tex_blur_base = filter.gausspyramid.tex_blur[LOD];
   
@@ -96,8 +106,6 @@ public class DwParticleFluidFX {
       DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LOD];
       DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LOD];
       
-      float th = param.highlight;
-      
 //      // based on luminance edge
 //      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0});
 //      filter.luminance.apply(tex_edge, tex_edge);
@@ -106,10 +114,13 @@ public class DwParticleFluidFX {
 //      filter.merge.apply(tex_blur_base, tex_blur_base, tex_edge, mad_A, mad_B);
       
       //  based on alpha edge
-      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0});
+      filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      tex_edge.swizzle(swizzle_000A);
+      filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.highlight};
+      filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
+      filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
+      filter.threshold.apply(tex_edge, tex_edge);
       tex_edge.swizzle(swizzle_AAA0);
-      filter.threshold.apply(tex_edge, tex_edge, new float[]{th, th, th, 0.0f});
-      tex_edge.swizzle(swizzle_RGB0);
       filter.merge.apply(tex_blur_base, tex_blur_base, tex_edge, mad_A, mad_B);
       tex_edge.swizzle(swizzle_RGBA);
     }
@@ -126,18 +137,19 @@ public class DwParticleFluidFX {
       float mul = 1.5f/(0.5f + add);
       float[] mad = new float[]{mul, add};
       
-      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0.0f});
-      tex_edge.swizzle(swizzle_AAA1);
+      filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      tex_edge.swizzle(swizzle_000A);
       filter.mad.apply(tex_edge, tex_edge, mad);
-      tex_edge.swizzle(swizzle_RGB1);
+      tex_edge.swizzle(swizzle_AAA1);
       filter.multiply.apply(tex_dst, tex_dst, tex_edge);
-      tex_blur.swizzle(swizzle_RGBA);
       tex_edge.swizzle(swizzle_RGBA);
     }
     
-
-    // cut border, AA thresholding
-    filter.threshold.apply(tex_dst, tex_dst, new float[]{0.0f, 0.0f, 0.0f, 0.7f});
+    // cut border, smooth AA thresholding
+    filter.threshold.param.threshold_val = new float[]{0, 0, 0, 0.7f};
+    filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
+    filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
+    filter.threshold.apply(tex_dst, tex_dst);
 
   }
   
