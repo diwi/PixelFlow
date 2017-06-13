@@ -31,6 +31,20 @@ public class Clamp {
     this.context = context;
   }
   
+  
+  public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
+    apply(src, dst, lo, hi);
+  }
+  
+  public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
+    apply(src, dst, lo, hi);
+  }
+  
+  public void apply(DwGLTexture src, DwGLTexture dst) {
+    apply(src, dst, lo, hi);
+  }
+  
+  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] lo, float[] hi) {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
@@ -39,7 +53,7 @@ public class Clamp {
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, lo, hi);
     context.endDraw();
-    context.end("RGBL.apply");
+    context.end("Clamp.apply");
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst, float[] lo, float[] hi) {
@@ -51,7 +65,7 @@ public class Clamp {
     context.beginDraw(dst);
     apply(tex_src.glName, dst.w, dst.h, lo, hi);
     context.endDraw();
-    context.end("RGBL.apply");
+    context.end("Clamp.apply");
   }
   
   
@@ -60,7 +74,7 @@ public class Clamp {
     context.beginDraw(dst);
     apply(src.HANDLE[0], dst.w, dst.h, lo, hi);
     context.endDraw();
-    context.end("RGBL.apply");
+    context.end("Clamp.apply");
   }
   
 
