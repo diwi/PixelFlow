@@ -47,7 +47,6 @@ public class DwParticleFluidFX {
     this.context = context;
   }
   
-
   protected final int SWIZZLE_R = GL2.GL_RED;
   protected final int SWIZZLE_G = GL2.GL_GREEN;
   protected final int SWIZZLE_B = GL2.GL_BLUE;
@@ -63,6 +62,9 @@ public class DwParticleFluidFX {
   protected float[] mad_A = new float[]{1,0};
   protected float[] mad_B = new float[]{1,0};
   
+  protected float[] lo = {0,0,0,0}; // low clamp
+  protected float[] hi = {5,5,5,5}; // high clamp
+  
   public void apply(PGraphicsOpenGL pg_particles){
     apply(pg_particles, pg_particles);
   }
@@ -74,8 +76,8 @@ public class DwParticleFluidFX {
 //    tex_particles.resize(context, GL2.GL_RGBA8, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
     tex_particles.resize(context, GL2.GL_RGBA16F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, 4, 2);
 //    for(int i = 0; i < 50; i++){
-      DwFilter.get(context).copy.apply(pg_src, tex_particles);
-      apply(tex_particles);
+    DwFilter.get(context).copy.apply(pg_src, tex_particles);
+    apply(tex_particles);
 //    }
     DwFilter.get(context).copy.apply(tex_particles, pg_dst);
 
@@ -102,19 +104,18 @@ public class DwParticleFluidFX {
     LOD = Math.min(LOD, filter.gausspyramid.getNumBlurLayers() - 3);
 
     
+
+    
     float[] mad_sobel = {param.edge_invert ? -0.5f : 0.5f,0};
     
     DwGLTexture tex_blur_base = filter.gausspyramid.tex_blur[LOD];
-    
-    float[] lo = {0,0,0,0};
-    float[] hi = {5,5,5,5};
+ 
     // surface highlights
     if(param.apply_hightlights)
     {
       DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LOD];
       DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LOD];
-      
- 
+
 //      // based on luminance edge
 //      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0});
 //      filter.luminance.apply(tex_edge, tex_edge);
