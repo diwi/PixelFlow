@@ -71,11 +71,14 @@ public class DwParticleFluidFX {
   public void apply(PGraphicsOpenGL pg_src, PGraphicsOpenGL pg_dst){
     int w = pg_src.width;
     int h = pg_src.height;
-    tex_particles.resize(context, GL2.GL_RGBA8, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
-    
-    DwFilter.get(context).copy.apply(pg_src, tex_particles);
-    apply(tex_particles);
+//    tex_particles.resize(context, GL2.GL_RGBA8, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
+    tex_particles.resize(context, GL2.GL_RGBA16F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, 4, 2);
+//    for(int i = 0; i < 50; i++){
+      DwFilter.get(context).copy.apply(pg_src, tex_particles);
+      apply(tex_particles);
+//    }
     DwFilter.get(context).copy.apply(tex_particles, pg_dst);
+
   }
   
   
@@ -85,6 +88,8 @@ public class DwParticleFluidFX {
   
   
   public void apply(DwGLTexture tex_src, DwGLTexture tex_dst){
+    
+    context.begin();
     
     int LOD = param.level_of_detail;
     
@@ -96,16 +101,20 @@ public class DwParticleFluidFX {
     // make sure to not get any OOB
     LOD = Math.min(LOD, filter.gausspyramid.getNumBlurLayers() - 3);
 
+    
     float[] mad_sobel = {param.edge_invert ? -0.5f : 0.5f,0};
     
     DwGLTexture tex_blur_base = filter.gausspyramid.tex_blur[LOD];
-  
+    
+    float[] lo = {0,0,0,0};
+    float[] hi = {5,5,5,5};
     // surface highlights
     if(param.apply_hightlights)
     {
       DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LOD];
       DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LOD];
       
+ 
 //      // based on luminance edge
 //      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0});
 //      filter.luminance.apply(tex_edge, tex_edge);
@@ -115,6 +124,7 @@ public class DwParticleFluidFX {
       
       //  based on alpha edge
       filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      filter.clamp.apply(tex_edge, tex_edge, lo, hi);
       tex_edge.swizzle(swizzle_000A);
       filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.highlight};
       filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
@@ -138,6 +148,7 @@ public class DwParticleFluidFX {
       float[] mad = new float[]{mul, add};
       
       filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      filter.clamp.apply(tex_edge, tex_edge, lo, hi);
       tex_edge.swizzle(swizzle_000A);
       filter.mad.apply(tex_edge, tex_edge, mad);
       tex_edge.swizzle(swizzle_AAA1);
@@ -150,7 +161,9 @@ public class DwParticleFluidFX {
     filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
     filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
     filter.threshold.apply(tex_dst, tex_dst);
+    
 
+    context.end();
   }
   
 }
