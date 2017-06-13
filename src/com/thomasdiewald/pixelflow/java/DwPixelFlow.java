@@ -1,12 +1,13 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 
 
@@ -36,7 +37,7 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "0.56";
+    static public final String version = "0.57";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "http://www.thomasdiewald.com";

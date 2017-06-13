@@ -11,6 +11,7 @@
 
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -37,8 +38,8 @@ public class GaussianBlurPyramid {
   public DwPixelFlow context;
   
   // number of mip-levels for bluring
-  private int     BLUR_LAYERS_MAX = 10;
-  private int     BLUR_LAYERS = 5;
+  private int BLUR_LAYERS_MAX = 10;
+  private int BLUR_LAYERS = 5;
 
   public GaussianBlur gaussblur;
 
@@ -71,12 +72,25 @@ public class GaussianBlurPyramid {
     }
   }
   
+  // TODO tackle internal format detection.
+  // more precision is good, like 16F
+  
   public void resize(PGraphicsOpenGL src){
-    resize(src.width, src.height, GLES3.GL_RGBA8, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, 4, 1);
+//    resize(src.width, src.height, GLES3.GL_RGBA8, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, 4, 1);
+    resize(src.width, src.height, GL2.GL_RGBA16F, GLES3.GL_RGBA, GL2.GL_FLOAT, 4, 2);
   }
   
   public void resize(DwGLTexture src){
     resize(src.w, src.h, src.internalFormat, src.format, src.type, src.num_channel, src.byte_per_channel);
+    
+//    int iformat = GL2.GL_RGBA32F;
+//    switch(src.num_channel){
+//      case 1: iformat = GL2.GL_R16F   ; break;
+//      case 2: iformat = GL2.GL_RG16F  ; break;
+//      case 3: iformat = GL2.GL_RGB16F ; break;
+//      case 4: iformat = GL2.GL_RGBA16F; break;
+//    }
+//    resize(src.w, src.h, iformat, src.format, GL2.GL_FLOAT, src.num_channel, 2);
   }
 
   public void resize(int w, int h, int internal_format, int format, int type, int num_channels, int bbp){
@@ -113,29 +127,25 @@ public class GaussianBlurPyramid {
 
   public void apply(PGraphicsOpenGL src, int radius){
     resize(src);
-   
     DwFilter.get(context).copy.apply(src, tex_blur[0]);
-    
-    context.begin();
-    gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 1 + radius);
-    for(int i = 1; i < BLUR_LAYERS; i++){
-      gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + radius);
-    }
-    context.end("GaussianPyramid.gaussian bluring");
+    createPyramid(radius);
   }
   
   
   public void apply(DwGLTexture src, int radius){
     resize(src);
-   
     DwFilter.get(context).copy.apply(src, tex_blur[0]);
-    
+    createPyramid(radius);
+  }
+  
+  
+  protected void createPyramid(int radius){
     context.begin();
     gaussblur.apply(tex_blur[0], tex_blur[0], tex_temp[0], 1 + radius);
     for(int i = 1; i < BLUR_LAYERS; i++){
-      gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], i * 2 + radius);
+      gaussblur.apply(tex_blur[i-1], tex_blur[i], tex_temp[i], 1 + i + radius);
     }
-    context.end("GaussianPyramid.gaussian bluring");
+    context.end("GaussianPyramid.createPyramid");
   }
 
 }

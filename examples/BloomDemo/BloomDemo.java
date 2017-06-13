@@ -24,7 +24,7 @@ public class BloomDemo extends PApplet {
   // Bloom Shader applied as post-processing effect on a simple 2D scene.
   //
   
-  boolean START_FULLSCREEN = true;
+  boolean START_FULLSCREEN = !true;
   
   
   int viewport_w = 1280;
@@ -155,11 +155,11 @@ public class BloomDemo extends PApplet {
     switch(DISPLAY_MODE){
       case 2: filter.copy.apply(pg_bloom, pg_render); break;
       case 3: filter.copy.apply(pg_luminance, pg_render); break;
-      case 4: filter.copy.apply(filter.bloom.tex_blur[0], pg_render); break;
-      case 5: filter.copy.apply(filter.bloom.tex_blur[1], pg_render); break;
-      case 6: filter.copy.apply(filter.bloom.tex_blur[2], pg_render); break;
-      case 7: filter.copy.apply(filter.bloom.tex_blur[3], pg_render); break;
-      case 8: filter.copy.apply(filter.bloom.tex_blur[4], pg_render); break;
+      case 4: filter.copy.apply(filter.bloom.gaussianpyramid.tex_blur[0], pg_render); break;
+      case 5: filter.copy.apply(filter.bloom.gaussianpyramid.tex_blur[1], pg_render); break;
+      case 6: filter.copy.apply(filter.bloom.gaussianpyramid.tex_blur[2], pg_render); break;
+      case 7: filter.copy.apply(filter.bloom.gaussianpyramid.tex_blur[3], pg_render); break;
+      case 8: filter.copy.apply(filter.bloom.gaussianpyramid.tex_blur[4], pg_render); break;
     }
     
     // display result
