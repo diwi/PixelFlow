@@ -33,45 +33,45 @@ public class GaussianBlur {
   
   public GaussianBlur(DwPixelFlow context){
     this.context = context;
-    
-    boolean DEBUG = false;
-    
-    if(DEBUG){
-      int    radius = 2;
-      double sigma  = radius/3.0;
-    
-      double coeff_sum = 0; // for normalization
-      double[] coeff = new double[radius * 2 + 1];
+  }
   
-      for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
-        coeff[idx] = Math.exp(-0.5 * i * i / (sigma * sigma));
-        coeff_sum += coeff[idx];
-      }  
-      
-      float coeff_sum_check = 0;
-      for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
-        coeff[idx] /= coeff_sum;
-        coeff_sum_check += coeff[idx];
-  //      System.out.printf(Locale.ENGLISH, "%1.8f\n",coeff[idx]);
-      }
+  static public void printKernelDebug(){
+    
+    int    radius = 2;
+    double sigma  = radius/3.0;
   
-      System.out.println("sum_check = "+coeff_sum_check);
-      
-      System.out.println("\n\nvertical:");
-      for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
-        String sum = i == radius ? "" : "+";
-        System.out.printf(Locale.ENGLISH, "%1.9f * textureOffset(tex, posn, ivec2(0,%3d)) "+sum+" \n", coeff[idx], i);
-      }
-      
-      System.out.println("\n\nhorizontal:");
-      for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
-        String sum = i == radius ? "" : "+";
-        System.out.printf(Locale.ENGLISH, "%1.9f * textureOffset(tex, posn, ivec2(%3d, 0)) "+sum+" \n", coeff[idx], i);
-      }
-      
+    double coeff_sum = 0; // for normalization
+    double[] coeff = new double[radius * 2 + 1];
+
+    for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
+      coeff[idx] = Math.exp(-0.5 * i * i / (sigma * sigma));
+      coeff_sum += coeff[idx];
+    }  
+    
+    float coeff_sum_check = 0;
+    for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
+      coeff[idx] /= coeff_sum;
+      coeff_sum_check += coeff[idx];
+//      System.out.printf(Locale.ENGLISH, "%1.8f\n",coeff[idx]);
+    }
+
+    System.out.println("sum_check = "+coeff_sum_check);
+    
+    System.out.println("\n\nvertical:");
+    for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
+      String sum = i == radius ? "" : "+";
+      System.out.printf(Locale.ENGLISH, "%1.9f * textureOffset(tex, posn, ivec2(0,%3d)) "+sum+" \n", coeff[idx], i);
+    }
+    
+    System.out.println("\n\nhorizontal:");
+    for (int idx = 0, i = -radius; i <= +radius; i++, idx++){
+      String sum = i == radius ? "" : "+";
+      System.out.printf(Locale.ENGLISH, "%1.9f * textureOffset(tex, posn, ivec2(%3d, 0)) "+sum+" \n", coeff[idx], i);
     }
   }
+  
 
+  
 
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, PGraphicsOpenGL tmp, int radius) {
     apply(src, dst, tmp, radius, radius * DEFAULT_RADIUS_SIGMA_RATIO);

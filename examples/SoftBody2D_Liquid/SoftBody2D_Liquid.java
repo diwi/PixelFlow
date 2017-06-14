@@ -41,7 +41,7 @@ public class SoftBody2D_Liquid extends PApplet {
   int gui_x = 20;
   int gui_y = 20;
   
-  // particle system, cpu
+  // particle system
   ParticleSystem particlesystem;
   
   DwParticleFluidFX particle_fluid_fx;
@@ -58,8 +58,6 @@ public class SoftBody2D_Liquid extends PApplet {
   int     BACKGROUND_COLOR    = 0;
   boolean COLLISION_DETECTION = true;
   
-  
-
   
   public void settings() {
     size(viewport_w, viewport_h, P2D);
@@ -126,32 +124,19 @@ public class SoftBody2D_Liquid extends PApplet {
     physics.update(1);
 
     // RENDER
-
     PGraphics2D pg = pg_particles;
-    
     pg.beginDraw();
     pg.background(BACKGROUND_COLOR, 0);
-//    pg.hint(DISABLE_DEPTH_MASK);
     pg.blendMode(BLEND);
-//    pg.blendMode(ADD);
     particlesystem.display(pg);
     pg.blendMode(BLEND);
     pg.endDraw();
     
-    DwParticleFluidFX.Param param = particle_fluid_fx.param;
-    param.level_of_detail            = 0;
-    param.blur_radius                = 1;
-    param.apply_hightlights          = true;
-    param.apply_subsurfacescattering = !true;
+
+    // apply liquid filter
     particle_fluid_fx.apply(pg_particles);
-    
-    param.level_of_detail            = 1;
-    param.blur_radius                = 2;
-    param.apply_hightlights          = true;
-    param.apply_subsurfacescattering = true;
-    particle_fluid_fx.apply(pg_particles);
-    
-    
+
+   
     background(BACKGROUND_COLOR);
     image(pg, 0, 0);
     

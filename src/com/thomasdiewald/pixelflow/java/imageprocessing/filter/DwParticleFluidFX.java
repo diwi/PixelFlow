@@ -24,14 +24,20 @@ import processing.opengl.PGraphicsOpenGL;
 public class DwParticleFluidFX {
 
   static public class Param{
-    public int        level_of_detail            = 1;
-    public int        blur_radius                = 0;
-    public boolean    apply_hightlights          = true;
-    public float      highlight                  = 0.50f;
-    public boolean    apply_subsurfacescattering = true;
-    public float      subsurfacescattering       = 0.50f;
-    public Sobel.TYPE edge                       = Sobel.TYPE._3x3_VERT;
-    public boolean    edge_invert                = true;
+    public int        base_LoD          = 1;
+    public int        base_blur_radius  = 2;
+    
+    public boolean    highlight_enabled = true;
+    public float      highlight_decay   = 0.60f;
+    public int        highlight_LoD     = 1;
+    public Sobel.TYPE highlight_dir     = Sobel.TYPE._3x3_BLTR;
+    public boolean    highlight_dir_inv = true;
+    
+    public boolean    sss_enabled       = true;
+    public float      sss_decay         = 0.50f;
+    public int        sss_LoD           = 3;
+    public Sobel.TYPE sss_dir           = Sobel.TYPE._3x3_VERT;
+    public boolean    sss_dir_inv       = true;
   }
   
   // parameter
@@ -39,12 +45,14 @@ public class DwParticleFluidFX {
   
   // pixelflow context
   public DwPixelFlow context;
+  public DwFilter filter;
   
   // copy of the original texture, way faster to work with
   public DwGLTexture tex_particles = new DwGLTexture();
   
   public DwParticleFluidFX(DwPixelFlow context){
     this.context = context;
+    this.filter = DwFilter.get(context);
   }
   
   protected final int SWIZZLE_R = GL2.GL_RED;
@@ -76,10 +84,10 @@ public class DwParticleFluidFX {
 //    tex_particles.resize(context, GL2.GL_RGBA8, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
     tex_particles.resize(context, GL2.GL_RGBA16F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, 4, 2);
 //    for(int i = 0; i < 50; i++){
-    DwFilter.get(context).copy.apply(pg_src, tex_particles);
+    filter.copy.apply(pg_src, tex_particles);
     apply(tex_particles);
 //    }
-    DwFilter.get(context).copy.apply(tex_particles, pg_dst);
+    filter.copy.apply(tex_particles, pg_dst);
 
   }
   
@@ -93,28 +101,42 @@ public class DwParticleFluidFX {
     
     context.begin();
     
-    int LOD = param.level_of_detail;
+    // get max required LoD level
+    int lod_max = 0;
+    lod_max = Math.max(lod_max, param.base_LoD     );
+    lod_max = Math.max(lod_max, param.sss_LoD      );
+    lod_max = Math.max(lod_max, param.highlight_LoD);
     
-    final DwFilter filter = DwFilter.get(context);
+    // generate blur layers ... the real max LoD level is checked internally
+    filter.gausspyramid.setBlurLayers(lod_max + 1);
+    filter.gausspyramid.apply(tex_src, param.base_blur_radius);
     
-    filter.gausspyramid.setBlurLayers(LOD + 3);
-    filter.gausspyramid.apply(tex_src, param.blur_radius);
-   
-    // make sure to not get any OOB
-    LOD = Math.min(LOD, filter.gausspyramid.getNumBlurLayers() - 3);
+    // get real max LoD level, make sure to not get any OOB
+    lod_max = filter.gausspyramid.getNumBlurLayers() - 1;
 
+    // correct max LoD levels
+    param.base_LoD      = Math.min(lod_max, param.base_LoD     );
+    param.sss_LoD       = Math.min(lod_max, param.sss_LoD      );
+    param.highlight_LoD = Math.min(lod_max, param.highlight_LoD);
     
-
+    // indices
+    int LoD_base      = Math.max(0, param.base_LoD     );
+    int LoD_highlight = Math.max(0, param.highlight_LoD);
+    int LoD_sss1      = Math.max(0, param.sss_LoD      );
+    int LoD_sss2      = Math.max(0, param.sss_LoD   - 1);
     
-    float[] mad_sobel = {param.edge_invert ? -0.5f : 0.5f,0};
     
-    DwGLTexture tex_blur_base = filter.gausspyramid.tex_blur[LOD];
+    // sobel mad args
+    float[] highlight_dir_mad = {param.highlight_dir_inv ? -0.5f : 0.5f,0};
+    float[] sss_dir_mad       = {param.sss_dir_inv       ? -0.5f : 0.5f,0};
+    
+    DwGLTexture tex_blur_base = filter.gausspyramid.tex_blur[LoD_base];
  
-    // surface highlights
-    if(param.apply_hightlights)
+    // highlights
+    if(param.highlight_enabled)
     {
-      DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LOD];
-      DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LOD];
+      DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LoD_highlight];
+      DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LoD_highlight];
 
 //      // based on luminance edge
 //      filter.sobel.apply(tex_blur, tex_edge, Sobel.TYPE._3x3_VERT, new float[]{-0.5f,0});
@@ -124,10 +146,10 @@ public class DwParticleFluidFX {
 //      filter.merge.apply(tex_blur_base, tex_blur_base, tex_edge, mad_A, mad_B);
       
       //  based on alpha edge
-      filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      filter.sobel.apply(tex_blur, tex_edge, param.highlight_dir, highlight_dir_mad);
       filter.clamp.apply(tex_edge, tex_edge, lo, hi);
       tex_edge.swizzle(swizzle_000A);
-      filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.highlight};
+      filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.highlight_decay};
       filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
       filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
       filter.threshold.apply(tex_edge, tex_edge);
@@ -138,17 +160,18 @@ public class DwParticleFluidFX {
 
     filter.copy.apply(tex_blur_base, tex_dst);
     
-    // subsurface scattering
-    if(param.apply_subsurfacescattering)
+    
+    // sub-surface-scattering
+    if(param.sss_enabled)
     {
-      DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LOD + 2];
-      DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LOD + 1];
+      DwGLTexture tex_blur = filter.gausspyramid.tex_blur[LoD_sss1];
+      DwGLTexture tex_edge = filter.gausspyramid.tex_temp[LoD_sss2];
       
-      float add = param.subsurfacescattering;
+      float add = param.sss_decay;
       float mul = 1.5f/(0.5f + add);
       float[] mad = new float[]{mul, add};
       
-      filter.sobel.apply(tex_blur, tex_edge, param.edge, mad_sobel);
+      filter.sobel.apply(tex_blur, tex_edge, param.sss_dir, sss_dir_mad);
       filter.clamp.apply(tex_edge, tex_edge, lo, hi);
       tex_edge.swizzle(swizzle_000A);
       filter.mad.apply(tex_edge, tex_edge, mad);
