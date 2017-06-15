@@ -10,7 +10,7 @@
  */
 
 
-package AntiAliasing;
+package AntiAliasing.AntiAliasingComparison;
 
 import java.util.Locale;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -32,7 +32,7 @@ import processing.core.PShape;
 import processing.opengl.PGraphics3D;
 
 
-public class AntiAliasing extends PApplet {
+public class AntiAliasingComparison extends PApplet {
   
   //
   // This example compares several Anti-Aliasing Algorithms.
@@ -482,6 +482,6 @@ public class AntiAliasing extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { AntiAliasing.class.getName() });
+    PApplet.main(new String[] { AntiAliasingComparison.class.getName() });
   }
 }
