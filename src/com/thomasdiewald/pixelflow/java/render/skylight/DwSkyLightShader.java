@@ -36,15 +36,17 @@ public class DwSkyLightShader {
   
   static public class Param{
     
-    public float   intensity = 1f;
-    public float[] rgb = {1,1,1};
+    // sample distribution
+    public float   solar_azimuth  = 0;
+    public float   solar_zenith   = 0;
+    public float   sample_focus   = 1f;
     
-    public float   solar_azimuth = 0;
-    public float   solar_zenith  = 0;
-    public float   sample_focus  = 1f;
+    // color
+    public float   intensity      = 1f;
+    public float[] rgb            = {1,1,1};
     
-    public int     iterations = 20;
-//    public boolean singlesided = true;
+    // quality/performance
+    public int     iterations     = 20;
     public int     shadowmap_size = 1024;
   }
   

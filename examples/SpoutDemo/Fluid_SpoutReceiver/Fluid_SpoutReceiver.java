@@ -12,8 +12,6 @@ package SpoutDemo.Fluid_SpoutReceiver;
 
 
 
-import java.io.Console;
-
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;

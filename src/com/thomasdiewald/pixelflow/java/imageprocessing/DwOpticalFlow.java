@@ -77,6 +77,11 @@ public class DwOpticalFlow {
     context.begin();
     frameCurr.resize(context, w, h, param.grayscale);
     framePrev.resize(context, w, h, param.grayscale);
+    
+    if(frameCurr.resized || framePrev.resized){
+      UPDATE_STEP = 0;
+    }
+    
     context.end("OpticalFlow.resize");
   }
   
@@ -91,61 +96,90 @@ public class DwOpticalFlow {
     context.end("OpticalFlow.clear");
   }
   
-
-  public void update(PGraphics2D pg_curr) {
-
+  
+  public void update(DwGLTexture frame_src) {
     // .) swap frames
     Frame frame_T = frameCurr;
     frameCurr = framePrev;
     framePrev = frame_T;
     
-    int w = frameCurr.w;
-    int h = frameCurr.h;
+    int w = frame_src.w;
+    int h = frame_src.h;
     
     // 0) resize(w/h) or reformat(rgba/grayscale)
     resize(w, h);
-    
-    DwFilter filter = DwFilter.get(context);
-    DwGLSLProgram shader_oflow;
-    
+
     // 1) copy/grayscale
     if(param.grayscale){
-      filter.luminance.apply(pg_curr, frameCurr.frame);
-      shader_oflow = shader_OF_gray;
+      DwFilter.get(context).luminance.apply(frame_src, frameCurr.frame);
     } else {
-      filter.copy.apply(pg_curr, frameCurr.frame);
-      shader_oflow = shader_OF_rgba;
+      DwFilter.get(context).copy.apply(frame_src, frameCurr.frame);
     }
+    
+    // 2) run optical flow
+    computeOpticalFlow();
+  }
+  
+  
+  public void update(PGraphics2D pg_curr) {
+    // .) swap frames
+    Frame frame_T = frameCurr;
+    frameCurr = framePrev;
+    framePrev = frame_T;
+    
+    int w = pg_curr.width;
+    int h = pg_curr.height;
+    
+    // 0) resize(w/h) or reformat(rgba/grayscale)
+    resize(w, h);
+
+    // 1) copy/grayscale
+    if(param.grayscale){
+      DwFilter.get(context).luminance.apply(pg_curr, frameCurr.frame);
+    } else {
+      DwFilter.get(context).copy.apply(pg_curr, frameCurr.frame);
+    }
+    
+    // 2) run optical flow
+    computeOpticalFlow();
+  }
+
+
+  
+  public void computeOpticalFlow() {
+
+    DwFilter filter = DwFilter.get(context);
     
     context.begin();
     
-    // 2) blur
+    // 1) blur
     filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
 
-    // 3) gradients
+    // 2) gradients
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelH, Sobel.TYPE._3x3_HORZ);
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT);
     
-    // 4) compute optical flow
+    // 3) compute optical flow
     context.beginDraw(frameCurr.velocity);
-    shader_oflow.begin();
-    shader_oflow.uniform2f     ("wh_rcp"          , 1f/w, 1f/h);
-    shader_oflow.uniform1f     ("scale"           , param.flow_scale * -1f);
-    shader_oflow.uniform1f     ("threshold"       , param.threshold);
-    shader_oflow.uniformTexture("tex_curr_frame"  , frameCurr.frame);
-    shader_oflow.uniformTexture("tex_prev_frame"  , framePrev.frame);
-    shader_oflow.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
-    shader_oflow.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
-    shader_oflow.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
-    shader_oflow.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
-    shader_oflow.drawFullScreenQuad();
-    shader_oflow.end();
+    DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
+    shader.begin();
+    shader.uniform2f     ("wh_rcp"          , 1f/frameCurr.w, 1f/frameCurr.h);
+    shader.uniform1f     ("scale"           , param.flow_scale * -1f);
+    shader.uniform1f     ("threshold"       , param.threshold);
+    shader.uniformTexture("tex_curr_frame"  , frameCurr.frame);
+    shader.uniformTexture("tex_prev_frame"  , framePrev.frame);
+    shader.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
+    shader.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
+    shader.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
+    shader.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
+    shader.drawFullScreenQuad();
+    shader.end();
     context.endDraw("OpticalFlow shader");
 
-    // 5) blur the current velocity
+    // 4) blur the current velocity
     filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
     
-    // 6) mix with previous velocity 
+    // 5) mix with previous velocity 
     DwGLTexture dst  = frameCurr.velocity;
     DwGLTexture srcA = framePrev.velocity;
     DwGLTexture srcB = frameCurr.velocity;
@@ -224,13 +258,37 @@ public class DwOpticalFlow {
   }
   
 
+  //////////////////////////////////////////////////////////////////////////////
+  // DATA TRANSFER: OPENGL <-> HOST APPLICATION
+  //////////////////////////////////////////////////////////////////////////////
+  
+  
+  // Transfer velocity data from the GPU to the host-application
+  // This is in general a bad idea because such operations are very slow. So 
+  // either do everything in shaders, and avoid memory transfer when possible, 
+  // or do it very rarely. however, this is just an example for convenience.
+  
+
+  // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
+  // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
+  public float[] getVelocity(float[] data_F4, int x, int y, int w, int h){
+    return getVelocity(data_F4, x, y, w, h, 0);
+  }
+  
+  public float[] getVelocity(float[] data_F4, int x, int y, int w, int h, int buffer_offset){
+    context.begin();
+    data_F4 = frameCurr.velocity.getFloatTextureData(data_F4, x, y, w, h, buffer_offset);
+    context.end("Fluid.getVelocity");
+    return data_F4;
+  }
+  
   // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
   // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
   public float[] getVelocity(float[] data_F4){
     context.begin();
-    float[] data = frameCurr.velocity.getFloatTextureData(data_F4);
-    context.end("OpticalFlow.getVelocity");
-    return data;
+    data_F4 = frameCurr.velocity.getFloatTextureData(data_F4);
+    context.end("Fluid.getVelocity");
+    return data_F4;
   }
   
   
@@ -256,6 +314,8 @@ public class DwOpticalFlow {
     public DwGLTexture velocity = new DwGLTexture();
     public DwGLTexture tmp      = new DwGLTexture();
     
+    
+    public boolean resized = false;
     protected int w, h;
     
     public Frame(){
@@ -290,8 +350,7 @@ public class DwOpticalFlow {
       this.h = h;
         
       context.begin();
-      boolean resized = false;
-
+      resized = false;
       resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
       resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
       resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);

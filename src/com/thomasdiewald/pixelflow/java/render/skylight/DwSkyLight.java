@@ -56,13 +56,13 @@ public class DwSkyLight {
     // composition of sky and sun for rendering
     renderer = new DwSkyLightRenderer(context, scene_display, geom, sky, sun);
     
-    // parameters for sky-light
+    // default starting parameters for sky-light
     sky.param.solar_azimuth  = 0;
     sky.param.solar_zenith   = 0;
     sky.param.sample_focus   = 1;
     sky.param.rgb = new float[]{1,1,1};
     
-    // parameters for sun-light
+    // default starting parameters for sun-light
     sun.param.solar_azimuth  = 45;
     sun.param.solar_zenith   = 80;
     sun.param.sample_focus   = 0.05f;

@@ -593,18 +593,18 @@ public class DwFluid2D{
   
   public float[] getVelocity(float[] data_F4, int x, int y, int w, int h, int buffer_offset){
     context.begin();
-    float[] data = tex_velocity.src.getFloatTextureData(data_F4, x, y, w, h, buffer_offset);
+    data_F4 = tex_velocity.src.getFloatTextureData(data_F4, x, y, w, h, buffer_offset);
     context.end("Fluid.getVelocity");
-    return data;
+    return data_F4;
   }
   
   // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
   // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
   public float[] getVelocity(float[] data_F4){
     context.begin();
-    float[] data = tex_velocity.src.getFloatTextureData(data_F4);
+    data_F4 = tex_velocity.src.getFloatTextureData(data_F4);
     context.end("Fluid.getVelocity");
-    return data;
+    return data_F4;
   }
   
   
