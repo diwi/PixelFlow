@@ -211,7 +211,7 @@ public class Demo_OpticalFlowDraw_PFM extends PApplet {
       
       // write file
       pfm_w.write(filename,  pfm_w.float_array, w, h);
-      System.out.println("pfm-file: "+filename);
+      System.out.println("pfm-file: "+filename.getAbsolutePath());
 
       // optionally check data
       if(pmf_debug_check){

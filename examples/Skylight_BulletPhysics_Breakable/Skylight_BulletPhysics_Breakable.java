@@ -1102,7 +1102,7 @@ public class Skylight_BulletPhysics_Breakable extends PApplet {
   public void saveScreenshot(){
     File file = capture.createFilename();
     save(file.getAbsolutePath());
-    System.out.println(file);
+    System.out.println(file.getAbsolutePath());
   }
 
 

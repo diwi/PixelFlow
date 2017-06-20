@@ -836,7 +836,7 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
     File file = capture.createFilename();
 //    pg_aa.save(file.getAbsolutePath());
     save(file.getAbsolutePath());
-    System.out.println(file);
+    System.out.println(file.getAbsolutePath());
   }
 
 

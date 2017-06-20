@@ -155,7 +155,7 @@ public class Demo_OpticalFlowMovie_PFM extends PApplet {
       //    display_mode = 0 --> lines, along the velocity direction
       //    display_mode = 1 --> lines, normal to the velocity direction
       opticalflow.param.display_mode = (mousePressed && mouseButton == CENTER) ? 1 : 0;
-      opticalflow.renderVelocityStreams(pg_oflow, 10);
+      opticalflow.renderVelocityStreams(pg_oflow, Math.round(pmf_scale * 4));
       
       
 
@@ -272,7 +272,7 @@ public class Demo_OpticalFlowMovie_PFM extends PApplet {
       
       // write file
       pfm_w.write(filename,  pfm_w.float_array, w, h);
-      System.out.println("pfm-file: "+filename);
+      System.out.println("pfm-file: "+filename.getAbsolutePath());
 
       // optionally check data
       if(pmf_debug_check){

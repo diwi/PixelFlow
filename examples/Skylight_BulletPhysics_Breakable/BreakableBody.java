@@ -9,6 +9,7 @@ import javax.vecmath.Vector3f;
 
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
+
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 
 import bRigid.BBox;
@@ -36,7 +37,7 @@ public class BreakableBody{
   float mass = 0;
   float thickness = 0;
   float mass_mult = 1f;
-  float[] color = {255,255,255};
+  float[] bcolor = {255,255,255};
   
   public BreakableBody(PApplet papplet, MyBPhysics physics, PShape group_bulletbodies){
     this.papplet = papplet;
@@ -54,15 +55,15 @@ public class BreakableBody{
       group_bulletbodies.removeChild(idx);
     }
   }
-  public void initBody(Vector3f dim, PMatrix3D matp5, float[] color){
-    initBody(dim, matp5, color, 1);
+  public void initBody(Vector3f dim, PMatrix3D matp5, float[] bcolor){
+    initBody(dim, matp5, bcolor, 1);
   }
 
-  public void initBody(Vector3f dim, PMatrix3D matp5, float[] color, float mass_mult){
+  public void initBody(Vector3f dim, PMatrix3D matp5, float[] bcolor, float mass_mult){
     this.mass_mult = mass_mult;
-    this.color[0] = color[0];
-    this.color[1] = color[1];
-    this.color[2] = color[2];
+    this.bcolor[0] = bcolor[0];
+    this.bcolor[1] = bcolor[1];
+    this.bcolor[2] = bcolor[2];
 
     float x_min = -(dim.x * 0.5f);
     float x_max = +(dim.x * 0.5f);
@@ -90,10 +91,10 @@ public class BreakableBody{
 //    body.rigidBody.setDamping(0.2f, 0.2f);
 
     body.displayShape = papplet.createShape(PConstants.BOX, dim.x, dim.y, dim.z);
-    body.displayShape.setFill(papplet.color(color[0], color[1], color[2]));
+    body.displayShape.setFill(colorARGB(bcolor[0], bcolor[1], bcolor[2]));
     body.displayShape.setFill(true);
     body.displayShape.setStrokeWeight(1f);
-    body.displayShape.setStroke(papplet.color(color[0]*0.5f, color[1]*0.5f, color[2]*0.5f, 96));
+    body.displayShape.setStroke(colorARGB(bcolor[0]*0.5f, bcolor[1]*0.5f, bcolor[2]*0.5f, 96));
     body.displayShape.setStroke(false);
     body.displayShape.setName("window| [wire]");
 
@@ -257,7 +258,7 @@ public class BreakableBody{
       bbody.body = body_new;
       bbody.boundary = cell_polygon;
       bbody.thickness = thickness;
-      bbody.color = color;
+      bbody.bcolor = bcolor;
       bbody.mass = mass_new;
       bbody.mass_mult = mass_mult;
       bbody.body.rigidBody.setUserPointer(bbody);
@@ -324,14 +325,14 @@ public class BreakableBody{
     cell.addChild(cell_bot);
     cell.addChild(cell_side);
     
-    float r = color[0];
-    float g = color[1];
-    float b = color[2];
+    float r = bcolor[0];
+    float g = bcolor[1];
+    float b = bcolor[2];
     
-    cell.setFill(papplet.color(r,g,b));
+    cell.setFill(colorARGB(r,g,b));
     cell.setFill(true);
     cell.setStrokeWeight(1f);
-    cell.setStroke(papplet.color(r*0.5f,g*0.5f,b*0.5f,96));
+    cell.setStroke(colorARGB(r*0.5f,g*0.5f,b*0.5f, 96));
     cell.setStroke(false);
     
     cell.setName("[wire]");
@@ -340,6 +341,8 @@ public class BreakableBody{
   }
   
   
+  
+
   
   
 
@@ -363,7 +366,25 @@ public class BreakableBody{
   }
   
   
+  static protected int colorARGB(float r, float g, float b){
+    int ir = Math.round(clamp(r, 0, 255));
+    int ig = Math.round(clamp(g, 0, 255));
+    int ib = Math.round(clamp(b, 0, 255));
+    int ia = 255;
+    return ia << 24 | ir << 16 | ig << 8 | ib;
+  }
   
+  static protected int colorARGB(float r, float g, float b, float a){
+    int ir = Math.round(clamp(r, 0, 255));
+    int ig = Math.round(clamp(g, 0, 255));
+    int ib = Math.round(clamp(b, 0, 255));
+    int ia = Math.round(clamp(a, 0, 255));
+    return ia << 24 | ir << 16 | ig << 8 | ib;
+  }
+  
+  static final public float clamp(float val, float lo, float hi){
+    return (val < lo) ? lo : (val > hi) ? hi : val;
+  }
   
   
   

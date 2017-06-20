@@ -28,7 +28,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 
-public class Fluid_StreamLines_Custom extends PApplet {
+public class Fluid_StreamLines_CustomRender extends PApplet {
   
   private class MyFluidData implements DwFluid2D.FluidData{
     
@@ -433,6 +433,6 @@ public class Fluid_StreamLines_Custom extends PApplet {
 
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Fluid_StreamLines_Custom.class.getName() });
+    PApplet.main(new String[] { Fluid_StreamLines_CustomRender.class.getName() });
   }
 }
