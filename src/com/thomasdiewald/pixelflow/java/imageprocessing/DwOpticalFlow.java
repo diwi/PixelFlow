@@ -97,17 +97,20 @@ public class DwOpticalFlow {
   }
   
   
-  public void update(DwGLTexture frame_src) {
-    // .) swap frames
+  protected void swapFrames(){
     Frame frame_T = frameCurr;
     frameCurr = framePrev;
     framePrev = frame_T;
+  }
+  
+  
+  public void update(DwGLTexture frame_src) {
     
-    int w = frame_src.w;
-    int h = frame_src.h;
+    // .) swap frames, so frameCurr contains latest velocity data
+    swapFrames();
     
     // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(w, h);
+    resize(frame_src.w, frame_src.h);
 
     // 1) copy/grayscale
     if(param.grayscale){
@@ -122,16 +125,12 @@ public class DwOpticalFlow {
   
   
   public void update(PGraphics2D pg_curr) {
-    // .) swap frames
-    Frame frame_T = frameCurr;
-    frameCurr = framePrev;
-    framePrev = frame_T;
     
-    int w = pg_curr.width;
-    int h = pg_curr.height;
-    
+    // .) swap frames, so frameCurr contains latest velocity data
+    swapFrames();
+
     // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(w, h);
+    resize(pg_curr.width, pg_curr.height);
 
     // 1) copy/grayscale
     if(param.grayscale){
@@ -148,9 +147,9 @@ public class DwOpticalFlow {
   
   public void computeOpticalFlow() {
 
-    DwFilter filter = DwFilter.get(context);
-    
     context.begin();
+    
+    DwFilter filter = DwFilter.get(context);
     
     // 1) blur
     filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
@@ -188,9 +187,10 @@ public class DwOpticalFlow {
     float[]     madB = {1f - mix, 0};
     filter.merge.apply(dst, srcA, srcB, madA, madB);
     
-    context.end("OpticalFlow.update");
-    
     UPDATE_STEP++;
+    
+    context.end("OpticalFlow.update");
+
   }
   
   

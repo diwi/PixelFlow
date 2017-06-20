@@ -223,7 +223,6 @@ public class Skylight_PoissonSphereSamples extends PApplet {
       sample.initAnimationRadius();
     }
     
-    System.out.println("poisson samples: "+pds.samples.size());
   }
   
   

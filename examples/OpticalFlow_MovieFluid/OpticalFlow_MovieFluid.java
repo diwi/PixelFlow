@@ -273,6 +273,8 @@ public class OpticalFlow_MovieFluid extends PApplet {
     movie = new Movie(this, "examples/data/Pulp_Fiction_Dance_Scene.mp4");
     movie.loop();
     
+
+    
     timeline = new TimeLine(movie, 0, height-20, pg_movie_w, 20);
 
     createGUI();

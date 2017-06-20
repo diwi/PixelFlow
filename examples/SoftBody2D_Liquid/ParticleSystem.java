@@ -95,25 +95,24 @@ public class ParticleSystem {
   }
   
   
-  int IDX_HAND = 0;
+  int IDX_MOUSE_PARTICLE = 0;
   
   public void initParticlesSize(){
 
     float radius = (float)Math.sqrt((size_x * size_y * PARTICLE_SCREEN_FILL_FACTOR) / PARTICLE_COUNT) * 0.5f;
     float r_max = radius;
     
-    IDX_HAND = PARTICLE_COUNT-1;
+    IDX_MOUSE_PARTICLE = PARTICLE_COUNT-1;
     
     DwParticle2D.MAX_RAD = r_max * 5.5f;
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       float pr = radius;
       particles[i].setRadius(pr);
-      particles[i].setRadiusCollision(pr);
       particles[i].setMass(1);
     }
-    particles[IDX_HAND].setRadius(DwParticle2D.MAX_RAD);
-    particles[IDX_HAND].setMass(5);
+    particles[IDX_MOUSE_PARTICLE].setRadius(DwParticle2D.MAX_RAD);
+    particles[IDX_MOUSE_PARTICLE].setMass(5);
   }
   
   public void initParticlesPosition(){
@@ -130,32 +129,39 @@ public class ParticleSystem {
     shp_particlesystem = papplet.createShape(PShape.GROUP);
     
     PImage sprite = createSprite(0);
+    papplet.colorMode(PConstants.HSB, 360, 100, 100);
     
     for (int i = 0; i < PARTICLE_COUNT; i++) {
       PShape shp_particle = createParticleShape(particles[i], sprite);
       particles[i].setShape(shp_particle);
-      shp_particlesystem.addChild(shp_particle);
+      if(i != IDX_MOUSE_PARTICLE){
+        shp_particlesystem.addChild(shp_particle);
+      }
     }
+    papplet.colorMode(PConstants.RGB, 255, 255, 255);
   }
   
-
-  public DwParticle2D getParticleHand(){
-    return particles[IDX_HAND];
+  public DwParticle2D getMouseParticle(){
+    return particles[IDX_MOUSE_PARTICLE];
   }
   
   // create the shape that is going to be rendered
   public PShape createParticleShape(DwParticle2D particle, PImage pimg_sprite){
     
-    final float rad = particle.rad * 2.5f;
+    final float rad = particle.rad * 1.1f + 5;
 
     PShape shp_sprite = papplet.createShape();
-    shp_sprite.beginShape(PConstants.QUAD);
+    shp_sprite.beginShape(PConstants.QUADS);
     shp_sprite.noStroke();
     shp_sprite.noFill();
     shp_sprite.tint(255,10,10);
-    if(particle.idx == IDX_HAND){
-//      shp_sprite.tint(255,140,10);
-      shp_sprite.tint(100,200,255);
+    if(particle.idx == IDX_MOUSE_PARTICLE){
+      shp_sprite.tint(200,100,100);
+    } else {
+      float r = 0 + papplet.random(-30, 30);
+      float g = 100;
+      float b = 100;
+      shp_sprite.tint(r,g,b);
     }
     shp_sprite.textureMode(PConstants.NORMAL);
     shp_sprite.texture(pimg_sprite);
@@ -180,8 +186,8 @@ public class ParticleSystem {
   // create sprite on the fly
   PImage createSprite(int PARTICLE_SHAPE_IDX){
     
-    int size = (int)(DwParticle2D.MAX_RAD * 1.5f);
-    size = Math.max(9, size);
+    int size = (int)(DwParticle2D.MAX_RAD * 2f);
+    size = Math.max(32, size);
     
     PImage pimg = papplet.createImage(size, size, PConstants.ARGB);
     pimg.loadPixels();
@@ -202,7 +208,7 @@ public class ParticleSystem {
         // DISC
         if(PARTICLE_SHAPE_IDX == 0){
           if(dd<0) dd=0; else if(dd>1) dd=1;
-          dd = dd*dd; dd = dd*dd; dd = dd*dd;
+          dd = dd*dd; dd = dd*dd; dd = dd*dd; dd = dd*dd; 
       
           dd = 1-dd;
           int a = (int)(dd*255);

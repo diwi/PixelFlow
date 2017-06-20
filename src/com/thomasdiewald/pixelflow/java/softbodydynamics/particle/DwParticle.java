@@ -273,14 +273,21 @@ public abstract class DwParticle implements DwCollisionObject{
   // DISPLAY
   //////////////////////////////////////////////////////////////////////////////
   public abstract void setShape(PShape shape);
-
+  
+  public PShape getShape(){
+    return shp_particle;
+  }
+  
+  public PMatrix getShapeTransform(){
+    return shp_transform;
+  }
+  
   public void setColor(int col_argb){
     if(shp_particle != null){
       shp_particle.setTint(col_argb);
       shp_particle.setFill(col_argb);
     }
   }
-  
   
   public void updateShape(){
     updateShapePosition();

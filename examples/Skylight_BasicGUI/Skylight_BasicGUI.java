@@ -89,6 +89,8 @@ public class Skylight_BasicGUI extends PApplet {
     
     // camera
     peasycam = new PeasyCam(this, SCENE_SCALE*1.5f);
+    peasycam.setRotations(  1.085,  -0.477,   2.910);
+
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, SCENE_SCALE * 250);
 
 

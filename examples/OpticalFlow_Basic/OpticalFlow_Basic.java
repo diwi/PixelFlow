@@ -58,7 +58,7 @@ public class OpticalFlow_Basic extends PApplet {
     
     // some flow parameters
     opticalflow.param.flow_scale         = 100;
-    opticalflow.param.temporal_smoothing = 0.1f;
+    opticalflow.param.temporal_smoothing = 0.8f;
     opticalflow.param.display_mode       = 0;
     
     // render target

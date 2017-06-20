@@ -146,10 +146,11 @@ public class Fluid_StreamLines_Custom extends PApplet {
     // visualization of the velocity field
     streamlines = new DwFluidStreamLines2D(context);
     
+    String dir = "examples/Fluid_StreamLines_CustomRender/data/";
     
     customstreamlinerenderer = context.createShader(
-        "examples/Fluid_StreamLines_CustomRender/data/streamlineRender_Custom.vert",
-        "examples/Fluid_StreamLines_CustomRender/data/streamlineRender_Custom.frag");
+        dir+"streamlineRender_Custom.vert",
+        dir+"streamlineRender_Custom.frag");
    
     
     

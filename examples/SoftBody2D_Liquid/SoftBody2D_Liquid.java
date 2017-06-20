@@ -12,6 +12,7 @@ package SoftBody2D_Liquid;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwParticleFluidFX;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
@@ -41,12 +42,16 @@ public class SoftBody2D_Liquid extends PApplet {
   int gui_x = 20;
   int gui_y = 20;
   
+  
+  DwPixelFlow context;
+  
   // particle system
   ParticleSystem particlesystem;
   
   DwParticleFluidFX particle_fluid_fx;
   
   PGraphics2D pg_particles;
+  PGraphics2D pg_particles2;
   
   // physics parameters
   DwPhysics.Param param_physics = new DwPhysics.Param();
@@ -68,9 +73,13 @@ public class SoftBody2D_Liquid extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_particles.smooth(0);
+    
+    pg_particles2 = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_particles2.smooth(0);
     
     // main library context
-    DwPixelFlow context = new DwPixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
@@ -80,10 +89,10 @@ public class SoftBody2D_Liquid extends PApplet {
     particlesystem = new ParticleSystem(this, width, height);
     
     // set some parameters
-    particlesystem.PARTICLE_COUNT              = 4000;
-    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.30f;
+    particlesystem.PARTICLE_COUNT              = 1000;
+    particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.50f;
 
-    particlesystem.MULT_GRAVITY                  = 0.40f;
+    particlesystem.MULT_GRAVITY                  = 1.00f;
     particlesystem.particle_param.DAMP_BOUNDS    = 0.89999f;
     particlesystem.particle_param.DAMP_COLLISION = 0.89999f;
     particlesystem.particle_param.DAMP_VELOCITY  = 0.9999f;
@@ -104,14 +113,16 @@ public class SoftBody2D_Liquid extends PApplet {
   
  
   public void draw() {    
+    
+    DwParticle2D mparticle = particlesystem.getMouseParticle();
 
     //  add force: Middle Mouse Button (MMB) -> particle[0]
     if(mousePressed){
       float[] mouse = {mouseX, mouseY};
-      particlesystem.getParticleHand().moveTo(mouse, 0.3f);
-      particlesystem.getParticleHand().enableCollisions(false);
+      mparticle.moveTo(mouse, 0.3f);
+      mparticle.enableCollisions(false);
     } else {
-      particlesystem.getParticleHand().enableCollisions(true);
+      mparticle.enableCollisions(true);
     }
     
     // update physics step
@@ -124,21 +135,37 @@ public class SoftBody2D_Liquid extends PApplet {
     physics.update(1);
 
     // RENDER
-    PGraphics2D pg = pg_particles;
-    pg.beginDraw();
-    pg.background(BACKGROUND_COLOR, 0);
-    pg.blendMode(BLEND);
-    particlesystem.display(pg);
-    pg.blendMode(BLEND);
-    pg.endDraw();
+    pg_particles.beginDraw();
+    pg_particles.blendMode(REPLACE);
+    pg_particles.background(BACKGROUND_COLOR, 0);
+    pg_particles.blendMode(BLEND);
+    pg_particles.shape(particlesystem.shp_particlesystem);
+    pg_particles.endDraw();
+
+    pg_particles2.beginDraw();
+    pg_particles2.blendMode(REPLACE);
+    pg_particles2.background(BACKGROUND_COLOR, 0);
+    pg_particles2.blendMode(BLEND);
+    pg_particles2.shape(mparticle.getShape());
+    pg_particles2.endDraw();
     
 
     // apply liquid filter
-    particle_fluid_fx.apply(pg_particles);
-
-   
+    if(!keyPressed){
+      particle_fluid_fx.param.base_LoD = 2;
+      particle_fluid_fx.param.base_blur_radius = 1;
+      
+      particle_fluid_fx.apply(pg_particles);
+      particle_fluid_fx.apply(pg_particles2);
+    }
+    
+    DwFilter.get(context).gamma.apply(pg_particles, pg_particles);
+    DwFilter.get(context).gamma.apply(pg_particles2, pg_particles2);
+    
     background(BACKGROUND_COLOR);
-    image(pg, 0, 0);
+    blendMode(BLEND);
+    image(pg_particles, 0, 0);
+    image(pg_particles2, 0, 0);
     
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
@@ -187,32 +214,10 @@ public class SoftBody2D_Liquid extends PApplet {
       cp5.addSlider("GRAVITY").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 10f).setValue(particlesystem.MULT_GRAVITY).plugTo(particlesystem, "MULT_GRAVITY");
 
-      
       cp5.addSlider("SPRINGINESS").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 1f).setValue(particlesystem.particle_param.DAMP_COLLISION).plugTo(particlesystem.particle_param, "DAMP_COLLISION");
       
-      cp5.addCheckBox("activateCollisionDetection").setGroup(group_particles).setSize(40, 18).setPosition(px, py+=(int)(oy*1.5f))
-          .setItemsPerRow(1).setSpacingColumn(3).setSpacingRow(3)
-          .addItem("collision detection", 0)
-          .activate(COLLISION_DETECTION ? 0 : 2);
-          }
-    
-    
-    ////////////////////////////////////////////////////////////////////////////
-    // GUI - DISPLAY
-    ////////////////////////////////////////////////////////////////////////////
-    Group group_display = cp5.addGroup("display");
-    {
-      group_display.setHeight(20).setSize(gui_w, 25)
-      .setBackgroundColor(color(16, 180)).setColorBackground(color(16, 180));
-      group_display.getCaptionLabel().align(CENTER, CENTER);
-      
-      px = 10; py = 15;
-      
-      cp5.addSlider("BACKGROUND").setGroup(group_display).setSize(sx,sy).setPosition(px, py)
-          .setRange(0, 255).setValue(BACKGROUND_COLOR).plugTo(this, "BACKGROUND_COLOR");
     }
-    
     
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
@@ -220,7 +225,6 @@ public class SoftBody2D_Liquid extends PApplet {
     cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_particles)
-      .addItem(group_display)
       .open(0);
   }
   

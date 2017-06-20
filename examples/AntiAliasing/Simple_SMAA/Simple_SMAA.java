@@ -20,7 +20,7 @@ import processing.opengl.PGraphics2D;
 
 public class Simple_SMAA extends PApplet {
   
-
+  
   // SMAA - Enhances SubPixel Morphological AntiAliasing
   //    PostProcessing, 3 passes, nice quality
   //    SMAA.h, Version 2.8: 
@@ -61,7 +61,6 @@ public class Simple_SMAA extends PApplet {
   }
 
 
-
   public void draw() {
 
     // draw something
@@ -95,7 +94,6 @@ public class Simple_SMAA extends PApplet {
   }
 
 
-  
   
   
   public static void main(String args[]) {

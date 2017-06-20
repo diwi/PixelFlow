@@ -16,8 +16,18 @@ import spout.*;
 import processing.core.PApplet;
 
 public class Fluid_SpoutSender extends PApplet {
-
+  
+  //
   // Demo: Spout sender
+  //
+  // Note: 
+  // run sketch "Fluid_SpoutSender" to send a texture
+  // run sketch "Fluid_SpoutReceiver" to receive a texture
+  //
+  // this requires to have the "Spout for Processing" library installed:
+  // https://github.com/leadedge/SpoutProcessing/releases
+  // install manually, or the PDE-Contribution-Manager
+  //
   
   Spout spout;
   

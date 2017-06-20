@@ -18,6 +18,9 @@ import processing.opengl.PGraphics2D;
 public class Fluid_GetStarted_TexDataTransfer1 extends PApplet {
   
   // Basic example for texture data transfer
+  // It is quite costly to transfer data from the GPU-memory to Host memory.
+  // So its best to keep working with shaders and avoid this transfer as much
+  // as possible. However, sometimes it needs to be done.
 
   // fluid simulation
   DwFluid2D fluid;
@@ -72,7 +75,7 @@ public class Fluid_GetStarted_TexDataTransfer1 extends PApplet {
     frameRate(60);
   }
   
-  
+  // array is allocated automatically
   float[] data_vel;
 
   public void draw() {    

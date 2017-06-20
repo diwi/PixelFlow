@@ -63,9 +63,7 @@ public class BloomDemo extends PApplet {
     context.printGL();
     
     filter = new DwFilter(context);
-    
-//    System.out.println("width/height "+width+"/"+height);
-    
+   
     pg_render = (PGraphics2D) createGraphics(width, height, P2D);
     pg_render.smooth(8);
     
@@ -136,6 +134,7 @@ public class BloomDemo extends PApplet {
     pg_render.endDraw();
     
 
+    
     if(DISPLAY_MODE != 0){
       // luminance pass
       filter.luminance_threshold.param.threshold = 0.0f; // when 0, all colors are used
@@ -145,7 +144,6 @@ public class BloomDemo extends PApplet {
       // bloom pass
       // if the original image is used as source, the previous luminance pass 
       // can just be skipped
-//      filter.bloom.setBlurLayers(10);
       filter.bloom.param.mult   = map(mouseX, 0, width, 0, 10);
       filter.bloom.param.radius = map(mouseY, 0, height, 0, 1);
       filter.bloom.apply(pg_luminance, pg_bloom, pg_render);

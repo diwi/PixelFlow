@@ -27,6 +27,14 @@ public class Fluid_SpoutReceiver extends PApplet {
 
   // Density is fed by a PGraphics object each frame.
   // Spout is used to receive texture data from any external sender.
+  // 
+  // Note: 
+  // run sketch "Fluid_SpoutSender" to send a texture
+  // run sketch "Fluid_SpoutReceiver" to receive a texture
+  //
+  // this requires to have the "Spout for Processing" library installed:
+  // https://github.com/leadedge/SpoutProcessing/releases
+  // install manually, or the PDE-Contribution-Manager
   //
   // controls:
   //

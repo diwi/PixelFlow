@@ -7,7 +7,7 @@
  * 
  */
 
-package ReactionDiffusion;
+package ReactionDiffusion.nogit;
 
 
 
@@ -19,13 +19,15 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
+import processing.opengl.Texture;
 
 
 
-public class ReactionDiffusion1 extends PApplet {
+public class ReactionDiffusion3_RG16UI extends PApplet {
   
   DwGLSLProgram shader_grayscott;
   DwGLSLProgram shader_render;
+  DwGLSLProgram shader_init;
   
   // multipass rendering texture
   DwGLTexture.TexturePingPong tex_grayscott = new DwGLTexture.TexturePingPong();
@@ -47,19 +49,25 @@ public class ReactionDiffusion1 extends PApplet {
     context = new DwPixelFlow(this);
 
     // 1) 32 bit per channel
-      tex_grayscott.resize(context, GL2.GL_RG32F, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 4);
+    //  tex_grayscott.resize(context, GL2.GL_RG32F, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 4);
     
     // 2) 16 bit per channel, lack of precision is obvious in the result, its fast though
     // tex_grayscott.resize(context, GL2.GL_RG16F, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 2);
      
     // 3) 16 bit per channel, better than 2)
-    //  tex_grayscott.resize(context, GL2.GL_RG16_SNORM, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 2);
+//    tex_grayscott.resize(context, GL2.GL_RG16_SNORM, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 2);
     
-
+    // 4) 16 bit per channel, unsigned integer, needs a multiplication/division in the shader 
+    tex_grayscott.resize(context, GL2.GL_RG16UI, width, height, GL2.GL_RG_INTEGER, GL2.GL_UNSIGNED_INT, GL2.GL_NEAREST, 2, 2);
+    
     // glsl shader
-    shader_grayscott = context.createShader("data/grayscott.frag");
-    shader_render    = context.createShader("data/render.frag");
-
+//    shader_grayscott = context.createShader("data/grayscott.frag");
+//    shader_render    = context.createShader("data/render.frag");
+    
+    shader_grayscott = context.createShader("data/grayscott_16UI.frag");
+    shader_render    = context.createShader("data/render_16UI.frag");
+    shader_init      = context.createShader("data/init_16UI.frag");
+    
     // init
     tex_render = (PGraphics2D) createGraphics(width, height, P2D);
     tex_render.smooth(0);
@@ -74,9 +82,21 @@ public class ReactionDiffusion1 extends PApplet {
     tex_render.rectMode(CENTER);
     tex_render.rect(width/2, height/2, 20, 20);
     tex_render.endDraw();
-
+    
+    
+    Texture gltex_render = tex_render.getTexture();
+    context.begin();
+    context.beginDraw(tex_grayscott.src);
+    shader_init.begin();
+    shader_init.uniform2f     ("wh_rcp", 1f/width, 1f/height);
+    shader_init.uniformTexture("tex"   , gltex_render.glName);
+    shader_init.drawFullScreenQuad();
+    shader_init.end();
+    context.endDraw("init()"); 
+    context.end();
+    
     // copy initial data to source texture
-    DwFilter.get(context).copy.apply(tex_render, tex_grayscott.src);
+//    DwFilter.get(context).copy.apply(tex_render, tex_grayscott.src);
 
     frameRate(1000);
   }
@@ -134,6 +154,6 @@ public class ReactionDiffusion1 extends PApplet {
   
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { ReactionDiffusion1.class.getName() });
+    PApplet.main(new String[] { ReactionDiffusion3_RG16UI.class.getName() });
   }
 }
