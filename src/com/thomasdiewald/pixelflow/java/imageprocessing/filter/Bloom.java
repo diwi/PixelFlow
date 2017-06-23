@@ -20,17 +20,17 @@ import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 import processing.opengl.PGraphicsOpenGL;
 
 /**
- * @author Thomas Diewald
+ * @author Thomas Diewald<br>
  * 
  * 
- * resources:
- * 
- * 1) http://prideout.net/archive/bloom/
+ * resources:<br>
+ * <br>
+ * 1) http://prideout.net/archive/bloom/<br>
  *
- * 2) https://threejs.org/examples/webgl_postprocessing_unreal_bloom.html
- *    three.js/examples/js/postprocessing/UnrealBloomPass.js 
+ * 2) https://threejs.org/examples/webgl_postprocessing_unreal_bloom.html<br>
+ *    three.js/examples/js/postprocessing/UnrealBloomPass.js <br>
  *    
- * 3) http://www.gamasutra.com/view/feature/130520/realtime_glow.php
+ * 3) http://www.gamasutra.com/view/feature/130520/realtime_glow.php<br>
  *
  */
 public class Bloom {

@@ -45,6 +45,8 @@ public class Skylight_BulletPhysics_TowerDemolition extends PApplet {
   //
   // author: Thomas Diewald
   //
+  // video: https://vimeo.com/218351202
+  //
   //
   // This Example shows how to combine the PixelFlow Skylight-Renderer and 
   // Bullet-Physics.

@@ -44,6 +44,8 @@ public class Skylight_BulletPhysics_Basic extends PApplet {
   //
   // author: Thomas Diewald
   //
+  // video: https://vimeo.com/218351164
+  //
   //
   // This Example shows how to combine the PixelFlow Skylight-Renderer and 
   // Bullet-Physics.

@@ -46,22 +46,23 @@ public class DwOpticalFlow {
   DwGLSLProgram shader_OF_rgba                 ;
   DwGLSLProgram shader_OF_renderVelocity       ;
   DwGLSLProgram shader_OF_renderVelocityStreams;
-
+  
+  DwFilter filter;
 
   public int UPDATE_STEP = 0;
 
 
   public DwOpticalFlow(DwPixelFlow context, int w, int h){
     this.context = context;
-    context.papplet.registerMethod("dispose", this);
-    
+    this.filter = DwFilter.get(context);
+
     shader_OF_gray                  = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/OpticalFlowGray.frag");                                                                     
     shader_OF_rgba                  = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/OpticalFlow.frag");                                                                         
     shader_OF_renderVelocity        = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityShading.frag");                                                               
     shader_OF_renderVelocityStreams = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityStreams.vert", DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityStreams.frag");
     
-    
     resize(w, h);
+    context.papplet.registerMethod("dispose", this);
   }
 
   public void dispose(){
@@ -114,9 +115,9 @@ public class DwOpticalFlow {
 
     // 1) copy/grayscale
     if(param.grayscale){
-      DwFilter.get(context).luminance.apply(frame_src, frameCurr.frame);
+      filter.luminance.apply(frame_src, frameCurr.frame);
     } else {
-      DwFilter.get(context).copy.apply(frame_src, frameCurr.frame);
+      filter.copy.apply(frame_src, frameCurr.frame);
     }
     
     // 2) run optical flow
@@ -134,9 +135,9 @@ public class DwOpticalFlow {
 
     // 1) copy/grayscale
     if(param.grayscale){
-      DwFilter.get(context).luminance.apply(pg_curr, frameCurr.frame);
+      filter.luminance.apply(pg_curr, frameCurr.frame);
     } else {
-      DwFilter.get(context).copy.apply(pg_curr, frameCurr.frame);
+      filter.copy.apply(pg_curr, frameCurr.frame);
     }
     
     // 2) run optical flow
@@ -148,8 +149,6 @@ public class DwOpticalFlow {
   public void computeOpticalFlow() {
 
     context.begin();
-    
-    DwFilter filter = DwFilter.get(context);
     
     // 1) blur
     filter.gaussblur.apply(frameCurr.frame, frameCurr.frame, frameCurr.tmp, param.blur_input);
@@ -163,7 +162,7 @@ public class DwOpticalFlow {
     DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
     shader.begin();
     shader.uniform2f     ("wh_rcp"          , 1f/frameCurr.w, 1f/frameCurr.h);
-    shader.uniform1f     ("scale"           , param.flow_scale * -1f);
+    shader.uniform1f     ("scale"           , -param.flow_scale);
     shader.uniform1f     ("threshold"       , param.threshold);
     shader.uniformTexture("tex_curr_frame"  , frameCurr.frame);
     shader.uniformTexture("tex_prev_frame"  , framePrev.frame);
@@ -344,6 +343,7 @@ public class DwOpticalFlow {
       int format         = grayscale ? GL2ES2.GL_RED  : GL2ES2.GL_RGBA;
       int channels       = grayscale ? 1              : 4;
       int type           = GL2ES2.GL_FLOAT;
+      int wrap_st        = GL2ES2.GL_MIRRORED_REPEAT;
       
       this.context = context_;
       this.w = w;
@@ -356,24 +356,19 @@ public class DwOpticalFlow {
       resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
       resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       ,2);
       resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       ,2);
-      if(resized) updateParams();
+      if(resized) {
+        frame   .setParam_WRAP_S_T(wrap_st);
+        sobelH  .setParam_WRAP_S_T(wrap_st);
+        sobelV  .setParam_WRAP_S_T(wrap_st);
+        velocity.setParam_WRAP_S_T(wrap_st);
+        tmp     .setParam_WRAP_S_T(wrap_st);
+      }
       context.end();
     }
 
-    private void updateParams(){
-      context.begin();
-      frame   .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      sobelH  .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      sobelV  .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      velocity.setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      tmp     .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      context.end();
-    }
     
   }
   
   
-  
-   
  
 }

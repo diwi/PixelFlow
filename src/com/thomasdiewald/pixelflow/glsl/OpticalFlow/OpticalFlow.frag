@@ -65,7 +65,7 @@ void main(){
   float len_old = sqrt(flow.x*flow.x + flow.y*flow.y + 0.00001);
   float len_new = max(len_old - threshold, 0.0);
   // len_new = len_new * len_old/(len_new + 0.00001);
-  flow = (len_new * flow)/len_old;
+  flow *= len_new / len_old;
   
   glFragColor = flow;
 }

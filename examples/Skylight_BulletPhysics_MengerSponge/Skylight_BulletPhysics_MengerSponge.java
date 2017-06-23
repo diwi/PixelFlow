@@ -49,6 +49,8 @@ public class Skylight_BulletPhysics_MengerSponge extends PApplet {
   //
   // author: Thomas Diewald
   //
+  // video: https://vimeo.com/218485498
+  //
   //
   // This Example shows how to combine the PixelFlow Skylight-Renderer and 
   // Bullet-Physics.
@@ -78,7 +80,6 @@ public class Skylight_BulletPhysics_MengerSponge extends PApplet {
   //   https://github.com/diwi/PixelFlow
   //
   //
-
 
   
   int viewport_w = 1280;

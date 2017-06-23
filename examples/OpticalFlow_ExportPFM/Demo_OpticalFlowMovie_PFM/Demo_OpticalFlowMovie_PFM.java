@@ -85,9 +85,9 @@ public class Demo_OpticalFlowMovie_PFM extends PApplet {
     // to keep the file size small. please use one of your own videos instead.
     movie = new Movie(this, "examples/data/Pulp_Fiction_Dance_Scene.mp4");
     movie.loop();
-  
+    movie.frameRate(24);
 
-    frameRate(60);
+    frameRate(160);
   }
   
 
@@ -111,12 +111,19 @@ public class Demo_OpticalFlowMovie_PFM extends PApplet {
   }
 
   
+//  int frameCount_movie = 0;
+  
   public void draw() {
 
-    if( movie.available() ){
+    if(movie.available()){
       movie.read();
-      
+
       resize(movie);
+//      frameCount_movie++;
+//      float ratio_frameCount = frameCount_movie / (float)frameCount;
+//      float ratio_frameRate  = movie.frameRate / (float)frameRate;
+//      System.out.println(frameCount_movie+", "+frameCount+", "+ratio_frameCount);
+//      System.out.println(movie.frameRate+", "+frameRate+", "+ratio_frameRate);
       
       // put onto gl buffer
       pg_movie_a.beginDraw();

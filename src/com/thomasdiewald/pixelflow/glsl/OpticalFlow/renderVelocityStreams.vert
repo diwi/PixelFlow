@@ -14,7 +14,7 @@ precision mediump float;
 precision mediump int;
 
 out vec2  velocity;    // used for rgb-color in the fragrment shader
-out float line_domain; // used for alpha channel in the fragmentshader
+//out float line_domain; // used for alpha channel in the fragmentshader
 
 uniform vec2  wh_rcp;
 uniform vec2  spacing;
@@ -55,7 +55,7 @@ void main(){
   // lines, in velocity direction
   if(display_mode == 0){
     vtx_pos = origin + dir * vtx_id;
-    line_domain = 1.0 - float(vtx_id);
+    //line_domain = 1.0 - float(vtx_id);
   }
 
   // lines, normal to velocity direction
@@ -63,7 +63,7 @@ void main(){
     dir *= 0.5;
     vec2 dir_n = vec2(dir.y, -dir.x);
     vtx_pos = origin + dir - dir_n + dir_n * vtx_id * 2;
-    line_domain = 1.0;
+    //line_domain = 1.0;
   }
   
   // finish vertex coordinate

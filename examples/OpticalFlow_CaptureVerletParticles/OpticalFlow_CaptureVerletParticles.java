@@ -220,9 +220,14 @@ public class OpticalFlow_CaptureVerletParticles extends PApplet {
       
       int px_grid = (int)(px_view / scale_X);
       int py_grid = (int)(py_view / scale_Y);
-
+      
       int w_grid  = opticalflow.frameCurr.velocity.w;
-
+      int h_grid  = opticalflow.frameCurr.velocity.h;
+      
+      // clamp coordinates, just in case
+      if(px_grid < 0) px_grid = 0; else if(px_grid >= w_grid) px_grid = w_grid;
+      if(py_grid < 0) py_grid = 0; else if(py_grid >= h_grid) py_grid = h_grid;
+      
       int PIDX    = py_grid * w_grid + px_grid;
 
       fluid_vxy[0] = +flow_velocity[PIDX * 2 + 0] * particlesystem.MULT_FLUID;

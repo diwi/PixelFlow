@@ -37,8 +37,6 @@ public class Fluid_SpoutSender extends PApplet {
   }
 
   public void setup() {
-    
-    
     surface.setLocation(1080, 0);
     spout = new Spout(this);
     background(0);

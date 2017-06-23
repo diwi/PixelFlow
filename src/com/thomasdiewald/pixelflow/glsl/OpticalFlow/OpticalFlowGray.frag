@@ -38,14 +38,14 @@ void main(){
   dt *= 3.0; dx *= 3.0; dy *= 3.0; // to match the rgb range
 
   // gradient length
-  float dd = sqrt(dx*dx + dy*dy + 1);
+  float dd = sqrt(dx*dx + dy*dy + 1.0);
   // optical flow
   vec2 flow = scale * dt * vec2(dx, dy) / dd; 
   
   // threshold
   float len_old = sqrt(flow.x*flow.x + flow.y*flow.y + 0.00001);
   float len_new = max(len_old - threshold, 0.0);
-  flow = (len_new * flow)/len_old;
+  flow *= len_new / len_old;
   
   glFragColor = flow;
 }

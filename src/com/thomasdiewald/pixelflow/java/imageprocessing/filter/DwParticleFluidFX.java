@@ -26,6 +26,7 @@ public class DwParticleFluidFX {
   static public class Param{
     public int        base_LoD          = 1;
     public int        base_blur_radius  = 2;
+    public float      base_threshold    = 0.7f;
     
     public boolean    highlight_enabled = true;
     public float      highlight_decay   = 0.60f;
@@ -181,7 +182,7 @@ public class DwParticleFluidFX {
     }
     
     // cut border, smooth AA thresholding
-    filter.threshold.param.threshold_val = new float[]{0, 0, 0, 0.7f};
+    filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.base_threshold};
     filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
     filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
     filter.threshold.apply(tex_dst, tex_dst);

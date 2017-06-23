@@ -16,7 +16,7 @@ precision mediump int;
 out vec4 glFragColor;
 
 in vec2 velocity;
-in float line_domain;
+//in float line_domain;
 
 uniform float velocity_scale;
 

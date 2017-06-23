@@ -51,6 +51,8 @@ public class Skylight_BulletPhysics_Breakable extends PApplet {
   //
   // author: Thomas Diewald
   //
+  // video: https://vimeo.com/219093133
+  //
   //
   // Demo for dynamically fracturing elements. 
   // 

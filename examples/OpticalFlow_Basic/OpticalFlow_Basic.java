@@ -60,6 +60,7 @@ public class OpticalFlow_Basic extends PApplet {
     opticalflow.param.flow_scale         = 100;
     opticalflow.param.temporal_smoothing = 0.8f;
     opticalflow.param.display_mode       = 0;
+    opticalflow.param.grayscale          = true;
     
     // render target
     pg_oflow = (PGraphics2D) createGraphics(width, height, P2D);

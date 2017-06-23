@@ -42,6 +42,10 @@ public class Gamma {
 //    dst.endDraw();
   }
   
+  public void apply(PGraphicsOpenGL src_dst) {
+    apply(src_dst, src_dst, gamma);
+  }
+  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
     apply(src, dst, gamma);
   }
@@ -52,6 +56,10 @@ public class Gamma {
     apply(src.HANDLE[0], dst.w, dst.h, gamma);
     context.endDraw();
     context.end("GammaCorrection.apply");
+  }
+  
+  public void apply(DwGLTexture src_dst) {
+    apply(src_dst, src_dst, gamma);
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst) {
