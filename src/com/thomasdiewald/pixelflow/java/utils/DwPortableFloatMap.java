@@ -1,11 +1,14 @@
 /**
- * 
+ *
  * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
- * 
  * A Processing/Java library for high performance GPU-Computing (GLSL).
+ *
+ * Portable FloatMap reader/writer | Copyright (c) 2014 Project Nayuki - 
+ * https://www.nayuki.io/page/portable-floatmap-format-io-java
+ *
  * MIT License: https://opensource.org/licenses/MIT
- * 
- */
+ *
+ */ 
 
 
 package com.thomasdiewald.pixelflow.java.utils;
@@ -25,15 +28,17 @@ import java.io.PrintWriter;
 
 /**
  * 
- * PFM - Portabel Float Format
+ * PFM - Portable Float Format<br>
+ * <br>
+ * 1) http://netpbm.sourceforge.net/doc/pfm.html<br>
+ * 2) http://www.pauldebevec.com/Research/HDR/PFM/<br>
+ * 3) https://www.nayuki.io/page/portable-floatmap-format-io-java<br>
+ * <br>
+ * This version is based on 3)<br>
  * 
- * 1) http://netpbm.sourceforge.net/doc/pfm.html
- * 2) http://www.pauldebevec.com/Research/HDR/PFM/
- * 3) https://www.nayuki.io/page/portable-floatmap-format-io-java
- * 
- * This version is based on 3)
- * 
+ * @author Nayuki (nayuki.io)
  * @author Thomas Diewald
+ * 
  *
  */
 public final class DwPortableFloatMap {
