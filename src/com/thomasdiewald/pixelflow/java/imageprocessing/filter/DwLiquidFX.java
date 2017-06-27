@@ -21,7 +21,23 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 
 import processing.opengl.PGraphicsOpenGL;
 
-public class DwParticleFluidFX {
+/**
+ * 
+ * PostProcessing Effect for applying a liquid-like or plastic-like effect on 
+ * an existing PGraphicsOpenGL canvas.<br>
+ * <br>
+ * The image must be a composition of a Foreground (opaque color) and 
+ * a Background (transparent color).<br>
+ * <br>
+ * Effects include some sort of specular Highlights, SubSurfaceScattering,
+ * and some blur + threshold fusion (similar to metaballs).
+ * 
+ * 
+ * 
+ * @author Thomas Diewald, Copyright(2017)
+ *
+ */
+public class DwLiquidFX {
 
   static public class Param{
     public int        base_LoD          = 1;
@@ -51,7 +67,7 @@ public class DwParticleFluidFX {
   // copy of the original texture, way faster to work with
   public DwGLTexture tex_particles = new DwGLTexture();
   
-  public DwParticleFluidFX(DwPixelFlow context){
+  public DwLiquidFX(DwPixelFlow context){
     this.context = context;
     this.filter = DwFilter.get(context);
   }

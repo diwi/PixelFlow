@@ -13,7 +13,7 @@ package SoftBody2D_Liquid;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwParticleFluidFX;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
@@ -48,7 +48,7 @@ public class SoftBody2D_Liquid extends PApplet {
   // particle system
   ParticleSystem particlesystem;
   
-  DwParticleFluidFX particle_fluid_fx;
+  DwLiquidFX particle_fluid_fx;
   
   PGraphics2D pg_particles;
   PGraphics2D pg_particles2;
@@ -83,7 +83,7 @@ public class SoftBody2D_Liquid extends PApplet {
     context.print();
     context.printGL();
     
-    particle_fluid_fx = new DwParticleFluidFX(context);
+    particle_fluid_fx = new DwLiquidFX(context);
     
     // particle system object
     particlesystem = new ParticleSystem(this, width, height);
