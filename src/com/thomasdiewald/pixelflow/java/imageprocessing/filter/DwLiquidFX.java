@@ -51,7 +51,7 @@ public class DwLiquidFX {
     public boolean    highlight_dir_inv = true;
     
     public boolean    sss_enabled       = true;
-    public float      sss_decay         = 0.50f;
+    public float      sss_decay         = 0.70f;
     public int        sss_LoD           = 3;
     public Sobel.TYPE sss_dir           = Sobel.TYPE._3x3_VERT;
     public boolean    sss_dir_inv       = true;
