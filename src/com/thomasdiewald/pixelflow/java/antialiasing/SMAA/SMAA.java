@@ -14,6 +14,8 @@ package com.thomasdiewald.pixelflow.java.antialiasing.SMAA;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
@@ -94,6 +96,8 @@ public class SMAA {
   }
   
   
+
+  
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
     if(src == dst){
       System.out.println("MSAA error: read-write race");
@@ -109,6 +113,8 @@ public class SMAA {
     resize(w, h);
      
     context.begin();
+    
+    setLinearTextureFiltering(tex_src.glName);
 
     // PASS 1 - Edges
     context.beginDraw(tex_edges);
@@ -146,9 +152,42 @@ public class SMAA {
     shader_smaa.end();
     context.endDraw("smaa - pass3");
 
+    
+    resetTextureFiltering(tex_src.glName);
+    
     context.end("SMAA.apply");
   }
   
 
  
+  
+  
+  
+  
+  
+  
+  
+  protected int[] filter_minmag = new int[2];
+  protected int tex_target = GL2.GL_TEXTURE_2D;
+  protected void setLinearTextureFiltering(int handle_tex){
+    context.begin();
+    context.gl.glBindTexture      (tex_target, handle_tex);
+    context.gl.glGetTexParameteriv(tex_target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter_minmag, 0);
+    context.gl.glGetTexParameteriv(tex_target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter_minmag, 1);
+    context.gl.glTexParameteri    (tex_target, GL2ES2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+    context.gl.glTexParameteri    (tex_target, GL2ES2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+    context.gl.glBindTexture      (tex_target, 0);
+    context.end();
+  }
+  
+  protected void resetTextureFiltering(int handle_tex){
+    context.begin();
+    context.gl.glBindTexture      (tex_target, handle_tex);
+    context.gl.glTexParameteri    (tex_target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter_minmag[0]);
+    context.gl.glTexParameteri    (tex_target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter_minmag[1]);
+    context.gl.glBindTexture      (tex_target, 0);
+    context.end();
+  }
+  
+  
 }

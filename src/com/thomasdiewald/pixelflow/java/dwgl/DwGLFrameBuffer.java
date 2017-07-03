@@ -136,8 +136,8 @@ public class DwGLFrameBuffer {
     boolean is_active = isActive();
     if(!is_active) bind();
   
-    if(depth  )gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_DEPTH_ATTACHMENT  , GLES3.GL_RENDERBUFFER, HANDLE_rbo);
-    if(stencil)gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_STENCIL_ATTACHMENT, GLES3.GL_RENDERBUFFER, HANDLE_rbo);
+    if(depth  ) gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_DEPTH_ATTACHMENT  , GLES3.GL_RENDERBUFFER, HANDLE_rbo);
+    if(stencil) gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_STENCIL_ATTACHMENT, GLES3.GL_RENDERBUFFER, HANDLE_rbo);
     
     if(!is_active) unbind();
   }
