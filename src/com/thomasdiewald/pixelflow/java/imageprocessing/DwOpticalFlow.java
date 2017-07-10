@@ -185,7 +185,7 @@ public class DwOpticalFlow {
     float[]     madA = {     mix, 0};
     float[]     madB = {1f - mix, 0};
     filter.merge.apply(dst, srcA, srcB, madA, madB);
-    
+
     UPDATE_STEP++;
     
     context.end("OpticalFlow.update");
@@ -362,6 +362,8 @@ public class DwOpticalFlow {
         sobelV  .setParam_WRAP_S_T(wrap_st);
         velocity.setParam_WRAP_S_T(wrap_st);
         tmp     .setParam_WRAP_S_T(wrap_st);
+        System.out.println("cleared");
+        clear(0.0f);
       }
       context.end();
     }
