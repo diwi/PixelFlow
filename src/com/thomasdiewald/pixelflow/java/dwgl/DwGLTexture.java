@@ -114,10 +114,14 @@ public class DwGLTexture{
   
   
   public boolean resize(DwPixelFlow context, DwGLTexture othr){
+    return resize(context, othr, othr.w, othr.h);
+  }
+  
+  public boolean resize(DwPixelFlow context, DwGLTexture othr, int w, int h){
     return resize(context, 
         othr.internalFormat, 
-        othr.w, 
-        othr.h, 
+        w, 
+        h, 
         othr.format, 
         othr.type, 
         othr.filter, 
@@ -347,12 +351,12 @@ public class DwGLTexture{
   
   
   /**
-   *  GPU_DATA_READ == 0 ... a lot faster for the full texture. 
-   *                         only slightly slower for single texels.
-   *                        
-   *  GPU_DATA_READ == 1 ... very slow for the full texture, 
-   *                         takes twice as long as "getData_GL2GL3()".
-   *                                              
+   *  GPU_DATA_READ == 0 ... a lot faster for the full texture.<br>
+   *                         only slightly slower for single texels.<br>
+   *  <br>                      
+   *  GPU_DATA_READ == 1 ... very slow for the full texture.<br>
+   *                         takes twice as long as "getData_GL2GL3()".<br>
+   *  <br>                                         
    */
   public static int GPU_DATA_READ = 0;
   
