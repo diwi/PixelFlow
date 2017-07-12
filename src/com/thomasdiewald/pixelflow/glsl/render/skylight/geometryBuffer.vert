@@ -17,7 +17,7 @@ uniform mat3 normalMatrix;
 // uniform vec3 dir_light;    // app
 
 in vec4 vertex;
-in vec4 color;
+// in vec4 color;
 in vec3 normal;
 
 // out vec4 vertColor;
