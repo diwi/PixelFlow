@@ -102,7 +102,9 @@ public class Skylight_Cubes extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     cam = new PeasyCam(this, 0, 0, 0, 1400);
-
+    
+    perspective(60 * PI/180f, width/(float)height, 2, 4000);
+    
     float sx = bounds[3] - bounds[0];
     float sy = bounds[4] - bounds[1];
     float sz = bounds[5] - bounds[2];

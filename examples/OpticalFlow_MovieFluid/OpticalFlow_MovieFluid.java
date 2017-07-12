@@ -76,7 +76,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
         }
         
       }
-//      addTemperatureTexture(fluid, opticalflow);
+
       addDensityTexture_cam(fluid, opticalflow);
       addVelocityTexture   (fluid, opticalflow);
 //      addTemperatureTexture(fluid, opticalflow);
@@ -112,9 +112,9 @@ public class OpticalFlow_MovieFluid extends PApplet {
       fluid.tex_density.swap();
     }
     
-    /*
+    
     // custom shader, to add temperature from a texture (PGraphics2D) to the fluid.
-    public void addTemperatureTexture(Fluid fluid, OpticalFlow opticalflow){
+    public void addTemperatureTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
       context.begin();
       context.beginDraw(fluid.tex_temperature.dst);
       DwGLSLProgram shader = context.createShader("examples/OpticalFlow_MovieFluid/data/addTemperature.frag");
@@ -131,7 +131,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       context.end("app.addTemperatureTexture");
       fluid.tex_temperature.swap();
     }
-    */
+    
     
     // custom shader, to add density from a texture (PGraphics2D) to the fluid.
     public void addVelocityTexture(DwFluid2D fluid, DwOpticalFlow opticalflow){
@@ -236,6 +236,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       
     // optical flow object
     opticalflow = new DwOpticalFlow(context, pg_movie_w, pg_movie_h);
+
     
     // initial optical flow parameters
     opticalflow.param.display_mode = 1;
