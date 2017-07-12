@@ -14,11 +14,15 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
+
+import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
 public class DwOpticalFlow {
@@ -105,19 +109,19 @@ public class DwOpticalFlow {
   }
   
   
-  public void update(DwGLTexture frame_src) {
+  public void update(DwGLTexture tex_src) {
     
     // .) swap frames, so frameCurr contains latest velocity data
     swapFrames();
     
     // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(frame_src.w, frame_src.h);
+    resize(tex_src.w, tex_src.h);
 
     // 1) copy/grayscale
     if(param.grayscale){
-      filter.luminance.apply(frame_src, frameCurr.frame);
+      filter.luminance.apply(tex_src, frameCurr.frame);
     } else {
-      filter.copy.apply(frame_src, frameCurr.frame);
+      filter.copy.apply(tex_src, frameCurr.frame);
     }
     
     // 2) run optical flow
@@ -125,19 +129,19 @@ public class DwOpticalFlow {
   }
   
   
-  public void update(PGraphics2D pg_curr) {
+  public void update(PGraphics2D tex_src) {
     
     // .) swap frames, so frameCurr contains latest velocity data
     swapFrames();
 
     // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(pg_curr.width, pg_curr.height);
+    resize(tex_src.width, tex_src.height);
 
     // 1) copy/grayscale
     if(param.grayscale){
-      filter.luminance.apply(pg_curr, frameCurr.frame);
+      filter.luminance.apply(tex_src, frameCurr.frame);
     } else {
-      filter.copy.apply(pg_curr, frameCurr.frame);
+      filter.copy.apply(tex_src, frameCurr.frame);
     }
     
     // 2) run optical flow
@@ -177,14 +181,16 @@ public class DwOpticalFlow {
     // 4) blur the current velocity
     filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
     
-    // 5) mix with previous velocity 
-    DwGLTexture dst  = frameCurr.velocity;
-    DwGLTexture srcA = framePrev.velocity;
-    DwGLTexture srcB = frameCurr.velocity;
-    float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99999f);
-    float[]     madA = {     mix, 0};
-    float[]     madB = {1f - mix, 0};
-    filter.merge.apply(dst, srcA, srcB, madA, madB);
+    // 5) mix with previous velocity
+    if(UPDATE_STEP > 0){
+      DwGLTexture dst  = frameCurr.velocity;
+      DwGLTexture srcA = framePrev.velocity;
+      DwGLTexture srcB = frameCurr.velocity;
+      float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99999f);
+      float[]     madA = {     mix, 0};
+      float[]     madB = {1f - mix, 0};
+      filter.merge.apply(dst, srcA, srcB, madA, madB);
+    }
 
     UPDATE_STEP++;
     
@@ -195,7 +201,14 @@ public class DwOpticalFlow {
   
   
 
-  
+  DwGLRenderSettingsCallback rcb = new DwGLRenderSettingsCallback() {
+    @Override
+    public void set(DwPixelFlow context, int x, int y, int w, int h) {
+      context.gl.glEnable(GLES3.GL_BLEND);
+      context.gl.glBlendEquationSeparate(GLES3.GL_FUNC_ADD, GLES3.GL_FUNC_ADD);
+      context.gl.glBlendFuncSeparate(GLES3.GL_SRC_ALPHA, GLES3.GL_ONE_MINUS_SRC_ALPHA, GLES3.GL_ONE, GLES3.GL_ONE);
+    }
+  };
 
   public void renderVelocityShading(PGraphics2D dst){
     
@@ -204,6 +217,8 @@ public class DwOpticalFlow {
     
 //    dst.beginDraw();
 //    dst.blendMode(PConstants.BLEND);
+    
+    context.pushRenderSettings(rcb);
     
     context.begin();
     context.beginDraw(dst);
@@ -215,6 +230,7 @@ public class DwOpticalFlow {
     context.endDraw();
     context.end("OpticalFlow.renderFluidVectors");
 
+    context.popRenderSettings();
 //    dst.endDraw();
   }
   
@@ -238,11 +254,12 @@ public class DwOpticalFlow {
     
 //    dst.beginDraw();
 //    dst.blendMode(PConstants.BLEND);
+    context.pushRenderSettings(rcb);
     
     context.begin();
     context.beginDraw(dst);
     shader_OF_renderVelocityStreams.begin();
-    shader_OF_renderVelocityStreams.uniform2f     ("wh_rcp"        , 1f/frameCurr.velocity.w, 1f/frameCurr.velocity.h);
+    shader_OF_renderVelocityStreams.uniform2f     ("wh_rcp"        , 1f/frameCurr.w, 1f/frameCurr.h);
     shader_OF_renderVelocityStreams.uniform1i     ("display_mode"  , param.display_mode);
     shader_OF_renderVelocityStreams.uniform2i     ("num_lines"     , lines_x, lines_y);
     shader_OF_renderVelocityStreams.uniform2f     ("spacing"       , space_x, space_y);
@@ -253,6 +270,7 @@ public class DwOpticalFlow {
     context.endDraw();
     context.end("OpticalFlow.renderVelocityStreams");
     
+    context.popRenderSettings();
 //    dst.endDraw();
   }
   
@@ -269,7 +287,7 @@ public class DwOpticalFlow {
   
 
   // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
-  // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
+  // GPU_DATA_READ == 1 --> [x0, y0, x1, y1, ...]
   public float[] getVelocity(float[] data_F4, int x, int y, int w, int h){
     return getVelocity(data_F4, x, y, w, h, 0);
   }
@@ -282,7 +300,7 @@ public class DwOpticalFlow {
   }
   
   // GPU_DATA_READ == 0 --> [x0, y0, x1, y1, ...]
-  // GPU_DATA_READ == 1 --> [x0, y0,  0,  1, x1, y1, 0, 1, ....]
+  // GPU_DATA_READ == 1 --> [x0, y0, x1, y1, ...]
   public float[] getVelocity(float[] data_F4){
     context.begin();
     data_F4 = frameCurr.velocity.getFloatTextureData(data_F4);
@@ -351,18 +369,18 @@ public class DwOpticalFlow {
         
       context.begin();
       resized = false;
-      resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
-      resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
-      resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels,2);
-      resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       ,2);
-      resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       ,2);
+      resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
+      resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
+      resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
+      resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       , 2);
+      resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       , 2);
       if(resized) {
         frame   .setParam_WRAP_S_T(wrap_st);
         sobelH  .setParam_WRAP_S_T(wrap_st);
         sobelV  .setParam_WRAP_S_T(wrap_st);
         velocity.setParam_WRAP_S_T(wrap_st);
         tmp     .setParam_WRAP_S_T(wrap_st);
-        System.out.println("cleared");
+        
         clear(0.0f);
       }
       context.end();
