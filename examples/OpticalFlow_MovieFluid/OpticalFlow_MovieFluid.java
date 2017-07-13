@@ -491,6 +491,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
   
   public void mouseReleased(){
     timeline.jumpToMoviePos();
+    opticalflow.reset();
   }
   
  

@@ -22,7 +22,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 
-import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
 public class DwOpticalFlow {
@@ -84,7 +83,7 @@ public class DwOpticalFlow {
     framePrev.resize(context, w, h, param.grayscale);
     
     if(frameCurr.resized || framePrev.resized){
-      UPDATE_STEP = 0;
+      reset();
     }
     
     context.end("OpticalFlow.resize");
@@ -92,6 +91,7 @@ public class DwOpticalFlow {
   
   public void reset(){
     clear(0.0f);
+    UPDATE_STEP = 0;
   }
   
   private void clear(float v){
@@ -162,27 +162,30 @@ public class DwOpticalFlow {
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT);
     
     // 3) compute optical flow
-    context.beginDraw(frameCurr.velocity);
-    DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
-    shader.begin();
-    shader.uniform2f     ("wh_rcp"          , 1f/frameCurr.w, 1f/frameCurr.h);
-    shader.uniform1f     ("scale"           , -param.flow_scale);
-    shader.uniform1f     ("threshold"       , param.threshold);
-    shader.uniformTexture("tex_curr_frame"  , frameCurr.frame);
-    shader.uniformTexture("tex_prev_frame"  , framePrev.frame);
-    shader.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
-    shader.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
-    shader.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
-    shader.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
-    shader.drawFullScreenQuad();
-    shader.end();
-    context.endDraw("OpticalFlow shader");
-
-    // 4) blur the current velocity
-    filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
-    
-    // 5) mix with previous velocity
-    if(UPDATE_STEP > 0){
+    if(UPDATE_STEP == 0){
+      
+    } else {
+      context.beginDraw(frameCurr.velocity);
+      DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
+      shader.begin();
+      shader.uniform2f     ("wh_rcp"          , 1f/frameCurr.w, 1f/frameCurr.h);
+      shader.uniform1f     ("scale"           , -param.flow_scale);
+      shader.uniform1f     ("threshold"       , param.threshold);
+      shader.uniformTexture("tex_curr_frame"  , frameCurr.frame);
+      shader.uniformTexture("tex_prev_frame"  , framePrev.frame);
+      shader.uniformTexture("tex_curr_sobelH" , frameCurr.sobelH);
+      shader.uniformTexture("tex_prev_sobelH" , framePrev.sobelH);
+      shader.uniformTexture("tex_curr_sobelV" , frameCurr.sobelV);
+      shader.uniformTexture("tex_prev_sobelV" , framePrev.sobelV);
+      shader.drawFullScreenQuad();
+      shader.end();
+      context.endDraw("OpticalFlow shader");
+  
+      // 4) blur the current velocity
+      filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
+      
+      // 5) mix with previous velocity
+ 
       DwGLTexture dst  = frameCurr.velocity;
       DwGLTexture srcA = framePrev.velocity;
       DwGLTexture srcB = frameCurr.velocity;
@@ -381,7 +384,7 @@ public class DwOpticalFlow {
         velocity.setParam_WRAP_S_T(wrap_st);
         tmp     .setParam_WRAP_S_T(wrap_st);
         
-        clear(0.0f);
+//        clear(0.0f);
       }
       context.end();
     }

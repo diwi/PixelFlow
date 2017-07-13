@@ -19,8 +19,12 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
+import com.vividsolutions.jts.math.Matrix;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -28,6 +32,8 @@ import processing.core.PMatrix3D;
 import processing.core.PVector;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
+import processing.opengl.Texture;
+
 
 
 public class DwSkyLightShader {
@@ -67,6 +73,10 @@ public class DwSkyLightShader {
   public PShader shader;
   public DwShadowMap shadowmap;
   public PGraphics3D[] pg_shading = new PGraphics3D[2];
+  
+  
+//  public DwGLSLProgram shader_;
+//  public DwGLTexture.TexturePingPong tex_shading_ = new DwGLTexture.TexturePingPong();
 
   public ArrayList<float[]> samples = new ArrayList<float[]>();
 
@@ -84,6 +94,10 @@ public class DwSkyLightShader {
 
     this.shader = new PShader(papplet, src_vert, src_frag);
     
+
+//    this.shader_ = context.createShader(dir+"skylight.frag");
+    
+    
 //    this.shader        = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
     this.scene_display = scene_display;
     this.geombuffer    = geombuffer;
@@ -96,7 +110,7 @@ public class DwSkyLightShader {
     for(int i = 0; i < pg_shading.length; i++){
       pg_shading[i] = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
       pg_shading[i].smooth(0);
-      pg_shading[i].textureSampling(5);
+      pg_shading[i].textureSampling(2);
       
       DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT);
       
@@ -108,6 +122,9 @@ public class DwSkyLightShader {
       pg_shading[i].noStroke();
       pg_shading[i].endDraw();
     }
+    
+//    tex_shading_.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, 1, 4);
+    
     reset();
   }
 
@@ -206,7 +223,9 @@ public class DwSkyLightShader {
     pg_dst.beginDraw();
     pg_dst.shader(shader);
     setUniforms();
-    shader.set("tex_src", pg_src);
+    shader.set("tex_src"       , pg_src);
+    shader.set("tex_shadow"    , shadowmap.pg_shadowmap);
+    shader.set("tex_geombuffer", geombuffer.pg_geom);
     pg_dst.resetMatrix();
     pg_dst.resetProjection();
     pg_dst.noStroke();
@@ -214,6 +233,26 @@ public class DwSkyLightShader {
     pg_dst.rect(-1,-1,2,2);
     pg_dst.endDraw();
     DwGLTextureUtils.swap(pg_shading);
+    
+    
+//    Texture tex_shadowmap = shadowmap.pg_shadowmap.getTexture();
+//    Texture tex_geombuffer = geombuffer.pg_geom.getTexture();
+//
+//    context.begin();
+//    context.beginDraw(tex_shading_.dst);
+//    shader_.begin();
+//    setUniforms();
+//    shader_.uniformTexture("tex_src"       , tex_shading_.src);
+//    shader_.uniformTexture("tex_shadow"    , tex_shadowmap.glName);
+//    shader_.uniformTexture("tex_geombuffer", tex_geombuffer.glName);
+//    shader_.drawFullScreenQuad();
+//    shader_.end();
+//    context.endDraw();
+//    tex_shading_.swap();
+//    context.end();
+//    
+//    DwFilter.get(context).copy.apply(tex_shading_.src, pg_src);
+
 
     RENDER_PASS++;
   }
@@ -288,34 +327,65 @@ public class DwSkyLightShader {
 
     
     // 3) update shader uniforms
-    shader.set("dir_light", light_dir_cameraspace);
+    shader.set("mat_projection", mat_projection);
     shader.set("mat_shadow", mat_shadow);
-//    shader.set("mat_shadow_normal", mat_shadow_normal);
     shader.set("mat_shadow_normal_modelview", mat_shadow_normal_modelview, true);
     shader.set("mat_shadow_normal_projection", mat_shadow_normal_projection, true);
-    
-
-    
+//    shader.set("mat_shadow_normal", mat_shadow_normal);
 //    shader.set("mat_screen_to_eye", mat_screen_to_eye);
-    shader.set("mat_projection", mat_projection);
 //    shader.set("mat_shadow_modelview", mat_shadow_modelview);
-    shader.set("tex_shadow", shadowmap.pg_shadowmap);
-    shader.set("tex_geombuffer", geombuffer.pg_geom);
-    
+    shader.set("dir_light", light_dir_cameraspace);
     shader.set("pass_mix", pass_mix);
     shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("wh_shadow", w_shadow, h_shadow); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
-//    shader.set("singlesided", param.singlesided ? 1 : 0);
+
+    
+//    getBuffer(buf_mat_projection              , mat_projection             );
+//    getBuffer(buf_mat_shadow                  , mat_shadow                 );
+//    getBuffer(buf_mat_shadow_normal_modelview , mat_shadow_normal_modelview , true);
+//    getBuffer(buf_mat_shadow_normal_projection, mat_shadow_normal_projection, true);
+//
+//    shader_.uniformMatrix4fv("mat_projection"              , 1, false, buf_mat_projection              , 0);
+//    shader_.uniformMatrix4fv("mat_shadow"                  , 1, false, buf_mat_shadow                  , 0);
+//    shader_.uniformMatrix3fv("mat_shadow_normal_modelview" , 1, false, buf_mat_shadow_normal_modelview , 0);
+//    shader_.uniformMatrix3fv("mat_shadow_normal_projection", 1, false, buf_mat_shadow_normal_projection, 0);
+//    shader_.uniform3f("dir_light", light_dir_cameraspace.x, light_dir_cameraspace.y, light_dir_cameraspace.z);
+//    shader_.uniform1f("pass_mix", pass_mix);
+//    shader_.uniform2f("wh", w, h);
+//    shader_.uniform2f("wh_shadow", w_shadow, h_shadow);
+//    shader_.uniform1f("shadow_bias_mag", shadow_bias_mag);
   }
+  
+  float[] buf_mat_projection               = new float[16];
+  float[] buf_mat_shadow                   = new float[16];
+  float[] buf_mat_shadow_normal_modelview  = new float[ 9];
+  float[] buf_mat_shadow_normal_projection = new float[ 9];
 
 
+  public void getBuffer(float[] matv, PMatrix3D mat){
+    getBuffer(matv, mat, false);
+  }
+  
+  public void getBuffer(float[] matv, PMatrix3D mat, boolean use3x3){
+    if (use3x3) { 
+      matv[0]=mat.m00; matv[1]=mat.m01; matv[2]=mat.m02;
+      matv[3]=mat.m10; matv[4]=mat.m11; matv[5]=mat.m12;
+      matv[6]=mat.m20; matv[7]=mat.m21; matv[8]=mat.m22;
+    } else {
+      matv[ 0]=mat.m00; matv[ 1]=mat.m01; matv[ 2]=mat.m02; matv[ 3]=mat.m03;
+      matv[ 4]=mat.m10; matv[ 5]=mat.m11; matv[ 6]=mat.m12; matv[ 7]=mat.m13;
+      matv[ 8]=mat.m20; matv[ 9]=mat.m21; matv[10]=mat.m22; matv[11]=mat.m23;
+      matv[12]=mat.m30; matv[13]=mat.m31; matv[14]=mat.m32; matv[15]=mat.m33;
+    }
+  }
+  
   public void reset(){
     for(int i = 0; i < pg_shading.length; i++){
       pg_shading[i].beginDraw();
       pg_shading[i].hint(PConstants.DISABLE_DEPTH_TEST);
       pg_shading[i].blendMode(PConstants.REPLACE);
-      pg_shading[i].textureSampling(0);
+      pg_shading[i].textureSampling(2);
       pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
       pg_shading[i].clear();
       pg_shading[i].resetMatrix();
@@ -325,6 +395,10 @@ public class DwSkyLightShader {
     }
     RENDER_PASS = 0;
     samples.clear();
+    
+    
+
+//    tex_shading_.clear(0.0f);
   }
 
 
