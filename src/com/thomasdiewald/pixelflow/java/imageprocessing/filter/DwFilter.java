@@ -41,7 +41,8 @@ public class DwFilter {
   public final GaussianBlurPyramid gausspyramid;
   public final Mad                 mad;
   public final Clamp               clamp;
-  
+  public final Difference          difference;
+
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
     
@@ -70,6 +71,9 @@ public class DwFilter {
     gausspyramid        = new GaussianBlurPyramid(context);
     mad                 = new Mad                (context);
     clamp               = new Clamp              (context);
+    difference          = new Difference         (context);
+    
+    
     filter_cache.put(context, this);
   }
   
