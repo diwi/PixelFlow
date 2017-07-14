@@ -20,6 +20,7 @@ import java.util.Locale;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwBackgroundSubtraction;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
@@ -81,6 +82,7 @@ public class Skylight_Capture extends PApplet {
  
   // optical flow
   DwOpticalFlow opticalflow;
+  DwBackgroundSubtraction bgsub;
 
   // AntiAliasing
   SMAA smaa;
@@ -92,7 +94,8 @@ public class Skylight_Capture extends PApplet {
   int BACKGROUND_COLOR = 255;
   boolean UPDATE_SCENE = true;
   boolean DISPLAY_SOURCE = true;
-  boolean USE_PIXEL_COLORS = true;
+  boolean USE_PIXEL_COLORS = !true;
+  boolean APPLY_BACKGROUNDSUBTRACTION = true;
   
   public void settings(){
     size(viewport_w, viewport_h, P3D);
@@ -124,22 +127,27 @@ public class Skylight_Capture extends PApplet {
     
    
 
-    for(String str : Capture.list()){
-      if(str.contains("fps=30")){
-        System.out.println(str);
-      }
-    }
+    // pixelflow library context
+    context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
+    
+    
+
+//    for(String str : Capture.list()){
+//      if(str.contains("fps=30")){
+//        System.out.println(str);
+//      }
+//    }
     
     // INPUT: capture
     capture = new Capture(this, 640, 480, 30);
     capture.start();
     
+    bgsub = new DwBackgroundSubtraction(context, capture.width, capture.height);
+    
 
 
-    // pixelflow library context
-    context = new DwPixelFlow(this);
-    context.print();
-    context.printGL();
     
     
     
@@ -189,7 +197,7 @@ public class Skylight_Capture extends PApplet {
     opticalflow = new DwOpticalFlow(context, 0, 0);
     // parameters
     opticalflow.param.flow_scale         = 100;
-    opticalflow.param.temporal_smoothing = 0.8f;
+    opticalflow.param.temporal_smoothing = 0.5f;
     opticalflow.param.display_mode       = 0;
     opticalflow.param.grayscale          = true;
     opticalflow.param.threshold = 2;
@@ -236,10 +244,10 @@ public class Skylight_Capture extends PApplet {
     blendMode(REPLACE);
     image(pg_aa, 0, 0);
     blendMode(BLEND);
-    
+    blendMode(REPLACE);
     if(DISPLAY_SOURCE && pg_src != null){
       float r = pg_src.width / (float) pg_src.height;
-      int h = 120;
+      int h = 220;
       int w = (int) (h * r + 0.5f);
       image(pg_src, 0, height-h, w, h);
     }
@@ -292,6 +300,8 @@ public class Skylight_Capture extends PApplet {
     if(key == 'v') printCam();
     if(key == 'b') DISPLAY_SOURCE = !DISPLAY_SOURCE;
     if(key == 'p') USE_PIXEL_COLORS = !USE_PIXEL_COLORS;
+    if(key == 's') bgsub.reset();
+    if(key == '1') APPLY_BACKGROUNDSUBTRACTION = !APPLY_BACKGROUNDSUBTRACTION;
   }
   
   public void toggleUpdate(){
@@ -378,20 +388,28 @@ public class Skylight_Capture extends PApplet {
   
   DwGLTexture tex_of_velocity = new DwGLTexture();
   float[]     buf_of_velocity;
-
+  
+  
   public void updateAnim(){
     
+    
     pg_src.beginDraw();
-    pg_src.blendMode(BLEND);
+    pg_src.blendMode(REPLACE);
     pg_src.image(capture, 0, 0);
     pg_src.endDraw();
+    
+//    bgsub.apply(pg_src, pg_src);
     
     cube_numx = pg_src_small.width;
     cube_numy = pg_src_small.height;
     
     // blur source texture
+    DwFilter.get(context).luminance.apply(pg_src, pg_src);
     DwFilter.get(context).gaussblur.apply(pg_src, pg_src, pg_src_tmp, 5);
-//    DwFilter.get(context).luminance.apply(pg_src, pg_src);
+
+    if(APPLY_BACKGROUNDSUBTRACTION){
+      bgsub.apply(pg_src, pg_src);
+    }
     
     // update optical flow
     opticalflow.update(pg_src);
@@ -403,10 +421,11 @@ public class Skylight_Capture extends PApplet {
 
     // down-scale color texture and read to local memory
     pg_src_small.beginDraw();
+    pg_src.blendMode(REPLACE);
     pg_src_small.image(pg_src, 0, 0, cube_numx, cube_numy);
     pg_src_small.endDraw();
     // blur again
-    DwFilter.get(context).gaussblur.apply(pg_src_small, pg_src_small, pg_src_small_tmp, 1);
+    DwFilter.get(context).gaussblur.apply(pg_src_small, pg_src_small, pg_src_small_tmp, 4);
     // get pixel buffer
     pg_src_small.loadPixels();
     
@@ -439,8 +458,6 @@ public class Skylight_Capture extends PApplet {
         int b = (rgb >>  0) & 0xFF;
         float gray = (r + g + b) / (3f * 255f);
         
-     
-        
         int flow_idx = (cube_numy - y - 1) * cube_numx + x;
         float flows = 3;
         float flowx = buf_of_velocity[flow_idx * 2 + 0] * +flows;
@@ -453,18 +470,18 @@ public class Skylight_Capture extends PApplet {
         
         float flow_norm = flow_m / FLOW_MAX;
         
-        if(!USE_PIXEL_COLORS){
-          float mix = 0.15f;
-          
-          float fr = mix + flow_norm * (1-mix);
-          float fg = mix + flow_norm * (1-mix) * 0.5f;
-          float fb = mix + flow_norm * (1-mix) * 0.1f;
-          
-          r = (int) (fr * 255);
-          g = (int) (fg * 255);
-          b = (int) (fb * 255);
-          rgb = 0xFF000000 | r << 16 | g << 8 | b;
-        }
+//        if(!USE_PIXEL_COLORS){
+//          float mix = 0.15f;
+//          
+//          float fr = mix + flow_norm * (1-mix);
+//          float fg = mix + flow_norm * (1-mix) * 0.5f;
+//          float fb = mix + flow_norm * (1-mix) * 0.1f;
+//          
+//          r = (int) (fr * 255);
+//          g = (int) (fg * 255);
+//          b = (int) (fb * 255);
+//          rgb = 0xFF000000 | r << 16 | g << 8 | b;
+//        }
   
 //
 //        float px = x * cube_size;
@@ -488,21 +505,33 @@ public class Skylight_Capture extends PApplet {
 //        
         float sx = cube_size + flow_m * 0;
         float sy = cube_size + flow_m * 0;
-        float sz = cube_size + flow_m * 2 + scene_dimz * gray * 0.25f;
+        float sz = cube_size + flow_m * 0 + scene_dimz * gray * 0.25f;
           
         float px = x * cube_size;
         float py = y * cube_size;
-        float pz = flow_m * 0 + scene_dimz * gray * 0.25f;
+        float pz = flow_m * 0 + sz*2;
  
-        float flow_ang = (float) Math.atan2(flowy, flowx);
+//        float flow_ang = (float) Math.atan2(flowy, flowx);
+        
+        if(!USE_PIXEL_COLORS){
+          float mix = 0.05f;
+          float mixinv = 1 - mix;   
+          float fr = mix + mixinv * (flow_norm * 1.0f + gray * 0.1f);
+          float fg = mix + mixinv * (flow_norm * 0.5f + gray * 0.5f);
+          float fb = mix + mixinv * (flow_norm * 0.1f + gray * 1.0f);
+          
+          rgb = 0xFF000000 | toUByte(fr) << 16 | toUByte(fg) << 8 | toUByte(fb);
+        }
+
+        
         
         pz = max(pz, 0);
 
         mat.reset();
         mat.translate(tx+px, ty+py, tz);
-        mat.rotateZ(flow_ang);
-        mat.rotateY(35 * flow_norm * PI/180f);
-        mat.rotateZ(-flow_ang);
+//        mat.rotateZ(flow_ang);
+//        mat.rotateY(15 * flow_norm * PI/180f);
+//        mat.rotateZ(-flow_ang);
         mat.translate(0, 0, pz);
         mat.scale(sx, sy, sz);  
         
@@ -516,15 +545,70 @@ public class Skylight_Capture extends PApplet {
   
   
   
+  //////////////////////////////////////////////////////////////////////////////
+  // Utils
+  //////////////////////////////////////////////////////////////////////////////
+  
+  int toUByte(float v){
+    if(v<0)v=0; else if(v>1)v = 1;
+    return (int)(v*255);
+  }
   
   
   
   
   
+
+  static float[][] PALLETTE = {
+      {  128,   120,   112},    
+      {  32,  128,  255}, 
+  };
+
+  static float[] getShading(float val, float[] rgb){
+    if(rgb == null || rgb.length < 3){
+      rgb = new float[3];
+    }
+
+    if(val<0)val=0;else if(val>1)val=1;
+
+    int steps = PALLETTE.length-1;
+    if(val == 1.0){
+      rgb[0] = PALLETTE[steps][0];
+      rgb[1] = PALLETTE[steps][1];
+      rgb[2] = PALLETTE[steps][2];
+    } else {
+      float lum_steps = val * steps;
+      int id = (int)lum_steps;
+      float frac = lum_steps - id;
+      rgb[0] = PALLETTE[id][0] * (1-frac) + PALLETTE[id+1][0] * frac;
+      rgb[1] = PALLETTE[id][1] * (1-frac) + PALLETTE[id+1][1] * frac;
+      rgb[2] = PALLETTE[id][2] * (1-frac) + PALLETTE[id+1][2] * frac;
+    }
+
+    return rgb;
+  }
   
- 
-  
-  
+  static int getShading(float val){
+    if(val<0)val=0;else if(val>1)val=1;
+    
+    float r,g,b;
+
+    int steps = PALLETTE.length-1;
+    if(val == 1.0){
+      r = PALLETTE[steps][0];
+      g = PALLETTE[steps][1];
+      b = PALLETTE[steps][2];
+    } else {
+      float lum_steps = val * steps;
+      int id = (int)lum_steps;
+      float frac = lum_steps - id;
+      r = PALLETTE[id][0] * (1-frac) + PALLETTE[id+1][0] * frac;
+      g = PALLETTE[id][1] * (1-frac) + PALLETTE[id+1][1] * frac;
+      b = PALLETTE[id][2] * (1-frac) + PALLETTE[id+1][2] * frac;
+    }
+
+    return 0xFF000000 | (int)r << 16 | (int)g << 8 | (int)b;
+  }
   
   
   
