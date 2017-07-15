@@ -39,7 +39,6 @@ import processing.core.PShape;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
 import processing.video.Capture;
-import processing.video.Movie;
 
 public class Skylight_Capture extends PApplet {
   
