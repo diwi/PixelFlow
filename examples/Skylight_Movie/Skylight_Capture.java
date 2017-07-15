@@ -141,6 +141,7 @@ public class Skylight_Capture extends PApplet {
 //    }
     
     // INPUT: capture
+//    capture = new Capture(this, 640, 360, 30);
     capture = new Capture(this, 640, 480, 30);
     capture.start();
     
@@ -186,7 +187,7 @@ public class Skylight_Capture extends PApplet {
     // parameters for sun-light
     skylight.sun.param.iterations     = 80;
     skylight.sun.param.solar_azimuth  = 35;
-    skylight.sun.param.solar_zenith   = 25;
+    skylight.sun.param.solar_zenith   = 30;
     skylight.sun.param.sample_focus   = 0.10f;
     skylight.sun.param.intensity      = 1.0f;
     skylight.sun.param.rgb            = new float[]{1,1,1};
@@ -247,7 +248,7 @@ public class Skylight_Capture extends PApplet {
     blendMode(REPLACE);
     if(DISPLAY_SOURCE && pg_src != null){
       float r = pg_src.width / (float) pg_src.height;
-      int h = 220;
+      int h = 120;
       int w = (int) (h * r + 0.5f);
       image(pg_src, 0, height-h, w, h);
     }
@@ -275,7 +276,7 @@ public class Skylight_Capture extends PApplet {
 
     // draw shapes
     canvas.pushMatrix();
-    canvas.translate(0, 0, cube_size + cube_size * cube_numy /2);
+    canvas.translate(0, 0, cube_size + cube_size * cube_numy /2 + 50);
     canvas.rotateX(-PI/2);
     if(group_cubes != null){
       canvas.shape(group_cubes);
@@ -405,7 +406,7 @@ public class Skylight_Capture extends PApplet {
     
     // blur source texture
     DwFilter.get(context).luminance.apply(pg_src, pg_src);
-    DwFilter.get(context).gaussblur.apply(pg_src, pg_src, pg_src_tmp, 5);
+    DwFilter.get(context).gaussblur.apply(pg_src, pg_src, pg_src_tmp, 3);
 
     if(APPLY_BACKGROUNDSUBTRACTION){
       bgsub.apply(pg_src, pg_src);
@@ -425,7 +426,7 @@ public class Skylight_Capture extends PApplet {
     pg_src_small.image(pg_src, 0, 0, cube_numx, cube_numy);
     pg_src_small.endDraw();
     // blur again
-    DwFilter.get(context).gaussblur.apply(pg_src_small, pg_src_small, pg_src_small_tmp, 4);
+    DwFilter.get(context).gaussblur.apply(pg_src_small, pg_src_small, pg_src_small_tmp, 3);
     // get pixel buffer
     pg_src_small.loadPixels();
     
@@ -503,18 +504,19 @@ public class Skylight_Capture extends PApplet {
 //        float py = y * cube_size;
 //        float pz = 0;
 //        
-        float sx = cube_size + flow_m * 0;
-        float sy = cube_size + flow_m * 0;
-        float sz = cube_size + flow_m * 0 + scene_dimz * gray * 0.25f;
+        float sx = 1.0f * cube_size + flow_m * 0;
+        float sy = 1.0f * cube_size + flow_m * 0;
+        float sz = 2.0f * cube_size + flow_m * 0 + scene_dimz * gray * 0.25f;
           
         float px = x * cube_size;
         float py = y * cube_size;
         float pz = flow_m * 0 + sz*2;
+        pz = max(pz, 0);
  
 //        float flow_ang = (float) Math.atan2(flowy, flowx);
         
         if(!USE_PIXEL_COLORS){
-          float mix = 0.05f;
+          float mix = 0.1f;
           float mixinv = 1 - mix;   
           float fr = mix + mixinv * (flow_norm * 1.0f + gray * 0.1f);
           float fg = mix + mixinv * (flow_norm * 0.5f + gray * 0.5f);
@@ -523,17 +525,17 @@ public class Skylight_Capture extends PApplet {
           rgb = 0xFF000000 | toUByte(fr) << 16 | toUByte(fg) << 8 | toUByte(fb);
         }
 
-        
-        
-        pz = max(pz, 0);
-
         mat.reset();
-        mat.translate(tx+px, ty+py, tz);
-//        mat.rotateZ(flow_ang);
-//        mat.rotateY(15 * flow_norm * PI/180f);
-//        mat.rotateZ(-flow_ang);
-        mat.translate(0, 0, pz);
+        mat.translate(tx+px, ty+py, tz+pz);
         mat.scale(sx, sy, sz);  
+        
+//        mat.reset();
+//        mat.translate(tx+px, ty+py, tz);
+//        mat.rotateZ(flow_ang);
+//        mat.rotateY(25 * flow_norm * PI/180f);
+//        mat.rotateZ(-flow_ang);
+//        mat.translate(0, 0, pz);
+//        mat.scale(sx, sy, sz);  
         
         PShape cube = shp_cubes[idx];
         cube.resetMatrix();
