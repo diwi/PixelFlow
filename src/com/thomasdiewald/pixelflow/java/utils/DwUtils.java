@@ -42,8 +42,75 @@ public class DwUtils {
   }
   
   final static public float mix(float a, float b, float mix){
-    return a*(1f-mix) + b * (mix);
+    return a * (1f-mix) + b * (mix);
   }
+  
+  
+  final static public float clamp(float a, float lo, float hi){
+    if(a < lo) return lo;
+    if(a > hi) return hi;
+    return a;
+  }
+  
+  
+  
+  
+  
+  
+  
+
+  final static public float[] getColor(float[][] pallette, float val_norm, float[] rgb){
+    if(rgb == null || rgb.length < 3){
+      rgb = new float[3];
+    }
+
+    val_norm = clamp(val_norm, 0, 1);
+    
+    int   idx_max = pallette.length - 1;
+    float val_map = val_norm * idx_max;
+    int   idx = (int) val_map;
+    float frac = val_map - idx;
+    
+    if(idx == idx_max){
+      rgb[0] = pallette[idx][0];
+      rgb[1] = pallette[idx][1];
+      rgb[2] = pallette[idx][2];
+    } else {
+      rgb[0] = mix(pallette[idx][0], pallette[idx+1][0], frac);
+      rgb[1] = mix(pallette[idx][1], pallette[idx+1][1], frac);
+      rgb[2] = mix(pallette[idx][2], pallette[idx+1][2], frac);
+    }
+
+    return rgb;
+  }
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
   public String[] readASCIIfile(InputStream inputstream) {

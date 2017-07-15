@@ -553,66 +553,8 @@ public class Skylight_Capture extends PApplet {
     if(v<0)v=0; else if(v>1)v = 1;
     return (int)(v*255);
   }
-  
-  
-  
-  
-  
 
-  static float[][] PALLETTE = {
-      {  128,   120,   112},    
-      {  32,  128,  255}, 
-  };
 
-  static float[] getShading(float val, float[] rgb){
-    if(rgb == null || rgb.length < 3){
-      rgb = new float[3];
-    }
-
-    if(val<0)val=0;else if(val>1)val=1;
-
-    int steps = PALLETTE.length-1;
-    if(val == 1.0){
-      rgb[0] = PALLETTE[steps][0];
-      rgb[1] = PALLETTE[steps][1];
-      rgb[2] = PALLETTE[steps][2];
-    } else {
-      float lum_steps = val * steps;
-      int id = (int)lum_steps;
-      float frac = lum_steps - id;
-      rgb[0] = PALLETTE[id][0] * (1-frac) + PALLETTE[id+1][0] * frac;
-      rgb[1] = PALLETTE[id][1] * (1-frac) + PALLETTE[id+1][1] * frac;
-      rgb[2] = PALLETTE[id][2] * (1-frac) + PALLETTE[id+1][2] * frac;
-    }
-
-    return rgb;
-  }
-  
-  static int getShading(float val){
-    if(val<0)val=0;else if(val>1)val=1;
-    
-    float r,g,b;
-
-    int steps = PALLETTE.length-1;
-    if(val == 1.0){
-      r = PALLETTE[steps][0];
-      g = PALLETTE[steps][1];
-      b = PALLETTE[steps][2];
-    } else {
-      float lum_steps = val * steps;
-      int id = (int)lum_steps;
-      float frac = lum_steps - id;
-      r = PALLETTE[id][0] * (1-frac) + PALLETTE[id+1][0] * frac;
-      g = PALLETTE[id][1] * (1-frac) + PALLETTE[id+1][1] * frac;
-      b = PALLETTE[id][2] * (1-frac) + PALLETTE[id+1][2] * frac;
-    }
-
-    return 0xFF000000 | (int)r << 16 | (int)g << 8 | (int)b;
-  }
-  
-  
-  
-  
   float[] cam_pos = new float[3];
   boolean CAM_ACTIVE = false;
   
