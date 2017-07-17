@@ -160,11 +160,9 @@ public class DwOpticalFlow {
     // 2) gradients
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelH, Sobel.TYPE._3x3_HORZ);
     filter.sobel.apply(frameCurr.frame, frameCurr.sobelV, Sobel.TYPE._3x3_VERT);
-    
-    // 3) compute optical flow
-    if(UPDATE_STEP == 0){
-      
-    } else {
+
+    if(UPDATE_STEP >= 1){
+      // 3) compute optical flow
       context.beginDraw(frameCurr.velocity);
       DwGLSLProgram shader = param.grayscale ? shader_OF_gray : shader_OF_rgba;
       shader.begin();
@@ -185,11 +183,10 @@ public class DwOpticalFlow {
       filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
       
       // 5) mix with previous velocity
- 
       DwGLTexture dst  = frameCurr.velocity;
       DwGLTexture srcA = framePrev.velocity;
       DwGLTexture srcB = frameCurr.velocity;
-      float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99999f);
+      float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99f);
       float[]     madA = {     mix, 0};
       float[]     madB = {1f - mix, 0};
       filter.merge.apply(dst, srcA, srcB, madA, madB);
@@ -204,7 +201,7 @@ public class DwOpticalFlow {
   
   
 
-  DwGLRenderSettingsCallback rcb = new DwGLRenderSettingsCallback() {
+  public DwGLRenderSettingsCallback rcb = new DwGLRenderSettingsCallback() {
     @Override
     public void set(DwPixelFlow context, int x, int y, int w, int h) {
       context.gl.glEnable(GLES3.GL_BLEND);

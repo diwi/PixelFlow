@@ -86,7 +86,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     public void addDensityTexture_cam(DwFluid2D fluid, DwOpticalFlow opticalflow){
       int[] pg_tex_handle = new int[1];
       
-      if( !pg_movie_a.getTexture().available() ) {
+      if( !pg_movie.getTexture().available() ) {
         System.out.println("no tex");
         return;
       }
@@ -94,7 +94,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
       float mix = opticalflow.UPDATE_STEP > 1 ? 0.05f : 1.0f;
       
       context.begin();
-      context.getGLTextureHandle(pg_movie_a, pg_tex_handle);
+      context.getGLTextureHandle(pg_movie, pg_tex_handle);
       context.beginDraw(fluid.tex_density.dst);
       DwGLSLProgram shader = context.createShader("data/addDensityCam.frag");
       shader.begin();
@@ -184,30 +184,25 @@ public class OpticalFlow_MovieFluid extends PApplet {
   // fluid stuff
   int fluidgrid_scale = 1;
   DwFluid2D fluid;
-  MyFluidData cb_fluid_data;
-  
-  
-  // buffer for the movie-image
-  PGraphics2D pg_movie_a, pg_movie_b; 
 
-  // offscreen render-target
+  
+  // render targets
+  PGraphics2D pg_movie; 
+  PGraphics2D pg_temp; 
   PGraphics2D pg_oflow;
   
   // Movie
   Movie movie;
   TimeLine timeline;
-  
-  // font used for Timeline
   PFont font;
 
 
-
   // some state variables for the GUI/display
-  int     BACKGROUND_COLOR  = 0;
+  int     BACKGROUND_COLOR = 0;
   boolean DISPLAY_SOURCE   = true;
-  boolean APPLY_GRAYSCALE = false;
-  boolean APPLY_BILATERAL = true;
-  int     VELOCITY_LINES  = 6;
+  boolean APPLY_GRAYSCALE  = false;
+  boolean APPLY_BILATERAL  = true;
+  int     VELOCITY_LINES   = 6;
   
   boolean UPDATE_FLUID = true;
   
@@ -222,7 +217,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
   
   public void settings() {
     size(view_w, view_h, P2D);
-    smooth(4);
+    smooth(8);
   }
 
   public void setup() {
@@ -236,46 +231,40 @@ public class OpticalFlow_MovieFluid extends PApplet {
       
     // optical flow object
     opticalflow = new DwOpticalFlow(context, pg_movie_w, pg_movie_h);
-
-    
-    // initial optical flow parameters
     opticalflow.param.display_mode = 1;
     
-    // fluid sobject
+    // fluid object
     fluid = new DwFluid2D(context, pg_movie_w, pg_movie_h, fluidgrid_scale);
-    
     // initial fluid parameters
     fluid.param.dissipation_density     = 0.95f;
     fluid.param.dissipation_velocity    = 0.90f;
     fluid.param.dissipation_temperature = 0.70f;
     fluid.param.vorticity               = 0.30f;
-
     // callback for adding fluid data
-    cb_fluid_data = new MyFluidData();
-    fluid.addCallback_FluiData(cb_fluid_data);
+    fluid.addCallback_FluiData(new MyFluidData());
    
-    pg_movie_a = (PGraphics2D) createGraphics(pg_movie_w, pg_movie_h, P2D);
-    pg_movie_a.noSmooth();
-    pg_movie_a.beginDraw();
-    pg_movie_a.background(0);
-    pg_movie_a.endDraw();
+    // init render targets
+    pg_movie = (PGraphics2D) createGraphics(pg_movie_w, pg_movie_h, P2D);
+    pg_movie.smooth(0);
+    pg_movie.beginDraw();
+    pg_movie.background(0);
+    pg_movie.endDraw();
     
-    pg_movie_b = (PGraphics2D) createGraphics(pg_movie_w, pg_movie_h, P2D);
-    pg_movie_b.noSmooth();
+    pg_temp = (PGraphics2D) createGraphics(pg_movie_w, pg_movie_h, P2D);
+    pg_temp.smooth(0);
     
     pg_oflow = (PGraphics2D) createGraphics(pg_movie_w, pg_movie_h, P2D);
-    pg_oflow.smooth(4);
+    pg_oflow.smooth(0);
     
-    
-    font = createFont("../data/SourceCodePro-Regular.ttf", 12);
     
     // movie file is not contained in the library release
     // to keep the file size small. please use one of your own videos instead.
     movie = new Movie(this, "examples/data/Pulp_Fiction_Dance_Scene.mp4");
     movie.loop();
     
+    // font for timeline
+    font = createFont("../data/SourceCodePro-Regular.ttf", 12);
 
-    
     timeline = new TimeLine(movie, 0, height-20, pg_movie_w, 20);
 
     createGUI();
@@ -307,27 +296,27 @@ public class OpticalFlow_MovieFluid extends PApplet {
       }
       
       // render to offscreenbuffer
-      pg_movie_a.beginDraw();
-      pg_movie_a.background(0);
-      pg_movie_a.imageMode(CENTER);
-      pg_movie_a.pushMatrix();
-      pg_movie_a.translate(pg_movie_w/2f, pg_movie_h/2f);
-      pg_movie_a.scale(0.95f);
-      pg_movie_a.image(movie, 0, 0, mov_w_fit, mov_h_fit);
-      pg_movie_a.popMatrix();
-      pg_movie_a.endDraw();
+      pg_movie.beginDraw();
+      pg_movie.background(0);
+      pg_movie.imageMode(CENTER);
+      pg_movie.pushMatrix();
+      pg_movie.translate(pg_movie_w/2f, pg_movie_h/2f);
+      pg_movie.scale(0.95f);
+      pg_movie.image(movie, 0, 0, mov_w_fit, mov_h_fit);
+      pg_movie.popMatrix();
+      pg_movie.endDraw();
       
       // apply filters (not necessary)
       if(APPLY_GRAYSCALE){
-        DwFilter.get(context).luminance.apply(pg_movie_a, pg_movie_a);
+        DwFilter.get(context).luminance.apply(pg_movie, pg_movie);
       }
       if(APPLY_BILATERAL){
-        DwFilter.get(context).bilateral.apply(pg_movie_a, pg_movie_b, 5, 0.10f, 4);
+        DwFilter.get(context).bilateral.apply(pg_movie, pg_temp, 5, 0.10f, 4);
         swapCamBuffer();
       }
       
       // update Optical Flow
-      opticalflow.update(pg_movie_a);
+      opticalflow.update(pg_movie);
     }
     
     if(UPDATE_FLUID){
@@ -338,7 +327,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
     pg_oflow.beginDraw();
     pg_oflow.background(BACKGROUND_COLOR);
     if(DISPLAY_SOURCE){
-      pg_oflow.image(pg_movie_a, 0, 0);
+      pg_oflow.image(pg_movie, 0, 0);
     }
     pg_oflow.endDraw();
     
@@ -372,9 +361,9 @@ public class OpticalFlow_MovieFluid extends PApplet {
   
 
   void swapCamBuffer(){
-    PGraphics2D tmp = pg_movie_a;
-    pg_movie_a = pg_movie_b;
-    pg_movie_b = tmp;
+    PGraphics2D tmp = pg_movie;
+    pg_movie = pg_temp;
+    pg_temp = tmp;
   }
   
   
