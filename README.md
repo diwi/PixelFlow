@@ -105,7 +105,7 @@ More Videos on [Vimeo](https://vimeo.com/user56436843).
 
 <br>
 
-## Getting Started - FLuid Simulation
+## Getting Started - Fluid Simulation
 
 
 ```java
