@@ -35,6 +35,7 @@
     - Bilateral Filter
     - Custom Convolution Kernel
     - DoG (Difference of Gaussian)
+    - BackgroundSubtraction
     - Laplace
     - Sobel
     - Gamma Correction
@@ -97,8 +98,8 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 
 #### Optical Flow
 [<img src="https://i.vimeocdn.com/video/594413465.jpg" alt="alt text" width="30%">](https://vimeo.com/184850333 "Optical Flow - Fluid Simulation - MovieClip")
-[<img src="https://i.vimeocdn.com/video/644816088.jpg" alt="alt text" width="30%">](https://vimeo.com/225484146 "MovieWall ")
-
+[<img src="https://i.vimeocdn.com/video/644816088.jpg" alt="alt text" width="30%">](https://vimeo.com/225484146 "MovieWall")
+[<img src="https://i.vimeocdn.com/video/645059994.jpg" alt="alt text" width="30%">](https://vimeo.com/225671748 "VoxelCapture")
 
 
 More Videos on [Vimeo](https://vimeo.com/user56436843).
