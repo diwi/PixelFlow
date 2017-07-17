@@ -463,6 +463,7 @@ public class OpticalFlow_MovieFluid extends PApplet {
   }
   public void fluid_reset(){
     fluid.reset();
+    opticalflow.reset();
   }
   public void fluid_togglePause(){
     UPDATE_FLUID = !UPDATE_FLUID;
@@ -490,8 +491,10 @@ public class OpticalFlow_MovieFluid extends PApplet {
  
   
   public void mouseReleased(){
-    timeline.jumpToMoviePos();
-    opticalflow.reset();
+    if(timeline.inside(mouseX, mouseY)){
+      timeline.jumpToMoviePos();
+      opticalflow.reset();
+    }
   }
   
  
