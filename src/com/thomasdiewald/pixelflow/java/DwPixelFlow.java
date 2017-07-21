@@ -72,18 +72,10 @@ public class DwPixelFlow{
   
   public DwPixelFlow(PApplet papplet){
     this.papplet = papplet;
-    
-    this.pjogl   = (PJOGL) papplet.beginPGL();
+
     this.gl = begin(); end();
     
-//    int[] rval = new int[2];
-//    gl.glGetIntegerv(GL2.GL_MIN_PROGRAM_TEXEL_OFFSET, rval, 0);
-//    gl.glGetIntegerv(GL2.GL_MAX_PROGRAM_TEXEL_OFFSET, rval, 1);
-//    System.out.println("GL_MIN_PROGRAM_TEXEL_OFFSET "+rval[0]);
-//    System.out.println("GL_MAX_PROGRAM_TEXEL_OFFSET "+rval[1]);
-    
     pjogl.enableFBOLayer();
-
 
     papplet.registerMethod("dispose", this);
     
