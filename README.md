@@ -35,6 +35,7 @@
     - Bilateral Filter
     - Custom Convolution Kernel
     - DoG (Difference of Gaussian)
+    - BackgroundSubtraction
     - Laplace
     - Sobel
     - Gamma Correction
@@ -77,6 +78,9 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://i.vimeocdn.com/video/621790715.jpg" alt="alt text" width="30%">](https://vimeo.com/206696210 "Skylight - Cloth Simulation")
 [<img src="https://i.vimeocdn.com/video/621790926.jpg" alt="alt text" width="30%">](https://vimeo.com/206696403 "Skylight - Basic")
 [<img src="https://i.vimeocdn.com/video/621791014.jpg" alt="alt text" width="30%">](https://vimeo.com/206696738 "Skylight - Poisson Spheres")
+[<img src="https://i.vimeocdn.com/video/635968099.jpg" alt="alt text" width="30%">](https://vimeo.com/218485498 "Rigid Body - Menger Sponge")
+[<img src="https://i.vimeocdn.com/video/627412633.jpg" alt="alt text" width="30%">](https://vimeo.com/211395605 "Rigid Origami Simulation")
+
 
 #### Softbody Dynamics
 [<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="30%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
@@ -92,11 +96,17 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://vimeo.com/184849892/og_image_watermark/594411994" alt="alt text" width="30%">](https://vimeo.com/184849892 "Liquid Painting - M.C. Escher")
 [<img src="https://vimeo.com/184849880/og_image_watermark/594411757" alt="alt text" width="30%">](https://vimeo.com/184849880 "Liquid Text")
 
+#### Optical Flow
+[<img src="https://i.vimeocdn.com/video/594413465.jpg" alt="alt text" width="30%">](https://vimeo.com/184850333 "Optical Flow - Fluid Simulation - MovieClip")
+[<img src="https://i.vimeocdn.com/video/644816088.jpg" alt="alt text" width="30%">](https://vimeo.com/225484146 "MovieWall")
+[<img src="https://i.vimeocdn.com/video/645059994.jpg" alt="alt text" width="30%">](https://vimeo.com/225671748 "VoxelCapture")
+
+
 More Videos on [Vimeo](https://vimeo.com/user56436843).
 
 <br>
 
-## Getting Started - FLuid Simulation
+## Getting Started - Fluid Simulation
 
 
 ```java
