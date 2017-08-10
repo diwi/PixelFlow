@@ -25,7 +25,7 @@ import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
-public class DwGLTexture{
+public class DwGLTexture3D{
   
   static private int TEX_COUNT = 0;
 
@@ -35,7 +35,7 @@ public class DwGLTexture{
   public int[] HANDLE = null;
 
   // some default values. TODO
-  public int target           = GL2ES2.GL_TEXTURE_2D;
+  public int target           = GL2ES2.GL_TEXTURE_3D;
   public int internalFormat   = GL2ES2.GL_RGBA8;
   public int format           = GL2ES2.GL_RGBA;
   public int type             = GL2ES2.GL_UNSIGNED_BYTE;
@@ -46,7 +46,8 @@ public class DwGLTexture{
   // dimension
   public int w = 0; 
   public int h = 0;
-
+  public int d = 0;
+  
   // Framebuffer
   public DwGLFrameBuffer framebuffer;
   
@@ -54,15 +55,15 @@ public class DwGLTexture{
   int[] HANDLE_pbo = new int[1];
 
   // Texture, for Subregion copies and data transfer
-  public DwGLTexture texsub;
+  public DwGLTexture3D texsub;
   
  
-  public DwGLTexture(){
+  public DwGLTexture3D(){
   }
   
-  public DwGLTexture createEmtpyCopy(){
-    DwGLTexture tex = new DwGLTexture();
-    tex.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+  public DwGLTexture3D createEmtpyCopy(){
+    DwGLTexture3D tex = new DwGLTexture3D();
+    tex.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
     return tex;
   }
  
@@ -111,17 +112,20 @@ public class DwGLTexture{
   public int h(){
     return h; 
   }
-  
-  
-  public boolean resize(DwPixelFlow context, DwGLTexture othr){
-    return resize(context, othr, othr.w, othr.h);
+  public int d(){
+    return d; 
   }
   
-  public boolean resize(DwPixelFlow context, DwGLTexture othr, int w, int h){
+  public boolean resize(DwPixelFlow context, DwGLTexture3D othr){
+    return resize(context, othr, othr.w, othr.h, othr.d);
+  }
+  
+  public boolean resize(DwPixelFlow context, DwGLTexture3D othr, int w, int h, int d){
     return resize(context, 
         othr.internalFormat, 
         w, 
         h, 
+        d, 
         othr.format, 
         othr.type, 
         othr.filter, 
@@ -130,19 +134,20 @@ public class DwGLTexture{
         );
   }
   
-  public boolean resize(DwPixelFlow context, int w, int h){
-    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+  public boolean resize(DwPixelFlow context, int w, int h, int d){
+    return resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
   }
   
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
-    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel){
+    return resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
   }
 
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
 
-    if(w <= 0 || h <= 0) return false;
+    if(w <= 0 || h <= 0 || d <= 0) return false;
     if(    this.w == w 
         && this.h == h
+        && this.d == d
         && this.internalFormat == internalFormat
         && this.format == format
         && this.type == type
@@ -154,6 +159,7 @@ public class DwGLTexture{
     this.internalFormat = internalFormat;
     this.w = w;
     this.h = h;
+    this.d = d;
     this.format = format;
     this.type = type;
     this.filter = filter;
@@ -179,9 +185,10 @@ public class DwGLTexture{
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_EDGE);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_REPEAT);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_REPEAT);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, GL2ES2.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
-    
+
     gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
     
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
@@ -192,7 +199,7 @@ public class DwGLTexture{
 
     // gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, GL2ES2.GL_NEAREST); // GL_NEAREST, GL_LINEAR
     // gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, GL2ES2.GL_NEAREST);
-    gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, data);
+    gl.glTexImage3D   (target, 0, internalFormat, w, h, d, 0, format, type, data);
 //    gl.glTexSubImage2D(target, 0, 0, 0, w, h, format, type, data);
     gl.glBindTexture  (target, 0);   
     
@@ -225,6 +232,7 @@ public class DwGLTexture{
   //  GL_MIRROR_CLAMP_TO_EDGE 
   public void setParam_WRAP_S_T(int param){
     gl.glBindTexture  (target, HANDLE[0]);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, param);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, param);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, param);
     gl.glBindTexture  (target, 0);
@@ -232,6 +240,7 @@ public class DwGLTexture{
   
   public void setParam_WRAP_S_T(int param, float[] border_color){
     gl.glBindTexture   (target, HANDLE[0]);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_R, param);
     gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, param);
     gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, param);
     gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
@@ -318,21 +327,21 @@ public class DwGLTexture{
   
   
   
-  private DwGLTexture createTexSubImage(int x, int y, int w, int h){
+  private DwGLTexture3D createTexSubImage(int x, int y, int w, int h){
     // create/resize texture from the size of the subregion
     if(texsub == null){
-      texsub = new DwGLTexture();
+      texsub = new DwGLTexture3D();
     }
     
     if(x + w > this.w) { System.out.println("Error DwGLTexture.createTexSubImage: region-x is not within texture bounds"); }
     if(y + h > this.h) { System.out.println("Error DwGLTexture.createTexSubImage: region-y is not within texture bounds "); }
     
-    texsub.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
+    texsub.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
     
     // copy the subregion to the texture
-    context.beginDraw(this);
+    context.beginDraw(this, 0);
     gl.glBindTexture(target, texsub.HANDLE[0]);
-    gl.glCopyTexSubImage2D(target, 0, 0, 0, x, y, w, h);
+    gl.glCopyTexSubImage3D(target, 0, 0, 0, 0, x, y, w, h);
     gl.glBindTexture(target, 0);
     context.endDraw("DwGLTexture.createTexSubImage");
     return texsub;
@@ -361,7 +370,7 @@ public class DwGLTexture{
   
   
   
-
+  // TODO: get data
   
   /**
    * 
@@ -380,7 +389,7 @@ public class DwGLTexture{
     int data_len = w * h * num_channel;
     int buffer_size = data_len * byte_per_channel;
   
-    context.beginDraw(this);
+    context.beginDraw(this, 0);
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
     gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, buffer_size, null, GL2ES3.GL_DYNAMIC_READ);
     gl.glReadPixels(x, y, w, h, format, type, 0);
@@ -406,7 +415,7 @@ public class DwGLTexture{
   
   
   public void getData_GL2GL3(int x, int y, int w, int h, Buffer buffer){
-    DwGLTexture tex = this;
+    DwGLTexture3D tex = this;
     
     // create a new texture, the size of the given region, and copy the pixels to it
     if(!(x == 0 && y == 0 && w == this.w && h == this.h)){
@@ -607,10 +616,19 @@ public class DwGLTexture{
     clear(v,v,v,v);
   }
   
+  DwGLTexture3D[] layers_tex = new DwGLTexture3D[1];
+  int[]           layers_idx = new int[1];
+  
   public void clear(float r, float g, float b, float a){
     if(framebuffer != null){
-      framebuffer.clearTexture(r,g,b,a, this);
+      layers_tex[0] = this;
+      for(int i = 0; i < d; i++){
+        layers_idx[0] = i;
+        framebuffer.clearTexture(r,g,b,a, layers_tex, layers_idx);
+      }
     }
+    
+    
   }
   
 //  public void beginDraw(){
@@ -632,15 +650,15 @@ public class DwGLTexture{
 
 
   static public class TexturePingPong{
-    public DwGLTexture src = new DwGLTexture(); 
-    public DwGLTexture dst = new DwGLTexture(); 
+    public DwGLTexture3D src = new DwGLTexture3D(); 
+    public DwGLTexture3D dst = new DwGLTexture3D(); 
 
     public TexturePingPong(){
     }
 
-    public void resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int  num_channel, int byte_per_channel){
-      src.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
-      dst.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
+    public void resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int  num_channel, int byte_per_channel){
+      src.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+      dst.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
     }
 
     public void release(){
@@ -649,7 +667,7 @@ public class DwGLTexture{
     }
 
     public void swap(){
-      DwGLTexture tmp;
+      DwGLTexture3D tmp;
       tmp = src;
       src = dst;
       dst = tmp;

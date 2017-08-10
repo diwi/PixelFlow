@@ -24,6 +24,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLFrameBuffer;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture3D;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLError;
 
@@ -169,6 +170,24 @@ public class DwPixelFlow{
     framebuffer.bind(dst);
     defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
   }
+  
+  
+  public void beginDraw(DwGLTexture3D[] dst, int[] layer){
+  //  if(ACTIVE_FRAMEBUFFER) return;
+    ACTIVE_FRAMEBUFFER = true;
+    framebuffer.bind(dst, layer);
+    defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
+  }
+  
+
+  public void beginDraw(DwGLTexture3D dst, int layer){
+  //  if(ACTIVE_FRAMEBUFFER) return;
+    ACTIVE_FRAMEBUFFER = true;
+    framebuffer.bind(new DwGLTexture3D[]{dst}, new int[]{layer});
+    defaultRenderSettings(0, 0, dst.w, dst.h);
+  }
+  
+
   
   PGraphicsOpenGL pgl_dst = null;
   public void beginDraw(PGraphicsOpenGL dst){
