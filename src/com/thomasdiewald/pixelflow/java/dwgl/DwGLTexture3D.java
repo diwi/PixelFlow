@@ -116,6 +116,17 @@ public class DwGLTexture3D{
     return d; 
   }
   
+  
+  public int getMem_Byte(){
+    return w * h * d * byte_per_channel * num_channel;
+  }
+  public int getMem_KiloByte(){
+    return getMem_Byte() >> 10;
+  }
+  public int getMem_MegaByte(){
+    return getMem_Byte() >> 20;
+  }
+  
   public boolean resize(DwPixelFlow context, DwGLTexture3D othr){
     return resize(context, othr, othr.w, othr.h, othr.d);
   }

@@ -16,6 +16,7 @@ package com.thomasdiewald.pixelflow.java.dwgl;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.Charset;
+import java.util.Stack;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES1;
@@ -159,7 +160,6 @@ public class DwGLSLProgram {
     int LOC_name = gl.glGetUniformLocation(HANDLE, uniform_name);
     if(LOC_name == -1){
       if(LOG_WARNINGS && warning_count < 20){
-       
         System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
         warning_count++;
       }
@@ -168,36 +168,56 @@ public class DwGLSLProgram {
   }
   
  
-  private int active_uniform_location = -1;
   
   
-  public int uniformTexture(String uniform_name, DwGLTexture texture){
-    return uniformTexture(uniform_name, texture.HANDLE[0]);
+  public static class UniformTexture{
+    String name = null;;
+    int loc = -1;
+    int loc_idx = -1;
+    int target = -1;
+    int handle = -1;
+    
+    public UniformTexture(String name, int loc, int loc_idx, int handle, int target) {
+      this.name = name;
+      this.loc = loc;
+      this.loc_idx = loc_idx;
+      this.target = target;
+      this.handle = handle;
+    }
   }
   
+  public Stack<UniformTexture> uniform_textures = new Stack<>();
+  
+  public int uniformTexture(String uniform_name, DwGLTexture texture){
+    return uniformTexture(uniform_name, texture.HANDLE[0], texture.target);
+  }
+  public int uniformTexture(String uniform_name, DwGLTexture3D texture){
+    return uniformTexture(uniform_name, texture.HANDLE[0], texture.target);
+  }
   public int uniformTexture(String uniform_name, int HANDLE_tex){
-    int active_uniform_location_cur = -1;
-    int LOC_name = getUniformLocation(uniform_name);
-    if(LOC_name == -1){
-//      if(LOG_WARNINGS){
-//        System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
-//      }
-    } else {
-      active_uniform_location_cur = ++active_uniform_location;
-      gl.glUniform1i(LOC_name, active_uniform_location_cur); 
-      gl.glActiveTexture(GL2ES2.GL_TEXTURE0 + active_uniform_location_cur); 
-      gl.glBindTexture(GL2ES2.GL_TEXTURE_2D, HANDLE_tex);
+    return uniformTexture(uniform_name,HANDLE_tex, GL2ES2.GL_TEXTURE_2D);
+  }
+  public int uniformTexture(String uniform_name, int HANDLE_tex, int target){
+    int loc = getUniformLocation(uniform_name);
+    if(loc != -1){
+      UniformTexture untex = new UniformTexture(uniform_name, loc, uniform_textures.size(), HANDLE_tex, target);
+      uniform_textures.push(untex);
+      
+      gl.glUniform1i(loc, untex.loc_idx); 
+      gl.glActiveTexture(GL2ES2.GL_TEXTURE0 + untex.loc_idx); 
+      gl.glBindTexture(untex.target, untex.handle);
     }
-    return active_uniform_location_cur;
+    return uniform_textures.size();
   }
   
   public void clearUniformTextures(){
-    while(active_uniform_location >= 0){
-      gl.glActiveTexture(GL2ES2.GL_TEXTURE0 + active_uniform_location); 
-      gl.glBindTexture(GL2ES2.GL_TEXTURE_2D, 0);
-      --active_uniform_location;
+    while(!uniform_textures.empty()){
+      UniformTexture untex = uniform_textures.pop();
+      gl.glActiveTexture(GL2ES2.GL_TEXTURE0 + untex.loc_idx); 
+      gl.glBindTexture(untex.target, 0);
     }
   }
+  
   
 
   
