@@ -186,9 +186,8 @@ public class DwGLFrameBuffer {
     gl.glColorMask(true, true, true, true);
     gl.glClearColor(r,g,b,a);
     gl.glClear(GL2ES2.GL_COLOR_BUFFER_BIT);
-    DwGLError.debug(gl, "DwGLFrameBuffer.clearTexture1");
     unbind();
-    DwGLError.debug(gl, "DwGLFrameBuffer.clearTexture2");
+    DwGLError.debug(gl, "DwGLFrameBuffer.clearTexture");
   }
   
   
