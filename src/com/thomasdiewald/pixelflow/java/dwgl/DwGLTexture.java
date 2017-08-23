@@ -507,7 +507,7 @@ public class DwGLTexture{
    *  pg_tmp.updatePixels();                                                                   
    * 
    * 
-   * @param tex
+   * @param tex_min
    * @param data
    * @return
    */

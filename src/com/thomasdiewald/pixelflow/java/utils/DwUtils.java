@@ -37,8 +37,15 @@ public class DwUtils {
   }
   
   
+  final static public int logNceil(double n, double val){
+    return (int) Math.ceil(Math.log(val)/Math.log(n));
+  }
+  
   final static public int log2ceil(double val){
     return (int) Math.ceil(Math.log(val)/Math.log(2));
+  }
+  final static public int log4ceil(double val){
+    return (int) Math.ceil(Math.log(val)/Math.log(4));
   }
   
   final static public float mix(float a, float b, float mix){
