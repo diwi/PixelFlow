@@ -251,7 +251,7 @@ public class DwPixelFlow{
     @Override
     public void set(DwPixelFlow context, int x, int y, int w, int h) {
       GL2ES2 gl = context.gl;
-      gl.glViewport(x, x, w, h);
+      gl.glViewport(x, y, w, h);
       gl.glColorMask(true, true, true, true);
       gl.glDepthMask(false);
       gl.glDisable(GL.GL_DEPTH_TEST);

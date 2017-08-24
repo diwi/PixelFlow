@@ -12,56 +12,70 @@
 
 #version 150
 
-
+// STEP_SIZE can be 2, 3 or 4, ... 3 and 4 are the fastest
 #define STEP_SIZE 2
 
-// #define GET_TEX(v) texelFetchOffset(tex, pos, 0, v)
-// #define GET_TEX(v) texelFetch(tex, pos + v, 0)
-#define GET_TEX(v) texture(tex, (pos + v + 0.5)*wh_rcp, 0)
+// #define TEX(x, y) texelFetchOffset(tex, pos, 0, ivec2(x,y))
+// #define TEX(x, y) texelFetch(tex, pos + ivec2(x,y), 0)
+#define TEX(x, y) texture(tex, (pos + ivec2(x,y) + 0.5)*wh_rcp, 0)
 
 
-
-#define MODE_MIN 0 // set by implementation
-#define MODE_MAX 0 // set by implementation
+#define MODE_MIN 0 // set by app before compiling
+#define MODE_MAX 0 // set by app before compiling
 
 #if MODE_MAX
-  #define GET_VAL(a,b,c,d) max(max(a, b), max(c, d))
+  #define M2(a,b) max(a, b)
 #elif MODE_MIN
-  #define GET_VAL(a,b,c,d) min(min(a, b), min(c, d))
+  #define M2(a,b) min(a, b)
 #endif
+
+#define M3(a,b,c) M2(M2(a, b), c)
+#define M4(a,b,c,d) M2(M2(a, b), M2(c, d))
 
 
 out vec4 out_frag;
 uniform vec2 wh_rcp;
+uniform ivec2 off;
 uniform sampler2D	tex;
 
 
 void main(){
 
-#if (STEP_SIZE == 2)
-  ivec2 pos = ivec2(gl_FragCoord.xy) * STEP_SIZE;
-  
-  vec4 A0 = GET_TEX(ivec2(0,0)); vec4 A1 = GET_TEX(ivec2(1,0));
-  vec4 B0 = GET_TEX(ivec2(0,1)); vec4 B1 = GET_TEX(ivec2(1,1));
+  ivec2 pos = (ivec2(gl_FragCoord.xy)-off) * STEP_SIZE;
 
-  out_frag = GET_VAL(A0, A1, B0, B1);
+#if (STEP_SIZE == 2)
+  vec4 A0 = TEX(0,0), A1 = TEX(1,0);
+  vec4 B0 = TEX(0,1), B1 = TEX(1,1);
+
+  out_frag = M4(A0, A1, B0, B1);
+#endif
+
+
+#if (STEP_SIZE == 3)
+  vec4 A0 = TEX(0,0), A1 = TEX(1,0), A2 = TEX(2,0);
+  vec4 B0 = TEX(0,1), B1 = TEX(1,1), B2 = TEX(2,1);
+  vec4 C0 = TEX(0,2), C1 = TEX(1,2), C2 = TEX(2,2);
+
+  vec4 mA = M3(A0, A1, A2);
+  vec4 mB = M3(B0, B1, B2);
+  vec4 mC = M3(C0, C1, C2);
+  
+  out_frag = M3(mA, mB, mC);
 #endif
 
 
 #if (STEP_SIZE == 4)
-  ivec2 pos = ivec2(gl_FragCoord.xy) * STEP_SIZE;
+  vec4 A0 = TEX(0,0), A1 = TEX(1,0), A2 = TEX(2,0), A3 = TEX(3,0);
+  vec4 B0 = TEX(0,1), B1 = TEX(1,1), B2 = TEX(2,1), B3 = TEX(3,1); 
+  vec4 C0 = TEX(0,2), C1 = TEX(1,2), C2 = TEX(2,2), C3 = TEX(3,2); 
+  vec4 D0 = TEX(0,3), D1 = TEX(1,3), D2 = TEX(2,3), D3 = TEX(3,3);
 
-  vec4 A0 = GET_TEX(ivec2(0,0)); vec4 A1 = GET_TEX(ivec2(1,0)); vec4 A2 = GET_TEX(ivec2(2,0)); vec4 A3 = GET_TEX(ivec2(3,0));
-  vec4 B0 = GET_TEX(ivec2(0,1)); vec4 B1 = GET_TEX(ivec2(1,1)); vec4 B2 = GET_TEX(ivec2(2,1)); vec4 B3 = GET_TEX(ivec2(3,1)); 
-  vec4 C0 = GET_TEX(ivec2(0,2)); vec4 C1 = GET_TEX(ivec2(1,2)); vec4 C2 = GET_TEX(ivec2(2,2)); vec4 C3 = GET_TEX(ivec2(3,2)); 
-  vec4 D0 = GET_TEX(ivec2(0,3)); vec4 D1 = GET_TEX(ivec2(1,3)); vec4 D2 = GET_TEX(ivec2(2,3)); vec4 D3 = GET_TEX(ivec2(3,3));
-
-  vec4 mA = GET_VAL(A0, A1, A2, A3);
-  vec4 mB = GET_VAL(B0, B1, B2, B3);
-  vec4 mC = GET_VAL(C0, C1, C2, C3);
-  vec4 mD = GET_VAL(D0, D1, D2, D3);
+  vec4 mA = M4(A0, A1, A2, A3);
+  vec4 mB = M4(B0, B1, B2, B3);
+  vec4 mC = M4(C0, C1, C2, C3);
+  vec4 mD = M4(D0, D1, D2, D3);
   
-  out_frag = GET_VAL(mA, mB, mC, mD);
+  out_frag = M4(mA, mB, mC, mD);
 #endif
  
 

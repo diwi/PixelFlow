@@ -22,6 +22,15 @@ import processing.opengl.PGraphics2D;
 
 public class MinMax_Demo extends PApplet {
   
+  
+  //
+  //
+  // Demo to show the usage of the Min/Max filter.
+  //
+  // The Filter computes the global Min/Max values of a given texture.
+  //
+  //
+  
   DwPixelFlow context;
   
   // Min-Max Filter
@@ -67,39 +76,33 @@ public class MinMax_Demo extends PApplet {
       pg.endDraw();
     }
     
-    // copy to native opengl tex
+    // copy to native OpenGL tex
     DwFilter.get(context).copy.apply(pg, tex);
     
     // run parallel reduction Min/Max filter
-    byte[] min = new byte[4];
-    byte[] max = new byte[4];
+    minmax.apply(tex);
+    
+    // read min/max-result
+    byte[] result = minmax.getVal().getByteTextureData(null);
 
-    // min
-    minmax.apply(tex, MinMax.Mode.MIN);
-    minmax.getLatest().getByteTextureData(min);
-    
-    // max
-    minmax.apply(tex, MinMax.Mode.MAX);
-    minmax.getLatest().getByteTextureData(max);
-    
-    
+
     // draw rendering
     clear();
     image(pg, 0, 0);
     
     // info
-    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [fps %6.2f] [min %s] [max %s]", width, height, frameRate, formatRGBA(min), formatRGBA(max));
+    String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]  [fps %6.2f] [min %s] [max %s]", width, height, frameRate, formatRGBA(result, 0), formatRGBA(result, 4));
     surface.setTitle(txt_fps);
     
   }
 
 
   
-  public String formatRGBA(byte[] data){
-    int r = data[0] & 0xFF;
-    int g = data[1] & 0xFF;
-    int b = data[2] & 0xFF;
-    int a = data[3] & 0xFF;
+  public String formatRGBA(byte[] data, int off){
+    int r = data[off+0] & 0xFF;
+    int g = data[off+1] & 0xFF;
+    int b = data[off+2] & 0xFF;
+    int a = data[off+3] & 0xFF;
     return String.format("%3d,%3d,%3d,%3d", r, g, b, a);
   }
  
