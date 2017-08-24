@@ -44,7 +44,7 @@ void main(){
   vec4 A0 = GET_TEX(ivec2(0,0)); vec4 A1 = GET_TEX(ivec2(1,0));
   vec4 B0 = GET_TEX(ivec2(0,1)); vec4 B1 = GET_TEX(ivec2(1,1));
 
-  out_frag = GET_MAX(A0, A1, B0, B1);
+  out_frag = GET_VAL(A0, A1, B0, B1);
 #endif
 
 
