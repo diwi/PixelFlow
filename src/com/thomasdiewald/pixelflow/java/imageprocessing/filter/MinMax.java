@@ -51,8 +51,11 @@ public class MinMax {
   public MinMax(DwPixelFlow context){
     this.context = context;
     
-    this.shader_min = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/reduction_min.frag");
-    this.shader_max = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/reduction_max.frag");
+    this.shader_min = context.createShader((Object)(this+"_MIN"), DwPixelFlow.SHADER_DIR+"Filter/min_max.frag");
+    this.shader_max = context.createShader((Object)(this+"_MAX"), DwPixelFlow.SHADER_DIR+"Filter/min_max.frag");
+    
+    shader_min.frag.setDefine("MODE_MIN", 1);
+    shader_max.frag.setDefine("MODE_MAX", 1);
     
     shader_min.frag.setDefine("STEP_SIZE", STEP_SIZE);
     shader_max.frag.setDefine("STEP_SIZE", STEP_SIZE);
@@ -71,7 +74,7 @@ public class MinMax {
     int h = src.h;
     
     // 1) compute number of blur layers
-    layers = Math.max(DwUtils.logNceil(STEP_SIZE, w), DwUtils.logNceil(STEP_SIZE, h)) + 1;
+    layers = Math.max(DwUtils.logNceil(w, STEP_SIZE), DwUtils.logNceil(h, STEP_SIZE)) + 1;
  
     // 2) init/release textures if needed
     if(tex.length < layers){

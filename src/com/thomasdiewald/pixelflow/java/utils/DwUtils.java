@@ -37,7 +37,7 @@ public class DwUtils {
   }
   
   
-  final static public int logNceil(double n, double val){
+  final static public int logNceil(double val, double n){
     return (int) Math.ceil(Math.log(val)/Math.log(n));
   }
   
