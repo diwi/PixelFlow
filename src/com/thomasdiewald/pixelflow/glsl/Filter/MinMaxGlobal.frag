@@ -36,7 +36,7 @@
 out vec4 out_frag;
 uniform vec2 wh_rcp;
 uniform ivec2 off;
-uniform sampler2D	tex;
+uniform sampler2D tex;
 
 
 void main(){

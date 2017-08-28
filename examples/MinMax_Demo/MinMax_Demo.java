@@ -15,7 +15,7 @@ import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MinMax;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MinMaxGlobal;
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -34,7 +34,7 @@ public class MinMax_Demo extends PApplet {
   DwPixelFlow context;
   
   // Min-Max Filter
-  MinMax minmax;
+  MinMaxGlobal minmax;
   
   // temp texture, to copy the PGraphics
   DwGLTexture tex = new DwGLTexture();
@@ -42,7 +42,7 @@ public class MinMax_Demo extends PApplet {
   PGraphics2D pg;
 
   public void settings() {
-    size(1200, 800, P2D);
+    size(1211, 799, P2D);
     smooth(0);
   }
   
@@ -50,7 +50,7 @@ public class MinMax_Demo extends PApplet {
     
     context = new DwPixelFlow(this);
     
-    minmax = new MinMax(context);
+    minmax = new MinMaxGlobal(context);
     tex.resize(context, GL2.GL_RGBA8, width, height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
 
     pg = (PGraphics2D) createGraphics(width, height, P2D);

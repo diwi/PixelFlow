@@ -42,7 +42,8 @@ public class DwFilter {
   public final Mad                 mad;
   public final Clamp               clamp;
   public final Difference          difference;
-
+  public final MinMaxLocal         minmaxlocal;
+  
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
     
@@ -72,7 +73,7 @@ public class DwFilter {
     mad                 = new Mad                (context);
     clamp               = new Clamp              (context);
     difference          = new Difference         (context);
-    
+    minmaxlocal         = new MinMaxLocal        (context);
     
     filter_cache.put(context, this);
   }

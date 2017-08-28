@@ -32,7 +32,7 @@ import com.thomasdiewald.pixelflow.java.utils.DwUtils;
  * @author Thomas
  *
  */
-public class MinMax {
+public class MinMaxGlobal {
   
 
   protected int STEP_SIZE = 4; // 2,3,4
@@ -45,11 +45,11 @@ public class MinMax {
   public DwGLSLProgram shader_min;
   public DwGLSLProgram shader_max;
   
-  public MinMax(DwPixelFlow context){
+  public MinMaxGlobal(DwPixelFlow context){
     this.context = context;
     
-    this.shader_min = context.createShader((Object)(this+"_MIN"), DwPixelFlow.SHADER_DIR+"Filter/min_max.frag");
-    this.shader_max = context.createShader((Object)(this+"_MAX"), DwPixelFlow.SHADER_DIR+"Filter/min_max.frag");
+    this.shader_min = context.createShader((Object)(this+"_MIN"), DwPixelFlow.SHADER_DIR+"Filter/MinMaxGlobal.frag");
+    this.shader_max = context.createShader((Object)(this+"_MAX"), DwPixelFlow.SHADER_DIR+"Filter/MinMaxGlobal.frag");
     
     shader_min.frag.setDefine("MODE_MIN", 1);
     shader_max.frag.setDefine("MODE_MAX", 1);
@@ -84,14 +84,13 @@ public class MinMax {
 
     // 3) allocate textures
     for(int i = 0; i < layers; i++){
-      
       if(i == layers-1){
         w = 2;
         h = 1;
       }
       
       tex[i].resize(context, src, w, h);
-      tex[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+      tex[i].setParam_WRAP_S_T(GLES3.GL_REPEAT);
 //      System.out.println(i+", "+w+", "+h);
       w = (int) Math.ceil(w / (float) STEP_SIZE);
       h = (int) Math.ceil(h / (float) STEP_SIZE);
@@ -158,7 +157,7 @@ public class MinMax {
       }
     }
     
-    context.end("MinMax.apply");
+    context.end("MinMaxGlobal.apply");
   }
   
   

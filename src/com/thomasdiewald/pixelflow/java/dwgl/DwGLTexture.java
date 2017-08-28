@@ -312,6 +312,24 @@ public class DwGLTexture{
   }
   
   
+  
+  
+  
+  
+  // some predefined swizzles
+  public static final int   SWIZZLE_R = GL2.GL_RED;
+  public static final int   SWIZZLE_G = GL2.GL_GREEN;
+  public static final int   SWIZZLE_B = GL2.GL_BLUE;
+  public static final int   SWIZZLE_A = GL2.GL_ALPHA;
+  public static final int   SWIZZLE_0 = GL2.GL_ZERO;
+  public static final int   SWIZZLE_1 = GL2.GL_ONE;
+  public static final int[] SWIZZLE_RGBA = {SWIZZLE_R, SWIZZLE_G, SWIZZLE_B, SWIZZLE_A};
+  public static final int[] SWIZZLE_RRRR = {SWIZZLE_R, SWIZZLE_R, SWIZZLE_R, SWIZZLE_R};
+  public static final int[] SWIZZLE_GGGG = {SWIZZLE_G, SWIZZLE_G, SWIZZLE_G, SWIZZLE_G};
+  public static final int[] SWIZZLE_BBBB = {SWIZZLE_B, SWIZZLE_B, SWIZZLE_B, SWIZZLE_B};
+  public static final int[] SWIZZLE_AAAA = {SWIZZLE_A, SWIZZLE_A, SWIZZLE_A, SWIZZLE_A};
+  
+  
   public void swizzle(int[] i4_GL_TEXTURE_SWIZZLE_RGBA){
     glTexParameteriv(GL2.GL_TEXTURE_SWIZZLE_RGBA, i4_GL_TEXTURE_SWIZZLE_RGBA, true);
   }
