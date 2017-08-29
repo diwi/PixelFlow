@@ -22,6 +22,13 @@ import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 import processing.opengl.PGraphics2D;
 
 
+
+/**
+ * 
+ * @Deprecated use "DwFlowFieldStream" instead
+ *
+ */
+@Deprecated
 public class DwFluidStreamLines2D{
   
   public Param param = new Param();
@@ -81,9 +88,8 @@ public class DwFluidStreamLines2D{
     shader_streamlineRender = context.createShader(DwPixelFlow.SHADER_DIR+"Streamlines/streamlineRender.vert", DwPixelFlow.SHADER_DIR+"Streamlines/streamlineRender.frag");
     
     // allocate texture
-    tex_vertices.resize(context, GL2ES2.GL_RG32F, lines_x, lines_y, GL2ES2.GL_RG, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 4, 4);
-    tex_vertices.src.clear(0);
-    tex_vertices.dst.clear(0);
+    tex_vertices.resize(context, GL2ES2.GL_RG32F, lines_x, lines_y, GL2ES2.GL_RG, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 2, 4);
+    tex_vertices.clear(0);
     
     context.end("Streamlines.resize");
   }
