@@ -23,13 +23,18 @@ import processing.opengl.PGraphicsOpenGL;
 public class DwFlowFieldStream{
   
   public static class Param {
-    public int     line_length  = 20;
-    public float   line_width   = 0.3f;
-    public float   line_spacing = 8;
-    public float   line_scale   = 3f;
-    public float   vel_min      = 10f;
-    public float[] col_A        = {1.0f, 1.0f, 1.0f, 0.1f};
-    public float[] col_B        = {1.0f, 1.0f, 1.0f, 1.0f};
+    
+    public float   dissipation  = 0.97f;
+    public float   inertia      = 0.80f;
+    
+    public float   timestep     = 10f;
+    
+    public int     line_length  = 40;
+    public float   line_width   = 0.5f;
+    public float   line_spacing = 10;
+ 
+    public float[] col_A        = {0.25f, 0.50f, 1.0f, 0.50f};
+    public float[] col_B        = {0.9f, 0.95f, 1.0f, 1.0f};
     
     public int     blend_mode   = 0; // BLEND=0; ADD=1
   }
@@ -40,7 +45,7 @@ public class DwFlowFieldStream{
   public DwPixelFlow context;
   
   protected String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
-  
+
   public DwGLSLProgram shader_init  ;
   public DwGLSLProgram shader_update;
   public DwGLSLProgram shader_display;
@@ -66,7 +71,7 @@ public class DwFlowFieldStream{
   }
   
   public void resize(int w, int h){
-    tex_position.resize(context, GL2ES2.GL_RG32F, w, h, GL2ES2.GL_RG, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 2, 4);
+    tex_position.resize(context, GL2ES2.GL_RGBA32F, w, h, GL2ES2.GL_RGBA, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 4, 4);
   }
   
   public void reset(){
@@ -88,18 +93,15 @@ public class DwFlowFieldStream{
     
     int w_velocity = tex_velocity.w;
     int h_velocity = tex_velocity.h;
-    int w_position = tex_position.dst.w;
-    int h_position = tex_position.dst.h;
-    
+
     context.begin();
     context.beginDraw(tex_position.dst);
     shader_update.begin();
     shader_update.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
-    shader_update.uniform2f     ("wh_position_rcp", 1f/w_position, 1f/h_position);
-    shader_update.uniform1f     ("timestep"       , 1f);
-    shader_update.uniform1f     ("rdx"            , 1.0f / 1f);
-    shader_update.uniform1f     ("vel_scale"      , param.line_scale);
-    shader_update.uniform2f     ("vel_minmax"     , 1f, 1f);
+    shader_update.uniform1f     ("timestep"       , param.timestep);
+    shader_update.uniform1f     ("rdx"            , 1f);
+    shader_update.uniform1f     ("dissipation"    , param.dissipation);
+    shader_update.uniform1f     ("inertia"        , param.inertia);
     shader_update.uniformTexture("tex_position"   , tex_position.src);
     shader_update.uniformTexture("tex_velocity"   , tex_velocity);
     shader_update.drawFullScreenQuad();
@@ -110,10 +112,10 @@ public class DwFlowFieldStream{
   }
   
   
-  public void display(PGraphicsOpenGL render_canvas, DwGLTexture tex_velocity){
+  public void display(PGraphicsOpenGL canvas, DwGLTexture tex_velocity){
     
-    int w_dst = render_canvas.width;
-    int h_dst = render_canvas.height;
+    int w_dst = canvas.width;
+    int h_dst = canvas.height;
     
     {
       int w_stream = (int) Math.ceil(w_dst / param.line_spacing);
@@ -121,8 +123,8 @@ public class DwFlowFieldStream{
       resize(w_stream, h_stream);
     }
     
-    int w_position = tex_position.dst.w;
-    int h_position = tex_position.dst.h;
+    int w_position = tex_position.src.w;
+    int h_position = tex_position.src.h;
     
     context.begin();
     
@@ -132,9 +134,9 @@ public class DwFlowFieldStream{
       update(tex_velocity);
       
       float line_uv = i/(float)(param.line_length-1);
-      line_uv = (float) Math.sqrt(line_uv);
+      line_uv = (float) Math.pow(line_uv, 0.25f);
       
-      context.beginDraw(render_canvas);  
+      context.beginDraw(canvas);  
       blendMode();
       shader_display.begin();
       shader_display.uniform2i     ("wh_position"    , w_position, h_position);

@@ -21,13 +21,38 @@ void main(){
   
 #define TEX_OFF(x,y) textureOffset(tex_src, posn, ivec2(x, y))
 
-  vec4 dh1 = TEX_OFF(-1, 0) - TEX_OFF(+1, 0);
-  vec4 dv1 = TEX_OFF( 0,-1) - TEX_OFF( 0,+1);
+  // vec4 dh = TEX_OFF(-1, 0) - TEX_OFF(+1, 0);
+  // vec4 dv = TEX_OFF( 0,-1) - TEX_OFF( 0,+1);
   
-  // vec4 dh2 = TEX_OFF(-2, 0) - TEX_OFF(+2, 0);
-  // vec4 dv2 = TEX_OFF( 0,-2) - TEX_OFF( 0,+2);
   
-  out_flow = vec2(dh1.x, dv1.x);
+  // sobel filter for gradient
+  
+  // TL T TR
+  //  L o  R
+  // BL B BR
+  
+  vec4  L = TEX_OFF(-1, 0);
+  vec4  R = TEX_OFF(+1, 0);
+  vec4  T = TEX_OFF( 0,-1);
+  vec4  B = TEX_OFF( 0,+1);
+  
+  vec4 TL = TEX_OFF(-1,-1);
+  vec4 TR = TEX_OFF(+1,-1);
+  vec4 BL = TEX_OFF(-1,+1);
+  vec4 BR = TEX_OFF(+1,+1);
+  
+  vec4 dh = vec4(0);
+  vec4 dv = vec4(0);
+  
+  dh += TL * +1;   dh += TR * -1;
+  dh +=  L * +2;   dh +=  R * -2;
+  dh += BL * +1;   dh += BR * -1;
+  
+  dv += TL * +1;   dv += BL * -1;
+  dv += T  * +2;   dv += B  * -2;
+  dv += TR * +1;   dv += BR * -1;
+  
+  out_flow = vec2(dh.x, dv.x);
 }
 
 

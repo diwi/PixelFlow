@@ -324,7 +324,7 @@ public class DwGLSLProgram {
 //    gl.glBlendFunc( GL.GL_SRC_ALPHA, GL.GL_SRC_ALPHA );
 //    gl.glBlendEquation(GL.GL_FUNC_ADD);
     
-   
+
 //    gl.glEnable(GL3.GL_VERTEX_PROGRAM_POINT_SIZE);
     gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
     gl.glEnable(GL2ES1.GL_POINT_SPRITE);

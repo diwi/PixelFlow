@@ -44,10 +44,11 @@ public class DwFlowField {
     tex_flowfield.release();
     tex_tmp.release();
   }
-  
+  int count = 0;
   public void resize(int w, int h){
     tex_flowfield.resize(context, GL2.GL_RG32F, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_NEAREST, 2, 2);
     tex_tmp.resize(context, tex_flowfield);
+    tex_tmp.clear(0);
   }
   
   public void create(DwGLTexture tex_src){
@@ -56,6 +57,7 @@ public class DwFlowField {
     int h = tex_src.h;
     
     resize(w, h);
+    
     
     context.begin();
     context.beginDraw(tex_flowfield);
@@ -66,8 +68,23 @@ public class DwFlowField {
     shader_create.end();
     context.endDraw();
     context.end("FlowField.create()");
+
+//    swap();
+    
+//    float mix = 0.0010f;
+////    float mix = count / (count + 1f); count++;
+//    float[] madA = {  mix, 0.0f};
+//    float[] madB = {1-mix, 0.0f};
+//    DwFilter.get(context).merge.apply(tex_tmp,  tex_tmp, tex_flowfield, madA, madB);
+//    swap();
   }
   
+  
+  void swap(){
+    DwGLTexture tmp = tex_flowfield;
+    tex_flowfield = tex_tmp;
+    tex_tmp = tmp;
+  }
   
   public void display(PGraphicsOpenGL dst){
 

@@ -13,12 +13,9 @@
 
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
-import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 
 

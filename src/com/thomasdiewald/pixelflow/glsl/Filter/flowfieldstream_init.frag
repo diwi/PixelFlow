@@ -10,11 +10,11 @@
 
 #version 150 
 
-out vec2 out_pos;
+out vec4 out_pos;
 
 uniform vec2 wh_rcp;
 
 void main(){
-  out_pos = gl_FragCoord.xy * wh_rcp;
+  out_pos = vec4(gl_FragCoord.xy * wh_rcp, 0, 0);
 }
 

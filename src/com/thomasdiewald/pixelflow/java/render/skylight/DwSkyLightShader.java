@@ -19,20 +19,14 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
-import com.vividsolutions.jts.math.Matrix;
-
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PMatrix3D;
 import processing.core.PVector;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
-import processing.opengl.Texture;
 
 
 

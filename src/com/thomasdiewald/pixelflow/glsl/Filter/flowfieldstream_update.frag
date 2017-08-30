@@ -10,30 +10,37 @@
 
 #version 150 
 
-out vec2 out_pos;
+out vec4 out_frag;
+
+uniform vec2  wh_velocity_rcp;
+uniform float timestep;
+uniform float rdx;
+uniform float dissipation;
+uniform float	inertia;
 
 uniform sampler2D tex_position;
 uniform sampler2D tex_velocity;
 
-uniform vec2  wh_velocity_rcp;
-uniform vec2  wh_position_rcp;
-uniform float timestep;
-uniform float rdx;
-uniform float vel_scale;
-uniform vec2  vel_minmax;
-
-
 void main(){
 
-  vec2 pos = texture(tex_position, gl_FragCoord.xy * wh_position_rcp).xy;
-  vec2 vel = texture(tex_velocity, pos.xy).xy;
+  // get previous pos/vel
+  vec4 position = texelFetch(tex_position, ivec2(gl_FragCoord.xy), 0);
+   
+  vec2 pos = position.xy;
+	vec2 vel = position.zw;
+
+  // get new velocity
+  vec2 vel_cur = texture(tex_velocity, pos).xy;
 
   // normalize velocity
-  float vel_len = length(vel) + 0.0001;
-  vel /= vel_len;
+  float vel_len = length(vel_cur);
+  vel_cur = clamp(vel_len, 0.0, 1.0) * vel_cur / (vel_len + 0.000001);
+
+  // update velocity
+  vel = mix(vel_cur, vel, inertia) * dissipation;
   
-  // scale + clamp
-  vel *= vel_scale * clamp(vel_len, vel_minmax.x, vel_minmax.y);
+  // update position
+  pos += rdx * timestep * vel * wh_velocity_rcp;
   
-  out_pos = pos + rdx * timestep * vel * wh_velocity_rcp;
+  out_frag = vec4(pos, vel);
 }
