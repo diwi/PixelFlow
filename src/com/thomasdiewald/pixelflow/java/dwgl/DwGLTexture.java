@@ -682,6 +682,8 @@ public class DwGLTexture{
       dst.clear(r,g,b,a);
     }
     
+    
+    
   }
 
 

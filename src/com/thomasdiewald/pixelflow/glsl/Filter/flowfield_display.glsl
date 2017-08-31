@@ -15,9 +15,9 @@
 #define SHADER_VERT 0
 #define SHADER_FRAG 0
 
-uniform vec2  wh_rcp;
-uniform vec2  spacing;
-uniform ivec2 num_lines;
+
+uniform ivec2 wh_lines;
+uniform  vec2 wh_lines_rcp;
 uniform float vel_scale;
 uniform vec4  col_A = vec4(0, 0, 0, 1.0);
 uniform vec4  col_B = vec4(0, 0, 0, 0.5);
@@ -34,15 +34,15 @@ void main(){
   int vtx_id  = gl_VertexID & 1; //  either 0 (line-start) or 1 (line-end)
   
   // get position (xy)
-  int row = line_id / num_lines.x;
-  int col = line_id - num_lines.x * row;
-  
+  int row = line_id / wh_lines.x;
+  int col = line_id - wh_lines.x * row;
+
+
   // compute origin (line-start)
-  vec2 offset = spacing * 0.5;
-  vec2 origin = offset + vec2(col, row) * spacing;
+  vec2 origin = vec2(col, row) + 0.5;
   
   // get velocity from texture at origin location
-  vec2 vel = texture(tex_velocity, origin * wh_rcp).xy;
+  vec2 vel = texture(tex_velocity, origin * wh_lines_rcp).xy;
   
   // normalize + scale
   float len = length(vel + 0.00001);
@@ -62,7 +62,7 @@ void main(){
 #endif
   
   // finish vertex coordinate
-  vec2 vtx_pos_n = (vtx_pos + 0.5) * wh_rcp; // [0, 1]
+  vec2 vtx_pos_n = vtx_pos * wh_lines_rcp; // [0, 1]
   gl_Position = vec4(vtx_pos_n * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   
 }

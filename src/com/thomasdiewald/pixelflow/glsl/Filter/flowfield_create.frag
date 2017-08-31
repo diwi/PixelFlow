@@ -20,6 +20,7 @@ void main(){
   vec2 posn = gl_FragCoord.xy * wh_rcp;
   
 #define TEX_OFF(x,y) textureOffset(tex_src, posn, ivec2(x, y))
+// #define TEX_OFF(x,y) texture(tex_src, posn+vec2(x, y)*wh_rcp)
 
   // vec4 dh = TEX_OFF(-1, 0) - TEX_OFF(+1, 0);
   // vec4 dv = TEX_OFF( 0,-1) - TEX_OFF( 0,+1);
