@@ -12,7 +12,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.java.imageprocessing;
+package com.thomasdiewald.pixelflow.java.flowfield;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -43,6 +43,8 @@ public class DwFlowField {
     public float[] col_B        = {1,1,1,0.1f};
     
     public int     blend_mode   = 0; // BLEND=0; ADD=1
+    public boolean smooth       = true;
+    
   }
   
   public DwPixelFlow context;
@@ -54,11 +56,12 @@ public class DwFlowField {
   
   public DwGLTexture tex_flowfield = new DwGLTexture();
 
-  protected String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
-//  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/Filter/";
+  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+//  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/flowfield/";
   
   public DwFlowField(DwPixelFlow context){
     this.context = context;
+    context.papplet.registerMethod("dispose", this);
     
     shader_create  = context.createShader(data_path+"flowfield_create.frag");
     shader_display = context.createShader(data_path+"flowfield_display.glsl", data_path+"flowfield_display.glsl");
@@ -66,10 +69,13 @@ public class DwFlowField {
     shader_display.vert.setDefine("SHADER_VERT", 1);
   }
   
+  public void dispose(){
+    release();
+  }
+  
   public void release(){
     tex_flowfield.release();
   }
-
 
   public void resize(int w, int h){
     tex_flowfield.resize(context, GL2.GL_RG32F, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, 2, 4);
@@ -117,7 +123,7 @@ public class DwFlowField {
     shader_display.uniform2f     ("wh_lines_rcp"  , 1f/lines_x, 1f/lines_y);
     shader_display.uniform1f     ("vel_scale"     , scale);
     shader_display.uniformTexture("tex_velocity"  , tex_flowfield);
-    shader_display.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width);
+    shader_display.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.smooth);
     shader_display.end();
     context.endDraw();
     context.end("FlowField.display");

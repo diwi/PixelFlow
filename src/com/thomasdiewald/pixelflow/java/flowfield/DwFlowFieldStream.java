@@ -11,7 +11,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.java.imageprocessing;
+package com.thomasdiewald.pixelflow.java.flowfield;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
@@ -21,7 +21,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import processing.opengl.PGraphicsOpenGL;
 
 
-public class DwFlowFieldStream{
+public class DwFlowFieldStream {
   
   public static class Param {
     
@@ -41,6 +41,7 @@ public class DwFlowFieldStream{
     public float[] col_B        = {1.0f*s, 0.3f*s, 0.1f*s, 1.0f};
     
     public int     blend_mode   = 1; // BLEND=0; ADD=1
+    public boolean smooth       = true;
   }
   
   
@@ -48,8 +49,7 @@ public class DwFlowFieldStream{
   
   public DwPixelFlow context;
   
-  protected String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
-//  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/Filter/";
+  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
   
   public DwGLSLProgram shader_init  ;
   public DwGLSLProgram shader_update;
@@ -59,6 +59,7 @@ public class DwFlowFieldStream{
 
   public DwFlowFieldStream(DwPixelFlow context){
     this.context = context;
+    context.papplet.registerMethod("dispose", this);
     
     shader_init    = context.createShader(data_path+"flowfieldstream_init.frag");
     shader_update  = context.createShader(data_path+"flowfieldstream_update.frag");
@@ -151,7 +152,7 @@ public class DwFlowFieldStream{
       shader_display.uniform4fv    ("col_B"          , 1, param.col_B);
       shader_display.uniformTexture("tex_position_A" , tex_position.src);
       shader_display.uniformTexture("tex_position_B" , tex_position.dst);
-      shader_display.drawFullScreenLines(0, 0, w_dst, h_dst, w_position * h_position, param.line_width);
+      shader_display.drawFullScreenLines(0, 0, w_dst, h_dst, w_position * h_position, param.line_width, param.smooth);
       shader_display.end();
       context.endDraw();
     }

@@ -19,7 +19,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Stack;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES1;
 import com.jogamp.opengl.GL2ES2;
@@ -320,22 +319,40 @@ public class DwGLSLProgram {
     gl.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, 0, 4);
   }
   
+  
   public void drawFullScreenLines(int x, int y, int w, int h, int num_lines, float line_width){
+    drawFullScreenLines(x,y,w,h,num_lines,line_width, true);
+  }
+  
+  public void drawFullScreenLines(int x, int y, int w, int h, int num_lines, float line_width, boolean smooth){
     gl.glViewport(x, y, w, h);
     
-    gl.glEnable(GL2.GL_LINE_SMOOTH);
-    gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_FASTEST);
+    if(smooth){
+      gl.glEnable(GL2.GL_LINE_SMOOTH);
+      gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_FASTEST);
 //    gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST);
+    } else {
+      gl.glDisable(GL2.GL_LINE_SMOOTH);
+    }
     gl.glLineWidth(line_width);
     
     gl.glDrawArrays(GL2ES2.GL_LINES, 0, num_lines * 2);
   }
+  
+  
   public void drawFullScreenPoints(int x, int y, int w, int h, int num_points){
+    drawFullScreenPoints(x,y,w,h,num_points,true);
+  }
+  
+  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points, boolean smooth){
     gl.glViewport(x, y, w, h);
 
-//    gl.glEnable(GL2.GL_POINT_SMOOTH);
-//    gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_NICEST);
-//    gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
+    if(smooth){
+      gl.glEnable(GL2.GL_POINT_SMOOTH);
+      gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
+    } else {
+      gl.glDisable(GL2.GL_POINT_SMOOTH);
+    }
     
 //    gl.glEnable(GL3.GL_VERTEX_PROGRAM_POINT_SIZE);
     gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
