@@ -17,6 +17,8 @@ import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+
 import processing.opengl.PGraphicsOpenGL;
 
 
@@ -29,14 +31,19 @@ public class DwFlowFieldStream{
     
     public float   timestep     = 10f;
     
-    public int     line_length  = 40;
-    public float   line_width   = 0.5f;
+    public int     line_length  = 30;
+    public float   line_width   = 1f;
     public float   line_spacing = 10;
  
-    public float[] col_A        = {0.25f, 0.50f, 1.0f, 0.50f};
-    public float[] col_B        = {0.9f, 0.95f, 1.0f, 1.0f};
+    public float[] col_A        = {0.25f, 0.50f, 1.0f, 1.00f};
+//    public float[] col_B        = {0.9f, 0.95f, 1.0f, 1.0f};
     
-    public int     blend_mode   = 0; // BLEND=0; ADD=1
+//    public float[] col_B        = {0.1f, 0.05f, 0.01f, 1.0f};
+       
+    float s = 0.05f;
+    public float[] col_B        = {1.0f*s, 0.3f*s, 0.1f*s, 1.0f};
+//    public float[] col_B        = {0.0f, 0.0f, 0.0f, 1.0f};
+    public int     blend_mode   = 1; // BLEND=0; ADD=1
   }
   
   
@@ -112,6 +119,9 @@ public class DwFlowFieldStream{
   }
   
   
+  
+//  DwGLTexture tex_tmp = new DwGLTexture();
+  
   public void display(PGraphicsOpenGL canvas, DwGLTexture tex_velocity){
     
     int w_dst = canvas.width;
@@ -126,10 +136,13 @@ public class DwFlowFieldStream{
     int w_position = tex_position.src.w;
     int h_position = tex_position.src.h;
     
+//    tex_tmp.resize(context, GL.GL_RGBA, w_dst, h_dst, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, GL.GL_NEAREST, 4, 1);
+//    DwFilter.get(context).copy.apply(canvas, tex_tmp);
+    
     context.begin();
     
     reset();
-    
+
     for(int i = 0; i < param.line_length; i++){
       update(tex_velocity);
       
@@ -149,8 +162,9 @@ public class DwFlowFieldStream{
       shader_display.end();
       context.endDraw();
     }
-    
-    context.end("FlowFieldStream.display");
+
+//    context.end("FlowFieldStream.display");
+//    DwFilter.get(context).copy.apply(tex_tmp, canvas);
   }
   
   

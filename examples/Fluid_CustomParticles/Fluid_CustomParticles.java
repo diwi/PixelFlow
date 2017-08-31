@@ -192,7 +192,7 @@ public class Fluid_CustomParticles extends PApplet {
     createGUI();
     
     background(0);
-    frameRate(60);
+    frameRate(600);
   }
   
 

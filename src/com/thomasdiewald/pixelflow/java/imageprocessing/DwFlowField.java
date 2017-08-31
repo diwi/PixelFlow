@@ -68,23 +68,8 @@ public class DwFlowField {
     shader_create.end();
     context.endDraw();
     context.end("FlowField.create()");
-
-//    swap();
-    
-//    float mix = 0.0010f;
-////    float mix = count / (count + 1f); count++;
-//    float[] madA = {  mix, 0.0f};
-//    float[] madB = {1-mix, 0.0f};
-//    DwFilter.get(context).merge.apply(tex_tmp,  tex_tmp, tex_flowfield, madA, madB);
-//    swap();
   }
   
-  
-  void swap(){
-    DwGLTexture tmp = tex_flowfield;
-    tex_flowfield = tex_tmp;
-    tex_tmp = tmp;
-  }
   
   public void display(PGraphicsOpenGL dst){
 
