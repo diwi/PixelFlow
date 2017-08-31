@@ -16,9 +16,11 @@ package com.thomasdiewald.pixelflow.java.dwgl;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Stack;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES1;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
@@ -88,6 +90,8 @@ public class DwGLSLProgram {
       DwGLSLProgram.getProgramInfoLog(gl, HANDLE, ">> PROGRAM_INFOLOG: "+name+":\n");
   
       DwGLError.debug(gl, "DwGLSLProgram.build");
+      
+      uniform_loc.clear();
     }
     return this;
   }
@@ -149,15 +153,23 @@ public class DwGLSLProgram {
   
   
   
-  
+  HashMap<String, Integer> uniform_loc = new HashMap<String, Integer>();
 
-  
   public boolean LOG_WARNINGS = true;
   
   int warning_count = 0;
   
   private int getUniformLocation(String uniform_name){
-    int LOC_name = gl.glGetUniformLocation(HANDLE, uniform_name);
+    int LOC_name = -1;
+    Integer loc = uniform_loc.get(uniform_name);
+    if(loc != null){
+      LOC_name = loc;
+    } else {
+      LOC_name = gl.glGetUniformLocation(HANDLE, uniform_name);
+      if(LOC_name != -1){
+        uniform_loc.put(uniform_name, LOC_name);
+      }
+    }
     if(LOC_name == -1){
       if(LOG_WARNINGS && warning_count < 20){
         System.out.println(name+": uniform location \""+uniform_name+"\" = -1");
@@ -310,21 +322,21 @@ public class DwGLSLProgram {
   
   public void drawFullScreenLines(int x, int y, int w, int h, int num_lines, float line_width){
     gl.glViewport(x, y, w, h);
-    gl.glEnable(GL.GL_LINE_SMOOTH );
-//    gl.glEnable(GL.GL_BLEND);
-//    gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+    
+    gl.glEnable(GL2.GL_LINE_SMOOTH);
+    gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_FASTEST);
+//    gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST);
     gl.glLineWidth(line_width);
+    
     gl.glDrawArrays(GL2ES2.GL_LINES, 0, num_lines * 2);
   }
   public void drawFullScreenPoints(int x, int y, int w, int h, int num_points){
     gl.glViewport(x, y, w, h);
-//    gl.glDisable(GL.GL_BLEND);
-    
-//    gl.glEnable(GL.GL_BLEND);
-//    gl.glBlendFunc( GL.GL_SRC_ALPHA, GL.GL_SRC_ALPHA );
-//    gl.glBlendEquation(GL.GL_FUNC_ADD);
-    
 
+//    gl.glEnable(GL2.GL_POINT_SMOOTH);
+//    gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_NICEST);
+//    gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
+    
 //    gl.glEnable(GL3.GL_VERTEX_PROGRAM_POINT_SIZE);
     gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
     gl.glEnable(GL2ES1.GL_POINT_SPRITE);
