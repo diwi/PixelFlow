@@ -45,9 +45,12 @@ public class DistanceTransform {
   
   protected DwGLSLProgram shader_init;
   protected DwGLSLProgram shader_dtnn;
+  protected DwGLSLProgram shader_dist;
   protected DwGLSLProgram shader_voronoi;
- 
+
+  
   public DwGLTexture.TexturePingPong tex_dtnn = new DwGLTexture.TexturePingPong();
+  public DwGLTexture                 tex_dist = new DwGLTexture();
   
   public DistanceTransform(DwPixelFlow context){
     this.context = context;
@@ -55,15 +58,22 @@ public class DistanceTransform {
   
   public void release(){
     tex_dtnn.release();
+    tex_dist.release();
   }
+  
   
   public void resize(int w, int h){
     
     tex_dtnn.resize(context, GLES3.GL_RG16UI, w, h, GLES3.GL_RG_INTEGER, GLES3.GL_UNSIGNED_SHORT, GLES3.GL_NEAREST, 2, 2);
     tex_dtnn.src.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
     tex_dtnn.dst.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE); 
-    
-    if(shader_init == null || shader_dtnn == null){
+     
+    tex_dist.resize(context, GLES3.GL_R32F, w, h, GLES3.GL_RED, GLES3.GL_FLOAT, GLES3.GL_LINEAR, 1, 4);
+    tex_dist.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+
+    if(shader_init == null || shader_dtnn == null || shader_dist == null){
+      
+      shader_dist = context.createShader((Object)"dt_dist", DwPixelFlow.SHADER_DIR+"Filter/distancetransform_distance.frag");
       shader_init = context.createShader((Object)"dt_init", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
       shader_dtnn = context.createShader((Object)"dt_dtnn", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
       
@@ -77,19 +87,56 @@ public class DistanceTransform {
       if(POS_MAX > POS_MAX_LIMIT){
         System.out.println("DistanceTransform.resize ERROR: max possible texture size: "+(POS_MAX_LIMIT/2));
       }
-
 //      shader_init.frag.getDefine("POS_MAX"  ).value = ""+POS_MAX;
 //      shader_dtnn.frag.getDefine("POS_MAX"  ).value = ""+POS_MAX;
     }
     
   }
+  public void create(PGraphicsOpenGL pg_mask){
+    create(pg_mask, new float[]{0,0,0,1});
+  }
   
-  
-  public void create(PGraphicsOpenGL mask){
-    Texture tex_mask = mask.getTexture();  if(!tex_mask.available())  return;
+  public void create(PGraphicsOpenGL pg_mask, float[] mask){
+    Texture tex_mask = pg_mask.getTexture();  if(!tex_mask.available())  return;
     
     int w = tex_mask.glWidth;
     int h = tex_mask.glHeight;
+    
+    resize(w, h);
+    
+    context.begin();
+    
+    // init
+    context.beginDraw(tex_dtnn.dst);
+    shader_init.begin();
+    shader_init.uniform4fv    ("mask", 1, mask);
+    shader_init.uniformTexture("tex_mask", tex_mask.glName);
+    shader_init.drawFullScreenQuad();
+    shader_init.end();
+    context.endDraw("DistanceTransform.create init");  
+    tex_dtnn.swap();
+    
+    // update
+    int passes = DwUtils.log2ceil(Math.max(w, h)) - 1;
+    for(int jump = 1 << passes; jump > 0; jump >>= 1 ){
+      context.beginDraw(tex_dtnn.dst);
+      shader_dtnn.begin();
+      shader_dtnn.uniform2i("wh", w, h);
+      shader_dtnn.uniform3i("jump", -jump, 0, jump);
+      shader_dtnn.uniformTexture("tex_dtnn", tex_dtnn.src);
+      shader_dtnn.drawFullScreenQuad();
+      shader_dtnn.end();
+      context.endDraw("DistanceTransform.create update");
+      tex_dtnn.swap();
+    }
+    
+    context.end("DistanceTransform.create");
+  }
+  
+  public void create(DwGLTexture mask){
+    
+    int w = mask.w;
+    int h = mask.h;
     
     resize(w, h);
     
@@ -98,12 +145,11 @@ public class DistanceTransform {
     
     context.beginDraw(tex_dtnn.dst);
     shader_init.begin();
-    shader_init.uniformTexture("tex_mask", tex_mask.glName);
+    shader_init.uniformTexture("tex_mask", mask);
     shader_init.drawFullScreenQuad();
     shader_init.end();
     context.endDraw("DistanceTransform.create init");  
     tex_dtnn.swap();
-    
     
     // update
     int passes = DwUtils.log2ceil(Math.max(w, h)) - 1;
@@ -122,6 +168,23 @@ public class DistanceTransform {
 
     context.end("DistanceTransform.create");
   }
+  
+  
+  public void computeDistanceField(){
+    context.begin();
+    context.beginDraw(tex_dist);
+    shader_dist.begin();
+    shader_dist.uniformTexture("tex_dtnn", tex_dtnn.src);
+    shader_dist.drawFullScreenQuad();
+    shader_dist.end();
+    context.endDraw();
+    context.end("DistanceTransform.computeDistance");
+
+  }
+  
+  
+  
+  
   
   
   /**

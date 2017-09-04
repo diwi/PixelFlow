@@ -15,6 +15,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 
+import processing.core.PImage;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -49,6 +50,23 @@ public class Copy {
     context.endDraw();
     context.end("Copy.apply");
   }
+  
+  
+  public void apply(PImage src, DwGLTexture dst) {
+    if(!src.parent.g.isGL()){
+      return;
+    }
+    
+    PGraphicsOpenGL pogl = (PGraphicsOpenGL) src.parent.g;
+    Texture tex_src = pogl.getTexture(src); if(!tex_src.available())  return;
+       
+    context.begin();
+    context.beginDraw(dst);
+    apply(tex_src.glName, dst.w, dst.h);
+    context.endDraw();
+    context.end("Copy.apply");
+  }
+  
   
   public void apply(DwGLTexture src, PGraphicsOpenGL dst) {
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;

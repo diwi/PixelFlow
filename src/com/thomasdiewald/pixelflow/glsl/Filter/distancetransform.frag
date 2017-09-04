@@ -26,21 +26,25 @@
 #define PASS_DTNN 0
 
 #define POS_MAX 0x7FFF // == 32767 == ((1<<15) - 1)
-#define LENGTH_SQ(dir) (((dir).x*(dir).x) + ((dir).y*(dir).y))
-
+#define LENGTH_SQ(dir) ((dir).x*(dir).x + (dir).y*(dir).y)
 
 // --------------------------------------------------------------
 // PASS 1 - init positions from given mask
 // --------------------------------------------------------------
 #if PASS_INIT
 
-out ivec2 glFragColor;
+out ivec2 out_pos;
+uniform vec4 mask = vec4(1,1,1,0);
 uniform sampler2D	tex_mask;
 
 void main(){
+  // ivec2 pos = ivec2(gl_FragCoord.xy);
+  // bool mask = any(notEqual(texelFetch(tex_mask, pos, 0).rgb, vec3(0.0)));
+  // out_pos = mask ? pos : ivec2(POS_MAX);
+  
   ivec2 pos = ivec2(gl_FragCoord.xy);
-  bool mask = any(notEqual(texelFetch(tex_mask, pos, 0).rgb, vec3(0.0)));
-  glFragColor = mask ? pos : ivec2(POS_MAX);
+  vec4 xyzw = texelFetch(tex_mask, pos, 0);
+  out_pos = (all(equal(xyzw, mask))) ? pos : ivec2(POS_MAX);
 }
 
 #endif // PASS_INIT
@@ -63,7 +67,7 @@ void main(){
   #define getDTNN(tex, off) texture(tex, (gl_FragCoord.xy + off) / wh).xy
 #endif
 
-out ivec2 glFragColor;
+out ivec2 out_dtnn;
 
 uniform isampler2D tex_dtnn;
 uniform ivec3 jump;
@@ -83,13 +87,12 @@ void DTNN(const ivec2 off){
   }
 }
 
-
 void main(){
   DTNN(jump.xx); DTNN(jump.yx); DTNN(jump.zx);
   DTNN(jump.xy); DTNN(jump.yy); DTNN(jump.zy);
   DTNN(jump.xz); DTNN(jump.yz); DTNN(jump.zz);
 
-  glFragColor = dtnn;
+  out_dtnn = dtnn;
 }
 
 #endif // PASS_DTNN
