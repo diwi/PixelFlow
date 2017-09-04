@@ -1,18 +1,20 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 #version 150 
 
 out vec4 out_frag;
 
 uniform vec2  wh_velocity_rcp;
+uniform float velocity_mult = 1.0;
 uniform float timestep;
 uniform float rdx;
 uniform float dissipation;
@@ -34,8 +36,10 @@ void main(){
 
   // normalize velocity
   float vel_len = length(vel_cur);
-  vel_cur = clamp(vel_len, 0.0, 1.0) * vel_cur / (vel_len + 0.000001);
-
+  vel_cur = vel_cur / (vel_len + 0.000001);
+  vel_cur *= clamp(vel_len, 0.0, 2.0);
+  vel_cur *= velocity_mult;
+  
   // update velocity
   vel = mix(vel_cur, vel, inertia) * dissipation;
   
@@ -43,10 +47,10 @@ void main(){
   pos += rdx * timestep * vel * wh_velocity_rcp;
   
   
-  if(length(vel) <= 0.000001){
-    vel = vec2(0, 0);
-    pos = vec2(-10, -10);
-  }
+  // if(length(vel) <= 0.000001){
+    // vel = vec2(0, 0);
+    // pos = vec2(-10, -10);
+  // }
   
   
   out_frag = vec4(pos, vel);

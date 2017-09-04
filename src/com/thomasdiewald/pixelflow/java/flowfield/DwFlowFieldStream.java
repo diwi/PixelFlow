@@ -49,7 +49,8 @@ public class DwFlowFieldStream {
   
   public DwPixelFlow context;
   
-  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+//  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/flowfield/";
   
   public DwGLSLProgram shader_init  ;
   public DwGLSLProgram shader_update;

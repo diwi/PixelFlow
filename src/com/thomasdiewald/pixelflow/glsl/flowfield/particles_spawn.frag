@@ -1,8 +1,10 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
@@ -50,7 +52,7 @@ void main(){
    
     vec2 pos = (spawn_pos + xy * radius) * wh_viewport_rcp;
 
-    out_pos_vel = vec4(pos, 0, 0);
+    out_pos_vel = vec4(pos, pos);
   } else {
     out_pos_vel = texelFetch(tex_position, tex_loc, 0);
   }

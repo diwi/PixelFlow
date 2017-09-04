@@ -1,8 +1,10 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
@@ -19,8 +21,8 @@ void main(){
 
   vec2 posn = gl_FragCoord.xy * wh_rcp;
   
-#define TEX_OFF(x,y) textureOffset(tex_src, posn, ivec2(x, y))
-// #define TEX_OFF(x,y) texture(tex_src, posn+vec2(x, y)*wh_rcp)
+// #define TEX_OFF(x,y) textureOffset(tex_src, posn, ivec2(x, y))
+#define TEX_OFF(x,y) texture(tex_src, posn+vec2(x, y)*wh_rcp)
 
   // vec4 dh = TEX_OFF(-1, 0) - TEX_OFF(+1, 0);
   // vec4 dv = TEX_OFF( 0,-1) - TEX_OFF( 0,+1);
@@ -54,6 +56,10 @@ void main(){
   dv += TR * +1;   dv += BR * -1;
   
   out_flow = vec2(dh.x, dv.x);
+  
+  
+  float len = length(out_flow);
+  out_flow /= (len + 0.000001);
 }
 
 

@@ -1,8 +1,10 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
@@ -45,8 +47,15 @@ void main(){
   vec2 vel = texture(tex_velocity, origin * wh_lines_rcp).xy;
   
   // normalize + scale
-  float len = length(vel + 0.00001);
-  vel = vel_scale * vel / len;
+  float len = length(vel);
+  if(len > 0.001){
+    vel = vel_scale * vel / len;
+  } else {
+    len = 0.0;
+    vel = vec2(0.0);
+  }
+  
+
 
 #if (LINE_MODE == 0)
   // lines, in velocity
