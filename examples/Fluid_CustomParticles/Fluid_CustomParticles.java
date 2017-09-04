@@ -187,12 +187,12 @@ public class Fluid_CustomParticles extends PApplet {
     fluid.addObstacles(pg_obstacles);
     
     // custom particle object
-    particles = new MyParticleSystem(context, 1024 * 1024);
+    particles = new MyParticleSystem(context, 1000 * 1000);
 
     createGUI();
     
     background(0);
-    frameRate(600);
+    frameRate(60);
   }
   
 

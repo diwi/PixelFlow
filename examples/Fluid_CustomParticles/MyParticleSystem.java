@@ -148,7 +148,7 @@ public class MyParticleSystem{
     shader_particleSpawn.uniform1f("spawn_radius", radius);
     shader_particleSpawn.uniform1f("noise", noise);
     shader_particleSpawn.uniform2f("wh_particles" , particles_x, particles_y);
-    shader_particleSpawn.uniformTexture("tex_particels" , tex_particles.src);
+    shader_particleSpawn.uniformTexture("tex_particles" , tex_particles.src);
     shader_particleSpawn.drawFullScreenQuad();
     shader_particleSpawn.end();
     context.endDraw();
