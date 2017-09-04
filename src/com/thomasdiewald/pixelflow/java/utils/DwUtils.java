@@ -22,6 +22,11 @@ import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PImage;
+import processing.opengl.PGraphics2D;
+
 
 
 public class DwUtils {
@@ -60,12 +65,7 @@ public class DwUtils {
   }
   
   
-  
-  
-  
-  
-  
-
+ 
   final static public float[] getColor(float[][] pallette, float val_norm, float[] rgb){
     if(rgb == null || rgb.length < 3){
       rgb = new float[3];
@@ -92,9 +92,59 @@ public class DwUtils {
   }
   
 
+  static public PImage createSprite(PApplet papplet, int size, float exp1, float exp2, float mult){
+    PImage pimg = papplet.createImage(size, size, PConstants.ARGB);
+    pimg.loadPixels();
+    for(int y = 0; y < size; y++){
+      for(int x = 0; x < size; x++){
+        int pid = y * size + x;
+        
+        float xn = ((x + 0.5f) / (float)size) * 2f - 1f;
+        float yn = ((y + 0.5f) / (float)size) * 2f - 1f;
+        float dd = (float) Math.sqrt(xn*xn + yn*yn);
+        
+        dd = clamp(dd, 0, 1);
+        dd = (float) Math.pow(dd, exp1);
+        dd = 1.0f - dd;
+        dd = (float) Math.pow(dd, exp2);
+        dd *= mult;
+        dd = clamp(dd, 0, 1);
+        pimg.pixels[pid] = ((int)(dd * 255)) << 24 | 0x00FFFFFF;
+      }
+    }
+    pimg.updatePixels();
+    return pimg;
+  }
   
   
-  
+  static public PGraphics2D createCheckerBoard(PApplet papplet, int dimx, int dimy, int size, int colA, int colB){
+    int num_x = (int) dimx/size;
+    int num_y = (int) dimy/size;
+    int off_x = (dimx - size *  num_x) / 2;
+    int off_y = (dimy - size *  num_y) / 2;
+    PGraphics2D pg = (PGraphics2D) papplet.createGraphics(dimx, dimy, PConstants.P2D);
+    pg.smooth(0);
+    pg.beginDraw();
+    pg.blendMode(PConstants.REPLACE);
+    pg.textureSampling(2);
+    pg.noStroke();
+    pg.fill(200);
+    for(int y = -1; y < num_y+1; y++){
+      for(int x = -1; x < num_x+1; x++){
+        int px = off_x + x * size;
+        int py = off_y + y * size;
+        int col = (x ^ y) & 1;
+        if(col == 1){
+          pg.fill(colA);
+        } else {
+          pg.fill(colB);
+        }
+        pg.rect(px, py, size, size);
+      }
+    }
+    pg.endDraw();
+    return pg;
+  }
   
   
   
