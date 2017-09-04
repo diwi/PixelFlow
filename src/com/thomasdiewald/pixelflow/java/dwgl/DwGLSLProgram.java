@@ -22,6 +22,7 @@ import java.util.Stack;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES1;
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
@@ -363,7 +364,12 @@ public class DwGLSLProgram {
   
   
   
-  
+  public void drawFullScreenQuads(int x, int y, int w, int h, int num_quads){
+    gl.glViewport(x, y, w, h);
+//    gl.glDrawArrays(GL2.GL_QUADS, 0, num_quads * 1);
+    GL2ES3 gl2es3 = gl.getGL2ES3();
+    gl2es3.glDrawArraysInstanced(GL2.GL_TRIANGLE_STRIP, 0, 4, num_quads);  //draw #count quads
+  }
   
   
   
