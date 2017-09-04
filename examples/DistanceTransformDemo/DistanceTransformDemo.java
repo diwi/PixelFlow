@@ -107,19 +107,21 @@ public class DistanceTransformDemo extends PApplet {
     float mdist = PVector.dist(mc, mc2);
     float rect_size = 100;
     
+    int col_clear = color(0);
+    int col_mask = color(200, 220, 255);
+    
     pg_a.beginDraw();
     pg_a.rectMode(CENTER);
     pg_a.translate(mc.x, mc.y);
     if(mousePressed){
       pg_a.noStroke();
-      pg_a.fill(0);
+      pg_a.fill(col_clear);
       pg_a.rect(0, 0, rect_size, rect_size);
     } else {
       if(mdist > rect_size){
         pg_a.noFill();
-//        pg_a.fill(0);
         pg_a.strokeWeight(1);
-        pg_a.stroke(200, 220, 255);
+        pg_a.stroke(col_mask);
         pg_a.rect(0, 0, rect_size, rect_size);
         mc2 = mc.copy();
       }
@@ -127,18 +129,25 @@ public class DistanceTransformDemo extends PApplet {
     pg_a.endDraw();
     
 
-    
+
+
     // Distance Transform:
     
     // 1) The distance-field/distance-map is created of the mask "pg_a"
     // 2) a voronoi is created by reading the position in the distance map
     //    and copying the texel data from the source texture "pg_a"
     
-    DwFilter filter =  DwFilter.get(context);
+    DwFilter filter = DwFilter.get(context);
+    
+    float[] mask = new float[4];
+    mask[0] = ((col_mask>>16)&0xFF) / 255f; // normalized red
+    mask[1] = ((col_mask>> 8)&0xFF) / 255f; // normalized green
+    mask[2] = ((col_mask>> 0)&0xFF) / 255f; // normalized blue
+    mask[3] = ((col_mask>>24)&0xFF) / 255f; // normalized alpha
     
     filter.distancetransform.param.voronoi_distance_normalization = 0.0075f;
     // create distance map
-    filter.distancetransform.create(pg_a);
+    filter.distancetransform.create(pg_a, mask);
     // create voronoi. just an example, better create your own shader for this.
     filter.distancetransform.apply(pg_a, pg_b);
 
