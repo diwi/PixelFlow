@@ -34,6 +34,7 @@ public class DwUtils {
   final static public String NL = System.getProperty("line.separator");
   
   final static public double _1_DIV_3 = 1.0 / 3.0;
+  final static public float SQRT2 = (float) Math.sqrt(2);
   
   DwPixelFlow context;
   
@@ -55,6 +56,16 @@ public class DwUtils {
   
   final static public float mix(float a, float b, float mix){
     return a * (1f-mix) + b * (mix);
+  }
+  final static public float[] mix(float[] a4, float[] b4, float mix, float[] dst4){
+    if(dst4 == null || dst4.length < 4){
+      dst4 = new float[4];
+    }
+    dst4[0] = mix(a4[0], b4[0], mix);
+    dst4[1] = mix(a4[1], b4[1], mix);
+    dst4[2] = mix(a4[2], b4[2], mix);
+    dst4[3] = mix(a4[3], b4[3], mix);
+    return dst4;
   }
   
   
