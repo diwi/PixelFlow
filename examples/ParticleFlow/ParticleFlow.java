@@ -14,7 +14,6 @@ import java.util.Locale;
 
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
@@ -27,7 +26,6 @@ import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import controlP5.Accordion;
 import controlP5.CColor;
-import controlP5.CheckBox;
 import controlP5.ControlP5;
 import controlP5.Group;
 import controlP5.RadioButton;
@@ -127,13 +125,13 @@ public class ParticleFlow extends PApplet {
     
     distancetransform = new DistanceTransform(context);
 
-    particles = new DwFlowFieldParticles(context, 1024 * 1024 * 8);
+    particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
     particles.param.col_A = new float[]{ 0.40f, 0.70f, 1.00f,  4.9f };
     particles.param.col_B = new float[]{ 0.00f, 0.00f, 0.00f,  0.0f };
     particles.param.blend_mode     = 0;
     particles.param.size_display   = 10;
     particles.param.size_collision = particles.param.size_display;
-    particles.param.velocity_damping        = 0.99f;
+    particles.param.velocity_damping  = 0.99f;
 
     randomSeed(2);
     for(int i = 0; i < mobs.length; i++){
@@ -193,6 +191,7 @@ public class ParticleFlow extends PApplet {
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
+    DwGLTextureUtils.changeTextureFormat(pg_particles, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
     
     pg_gravity.beginDraw();
     pg_gravity.blendMode(REPLACE);
@@ -207,7 +206,7 @@ public class ParticleFlow extends PApplet {
     setCheckerboardBG(BACKGROUND_MODE);
   }
   
-  
+
   
   public void updateFlowFieldParticles(){
     int scene_w = pg_obstacles.width ;
@@ -220,15 +219,20 @@ public class ParticleFlow extends PApplet {
     float mult_coll_obstacles = 3f * mult / steps;
     float mult_update = 1f;
     
-    int collision_blur_rad = (int) Math.ceil(particles.getCollisionRadius() * 0.5f);
-    collision_blur_rad = Math.max(collision_blur_rad, 4);
-
-    ff_collision.param.blur_radius = Math.min(collision_blur_rad, 5);
+//    int collision_blur_rad = (int) Math.ceil(particles.getCollisionRadius() * 0.5f);
+//    collision_blur_rad = Math.max(collision_blur_rad, 4);
+//
+//    ff_collision.param.blur_radius = Math.min(collision_blur_rad, 5);
+//    ff_collision.param.blur_iterations = 1;
+//    
+//    ff_obstacle .param.blur_radius = Math.min(collision_blur_rad, 10);
+//    ff_obstacle .param.blur_iterations = 1;
+    
+    ff_collision.param.blur_radius = 4;
     ff_collision.param.blur_iterations = 1;
-    
-    ff_obstacle .param.blur_radius = Math.min(collision_blur_rad, 10);
+    ff_obstacle .param.blur_radius = 4;
     ff_obstacle .param.blur_iterations = 1;
-    
+
     particles.update(ff_acceleration.tex_vel, mult_update);
  
     for(int i = 0; i < steps; i++){
@@ -290,19 +294,22 @@ public class ParticleFlow extends PApplet {
     if(DISPLAY_ID == 0){
 
       if(DISPLAY_TYPE_ID == 0){
-        pg_particles.beginDraw();
-        pg_particles.blendMode(REPLACE);
-        pg_particles.image(pg_checker, 0, 0);
-        pg_particles.blendMode(BLEND);
-        pg_particles.endDraw();
-        particles.display(pg_particles);  
+//        pg_particles.beginDraw();
+//        pg_particles.blendMode(REPLACE);
+//        pg_particles.image(pg_checker, 0, 0);
+//        pg_particles.blendMode(BLEND);
+//        pg_particles.endDraw();
+        DwFilter.get(context).copy.apply(pg_checker, pg_particles);
+        particles.display(pg_particles);
+        
       } else {
-        pg_particles.beginDraw();
-        pg_particles.blendMode(BLEND);
-        pg_particles.fill(0, 8);
-        pg_particles.rect(0, 0, width, height);
-        pg_particles.endDraw();
+//        pg_particles.beginDraw();
+//        pg_particles.fill(0, 4);
+//        pg_particles.rect(0, 0, width, height);
+//        pg_particles.endDraw();
         particles.displayTrail(pg_particles);
+        float mult = 0.985f;
+        DwFilter.get(context).multiply.apply(pg_particles, pg_particles, new float[]{mult, mult, mult, mult});
       }
       
       
@@ -557,8 +564,16 @@ public class ParticleFlow extends PApplet {
     if(key == 'e') UPDATE_SCENE = !UPDATE_SCENE;
     if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
     if(key >= '1' && key <= '9') DISPLAY_ID = key - '1';
+    if(key == 'h') toggleGUI(); 
   }
   
+  public void toggleGUI(){
+    if(cp5.isVisible()){
+      cp5.hide();
+    } else {
+      cp5.show();
+    }
+  }
   
   
   public void spawn(int rad, int count){
@@ -603,6 +618,10 @@ public class ParticleFlow extends PApplet {
   public void set_shader_collision_mult(float val){
     particles.param.shader_collision_mult = val;
   }
+
+  
+
+  
   
   static class SpriteParam {
     public int   size = 64;
@@ -737,7 +756,8 @@ public class ParticleFlow extends PApplet {
       case 0: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color( 96, 0), color( 48, 0)); break;
       case 1: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color(208, 0), color(160, 0)); break;
       case 2: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color(208, 0), color( 48, 0)); break;
-      
+      case 3: pg_checker.beginDraw();  pg_checker.background(  0, 0); pg_checker.endDraw(); break;
+      case 4: pg_checker.beginDraw();  pg_checker.background(255, 0); pg_checker.endDraw(); break;
     }
   }
   
@@ -784,7 +804,7 @@ public class ParticleFlow extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 370)
+      group_particles.setHeight(20).setSize(gui_w, 390)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -912,14 +932,16 @@ public class ParticleFlow extends PApplet {
       
       
       py += oy;
-      count = 3;
+      count = 5;
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_bg = cp5.addRadio("setCheckerboardBG").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(3).plugTo(this, "setCheckerboardBG")
+        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setCheckerboardBG")
         .setNoneSelectedAllowed(false)
-        .addItem("DARK" , 0)
-        .addItem("LIGHT", 1)
-        .addItem("CONTRAST", 2)
+        .addItem("DARK"    , 0)
+        .addItem("LIGHT"   , 1)
+        .addItem("BW"      , 2)
+        .addItem("BLACK"   , 3)
+        .addItem("WHITE"   , 4)
         .activate(BACKGROUND_MODE);
 
       for(Toggle toggle : rb_bg.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);

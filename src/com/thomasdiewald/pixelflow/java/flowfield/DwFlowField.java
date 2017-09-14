@@ -41,7 +41,7 @@ public class DwFlowField {
     public float   line_scale   = 1.5f;
     public int     line_mode    = 0; // 0 or 1, in velocity direction, or normal to it
     
-    public int     blur_radius     = 5;
+    public int     blur_radius     = 4;
     public int     blur_iterations = 1; 
     
     public float[] col_A        = {1,1,1,1.0f};
@@ -163,12 +163,14 @@ public class DwFlowField {
     context.end("FlowField.display");
   }
   
+  
   protected void blendMode(){
     context.gl.glEnable(GL.GL_BLEND);
+    context.gl.glBlendEquation(GL.GL_FUNC_ADD);
     switch(param.blend_mode){
-      case 0:  context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); break; // BLEND
-      case 1:  context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE)                ; break; // ADD
-      default: context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); break; // BLEND
+      case 0:  context.gl.glBlendFuncSeparate(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_ONE, GL.GL_ONE); break; // BLEND
+      case 1:  context.gl.glBlendFuncSeparate(GL.GL_SRC_ALPHA, GL.GL_ONE                , GL.GL_ONE, GL.GL_ONE); break; // ADD
+      default: context.gl.glBlendFuncSeparate(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_ONE, GL.GL_ONE); break; // BLEND
     }
   }
   

@@ -30,7 +30,8 @@ void main(){
   vec4  particle_pos = texelFetch(tex_position, tex_loc, 0);
 
   if(particle_idx < spawn_hi){
-    // acceleration
+  
+    // acceleration, clamped
     vec2 acc = texture(tex_velocity, particle_pos.xy).xy;
     float acc_len = length(acc);
     if(acc_len <= acc_minmax.x){
@@ -38,7 +39,6 @@ void main(){
     } else {
       acc *= clamp(acc_len - acc_minmax.x, 0, acc_minmax.y) / acc_len;
     }
-    
     
     // update position
     particle_pos.xy += acc * acc_mult * wh_velocity_rcp;
