@@ -48,53 +48,53 @@ public class DistanceTransform {
   
   protected DwGLSLProgram shader_init;
   protected DwGLSLProgram shader_dtnn;
+  
   protected DwGLSLProgram shader_dist;
+  protected DwGLSLProgram shader_threshold;
   protected DwGLSLProgram shader_voronoi;
 
   
   public DwGLTexture.TexturePingPong tex_dtnn = new DwGLTexture.TexturePingPong();
   public DwGLTexture                 tex_dist = new DwGLTexture();
+  public DwGLTexture                 tex_threshold = new DwGLTexture();
   
   public DistanceTransform(DwPixelFlow context){
     this.context = context;
+    
+    shader_init = context.createShader((Object)"dt_init", data_path+"distancetransform.frag");
+    shader_dtnn = context.createShader((Object)"dt_dtnn", data_path+"distancetransform.frag");
+    
+    shader_init.frag.setDefine("PASS_INIT", 1);
+    shader_dtnn.frag.setDefine("PASS_DTNN", 1);
+    shader_dtnn.frag.setDefine("TEXACCESS", 0);
+    
+    shader_dist      = context.createShader((Object)"dt_dist"     , data_path+"distancetransform_distance.frag");
+    shader_voronoi   = context.createShader((Object)"dt_voronoi"  , data_path+"distancetransform_voronoi.frag");
+    shader_threshold = context.createShader((Object)"dt_threshold", data_path+"distancetransform_threshold.frag");
   }
   
   public void release(){
     tex_dtnn.release();
     tex_dist.release();
+    tex_threshold.release();
   }
-  
   
   public void resize(int w, int h){
     
     tex_dtnn.resize(context, GLES3.GL_RG16UI, w, h, GLES3.GL_RG_INTEGER, GLES3.GL_UNSIGNED_SHORT, GLES3.GL_NEAREST, 2, 2);
     tex_dtnn.src.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
     tex_dtnn.dst.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE); 
-     
-    tex_dist.resize(context, GLES3.GL_R32F, w, h, GLES3.GL_RED, GLES3.GL_FLOAT, GLES3.GL_LINEAR, 1, 4);
-    tex_dist.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
 
-    if(shader_init == null || shader_dtnn == null || shader_dist == null){
+    int POS_MAX_LIMIT = 0x7FFF;
+    int POS_MAX = Math.max(w, h) * 2;
       
-      shader_dist = context.createShader((Object)"dt_dist", data_path+"distancetransform_distance.frag");
-      shader_init = context.createShader((Object)"dt_init", data_path+"distancetransform.frag");
-      shader_dtnn = context.createShader((Object)"dt_dtnn", data_path+"distancetransform.frag");
-      
-      shader_init.frag.setDefine("PASS_INIT", 1);
-      shader_dtnn.frag.setDefine("PASS_DTNN", 1);
-      shader_dtnn.frag.setDefine("TEXACCESS", 0);
-
-      int POS_MAX_LIMIT = 0x7FFF;
-      int POS_MAX = Math.max(w, h) * 2;
-      
-      if(POS_MAX > POS_MAX_LIMIT){
-        System.out.println("DistanceTransform.resize ERROR: max possible texture size: "+(POS_MAX_LIMIT/2));
-      }
-//      shader_init.frag.getDefine("POS_MAX"  ).value = ""+POS_MAX;
-//      shader_dtnn.frag.getDefine("POS_MAX"  ).value = ""+POS_MAX;
+    if(POS_MAX > POS_MAX_LIMIT){
+      System.out.println("DistanceTransform.resize ERROR: max possible texture size: "+(POS_MAX_LIMIT/2));
     }
     
   }
+  
+  
   public void create(PGraphicsOpenGL pg_mask){
     create(pg_mask, new float[]{0,0,0,1});
   }
@@ -173,12 +173,17 @@ public class DistanceTransform {
       tex_dtnn.swap();
     }
     
-
     context.end("DistanceTransform.create");
   }
   
   
   public void computeDistanceField(){
+    int w = tex_dtnn.src.w;
+    int h = tex_dtnn.src.h;
+    
+    tex_dist.resize(context, GLES3.GL_R32F, w, h, GLES3.GL_RED, GLES3.GL_FLOAT, GLES3.GL_LINEAR, 1, 4);
+    tex_dist.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+    
     context.begin();
     context.beginDraw(tex_dist);
     shader_dist.begin();
@@ -187,12 +192,30 @@ public class DistanceTransform {
     shader_dist.end();
     context.endDraw();
     context.end("DistanceTransform.computeDistance");
-
+  }
+  
+  public void computeDistanceThreshold(PGraphicsOpenGL dst, float distance_threshold, float[] colA, float[] colB){
+    Texture tex_dst  = dst.getTexture();  if(!tex_dst .available())  return;
+ 
+    int w = dst.width;
+    int h = dst.height;
+    
+    context.begin();
+    context.beginDraw(dst);
+    shader_threshold.begin();
+    shader_threshold.uniform2f     ("wh_rcp", 1f/w, 1f/h);
+    shader_threshold.uniform4fv    ("colA", 1, colA);
+    shader_threshold.uniform4fv    ("colB", 1, colB);
+    shader_threshold.uniform1f     ("threshold", distance_threshold);
+    shader_threshold.uniformTexture("tex_dtnn", tex_dtnn.src);
+    shader_threshold.drawFullScreenQuad();
+    shader_threshold.end();
+    context.endDraw();
+    context.end("DistanceTransform.computeDistanceThreshold");
   }
   
   
-  
-  
+
   
   
   /**
@@ -207,10 +230,6 @@ public class DistanceTransform {
     
     if(src == dst){
       System.out.println("DistanceTransform.apply error: read-write race");
-    }
-    
-    if(shader_voronoi == null){
-      shader_voronoi = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/distancetransform_voronoi.frag");
     }
     
     context.begin();
