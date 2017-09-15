@@ -40,7 +40,7 @@ public class DwFlowField {
     public float   line_spacing = 15;
     public float   line_scale   = 1.5f;
     public int     line_mode    = 0; // 0 or 1, in velocity direction, or normal to it
-    
+    public int     shading_mode    = 0; // 0 =  col_A/col_B, 1 = velocity
     public int     blur_radius     = 4;
     public int     blur_iterations = 1; 
     
@@ -122,16 +122,18 @@ public class DwFlowField {
     shader_create.end();
     context.endDraw();
 
-    for(int i = 0; i < param.blur_iterations; i++){
-      blur(param.blur_radius);
-    }
-    
+    blur(param.blur_iterations, param.blur_radius);
+
     context.end("FlowField.create()");
   }
   
-  
   public void blur(int radius){
-    gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
+    blur(1, radius);
+  }
+  public void blur(int iterations, int radius){
+    for(int i = 0; i < iterations; i++){
+      gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
+    }
   }
   
   
@@ -146,6 +148,7 @@ public class DwFlowField {
     float scale     = param.line_scale;
 
     shader_display.vert.setDefine("LINE_MODE", param.line_mode);
+    shader_display.vert.setDefine("SHADING_MODE", param.shading_mode);
     
     context.begin();
     context.beginDraw(dst);

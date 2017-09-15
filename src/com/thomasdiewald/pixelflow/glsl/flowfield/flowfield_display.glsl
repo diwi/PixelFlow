@@ -13,6 +13,8 @@
 #version 150
 
 #define LINE_MODE 0
+#define SHADING_MODE 0
+
 
 #define SHADER_VERT 0
 #define SHADER_FRAG 0
@@ -46,29 +48,36 @@ void main(){
   // get velocity from texture at origin location
   vec2 vel = texture(tex_velocity, origin * wh_lines_rcp).xy;
   
-  // normalize + scale
-  float len = length(vel);
-  if(len > 0.001){
-    vel = vel_scale * vel / len;
-  } else {
-    len = 0.0;
-    vel = vec2(0.0);
-  }
+  // normalize
+  // float len = length(vel);
+  // if(len > 0.0001){
+    // vel = clamp(len, 0.0, 1.0) * vel / len;
+  // } else {
+    // len = 0.0;
+    // vel = vec2(0.0);
+  // }
   
-
 
 #if (LINE_MODE == 0)
   // lines, in velocity
-  vec2 vtx_pos = origin + vel * vtx_id;
+  vec2 vtx_pos = origin + vel * vtx_id * vel_scale;
   col_AB = mix(col_A, col_B, float(vtx_id));
-#endif
+#endif // (LINE_MODE == 0)
 
 #if (LINE_MODE == 1)
   // lines, normal to velocity
-  vec2 vel_n = vec2(vel.y, -vel.x);
+  vec2 vel_n = vec2(vel.y, -vel.x) * vel_scale;
   vec2 vtx_pos = origin + (- vel_n + vel_n * vtx_id * 2) * 0.25;
   col_AB = col_A;
-#endif
+#endif // (LINE_MODE == 1)
+
+
+#if (SHADING_MODE == 1)
+  float r = 0.5 * (1.0 + vel.x);
+  float g = 0.5 * (1.0 + vel.y);
+  float b = 0.5 * (2.0 - (r + g));
+  col_AB = vec4(r, g, b, 1);
+#endif // (SHADING_MODE == 1)
   
   // finish vertex coordinate
   vec2 vtx_pos_n = vtx_pos * wh_lines_rcp; // [0, 1]

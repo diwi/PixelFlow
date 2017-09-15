@@ -94,7 +94,7 @@ public class DwFlowFieldParticles{
     shader_spawn_rect  .frag.setDefine("SPAWN_RECT"  , 1);
 
     shader_update_verletpos.frag.setDefine("UPDATE_VEL", 1);
-    shader_update_verletpos.frag.setDefine("UPDATE_ACC", 1);
+    shader_update_verletpos.frag.setDefine("UPDATE_ACC", 0);
     
     shader_update_collision.frag.setDefine("UPDATE_VEL", 0);
     shader_update_collision.frag.setDefine("UPDATE_ACC", 1);
@@ -407,7 +407,7 @@ public class DwFlowFieldParticles{
 
   
   
-  public void updateCollision(DwGLTexture tex_velocity, float velocity_mult){
+  public void updateAcceleration(DwGLTexture tex_velocity, float velocity_mult){
     
     int w_velocity = tex_velocity.w;
     int h_velocity = tex_velocity.h;
@@ -457,15 +457,18 @@ public class DwFlowFieldParticles{
 //    float vel_max = DwUtils.SQRT2 * collision_radius * 3.00f; vel_max = Math.min(vel_max, 6);
     
     float[] acc_minmax = getAccMinMax();
+    
+    float acc_mult = velocity_mult;
+    float vel_mult = param.velocity_damping;
 
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_update_verletpos.begin();
     shader_update_verletpos.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_verletpos.uniform2f     ("acc_minmax"     , acc_minmax[0], acc_minmax[1]);
-    shader_update_verletpos.uniform2f     ("vel_minmax"     , acc_minmax[0], acc_minmax[1]);
-    shader_update_verletpos.uniform1f     ("acc_mult"       , velocity_mult);
-    shader_update_verletpos.uniform1f     ("vel_mult"       , param.velocity_damping);
+    shader_update_verletpos.uniform2f     ("acc_minmax"     , acc_minmax[0], acc_minmax[1]/acc_mult);
+    shader_update_verletpos.uniform2f     ("vel_minmax"     , acc_minmax[0], acc_minmax[1]/vel_mult);
+    shader_update_verletpos.uniform1f     ("acc_mult"       , acc_mult);
+    shader_update_verletpos.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_verletpos.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_verletpos.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
     shader_update_verletpos.uniformTexture("tex_position"   , tex_particle.src);
@@ -477,6 +480,33 @@ public class DwFlowFieldParticles{
     context.end("DwFlowFieldParticles.update");
   }
   
+  public void update(int w_velocity, int h_velocity){
+    
+    
+    int w_particle = tex_particle.src.w;
+    int h_particle = tex_particle.src.h;
+    
+    int viewport_w = w_particle;
+    int viewport_h = (spawn_num + w_particle) / w_particle;
+
+    float[] acc_minmax = getAccMinMax();
+    float vel_mult = param.velocity_damping;
+
+    context.begin();
+    context.beginDraw(tex_particle.dst);
+    shader_update_verletpos.begin();
+    shader_update_verletpos.uniform1i     ("spawn_hi"       , spawn_num);
+    shader_update_verletpos.uniform2f     ("vel_minmax"     , acc_minmax[0], acc_minmax[1]/vel_mult);
+    shader_update_verletpos.uniform1f     ("vel_mult"       , vel_mult);
+    shader_update_verletpos.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
+    shader_update_verletpos.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
+    shader_update_verletpos.uniformTexture("tex_position"   , tex_particle.src);
+    shader_update_verletpos.drawFullScreenQuad(0, 0, viewport_w, viewport_h);
+    shader_update_verletpos.end();
+    context.endDraw();
+    tex_particle.swap();
+    context.end("DwFlowFieldParticles.update");
+  }
   
   
   protected void blendMode(){

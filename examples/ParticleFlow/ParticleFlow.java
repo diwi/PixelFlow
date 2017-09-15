@@ -26,6 +26,7 @@ import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles.SpawnRadi
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import controlP5.Accordion;
@@ -66,17 +67,20 @@ public class ParticleFlow extends PApplet {
   DwFlowField ff_collision;
   DwFlowField ff_obstacle;
   DwFlowField ff_acceleration;
+  DwFlowField ff_merged;
   
   DwLiquidFX liquidfx;
 
   DistanceTransform distancetransform;
- 
-  public boolean APPLY_LIQUID_FX   = false;
-  public boolean UPDATE_SCENE      = true;
-  public boolean AUTO_SPAWN        = true;
-  public boolean UPDATE_GRAVITY    = true;
-  public boolean UPDATE_COLLISIONS = true;
-  public boolean DISPLAY_FLOW      = !true;
+  Merge merge;
+      
+  public boolean APPLY_LIQUID_FX     = false;
+  public boolean UPDATE_SCENE        = true;
+  public boolean AUTO_SPAWN          = true;
+  public boolean UPDATE_GRAVITY      = true;
+  public boolean UPDATE_COLLISIONS   = true;
+  public boolean DISPLAY_FLOW        = !true;
+  public boolean DISPLAY_FLOW_MERGED = !true;
   public int     DISPLAY_ID        = 0;
   public int     DISPLAY_TYPE_ID   = 0;
   public int     BACKGROUND_MODE   = 0;
@@ -110,7 +114,7 @@ public class ParticleFlow extends PApplet {
     pg_canvas.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(8);
+    pg_obstacles.smooth(0);
 
     pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
     pg_gravity.smooth(0);
@@ -126,6 +130,7 @@ public class ParticleFlow extends PApplet {
     liquidfx = new DwLiquidFX(context);
     
     distancetransform = new DistanceTransform(context);
+    merge = new Merge(context);
 
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
     particles.param.col_A = new float[]{ 0.40f, 0.70f, 1.00f,  4.9f };
@@ -145,18 +150,36 @@ public class ParticleFlow extends PApplet {
     ff_acceleration.param.col_A = new float[]{0,0,0,1.0f};
     ff_acceleration.param.col_B = new float[]{0,0,0,0.0f};
     ff_acceleration.param.line_spacing = 15;
-
+    ff_acceleration.param.shading_mode = 0;
+    ff_acceleration.param.line_scale = 1f;
+    ff_acceleration.param.line_width = 0.5f;
+    
     ff_obstacle = new DwFlowField(context);
     ff_obstacle.param.col_A = new float[]{0,0,1,2.0f};
     ff_obstacle.param.col_B = new float[]{0,0,1,0.0f};
-    ff_obstacle.param.line_spacing = 7;
-
+    ff_obstacle.param.line_spacing = 5;
+    ff_obstacle.param.shading_mode = 0;
+    ff_obstacle.param.line_scale = 1f;
+    ff_obstacle.param.line_width = 0.5f;
+    
     ff_collision = new DwFlowField(context);
     ff_collision.param.col_A = new float[]{0,1,1,2.0f};
     ff_collision.param.col_B = new float[]{0,1,1,0.0f};
-    ff_collision.param.line_spacing = 5;
-    ff_collision.param.line_scale = 2f;
- 
+    ff_collision.param.line_spacing = 3;
+    ff_collision.param.line_scale = 1f;
+    ff_collision.param.shading_mode = 0;
+    ff_collision.param.line_width = 0.5f;
+    
+    ff_merged = new DwFlowField(context);
+    ff_merged.param.col_A = new float[]{0,1,1,2.0f};
+    ff_merged.param.col_B = new float[]{0,1,1,0.0f};
+    ff_merged.param.line_spacing = 3;
+    ff_merged.param.line_scale = 1f;
+    ff_merged.param.line_width = 0.5f;
+    ff_merged.param.shading_mode = 1;
+
+    
+    
     pg_gravity.beginDraw();
     pg_gravity.blendMode(REPLACE);
     pg_gravity.background(0, 255, 0);
@@ -209,8 +232,59 @@ public class ParticleFlow extends PApplet {
   }
   
 
-  
   public void updateFlowFieldParticles(){
+    int scene_w = pg_obstacles.width ;
+    int scene_h = pg_obstacles.height;
+    
+    int steps = particles.param.collision_steps;
+    float mult = particles.param.collision_mult;
+
+    float mult_coll_particles = 1.0f * mult / steps;
+    float mult_coll_obstacles = 3.0f * mult / steps;
+    float mult_force_global   = 1.0f / steps;
+    
+    ff_collision.param.blur_radius     = 1;
+    ff_collision.param.blur_iterations = 1;
+    ff_obstacle .param.blur_radius     = 1;
+    ff_obstacle .param.blur_iterations = 1;
+    
+
+    ff_merged.resize(scene_w, scene_h);
+    
+    particles.update(scene_w, scene_w);
+ 
+    for(int i = 0; i < steps; i++){
+      
+      particles.createCollisionMap(scene_w, scene_h);
+      ff_collision.create(particles.tex_collision);
+      
+//      particles.updateAcceleration(ff_acceleration.tex_vel, mult_force_global);
+//      particles.updateAcceleration(ff_collision.tex_vel, mult_coll_particles);
+//      particles.updateAcceleration(ff_obstacle.tex_vel, mult_coll_obstacles);
+      
+      DwGLTexture[] tex = {
+        ff_acceleration.tex_vel,
+        ff_collision.tex_vel,
+        ff_obstacle.tex_vel,
+      };
+      
+      float[] mad = {
+          mult_force_global  , 0,
+          mult_coll_particles, 0,
+          mult_coll_obstacles, 0,
+      };
+      
+      merge.apply(ff_merged.tex_vel, tex, mad);
+      ff_merged.blur(1, 4);
+      particles.updateAcceleration(ff_merged.tex_vel, 1);
+      
+    }
+  }
+  
+  
+  
+  
+  public void updateFlowFieldParticles1(){
     int scene_w = pg_obstacles.width ;
     int scene_h = pg_obstacles.height;
     
@@ -241,9 +315,9 @@ public class ParticleFlow extends PApplet {
       if(UPDATE_COLLISIONS){
         particles.createCollisionMap(scene_w, scene_h);
         ff_collision.create(particles.tex_collision);
-        particles.updateCollision(ff_collision.tex_vel, mult_coll_particles);
+        particles.updateAcceleration(ff_collision.tex_vel, mult_coll_particles);
       }
-      particles.updateCollision(ff_obstacle.tex_vel, mult_coll_obstacles);
+      particles.updateAcceleration(ff_obstacle.tex_vel, mult_coll_obstacles);
     }
   }
   
@@ -355,6 +429,10 @@ public class ParticleFlow extends PApplet {
       ff_acceleration.display(pg_canvas);
       ff_obstacle    .display(pg_canvas);
       ff_collision   .display(pg_canvas);
+    }
+    
+    if(DISPLAY_FLOW_MERGED){
+      ff_merged.display(pg_canvas);
     }
 
 
@@ -740,12 +818,13 @@ public class ParticleFlow extends PApplet {
   }
   
   public void updateSelections(float[] val){
-    APPLY_LIQUID_FX   = val[0] > 0;
-    DISPLAY_FLOW      = val[1] > 0;
-    UPDATE_COLLISIONS = val[2] > 0;
-    UPDATE_GRAVITY    = val[3] > 0;
-    UPDATE_SCENE      = val[4] > 0;
-    AUTO_SPAWN        = val[5] > 0;
+    APPLY_LIQUID_FX     = val[0] > 0;
+    DISPLAY_FLOW        = val[1] > 0;
+    DISPLAY_FLOW_MERGED = val[2] > 0;
+    UPDATE_COLLISIONS   = val[3] > 0;
+    UPDATE_GRAVITY      = val[4] > 0;
+    UPDATE_SCENE        = val[5] > 0;
+    AUTO_SPAWN          = val[6] > 0;
   }
   
   public void setDisplayMode(int val){
@@ -890,12 +969,13 @@ public class ParticleFlow extends PApplet {
       py += oy*2;
       cp5.addCheckBox("updateSelections").setGroup(group_particles).setSize(sy,sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-          .addItem("LIQUID FX"        , 0).activate(APPLY_LIQUID_FX   ? 0 : 6)
-          .addItem("DISPLAY FLOW"     , 1).activate(DISPLAY_FLOW      ? 1 : 6)
-          .addItem("UPDATE COLLISIONS", 2).activate(UPDATE_COLLISIONS ? 2 : 6)
-          .addItem("UPDATE GRAVITY"   , 3).activate(UPDATE_GRAVITY    ? 3 : 6)
-          .addItem("UPDATE SCENE"     , 4).activate(UPDATE_SCENE      ? 4 : 6)
-          .addItem("AUTO SPAWN"       , 5).activate(AUTO_SPAWN        ? 5 : 6)
+          .addItem("LIQUID FX"          , 0).activate(APPLY_LIQUID_FX     ? 0 : 10)
+          .addItem("DISPLAY FLOW"       , 1).activate(DISPLAY_FLOW        ? 1 : 10)
+          .addItem("DISPLAY FLOW Merged", 2).activate(DISPLAY_FLOW_MERGED ? 2 : 10)
+          .addItem("UPDATE COLLISIONS"  , 3).activate(UPDATE_COLLISIONS   ? 3 : 10)
+          .addItem("UPDATE GRAVITY"     , 4).activate(UPDATE_GRAVITY      ? 4 : 10)
+          .addItem("UPDATE SCENE"       , 5).activate(UPDATE_SCENE        ? 5 : 10)
+          .addItem("AUTO SPAWN"         , 6).activate(AUTO_SPAWN          ? 6 : 10)
         ;
         
     }
