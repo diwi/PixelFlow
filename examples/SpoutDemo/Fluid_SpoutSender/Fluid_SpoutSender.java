@@ -1,10 +1,8 @@
 /**
  * 
- * PS3Eye | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - http://thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PS3Eye
- * 
- * A Processing/Java library for PS3Eye capture using libusb.
+ * A Processing/Java library for high performance GPU-Computing (GLSL).
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
