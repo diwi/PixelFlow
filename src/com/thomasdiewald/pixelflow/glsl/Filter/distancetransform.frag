@@ -35,6 +35,7 @@
 
 out ivec2 out_pos;
 uniform vec4 mask = vec4(1,1,1,0);
+uniform int XOR = 0; // 1 to invert mask
 uniform sampler2D	tex_mask;
 
 void main(){
@@ -42,9 +43,19 @@ void main(){
   // bool mask = any(notEqual(texelFetch(tex_mask, pos, 0).rgb, vec3(0.0)));
   // out_pos = mask ? pos : ivec2(POS_MAX);
   
+  // ivec2 pos = ivec2(gl_FragCoord.xy);
+  // vec4 rgba = texelFetch(tex_mask, pos, 0);
+  // out_pos = (all(equal(rgba, mask))) ? pos : ivec2(POS_MAX);
+  
+  
+  
   ivec2 pos = ivec2(gl_FragCoord.xy);
-  vec4 xyzw = texelFetch(tex_mask, pos, 0);
-  out_pos = (all(equal(xyzw, mask))) ? pos : ivec2(POS_MAX);
+  vec4 rgba = texelFetch(tex_mask, pos, 0);
+  
+  vec4 diff = rgba - mask;
+  float diff_sq = dot(diff, diff);
+  int ismask = int(1.0 - step(diff_sq, 0.0)); // rgba == mask ? 0 : 1
+  out_pos = (ismask ^ XOR) == 0 ? pos : ivec2(POS_MAX);
 }
 
 #endif // PASS_INIT
@@ -77,7 +88,7 @@ ivec2 pos  = ivec2(gl_FragCoord.xy);
 ivec2 dtnn = ivec2(POS_MAX);
 int   dmin = LENGTH_SQ(dtnn);
 
-void DTNN(const ivec2 off){
+void DTNN(const in ivec2 off){
   ivec2 dtnn_cur = getDTNN(tex_dtnn, off);
   ivec2 ddxy = dtnn_cur - pos;
   int dcur = LENGTH_SQ(ddxy);
@@ -88,12 +99,24 @@ void DTNN(const ivec2 off){
 }
 
 void main(){
+  dtnn = getDTNN(tex_dtnn, jump.yy);
+  ivec2 ddxy = dtnn - pos;
+  dmin = LENGTH_SQ(ddxy);
+  
   DTNN(jump.xx); DTNN(jump.yx); DTNN(jump.zx);
-  DTNN(jump.xy); DTNN(jump.yy); DTNN(jump.zy);
+  DTNN(jump.xy);                DTNN(jump.zy);
   DTNN(jump.xz); DTNN(jump.yz); DTNN(jump.zz);
 
   out_dtnn = dtnn;
 }
+
+// void main(){
+  // DTNN(jump.xx); DTNN(jump.yx); DTNN(jump.zx);
+  // DTNN(jump.xy); DTNN(jump.yy); DTNN(jump.zy);
+  // DTNN(jump.xz); DTNN(jump.yz); DTNN(jump.zz);
+
+  // out_dtnn = dtnn;
+// }
 
 #endif // PASS_DTNN
 
