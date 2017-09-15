@@ -17,8 +17,6 @@ import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.utils.DwUtils;
-
 import processing.opengl.PGraphicsOpenGL;
 
 
@@ -45,11 +43,11 @@ public class DwFlowFieldParticles{
 
     public int     blend_mode   = 0; // BLEND=0; ADD=1
     
-
+    // particle trails
     public float   display_line_width = 0.5f;
     public boolean display_line_smooth = true;
     
-
+    // point sprite texture
     public DwGLTexture tex_sprite = new DwGLTexture();
   }
   
@@ -61,8 +59,8 @@ public class DwFlowFieldParticles{
 //  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
   protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/flowfield/";
   
-  public DwGLSLProgram shader_init;
-  public DwGLSLProgram shader_init_grid;
+  public DwGLSLProgram shader_spawn_radial;
+  public DwGLSLProgram shader_spawn_rect;
   public DwGLSLProgram shader_update_verletpos;
   public DwGLSLProgram shader_update_collision;
   public DwGLSLProgram shader_display;
@@ -86,11 +84,14 @@ public class DwFlowFieldParticles{
     
     shader_create_sprite     = context.createShader(data_path + "create_sprite_texture.frag");
   
-    shader_init              = context.createShader(data_path + "particles_spawn.frag");
-    shader_init_grid         = context.createShader(data_path + "particles_spawn_grid.frag");
-    shader_update_verletpos  = context.createShader((Object) (this+"update"    ),data_path + "particles_update.frag");
-    shader_update_collision  = context.createShader((Object) (this+"collision" ),data_path + "particles_update.frag");
+    shader_spawn_radial      = context.createShader((Object) (this+"radial"    ), data_path + "particles_spawn.frag");
+    shader_spawn_rect        = context.createShader((Object) (this+"rect"      ), data_path + "particles_spawn.frag");
     
+    shader_update_verletpos  = context.createShader((Object) (this+"update"    ), data_path + "particles_update.frag");
+    shader_update_collision  = context.createShader((Object) (this+"collision" ), data_path + "particles_update.frag");
+    
+    shader_spawn_radial.frag.setDefine("SPAWN_RADIAL", 1);
+    shader_spawn_rect  .frag.setDefine("SPAWN_RECT"  , 1);
 
     shader_update_verletpos.frag.setDefine("UPDATE_VEL", 1);
     shader_update_verletpos.frag.setDefine("UPDATE_ACC", 1);
@@ -165,7 +166,14 @@ public class DwFlowFieldParticles{
   public void reset(){
     tex_particle.clear(0);
     spawn_idx = 0;
-    spawn(-2, -2, 1, 1, 1, tex_particle.src.w * tex_particle.src.h);
+
+    SpawnRect sr = new SpawnRect();
+    sr.num(tex_particle.src.w, tex_particle.src.h);
+    sr.pos(-2,-2);
+    sr.dim( 1, 1);
+    
+    spawn(1, 1, sr);
+    
     spawn_idx = 0;
     spawn_num = 0;
   }
@@ -183,10 +191,44 @@ public class DwFlowFieldParticles{
     }
   }
   
-
-
-  public void spawn(float px, float py, int viewport_w, int viewport_h, float radius, int count){
+  static public abstract class SpawnForm{
     
+    public float[] pos = new float[2];
+    public float[] dim = new float[2];
+    public float[] vel = new float[2];
+    
+    public void pos(float x, float y){
+      pos[0] = x;
+      pos[1] = y;
+    }
+    public void dim(float x, float y){
+      dim[0] = x;
+      dim[1] = y;
+    }
+    public void vel(float x, float y){
+      vel[0] = x;
+      vel[1] = y;
+    }
+  }
+
+  static public class SpawnRadial extends SpawnForm{
+    public int num;
+    public void num(int num){
+      this.num = num;
+    }
+  }
+  
+  static public class SpawnRect extends SpawnForm{
+    public int[] num = new int[2];
+    public void num(int x, int y){
+      num[0] = x;
+      num[1] = y;
+    }
+  }
+
+  
+  public void spawn(int w_viewport, int h_viewport, SpawnRadial type){
+
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
     int spawn_max = w_particle * h_particle;
@@ -195,41 +237,40 @@ public class DwFlowFieldParticles{
       spawn_idx = 0;
     }
 
-    int spawn_lo = spawn_idx; 
-    int spawn_hi = Math.min(spawn_lo + count, spawn_max); 
-    float noise = (float)(Math.random() * Math.PI * 2);
+    int lo = spawn_idx; 
+    int hi = Math.min(lo + type.num, spawn_max); 
+    float off = (float)(Math.random() * Math.PI * 2); // TODO
     
     int fsq_w = w_particle;
-    int fsq_h = (spawn_hi + w_particle) / w_particle;
+    int fsq_h = (hi + w_particle) / w_particle;
     
     context.begin();
     context.beginDraw(tex_particle.dst);
-    shader_init.begin();
-    shader_init.uniform2f     ("wh_viewport_rcp", 1f/viewport_w, 1f/viewport_h);
-    shader_init.uniform1i     ("spawn_lo"    , spawn_lo);
-    shader_init.uniform1i     ("spawn_hi"    , spawn_hi);
-    shader_init.uniform2f     ("spawn_pos"   , px, py);
-    shader_init.uniform1f     ("spawn_rad"   , radius);
-    shader_init.uniform1f     ("noise"       , noise);
-    shader_init.uniform2i     ("wh_position" , w_particle, h_particle);
-    shader_init.uniformTexture("tex_position", tex_particle.src);
-    shader_init.drawFullScreenQuad(0, 0, fsq_w, fsq_h);
-    shader_init.end();
+    shader_spawn_radial.begin();
+    shader_spawn_radial.uniform1i     ("spawn.num"     , type.num);
+    shader_spawn_radial.uniform2f     ("spawn.pos"     , type.pos[0], type.pos[1]);
+    shader_spawn_radial.uniform2f     ("spawn.dim"     , type.dim[0], type.dim[1]);
+    shader_spawn_radial.uniform2f     ("spawn.vel"     , type.vel[0], type.vel[1]);
+    shader_spawn_radial.uniform1f     ("spawn.off"     , off);
+    shader_spawn_radial.uniform2i     ("lo_hi"          , lo, hi);
+    shader_spawn_radial.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
+    shader_spawn_radial.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
+    shader_spawn_radial.uniformTexture("tex_position"   , tex_particle.src);
+    shader_spawn_radial.drawFullScreenQuad(0, 0, fsq_w, fsq_h);
+    shader_spawn_radial.end();
     context.endDraw();
-    context.end("DwFlowFieldParticles.spawn");
+    context.end("DwFlowFieldParticles.spawnRadial");
     tex_particle.swap();
     
-    spawn_idx = spawn_hi;
-    
-    spawn_num += spawn_hi-spawn_lo;
+    spawn_idx = hi;
+    spawn_num += hi - lo;
     spawn_num = Math.min(spawn_num, spawn_max); 
   }
   
   
   
-  public void spawnGrid(int nx, int ny){
+  public void spawn(int w_viewport, int h_viewport, SpawnRect type){
     
-    int count = nx * ny;
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
     int spawn_max = w_particle * h_particle;
@@ -237,32 +278,36 @@ public class DwFlowFieldParticles{
     if(spawn_idx >= spawn_max){
       spawn_idx = 0;
     }
-
-    int spawn_lo = spawn_idx; 
-    int spawn_hi = Math.min(spawn_lo + count, spawn_max); 
+    
+    int lo = spawn_idx; 
+    int hi = Math.min(lo + type.num[0] * type.num[1], spawn_max); 
     
     int fsq_w = w_particle;
-    int fsq_h = (spawn_hi + w_particle) / w_particle;
+    int fsq_h = (hi + w_particle) / w_particle;
 
     context.begin();
     context.beginDraw(tex_particle.dst);
-    shader_init_grid.begin();
-    shader_init_grid.uniform1i     ("spawn_lo"    , spawn_lo);
-    shader_init_grid.uniform1i     ("spawn_hi"    , spawn_hi);
-    shader_init_grid.uniform2i     ("num_xy"      , nx, ny);
-    shader_init_grid.uniform2i     ("wh_position" , w_particle, h_particle);
-    shader_init_grid.uniformTexture("tex_position", tex_particle.src);
-    shader_init.drawFullScreenQuad(0, 0, fsq_w, fsq_h);
-    shader_init_grid.end();
+    shader_spawn_rect.begin();
+    shader_spawn_rect.uniform2i     ("spawn.num"       , type.num[0], type.num[1]);
+    shader_spawn_rect.uniform2f     ("spawn.pos"       , type.pos[0], type.pos[1]);
+    shader_spawn_rect.uniform2f     ("spawn.dim"       , type.dim[0], type.dim[1]);
+    shader_spawn_rect.uniform2f     ("spawn.vel"       , type.vel[0], type.vel[1]);
+    shader_spawn_rect.uniform2i     ("lo_hi"          , lo, hi);
+    shader_spawn_rect.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
+    shader_spawn_rect.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
+    shader_spawn_rect.uniformTexture("tex_position"   , tex_particle.src);
+    shader_spawn_rect.drawFullScreenQuad(0, 0, fsq_w, fsq_h);
+    shader_spawn_rect.end();
     context.endDraw();
-    context.end("DwFlowFieldParticles.spawnGrid");
+    context.end("DwFlowFieldParticles.spawnRect");
     tex_particle.swap();
     
-    spawn_idx = spawn_hi;
-    
-    spawn_num += spawn_hi-spawn_lo;
+    spawn_idx = hi;
+    spawn_num += hi - lo;
     spawn_num = Math.min(spawn_num, spawn_max); 
   }
+  
+
   
   
   

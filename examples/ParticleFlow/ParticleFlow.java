@@ -1,11 +1,14 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
+
 
 
 package ParticleFlow;
@@ -19,6 +22,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
 import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles;
+import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
@@ -81,9 +85,7 @@ public class ParticleFlow extends PApplet {
 
   
   MouseObstacle[] mobs = new MouseObstacle[5];
-//  public int blur_rad = 5;
 
-//  DwGLTexture tex_tmp = new DwGLTexture();
   
   public void settings() {
     if(START_FULLSCREEN){
@@ -215,8 +217,8 @@ public class ParticleFlow extends PApplet {
     int steps = particles.param.collision_steps;
     float mult = particles.param.collision_mult;
 
-    float mult_coll_particles = 2f * mult / steps;
-    float mult_coll_obstacles = 3f * mult / steps;
+    float mult_coll_particles = 1.0f * mult / steps;
+    float mult_coll_obstacles = 2.0f * mult / steps;
     float mult_update = 1f;
     
 //    int collision_blur_rad = (int) Math.ceil(particles.getCollisionRadius() * 0.5f);
@@ -228,9 +230,9 @@ public class ParticleFlow extends PApplet {
 //    ff_obstacle .param.blur_radius = Math.min(collision_blur_rad, 10);
 //    ff_obstacle .param.blur_iterations = 1;
     
-    ff_collision.param.blur_radius = 4;
+    ff_collision.param.blur_radius     = 4;
     ff_collision.param.blur_iterations = 1;
-    ff_obstacle .param.blur_radius = 4;
+    ff_obstacle .param.blur_radius     = 4;
     ff_obstacle .param.blur_iterations = 1;
 
     particles.update(ff_acceleration.tex_vel, mult_update);
@@ -254,11 +256,13 @@ public class ParticleFlow extends PApplet {
       float px = 2 * width/7f - 100;
       float py = height/4f;
       
-      particles.spawn(px, height-1 - py, width, height, 10, 1);
-      
-//      if((frameCount % 60) == 0){
-//        particles.spawnGrid(100, 100);
-//      }
+      SpawnRadial sr = new SpawnRadial();
+      sr.num(1);
+      sr.dim(10, 10);
+      sr.pos(px, height-1 - py);
+      sr.vel(4, 4);
+      particles.spawn(width, height, sr);
+
     }
     
     resize();
@@ -581,7 +585,13 @@ public class ParticleFlow extends PApplet {
     int vh = height;
     int px = mouseX;
     int py = mouseY; py = vh - 1 - py;
-    particles.spawn(px, py, vw, vh, rad, count);
+    
+    SpawnRadial sr = new SpawnRadial();
+    sr.num(count);
+    sr.dim(rad, rad);
+    sr.pos(px, py);
+    
+    particles.spawn(vw, vh, sr);
   }
   
 

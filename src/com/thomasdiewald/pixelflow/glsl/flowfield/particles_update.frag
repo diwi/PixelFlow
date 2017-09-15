@@ -26,6 +26,16 @@ uniform sampler2D tex_velocity;
 #define UPDATE_VEL 1
 #define UPDATE_ACC 1
 
+
+void limitLength(inout vec2 vel, in vec2 lohi){
+  float vel_len = length(vel);
+  if(vel_len <= lohi.x){
+    vel *= 0.0;
+  } else {
+    vel *= clamp(vel_len - lohi.x, 0, lohi.y) / vel_len;
+  }
+}
+
 void main(){
 
   // particle index, based on the current fragment position
@@ -39,15 +49,10 @@ void main(){
   if(particle_idx < spawn_hi){
   
 #if UPDATE_VEL
-    // velocity, clamped
+    // velocity
     vec2 vel = (pos_cur - pos_old) / wh_velocity_rcp;
-    float vel_len = length(vel);
-    if(vel_len <= vel_minmax.x){
-      vel *= 0.0;
-    } else {
-      vel *= clamp(vel_len - vel_minmax.x, 0, vel_minmax.y) / vel_len;
-    }
-    
+    // fix length
+    limitLength(vel, vel_minmax);
     // update position, verlet integration
     pos_old = pos_cur;
     pos_cur += (vel * vel_mult) * wh_velocity_rcp;
@@ -55,14 +60,10 @@ void main(){
   
 
 #if UPDATE_ACC
-    // acceleration, clamped
+    // acceleration
     vec2 acc = texture(tex_velocity, pos_cur).xy;
-    float acc_len = length(acc);
-    if(acc_len <= acc_minmax.x){
-      acc *= 0.0;
-    } else {
-      acc *= clamp(acc_len - acc_minmax.x, 0, acc_minmax.y) / acc_len;
-    }
+    // fix length
+    limitLength(acc, acc_minmax);
     // update position
     pos_cur += (acc * acc_mult) * wh_velocity_rcp;
 #endif

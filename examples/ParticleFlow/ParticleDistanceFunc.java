@@ -1,8 +1,10 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * A Processing/Java library for high performance GPU-Computing (GLSL).
+ * https://github.com/diwi/PixelFlow.git
+ * 
+ * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
@@ -13,9 +15,6 @@ package ParticleFlow;
 import controlP5.Accordion;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.RadioButton;
-import controlP5.Slider;
-import controlP5.Toggle;
 import processing.core.*;
 
 
