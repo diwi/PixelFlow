@@ -43,6 +43,9 @@ public class DistanceTransform {
   
   protected DwPixelFlow context;
   
+  //protected String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
+  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/Filter/";
+  
   protected DwGLSLProgram shader_init;
   protected DwGLSLProgram shader_dtnn;
   protected DwGLSLProgram shader_dist;
@@ -73,9 +76,9 @@ public class DistanceTransform {
 
     if(shader_init == null || shader_dtnn == null || shader_dist == null){
       
-      shader_dist = context.createShader((Object)"dt_dist", DwPixelFlow.SHADER_DIR+"Filter/distancetransform_distance.frag");
-      shader_init = context.createShader((Object)"dt_init", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
-      shader_dtnn = context.createShader((Object)"dt_dtnn", DwPixelFlow.SHADER_DIR+"Filter/distancetransform.frag");
+      shader_dist = context.createShader((Object)"dt_dist", data_path+"distancetransform_distance.frag");
+      shader_init = context.createShader((Object)"dt_init", data_path+"distancetransform.frag");
+      shader_dtnn = context.createShader((Object)"dt_dtnn", data_path+"distancetransform.frag");
       
       shader_init.frag.setDefine("PASS_INIT", 1);
       shader_dtnn.frag.setDefine("PASS_DTNN", 1);
@@ -97,6 +100,10 @@ public class DistanceTransform {
   }
   
   public void create(PGraphicsOpenGL pg_mask, float[] mask){
+    create(pg_mask, mask, false);
+  }
+  
+  public void create(PGraphicsOpenGL pg_mask, float[] mask, boolean invert){
     Texture tex_mask = pg_mask.getTexture();  if(!tex_mask.available())  return;
     
     int w = tex_mask.glWidth;
@@ -110,6 +117,7 @@ public class DistanceTransform {
     context.beginDraw(tex_dtnn.dst);
     shader_init.begin();
     shader_init.uniform4fv    ("mask", 1, mask);
+    shader_init.uniform1i     ("XOR", invert ? 1 : 0);
     shader_init.uniformTexture("tex_mask", tex_mask.glName);
     shader_init.drawFullScreenQuad();
     shader_init.end();
@@ -118,7 +126,7 @@ public class DistanceTransform {
     
     // update
     int passes = DwUtils.log2ceil(Math.max(w, h)) - 1;
-    for(int jump = 1 << passes; jump > 0; jump >>= 1 ){
+    for(int jump = 1 << passes; jump > 0; jump >>= 1){
       context.beginDraw(tex_dtnn.dst);
       shader_dtnn.begin();
       shader_dtnn.uniform2i("wh", w, h);
