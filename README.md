@@ -200,11 +200,14 @@ Windows, Linux, MacOSX
  - **PeasyCam, by Jonathan Feinberg**<br>
    http://mrfeinberg.com/peasycam
 
-
+ - **HE_Mesh, by Frederik Vanhoutte**<br>
+   https://github.com/wblut/HE_Mesh
+   
+<br>
 
 ## Procesing/Java Alternatives
 
-# JRubyArt
+### JRubyArt
 [JRubyArt](https://github.com/ruby-processing/JRubyArt) is a ruby wrapper for processing by [Martin Prout (MonkStone)](https://github.com/monkstone)
  - Blog: https://monkstone.github.io/
  - Setup: http://ruby-processing.github.io/JRubyArt/
