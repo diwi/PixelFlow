@@ -40,12 +40,14 @@ public class OpticalFlow_Basic extends PApplet {
   PGraphics2D pg_src;
   
   public void settings() {
+    System.out.println("hi 0");
     size(viewport_w, viewport_h, P2D);
     smooth(8);
+    System.out.println("hi 1");
   }
 
   public void setup() {
-    
+    System.out.println("hi 2");
     surface.setLocation(viewport_x, viewport_y);
 
     // main library context

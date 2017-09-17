@@ -15,6 +15,8 @@ package ParticleFlow;
 
 import java.util.Locale;
 
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -473,8 +475,8 @@ public class ParticleFlow extends PApplet {
     int col_FG      = color(16, 255);
     int col_FG_MOBS = color(32, 255);
     
-    float w = pg_obstacles.width;
-    float h = pg_obstacles.height;
+    int w = pg_obstacles.width;
+    int h = pg_obstacles.height;
     float wh = w/2f;
     float hh = h/2f;
     
@@ -557,7 +559,9 @@ public class ParticleFlow extends PApplet {
     pg_obstacles.endDraw();
     
    
-    
+ 
+    tex_obstacles.resize(context, GL.GL_RGBA, w, h, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, GL.GL_NEAREST, 4, 1);
+    DwFilter.get(context).copy.apply(pg_obstacles, tex_obstacles);
     
 //    if(UPDATE_SCENE)
     {
@@ -568,7 +572,8 @@ public class ParticleFlow extends PApplet {
       mask[2] = ((col_BG>> 0) & 0xFF)/255.0f;
       mask[3] = ((col_BG>>24) & 0xFF)/255.0f;
       
-      distancetransform.create(pg_obstacles, mask);
+      distancetransform.param.mask = mask;
+      distancetransform.create(tex_obstacles);
 //      distancetransform.computeDistanceField();
   //    DwFilter.get(context).gaussblur.apply(distancetransform.tex_distance, distancetransform.tex_distance, tex_tmp, blur_rad);
 //      ff_obstacle.create(distancetransform.tex_distance);
@@ -578,6 +583,13 @@ public class ParticleFlow extends PApplet {
 //    DwFilter.get(context).gaussblur.apply(distancetransform.tex_distance, distancetransform.tex_distance, tex_tmp, blur_rad);
     ff_obstacle.create(distancetransform.tex_dist);
   }
+  
+  
+  DwGLTexture tex_obstacles = new DwGLTexture();
+  
+  
+  
+  
   
   
   static class MouseObstacle{

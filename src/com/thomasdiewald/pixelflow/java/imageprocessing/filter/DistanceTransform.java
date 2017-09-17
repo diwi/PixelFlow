@@ -37,6 +37,9 @@ public class DistanceTransform {
   public static class Param{
     // just a visual scale for the voronoi example
     public float voronoi_distance_normalization = 0.1f;
+    
+    public float[] mask = {0,0,0,1};
+    public boolean invert = false;
   }
   
   public Param param = new Param();
@@ -94,21 +97,44 @@ public class DistanceTransform {
     
   }
   
-  
   public void create(PGraphicsOpenGL pg_mask){
-    create(pg_mask, new float[]{0,0,0,1});
-  }
-  
-  public void create(PGraphicsOpenGL pg_mask, float[] mask){
-    create(pg_mask, mask, false);
-  }
-  
-  public void create(PGraphicsOpenGL pg_mask, float[] mask, boolean invert){
     Texture tex_mask = pg_mask.getTexture();  if(!tex_mask.available())  return;
-    
-    int w = tex_mask.glWidth;
-    int h = tex_mask.glHeight;
-    
+    create(tex_mask.glName, tex_mask.glWidth, tex_mask.glHeight);
+  }
+  
+  public void create(DwGLTexture tex_mask){    
+    create(tex_mask.HANDLE[0], tex_mask.w, tex_mask.h);
+  }
+  
+  
+//  public void create(PGraphicsOpenGL pg_mask){
+//    create(pg_mask, new float[]{0,0,0,1});
+//  }
+//  
+//  public void create(PGraphicsOpenGL pg_mask, float[] mask){
+//    create(pg_mask, mask, false);
+//  }
+//  
+//  public void create(PGraphicsOpenGL pg_mask, float[] mask, boolean invert){
+//    Texture tex_mask = pg_mask.getTexture();  if(!tex_mask.available())  return;
+//    create(tex_mask.glName, tex_mask.glWidth, tex_mask.glHeight, mask, invert);
+//  }
+//  
+//  public void create(DwGLTexture tex_mask){
+//    create(tex_mask, new float[]{0,0,0,1});
+//  }
+//  
+//  public void create(DwGLTexture tex_mask, float[] mask){
+//    create(tex_mask, mask, false);
+//  }
+//  
+//  public void create(DwGLTexture tex_mask, float[] mask, boolean invert){    
+//    create(tex_mask.HANDLE[0], tex_mask.w, tex_mask.h, mask, invert);
+//  }
+  
+  
+  public void create(int HANDLE_tex, int w, int h){
+//  public void create(int HANDLE_tex, int w, int h, float[] mask, boolean invert){
     resize(w, h);
     
     context.begin();
@@ -116,9 +142,9 @@ public class DistanceTransform {
     // init
     context.beginDraw(tex_dtnn.dst);
     shader_init.begin();
-    shader_init.uniform4fv    ("mask", 1, mask);
-    shader_init.uniform1i     ("XOR", invert ? 1 : 0);
-    shader_init.uniformTexture("tex_mask", tex_mask.glName);
+    shader_init.uniform4fv    ("mask", 1, param.mask);
+    shader_init.uniform1i     ("XOR", param.invert ? 1 : 0);
+    shader_init.uniformTexture("tex_mask", HANDLE_tex);
     shader_init.drawFullScreenQuad();
     shader_init.end();
     context.endDraw("DistanceTransform.create init");  
@@ -141,40 +167,10 @@ public class DistanceTransform {
     context.end("DistanceTransform.create");
   }
   
-  public void create(DwGLTexture mask){
-    
-    int w = mask.w;
-    int h = mask.h;
-    
-    resize(w, h);
-    
-    // init
-    context.begin();
-    
-    context.beginDraw(tex_dtnn.dst);
-    shader_init.begin();
-    shader_init.uniformTexture("tex_mask", mask);
-    shader_init.drawFullScreenQuad();
-    shader_init.end();
-    context.endDraw("DistanceTransform.create init");  
-    tex_dtnn.swap();
-    
-    // update
-    int passes = DwUtils.log2ceil(Math.max(w, h)) - 1;
-    for(int jump = 1 << passes; jump > 0; jump >>= 1 ){
-      context.beginDraw(tex_dtnn.dst);
-      shader_dtnn.begin();
-      shader_dtnn.uniform2i("wh", w, h);
-      shader_dtnn.uniform3i("jump", -jump, 0, jump);
-      shader_dtnn.uniformTexture("tex_dtnn", tex_dtnn.src);
-      shader_dtnn.drawFullScreenQuad();
-      shader_dtnn.end();
-      context.endDraw("DistanceTransform.create update");
-      tex_dtnn.swap();
-    }
-    
-    context.end("DistanceTransform.create");
-  }
+  
+ 
+  
+  
   
   
   public void computeDistanceField(){

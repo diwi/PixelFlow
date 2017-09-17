@@ -385,8 +385,9 @@ public class ImageProcessing_Capture extends PApplet {
       pg_src_B.rectMode(CENTER);
       pg_src_B.ellipse(mouseX, mouseY, 200, 200);
       pg_src_B.endDraw();
-      float[] mask = {1,1,1,1};
-      filter.distancetransform.create(pg_voronoi_centers, mask);
+      
+      filter.distancetransform.param.mask = new float[]{1,1,1,1};
+      filter.distancetransform.create(pg_voronoi_centers);
       filter.distancetransform.apply(pg_src_A, pg_src_C);
       swapAC();
     }
