@@ -208,7 +208,7 @@ Windows, Linux, MacOSX
 ## Processing/Java Alternatives
 
 ### JRubyArt
-[JRubyArt](https://github.com/ruby-processing/JRubyArt) is a ruby wrapper for processing by [Martin Prout (MonkStone)](https://github.com/monkstone)
+[JRubyArt](https://github.com/ruby-processing/JRubyArt) is a ruby wrapper for processing by [Martin Prout (monkstone)](https://github.com/monkstone)
  - Blog: https://monkstone.github.io/
  - Setup: http://ruby-processing.github.io/JRubyArt/
  - Demos: [JRubyArt Pixelflow Examples](https://github.com/ruby-processing/JRubyArt-examples/tree/master/external_library/java/PixelFlow)
