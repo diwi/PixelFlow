@@ -72,6 +72,8 @@ public class DwFlowFieldParticles{
   public DwGLTexture.TexturePingPong tex_particle = new DwGLTexture.TexturePingPong();
   
   public DwGLTexture tex_collision = new DwGLTexture();
+  public DwFlowField ff_collision;
+  
   
   protected int spawn_idx = 0;
   protected int spawn_num = 0;
@@ -117,6 +119,9 @@ public class DwFlowFieldParticles{
     shader_display_collision.frag.setDefine("SHADER_FRAG_COLLISION", 1);
     shader_display_collision.vert.setDefine("SHADER_VERT"          , 1);
 
+    
+    ff_collision = new DwFlowField(context);
+    
     createSpriteTexture(32, 2, 1, 1);
     
     resize(num_particles);
@@ -392,6 +397,10 @@ public class DwFlowFieldParticles{
     shader_display_collision.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_display_collision.end();
     context.endDraw();
+    
+    ff_collision.create(tex_collision);
+    
+    
     context.end("DwFlowFieldParticles.createCollisionMap");
   }
   

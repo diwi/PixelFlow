@@ -106,38 +106,11 @@ public class DistanceTransform {
     create(tex_mask.HANDLE[0], tex_mask.w, tex_mask.h);
   }
   
-  
-//  public void create(PGraphicsOpenGL pg_mask){
-//    create(pg_mask, new float[]{0,0,0,1});
-//  }
-//  
-//  public void create(PGraphicsOpenGL pg_mask, float[] mask){
-//    create(pg_mask, mask, false);
-//  }
-//  
-//  public void create(PGraphicsOpenGL pg_mask, float[] mask, boolean invert){
-//    Texture tex_mask = pg_mask.getTexture();  if(!tex_mask.available())  return;
-//    create(tex_mask.glName, tex_mask.glWidth, tex_mask.glHeight, mask, invert);
-//  }
-//  
-//  public void create(DwGLTexture tex_mask){
-//    create(tex_mask, new float[]{0,0,0,1});
-//  }
-//  
-//  public void create(DwGLTexture tex_mask, float[] mask){
-//    create(tex_mask, mask, false);
-//  }
-//  
-//  public void create(DwGLTexture tex_mask, float[] mask, boolean invert){    
-//    create(tex_mask.HANDLE[0], tex_mask.w, tex_mask.h, mask, invert);
-//  }
-  
-  
   public void create(int HANDLE_tex, int w, int h){
-//  public void create(int HANDLE_tex, int w, int h, float[] mask, boolean invert){
-    resize(w, h);
-    
+
     context.begin();
+    
+    resize(w, h);
     
     // init
     context.beginDraw(tex_dtnn.dst);
