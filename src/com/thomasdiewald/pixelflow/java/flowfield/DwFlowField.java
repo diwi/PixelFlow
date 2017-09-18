@@ -40,8 +40,10 @@ public class DwFlowField {
     public float   line_spacing = 15;
     public float   line_scale   = 1.5f;
     public int     line_mode    = 0; // 0 or 1, in velocity direction, or normal to it
+    
     public int     shading_mode    = 0; // 0 =  col_A/col_B, 1 = velocity
-    public int     blur_radius     = 4;
+    
+    public int     blur_radius     = 2;
     public int     blur_iterations = 1; 
     
     public float[] col_A        = {1,1,1,1.0f};
@@ -57,25 +59,28 @@ public class DwFlowField {
   public Param param = new Param();
   
   public DwGLSLProgram shader_create;
-  public DwGLSLProgram shader_display;
+  public DwGLSLProgram shader_display_lines;
+  public DwGLSLProgram shader_display_pixel;
   
   public DwGLTexture tex_vel = new DwGLTexture();
-  public DwGLTexture tex_tmp = new DwGLTexture(); // TODO
-  public GaussianBlur gaussblur;
-  
-//  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
-  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/flowfield/";
+  public static DwGLTexture tex_tmp = new DwGLTexture();
+  public static GaussianBlur gaussblur;
   
   public DwFlowField(DwPixelFlow context){
     this.context = context;
     context.papplet.registerMethod("dispose", this);
     
-    shader_create  = context.createShader(data_path+"flowfield_create.frag");
-    shader_display = context.createShader(data_path+"flowfield_display.glsl", data_path+"flowfield_display.glsl");
-    shader_display.frag.setDefine("SHADER_FRAG", 1);
-    shader_display.vert.setDefine("SHADER_VERT", 1);
+    String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
     
-    gaussblur = new GaussianBlur(context);
+    shader_create  = context.createShader(data_path+"flowfield_create.frag");
+    shader_display_pixel = context.createShader(data_path+"flowfield_display_pixel.frag");
+    shader_display_lines = context.createShader(data_path+"flowfield_display_lines.glsl", data_path+"flowfield_display_lines.glsl");
+    shader_display_lines.frag.setDefine("SHADER_FRAG", 1);
+    shader_display_lines.vert.setDefine("SHADER_VERT", 1);
+    
+    if(gaussblur == null){
+      gaussblur = new GaussianBlur(context);
+    }
   }
   
   public void dispose(){
@@ -129,9 +134,11 @@ public class DwFlowField {
     context.end("FlowField.create()");
   }
   
-  public void blur(int radius){
-    blur(1, radius);
+  public void blur(){
+    blur(param.blur_iterations, param.blur_radius);
   }
+
+  
   public void blur(int iterations, int radius){
     for(int i = 0; i < iterations; i++){
       gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
@@ -139,7 +146,7 @@ public class DwFlowField {
   }
   
   
-  public void display(PGraphicsOpenGL dst){
+  public void displayLines(PGraphicsOpenGL dst){
 
     int w = dst.width;
     int h = dst.height;
@@ -149,26 +156,41 @@ public class DwFlowField {
     int   num_lines = lines_x * lines_y;
     float scale     = param.line_scale;
 
-    shader_display.vert.setDefine("LINE_MODE", param.line_mode);
-    shader_display.vert.setDefine("SHADING_MODE", param.shading_mode);
+    shader_display_lines.vert.setDefine("LINE_MODE", param.line_mode);
+    shader_display_lines.vert.setDefine("SHADING_MODE", param.shading_mode);
     
     context.begin();
     context.beginDraw(dst);
     blendMode();
-    shader_display.begin();
-    shader_display.uniform4fv    ("col_A"         , 1, param.col_A);
-    shader_display.uniform4fv    ("col_B"         , 1, param.col_B);
-    shader_display.uniform2i     ("wh_lines"      ,    lines_x,    lines_y);
-    shader_display.uniform2f     ("wh_lines_rcp"  , 1f/lines_x, 1f/lines_y);
-    shader_display.uniform1f     ("vel_scale"     , scale);
-    shader_display.uniformTexture("tex_velocity"  , tex_vel);
-    shader_display.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.smooth);
-    shader_display.end();
+    shader_display_lines.begin();
+    shader_display_lines.uniform4fv    ("col_A"         , 1, param.col_A);
+    shader_display_lines.uniform4fv    ("col_B"         , 1, param.col_B);
+    shader_display_lines.uniform2i     ("wh_lines"      ,    lines_x,    lines_y);
+    shader_display_lines.uniform2f     ("wh_lines_rcp"  , 1f/lines_x, 1f/lines_y);
+    shader_display_lines.uniform1f     ("vel_scale"     , scale);
+    shader_display_lines.uniformTexture("tex_velocity"  , tex_vel);
+    shader_display_lines.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.smooth);
+    shader_display_lines.end();
     context.endDraw();
     context.end("FlowField.display");
   }
   
+  public void displayPixel(PGraphicsOpenGL dst){
+    int w = dst.width;
+    int h = dst.height;
+    context.begin();
+    context.beginDraw(dst);
+    blendMode();
+    shader_display_pixel.begin();
+    shader_display_pixel.uniform2f     ("wh_rcp"      ,   1f/w, 1f/h);
+    shader_display_pixel.uniformTexture("tex_velocity"  , tex_vel);
+    shader_display_pixel.drawFullScreenQuad();
+    shader_display_pixel.end();
+    context.endDraw();
+    context.end("FlowField.displayPixel");
+  }
   
+
   protected void blendMode(){
     context.gl.glEnable(GL.GL_BLEND);
     context.gl.glBlendEquation(GL.GL_FUNC_ADD);

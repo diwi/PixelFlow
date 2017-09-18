@@ -29,13 +29,19 @@ int isFG(const in vec4 rgba){
 
 void main(){
 
-  int  FG = getFG( 0, 0);
-  int tFG = getFG( 0,-1);
-  int bFG = getFG( 0,+1);  
-  int lFG = getFG(-1, 0);
-  int rFG = getFG(+1, 0);
+  int FG = getFG( 0, 0);
+  int t  = getFG( 0,-1);
+  int b  = getFG( 0,+1);
+  int l  = getFG(-1, 0);
+  int r  = getFG(+1, 0);
   
-  int sum = tFG + bFG + lFG + rFG;
+  // int tl = getFG(-1,-1);
+  // int tr = getFG(+1,-1);
+  // int bl = getFG(-1,+1);
+  // int br = getFG(+1,+1);
+  
+  int sum = t + b + l + r;
+  // int sum = t + b + l + r + tl + tr + bl + br;
 
   // int EDGE = sum < 4 ? FG : 0;
   int EDGE = FG * (1 - int(sum / 4.0));

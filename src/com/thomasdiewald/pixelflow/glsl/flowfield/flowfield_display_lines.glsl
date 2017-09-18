@@ -15,10 +15,8 @@
 #define LINE_MODE 0
 #define SHADING_MODE 0
 
-
 #define SHADER_VERT 0
 #define SHADER_FRAG 0
-
 
 uniform ivec2 wh_lines;
 uniform  vec2 wh_lines_rcp;
@@ -93,12 +91,12 @@ void main(){
 
 #if SHADER_FRAG
 
-out vec4 glFragColor;
+out vec4 out_frag;
 
 in vec4 col_AB;
 
 void main(){
-  glFragColor = col_AB;
+  out_frag = col_AB;
 }
 
 #endif

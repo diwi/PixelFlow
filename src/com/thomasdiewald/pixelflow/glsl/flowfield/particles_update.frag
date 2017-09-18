@@ -23,8 +23,8 @@ uniform vec2  wh_velocity_rcp;
 uniform sampler2D tex_position;
 uniform sampler2D tex_velocity;
 
-#define UPDATE_VEL 1
-#define UPDATE_ACC 1
+#define UPDATE_VEL 0
+#define UPDATE_ACC 0
 
 
 void limitLength(inout vec2 vel, in vec2 lohi){

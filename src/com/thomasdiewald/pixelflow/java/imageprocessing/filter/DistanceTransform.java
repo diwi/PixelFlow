@@ -46,9 +46,6 @@ public class DistanceTransform {
   
   protected DwPixelFlow context;
   
-  //protected String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
-  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/Filter/";
-  
   protected DwGLSLProgram shader_init;
   protected DwGLSLProgram shader_dtnn;
   
@@ -63,6 +60,8 @@ public class DistanceTransform {
   
   public DistanceTransform(DwPixelFlow context){
     this.context = context;
+    
+    String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
     
     shader_init = context.createShader((Object)"dt_init", data_path+"distancetransform.frag");
     shader_dtnn = context.createShader((Object)"dt_dtnn", data_path+"distancetransform.frag");

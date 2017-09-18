@@ -48,10 +48,7 @@ public class DwFlowFieldStream {
   public Param param = new Param();
   
   public DwPixelFlow context;
-  
-//  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
-  protected String data_path = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/flowfield/";
-  
+
   public DwGLSLProgram shader_init  ;
   public DwGLSLProgram shader_update;
   public DwGLSLProgram shader_display;
@@ -61,6 +58,8 @@ public class DwFlowFieldStream {
   public DwFlowFieldStream(DwPixelFlow context){
     this.context = context;
     context.papplet.registerMethod("dispose", this);
+    
+    String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
     
     shader_init    = context.createShader(data_path+"flowfieldstream_init.frag");
     shader_update  = context.createShader(data_path+"flowfieldstream_update.frag");

@@ -56,7 +56,8 @@ public class DwPixelFlow{
   }
   
   
-  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
+//  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
+  public static final String SHADER_DIR = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/";
   
   public PApplet papplet;
   public PJOGL   pjogl;
