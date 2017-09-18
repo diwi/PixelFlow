@@ -38,8 +38,8 @@ public class DistanceTransform {
     // just a visual scale for the voronoi example
     public float voronoi_distance_normalization = 0.1f;
     
-    public float[] mask = {0,0,0,1};
-    public boolean invert = false;
+    public float[] FG_mask = {0,0,0,1};
+    public boolean FG_invert = false;
   }
   
   public Param param = new Param();
@@ -115,8 +115,8 @@ public class DistanceTransform {
     // init
     context.beginDraw(tex_dtnn.dst);
     shader_init.begin();
-    shader_init.uniform4fv    ("mask", 1, param.mask);
-    shader_init.uniform1i     ("XOR", param.invert ? 1 : 0);
+    shader_init.uniform4fv    ("FG_mask", 1, param.FG_mask);
+    shader_init.uniform1i     ("FG_invert", param.FG_invert ? 1 : 0);
     shader_init.uniformTexture("tex_mask", HANDLE_tex);
     shader_init.drawFullScreenQuad();
     shader_init.end();
@@ -144,8 +144,7 @@ public class DistanceTransform {
  
   
   
-  
-  
+
   public void computeDistanceField(){
     int w = tex_dtnn.src.w;
     int h = tex_dtnn.src.h;
@@ -162,6 +161,7 @@ public class DistanceTransform {
     context.endDraw();
     context.end("DistanceTransform.computeDistance");
   }
+  
   
   public void computeDistanceThreshold(PGraphicsOpenGL dst, float distance_threshold, float[] colA, float[] colB){
     Texture tex_dst  = dst.getTexture();  if(!tex_dst .available())  return;
@@ -182,9 +182,6 @@ public class DistanceTransform {
     context.endDraw();
     context.end("DistanceTransform.computeDistanceThreshold");
   }
-  
-  
-
   
   
   /**

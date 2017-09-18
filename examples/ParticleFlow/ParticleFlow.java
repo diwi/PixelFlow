@@ -70,11 +70,10 @@ public class ParticleFlow extends PApplet {
 
   DwFlowField ff_acceleration;
   DwFlowField ff_merged;
+  Merge merge;
   
   DwLiquidFX liquidfx;
 
-//  DistanceTransform distancetransform;
-  Merge merge;
       
   public boolean APPLY_LIQUID_FX     = false;
   public boolean UPDATE_SCENE        = true;
@@ -131,7 +130,6 @@ public class ParticleFlow extends PApplet {
     
     liquidfx = new DwLiquidFX(context);
     
-//    distancetransform = new DistanceTransform(context);
     merge = new Merge(context);
 
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
@@ -142,7 +140,6 @@ public class ParticleFlow extends PApplet {
     particles.param.size_collision = particles.param.size_display;
     particles.param.velocity_damping  = 0.99f;
     
-    
     obstacles = new DwFlowFieldObstacles(context);
 
     randomSeed(2);
@@ -151,14 +148,6 @@ public class ParticleFlow extends PApplet {
       mobs[i] = new MouseObstacle(random(r, width-r), random(r,height-r), r);
     }
    
-    ff_acceleration = new DwFlowField(context);
-    ff_acceleration.param.col_A = new float[]{0,0,0,1.0f};
-    ff_acceleration.param.col_B = new float[]{0,0,0,0.0f};
-    ff_acceleration.param.line_spacing = 15;
-    ff_acceleration.param.shading_mode = 0;
-    ff_acceleration.param.line_scale = 1f;
-    ff_acceleration.param.line_width = 0.5f;
-    
 
     obstacles.ff_obstacle.param.col_A = new float[]{0,0,1,2.0f};
     obstacles.ff_obstacle.param.col_B = new float[]{0,0,1,0.0f};
@@ -175,6 +164,14 @@ public class ParticleFlow extends PApplet {
     particles.ff_collision.param.shading_mode = 0;
     particles.ff_collision.param.line_width = 0.5f;
     
+    ff_acceleration = new DwFlowField(context);
+    ff_acceleration.param.col_A = new float[]{0,0,0,1.0f};
+    ff_acceleration.param.col_B = new float[]{0,0,0,0.0f};
+    ff_acceleration.param.line_spacing = 15;
+    ff_acceleration.param.shading_mode = 0;
+    ff_acceleration.param.line_scale = 1f;
+    ff_acceleration.param.line_width = 0.5f;
+    
     ff_merged = new DwFlowField(context);
     ff_merged.param.col_A = new float[]{0,1,1,2.0f};
     ff_merged.param.col_B = new float[]{0,1,1,0.0f};
@@ -183,7 +180,6 @@ public class ParticleFlow extends PApplet {
     ff_merged.param.line_width = 0.5f;
     ff_merged.param.shading_mode = 1;
 
-    
     
     pg_gravity.beginDraw();
     pg_gravity.blendMode(REPLACE);
@@ -246,15 +242,13 @@ public class ParticleFlow extends PApplet {
 
     float mult_coll_particles = 1.5f * mult / steps;
     float mult_coll_obstacles = 2.0f * mult / steps;
-    float mult_force_global   = 1.0f / steps;
+    float mult_force_global   = 1.0f        / steps;
     
     particles.ff_collision.param.blur_radius     = 1;
     particles.ff_collision.param.blur_iterations = 1;
     obstacles.ff_obstacle .param.blur_radius     = 1;
     obstacles.ff_obstacle .param.blur_iterations = 1;
 
-    ff_merged.resize(scene_w, scene_h);
-    
     particles.update(scene_w, scene_w);
  
     for(int i = 0; i < steps; i++){
@@ -277,6 +271,7 @@ public class ParticleFlow extends PApplet {
           mult_coll_obstacles, 0,
       };
       
+      ff_merged.resize(scene_w, scene_h);
       merge.apply(ff_merged.tex_vel, tex, mad);
       ff_merged.blur(1, 4);
       particles.updateAcceleration(ff_merged.tex_vel, 1);
@@ -287,41 +282,41 @@ public class ParticleFlow extends PApplet {
   
   
   
-  public void updateFlowFieldParticles1(){
-    int scene_w = pg_obstacles.width ;
-    int scene_h = pg_obstacles.height;
-    
-    int steps = particles.param.collision_steps;
-    float mult = particles.param.collision_mult;
-
-    float mult_coll_particles = 1.0f * mult / steps;
-    float mult_coll_obstacles = 2.0f * mult / steps;
-    float mult_update = 1f;
-    
-//    int collision_blur_rad = (int) Math.ceil(particles.getCollisionRadius() * 0.5f);
-//    collision_blur_rad = Math.max(collision_blur_rad, 4);
-//
-//    ff_collision.param.blur_radius = Math.min(collision_blur_rad, 5);
-//    ff_collision.param.blur_iterations = 1;
+//  public void updateFlowFieldParticles1(){
+//    int scene_w = pg_obstacles.width ;
+//    int scene_h = pg_obstacles.height;
 //    
-//    ff_obstacle .param.blur_radius = Math.min(collision_blur_rad, 10);
-//    ff_obstacle .param.blur_iterations = 1;
-    
-    particles.ff_collision.param.blur_radius     = 4;
-    particles.ff_collision.param.blur_iterations = 1;
-    obstacles.ff_obstacle .param.blur_radius     = 4;
-    obstacles.ff_obstacle .param.blur_iterations = 1;
-
-    particles.update(ff_acceleration.tex_vel, mult_update);
- 
-    for(int i = 0; i < steps; i++){
-      if(UPDATE_COLLISIONS){
-        particles.createCollisionMap(scene_w, scene_h);
-        particles.updateAcceleration(particles.ff_collision.tex_vel, mult_coll_particles);
-      }
-      particles.updateAcceleration(obstacles.ff_obstacle.tex_vel, mult_coll_obstacles);
-    }
-  }
+//    int steps = particles.param.collision_steps;
+//    float mult = particles.param.collision_mult;
+//
+//    float mult_coll_particles = 1.0f * mult / steps;
+//    float mult_coll_obstacles = 2.0f * mult / steps;
+//    float mult_update = 1f;
+//    
+////    int collision_blur_rad = (int) Math.ceil(particles.getCollisionRadius() * 0.5f);
+////    collision_blur_rad = Math.max(collision_blur_rad, 4);
+////
+////    ff_collision.param.blur_radius = Math.min(collision_blur_rad, 5);
+////    ff_collision.param.blur_iterations = 1;
+////    
+////    ff_obstacle .param.blur_radius = Math.min(collision_blur_rad, 10);
+////    ff_obstacle .param.blur_iterations = 1;
+//    
+//    particles.ff_collision.param.blur_radius     = 4;
+//    particles.ff_collision.param.blur_iterations = 1;
+//    obstacles.ff_obstacle .param.blur_radius     = 4;
+//    obstacles.ff_obstacle .param.blur_iterations = 1;
+//
+//    particles.update(ff_acceleration.tex_vel, mult_update);
+// 
+//    for(int i = 0; i < steps; i++){
+//      if(UPDATE_COLLISIONS){
+//        particles.createCollisionMap(scene_w, scene_h);
+//        particles.updateAcceleration(particles.ff_collision.tex_vel, mult_coll_particles);
+//      }
+//      particles.updateAcceleration(obstacles.ff_obstacle.tex_vel, mult_coll_obstacles);
+//    }
+//  }
   
   
   
@@ -510,7 +505,6 @@ public class ParticleFlow extends PApplet {
 //      pg_obstacles.rect(  w/4f, py, 50, 50, 15);
     }
     
-    
     pg_obstacles.pushMatrix();
     {
       float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
@@ -520,23 +514,14 @@ public class ParticleFlow extends PApplet {
     }
     pg_obstacles.popMatrix();
     
-    
-
     pg_obstacles.pushMatrix();
     {
       pg_obstacles.translate(2 * w/7f, h/4f);
       pg_obstacles.rotate(sin(rot));
-//      pg_obstacles.noStroke();
-//      pg_obstacles.fill(col_FG);
-//      pg_obstacles.arc(0, 0, 400, 400, 0, 335 * PI/180);
-//      pg_obstacles.fill(col_BG);
-//      pg_obstacles.arc(0, 0, 300, 300, 0, 335 * PI/180);
-      
       pg_obstacles.fill(col_FG);
       pg_obstacles.rect(0, 0, 400, 400, 100);
       pg_obstacles.fill(col_BG);
       pg_obstacles.rect(0, 0, 350, 350, 75);
-      
       pg_obstacles.fill(col_BG);
       pg_obstacles.rect(0, -100, 402, 40);
     }
@@ -548,18 +533,11 @@ public class ParticleFlow extends PApplet {
       float dim = 2 * h/3f;
       pg_obstacles.translate(wh, h-dim/2);
       pg_obstacles.rotate(rot);
-      
       pg_obstacles.fill(col_FG);
       pg_obstacles.rect(0, 0, dim,  50);
       pg_obstacles.rect(0, 0,  50, dim, 10);
-      
-
       pg_obstacles.fill(col_BG);
       pg_obstacles.rect(0, 0,  100, 100);
-//      pg_obstacles.rotate(PI/2);
-//      pg_obstacles.fill(col_FG);
-//      pg_obstacles.rect(+dim/2, 0, 350,  50, 20);
-//      pg_obstacles.rect(-dim/2, 0, 350,  50, 20);
     }
     pg_obstacles.popMatrix();
     
@@ -569,17 +547,19 @@ public class ParticleFlow extends PApplet {
     
     pg_obstacles.endDraw();
     
-    
     float[] mask = new float[4];
     mask[0] = ((col_BG>>16) & 0xFF)/255.0f;
     mask[1] = ((col_BG>> 8) & 0xFF)/255.0f;
     mask[2] = ((col_BG>> 0) & 0xFF)/255.0f;
     mask[3] = ((col_BG>>24) & 0xFF)/255.0f;
     
-    obstacles.param.FG_mask = mask;
-    obstacles.param.FG_invert = true;
-    obstacles.param.FG_offset = particles.getCollisionRadius() / 4 - 3;
-    obstacles.create(pg_obstacles);
+//    if(UPDATE_SCENE)
+    {
+      obstacles.param.FG_mask = mask;
+      obstacles.param.FG_invert = true;
+      obstacles.param.FG_offset = particles.getCollisionRadius() / 4 - 3;
+      obstacles.create(pg_obstacles);
+    }
   }
   
 

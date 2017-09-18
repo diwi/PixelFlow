@@ -147,7 +147,7 @@ public class DistanceTransformDemo extends PApplet {
     
     filter.distancetransform.param.voronoi_distance_normalization = 0.0075f;
     // create distance map
-    filter.distancetransform.param.mask = mask;
+    filter.distancetransform.param.FG_mask = mask;
     filter.distancetransform.create(pg_a);
     // create voronoi. just an example, better create your own shader for this.
     filter.distancetransform.apply(pg_a, pg_b);

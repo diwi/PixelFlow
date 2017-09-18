@@ -60,7 +60,7 @@ public class DwFlowField {
   public DwGLSLProgram shader_display;
   
   public DwGLTexture tex_vel = new DwGLTexture();
-  public DwGLTexture tex_tmp = new DwGLTexture();
+  public DwGLTexture tex_tmp = new DwGLTexture(); // TODO
   public GaussianBlur gaussblur;
   
 //  protected String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
@@ -84,7 +84,9 @@ public class DwFlowField {
   
   public void release(){
     tex_vel.release();
+    tex_tmp.release();
   }
+  
   public void reset(){
     tex_vel.clear(0);
   }

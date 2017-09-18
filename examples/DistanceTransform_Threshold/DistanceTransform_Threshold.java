@@ -127,7 +127,7 @@ public class DistanceTransform_Threshold extends PApplet {
     
     filter.distancetransform.param.voronoi_distance_normalization = 0.0075f;
     // create distance map
-    filter.distancetransform.param.mask = mask;
+    filter.distancetransform.param.FG_mask = mask;
     filter.distancetransform.create(pg_a);
 
     // computes a binary image, based on the given distance threshold

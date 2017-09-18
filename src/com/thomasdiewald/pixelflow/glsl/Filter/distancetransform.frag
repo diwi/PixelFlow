@@ -34,28 +34,27 @@
 #if PASS_INIT
 
 out ivec2 out_pos;
-uniform vec4 mask = vec4(1,1,1,0);
-uniform int XOR = 0; // 1 to invert mask
+uniform vec4 FG_mask;
+uniform int  FG_invert = 0; // 1 to invert mask
 uniform sampler2D	tex_mask;
 
+ivec2 pos = ivec2(gl_FragCoord.xy);
+  
+int isFG(const in vec4 rgba){
+  vec4 diff = rgba - FG_mask;
+  float diff_sq = dot(diff, diff);
+  return int(step(diff_sq, 0.0)) ^ FG_invert; // (rgba == FG_mask) ? 1 : 0
+}
+
 void main(){
-  // ivec2 pos = ivec2(gl_FragCoord.xy);
+  vec4 rgba = texelFetch(tex_mask, pos, 0);
+
   // bool mask = any(notEqual(texelFetch(tex_mask, pos, 0).rgb, vec3(0.0)));
   // out_pos = mask ? pos : ivec2(POS_MAX);
+
+  // out_pos = (all(equal(rgba, FG_mask))) ? pos : ivec2(POS_MAX);
   
-  // ivec2 pos = ivec2(gl_FragCoord.xy);
-  // vec4 rgba = texelFetch(tex_mask, pos, 0);
-  // out_pos = (all(equal(rgba, mask))) ? pos : ivec2(POS_MAX);
-  
-  
-  
-  ivec2 pos = ivec2(gl_FragCoord.xy);
-  vec4 rgba = texelFetch(tex_mask, pos, 0);
-  
-  vec4 diff = rgba - mask;
-  float diff_sq = dot(diff, diff);
-  int ismask = int(1.0 - step(diff_sq, 0.0)); // rgba == mask ? 0 : 1
-  out_pos = (ismask ^ XOR) == 0 ? pos : ivec2(POS_MAX);
+  out_pos = isFG(rgba) == 1 ? pos : ivec2(POS_MAX);
 }
 
 #endif // PASS_INIT

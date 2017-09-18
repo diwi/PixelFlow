@@ -471,7 +471,7 @@ public class ImageProcessing_Filter extends PApplet {
       pg_src_B.ellipse(mouseX, mouseY, 200, 200);
       pg_src_B.endDraw();
 
-      filter.distancetransform.param.mask = new float[]{1,1,1,1};
+      filter.distancetransform.param.FG_mask = new float[]{1,1,1,1};
       filter.distancetransform.create(pg_voronoi_centers);
       filter.distancetransform.apply(pg_src_A, pg_src_C);
       swapAC();

@@ -1,12 +1,9 @@
 package com.thomasdiewald.pixelflow.java.flowfield;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Copy;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 
 import processing.opengl.PGraphicsOpenGL;
@@ -34,38 +31,37 @@ public class DwFlowFieldObstacles {
   public DwGLTexture tex_obstacles_FG   = new DwGLTexture();
   public DwGLTexture tex_obstacles_dist = new DwGLTexture();
   
-  public Copy copy;
-  public DistanceTransform dtobs;
+  public DistanceTransform dt_obstacles;
   public DwFlowField ff_obstacle;
 
 
   public DwFlowFieldObstacles(DwPixelFlow context){    
     this.context = context;
-
+    context.papplet.registerMethod("dispose", this);
+    
     shader_obstacles_FG   = context.createShader(data_path+"obstacles_FG.frag");
     shader_obstacles_dist = context.createShader(data_path+"obstacles_dist.frag");
     
-    copy = new Copy(context);
-    dtobs = new DistanceTransform(context);
+    dt_obstacles = new DistanceTransform(context);
     ff_obstacle = new DwFlowField(context);
   }
   
+  public void dispose(){
+    release();
+  }
+   
   public void release(){
-    dtobs.release();
-    
+    dt_obstacles.release();
     ff_obstacle.release();
-
     tex_obstacles_FG.release();
     tex_obstacles_dist.release();
   }
-  
   
   public void resize(int w, int h){
     tex_obstacles_FG  .resize(context, GL2.GL_RGBA, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     tex_obstacles_dist.resize(context, GL2.GL_R32F, w, h, GL2.GL_RED  , GL2.GL_FLOAT       , GL2.GL_LINEAR, 1, 4);
     tex_obstacles_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
   }
-  
   
   
   public void create(PGraphicsOpenGL pg_scene){
@@ -75,44 +71,39 @@ public class DwFlowFieldObstacles {
     int w = pg_scene.width;
     int h = pg_scene.height;
     
-    resize(w, h);
-    
-//    copy.apply(pg_scene, tex_obstacles);
-
     context.begin();
     
-    // create FG mask
+    // 0) assure size
+    resize(w, h);
+    
+    // 1) create FG mask
     context.beginDraw(tex_obstacles_FG);
     shader_obstacles_FG.begin();
-    shader_obstacles_FG.uniform4fv    ("FG_mask"   , 1, param.FG_mask);
-    shader_obstacles_FG.uniform1i     ("FG_invert" , param.FG_invert ? 1 : 0);
+    shader_obstacles_FG.uniform4fv    ("FG_mask"  , 1, param.FG_mask);
+    shader_obstacles_FG.uniform1i     ("FG_invert", param.FG_invert ? 1 : 0);
     shader_obstacles_FG.uniformTexture("tex_scene", tex_scene.glName);
     shader_obstacles_FG.drawFullScreenQuad();
     shader_obstacles_FG.end();
-    context.endDraw();
+    context.endDraw("DwFlowFieldObstacles.create() create FG mask");
     
-
-    // apply distance transform
-    dtobs.param.mask = new float[]{1,1,0,1};
-    dtobs.create(tex_obstacles_FG);
+    // 2) apply distance transform
+    dt_obstacles.param.FG_mask = new float[]{1,1,0,1}; // only obstacle EDGES
+    dt_obstacles.create(tex_obstacles_FG);
     
-    param.FG_offset = Math.max(0, param.FG_offset);
-
-    // create distance field
-//    dtobs.computeDistanceField();
+    // 3) create distance field
     context.beginDraw(tex_obstacles_dist);
     shader_obstacles_dist.begin();
-    shader_obstacles_dist.uniform2f("mad", 1, param.FG_offset);
+    shader_obstacles_dist.uniform2f     ("mad", 1, Math.max(0, param.FG_offset));
     shader_obstacles_dist.uniformTexture("tex_FG"  , tex_obstacles_FG);
-    shader_obstacles_dist.uniformTexture("tex_dtnn", dtobs.tex_dtnn.src);
+    shader_obstacles_dist.uniformTexture("tex_dtnn", dt_obstacles.tex_dtnn.src);
     shader_obstacles_dist.drawFullScreenQuad();
     shader_obstacles_dist.end();
-    context.endDraw();
+    context.endDraw("DwFlowFieldObstacles.create() distance field");
     
-    // create flow field
+    // 4) create flow field
     ff_obstacle.create(tex_obstacles_dist);
     
-    context.end();
+    context.end("DwFlowFieldObstacles.create()");
   }
   
   
