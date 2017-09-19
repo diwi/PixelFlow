@@ -56,7 +56,7 @@ void main(){
 #endif // #if SHADER_VERT
 
 
-#if SHADER_FRAG_COLLISION
+#if (SHADER_FRAG_COLLISION==1)
 
 out float out_frag;
 
@@ -68,7 +68,9 @@ void main(){
 
 
 
-#if SHADER_FRAG_DISPLAY
+
+
+#if (SHADER_FRAG_DISPLAY==1)
 
 out vec4 out_frag;
 in float pressure;

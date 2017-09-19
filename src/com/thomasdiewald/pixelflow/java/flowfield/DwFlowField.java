@@ -22,6 +22,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.GaussianBlur;
 
 import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.Texture;
 
 
 /**
@@ -63,8 +64,8 @@ public class DwFlowField {
   public DwGLSLProgram shader_display_pixel;
   
   public DwGLTexture tex_vel = new DwGLTexture();
-  public static DwGLTexture tex_tmp = new DwGLTexture();
-  public static GaussianBlur gaussblur;
+  public DwGLTexture tex_tmp = new DwGLTexture();
+  public GaussianBlur gaussblur;
   
   public DwFlowField(DwPixelFlow context){
     this.context = context;
@@ -108,14 +109,41 @@ public class DwFlowField {
     }
   }
   
+  public void create(PGraphicsOpenGL pg_src){
+    Texture tex_src = pg_src.getTexture(); if(!tex_src.available())  return;
 
+    
+    context.begin();
+    
+    int w_src = tex_src.glWidth;
+    int h_src = tex_src.glHeight;
+
+    resize(w_src, h_src);
+    
+    int w_dst = tex_vel.w;
+    int h_dst = tex_vel.h;
+
+    context.beginDraw(tex_vel);
+    shader_create.begin();
+    shader_create.uniform2f     ("wh_rcp" , 1f/w_dst, 1f/h_dst);
+    shader_create.uniformTexture("tex_src", tex_src.glName);
+    shader_create.drawFullScreenQuad();
+    shader_create.end();
+    context.endDraw();
+
+    blur(param.blur_iterations, param.blur_radius);
+
+    context.end("FlowField.create()");
+  }
+  
+  
   
   public void create(DwGLTexture tex_src){
     context.begin();
     
     int w_src = tex_src.w;
     int h_src = tex_src.h;
-    
+
     resize(w_src, h_src);
     
     int w_dst = tex_vel.w;

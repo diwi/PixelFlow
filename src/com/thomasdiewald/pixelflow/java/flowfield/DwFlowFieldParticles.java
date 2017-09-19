@@ -19,6 +19,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
@@ -36,6 +37,7 @@ public class DwFlowFieldParticles{
     public float   velocity_damping  = 0.98f;
     
     // update
+    public float   mult_acc = 1;
     public float   collision_mult = 1;
     public int     collision_steps = 1;
     
@@ -60,6 +62,8 @@ public class DwFlowFieldParticles{
   
   public DwPixelFlow context;
   
+  public DwGLSLProgram shader_create_sprite;
+  
   public DwGLSLProgram shader_spawn_radial;
   public DwGLSLProgram shader_spawn_rect;
   public DwGLSLProgram shader_update_vel;
@@ -71,22 +75,25 @@ public class DwFlowFieldParticles{
   public DwGLSLProgram shader_collision_dist;
   public DwGLSLProgram shader_obstacles_dist;
   
-  public DwGLSLProgram shader_create_sprite;
+
 
   public DwGLTexture.TexturePingPong tex_particle = new DwGLTexture.TexturePingPong();
   
   public DwGLTexture tex_collision_dist = new DwGLTexture();
   public DwGLTexture tex_obstacles_dist = new DwGLTexture();
+
+  public DwGLSLProgram shader_obstacles_FG;
+  public DwGLTexture tex_obstacles_FG = new DwGLTexture();
+  
+  public DistanceTransform distancetransform;
+  
   
   public DwFlowField ff_col;
   public DwFlowField ff_obs;
-  public DwFlowField ff_acc;
+//  public DwFlowField ff_acc;
   public DwFlowField ff_sum;
   
-  
-  public DwGLSLProgram shader_obstacles_FG;
-  public DwGLTexture tex_obstacles_FG = new DwGLTexture();
-  public DistanceTransform dt_obstacles;
+
 
   public Merge merge;
   
@@ -139,26 +146,24 @@ public class DwFlowFieldParticles{
     shader_obstacles_dist = context.createShader(data_path+"obstacles_dist.frag");
     shader_obstacles_FG  = context.createShader(data_path+"obstacles_FG.frag");
     
-    dt_obstacles = new DistanceTransform(context);
+    distancetransform = new DistanceTransform(context);
     
-    
-//    obstacles = new DwObstacles(context);
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 2;
+    ff_col.param.blur_radius     = 1;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 1;
-    ff_obs.param.blur_radius     = 2;
+    ff_obs.param.blur_radius     = 1;
 
     ff_sum = new DwFlowField(context);
     ff_sum.param.blur_iterations = 1;
-    ff_sum.param.blur_radius     = 4;
+    ff_sum.param.blur_radius     = 3;
     
-    ff_acc = new DwFlowField(context);
-    ff_acc.param.blur_iterations = 0;
-    ff_acc.param.blur_radius     = 2;
+//    ff_acc = new DwFlowField(context);
+//    ff_acc.param.blur_iterations = 0;
+//    ff_acc.param.blur_radius     = 2;
     
     
     merge = new Merge(context);
@@ -223,10 +228,10 @@ public class DwFlowFieldParticles{
   
   
   public void release(){
-    dt_obstacles.release();
+    distancetransform.release();
     tex_obstacles_FG.release();
-    
-    ff_acc.release();
+
+//    ff_acc.release();
     ff_col.release();
     ff_obs.release();
     ff_sum.release();
@@ -240,11 +245,12 @@ public class DwFlowFieldParticles{
   
 
   public void resizeWorld(int w, int h){
+    
     ff_col.resize(w, h);
     ff_obs.resize(w, h);
-    ff_acc.resize(w, h);
+//    ff_acc.resize(w, h);
     ff_sum.resize(w, h);
-    
+ 
     tex_obstacles_FG.resize(context, GL2.GL_RGBA, w, h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     
     tex_collision_dist.resize(context, GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
@@ -487,16 +493,20 @@ public class DwFlowFieldParticles{
   
   public void createObstacleFlowField(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert){
     
+    if(param.collision_mult == 0.0){
+      return;
+    }
+    
     Texture tex_scene = pg_scene.getTexture(); if(!tex_scene.available())  return;
 
     float[] FG_mask = {FG[0]/255f, FG[1]/255f, FG[2]/255f, FG[3]/255f};
-    float FG_offset = getCollisionRadius() / 4;
     
+    float FG_offset = getCollisionRadius() / 4;
     FG_offset -= ff_sum.param.blur_radius - ff_obs.param.blur_radius;
     FG_offset = Math.max(FG_offset, 0);
     
     context.begin();
-
+    
     // 1) create FG mask
     context.beginDraw(tex_obstacles_FG);
     shader_obstacles_FG.begin();
@@ -508,20 +518,21 @@ public class DwFlowFieldParticles{
     context.endDraw("DwFlowFieldObstacles.create() create FG mask");
     
     // 2) apply distance transform
-    dt_obstacles.param.FG_mask = new float[]{1,1,0,1}; // only obstacle EDGES
-    dt_obstacles.create(tex_obstacles_FG);
+    distancetransform.param.FG_mask = new float[]{1,1,0,1}; // only obstacle EDGES
+    distancetransform.param.FG_invert = false;
+    distancetransform.create(tex_obstacles_FG);
     
     // 3) create distance field
     context.beginDraw(tex_obstacles_dist);
     shader_obstacles_dist.begin();
     shader_obstacles_dist.uniform2f     ("mad", 1, FG_offset);
     shader_obstacles_dist.uniformTexture("tex_FG"  , tex_obstacles_FG);
-    shader_obstacles_dist.uniformTexture("tex_dtnn", dt_obstacles.tex_dtnn.src);
+    shader_obstacles_dist.uniformTexture("tex_dtnn", distancetransform.tex_dtnn.src);
     shader_obstacles_dist.drawFullScreenQuad();
     shader_obstacles_dist.end();
     context.endDraw("DwFlowFieldObstacles.create() distance field");
     
-    // 4) create obstacle flowfield
+    // 4) create flow field
     ff_obs.create(tex_obstacles_dist);
     
     context.end("DwFlowFieldParticles.createObstacleFlowField");
@@ -552,7 +563,7 @@ public class DwFlowFieldParticles{
     context.beginDraw(tex_particle.dst);
     shader_update_acc.begin();
     shader_update_acc.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f, 10);
+    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f, 6);
     shader_update_acc.uniform1f     ("acc_mult"       , acc_mult);
     shader_update_acc.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_acc.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -583,7 +594,7 @@ public class DwFlowFieldParticles{
     context.beginDraw(tex_particle.dst);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_vel.uniform2f     ("vel_minmax"     , 0.0f, 10);
+    shader_update_vel.uniform2f     ("vel_minmax"     , 0.0f, 8);
     shader_update_vel.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -599,26 +610,21 @@ public class DwFlowFieldParticles{
 
   
 
-  public void update(){
 
-    float mult_acc = 1.0f                        / param.collision_steps;
-    float mult_col = 1.0f * param.collision_mult / param.collision_steps;
-    float mult_obs = 2.0f * param.collision_mult / param.collision_steps;
+  public void update(DwFlowField ff_acc){
+
+    TexMad tm_acc = new TexMad(ff_acc.tex_vel, 1.0f * param.mult_acc       / param.collision_steps, 0);
+    TexMad tm_col = new TexMad(ff_col.tex_vel, 1.0f * param.collision_mult / param.collision_steps, 0);
+    TexMad tm_obs = new TexMad(ff_obs.tex_vel, 2.0f * param.collision_mult / param.collision_steps, 0);
     
-    float[] mad = { mult_acc,0,   mult_col,0,   mult_obs,0};
-    DwGLTexture[] tex = {
-        ff_acc.tex_vel,
-        ff_col.tex_vel,
-        ff_obs.tex_vel,
-      };
-      
     updateVelocity();
  
     for(int i = 0; i < param.collision_steps; i++){
-      
-      createCollisionFlowField();
+      if(param.collision_mult != 0.0){
+        createCollisionFlowField();
+      }
 
-      merge.apply(ff_sum.tex_vel, tex, mad);
+      merge.apply(ff_sum.tex_vel, tm_acc, tm_col, tm_obs);
       ff_sum.blur();
       
       updateAcceleration(ff_sum.tex_vel, 1f);

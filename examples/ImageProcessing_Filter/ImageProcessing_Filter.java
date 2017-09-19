@@ -13,10 +13,12 @@ package ImageProcessing_Filter;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Median;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 
@@ -160,6 +162,9 @@ public class ImageProcessing_Filter extends PApplet {
   PImage img;
   
   
+  DwFlowField flowfield;
+  
+  
   int view_w; 
   int view_h;
   int gui_w = 200;
@@ -179,6 +184,8 @@ public class ImageProcessing_Filter extends PApplet {
     DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+    
+    flowfield = new DwFlowField(context);
     
     filter = new DwFilter(context);
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
@@ -419,8 +426,9 @@ public class ImageProcessing_Filter extends PApplet {
     if( DISPLAY_FILTER == IDX++) { 
       filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ);
       filter.sobel.apply(pg_src_A, pg_src_C, Sobel.TYPE._3x3_VERT);
-      float[] mad = {0.5f, 0};
-      filter.merge.apply(pg_src_A, pg_src_B, pg_src_C, mad, mad);
+      Merge.TexMad texA = new Merge.TexMad(pg_src_B, 0.5f, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(pg_src_C, 0.5f, 0.0f);
+      filter.merge.apply(pg_src_A, texA, texB);
     }
     if( DISPLAY_FILTER == IDX++) { 
       for(int i = 0; i < FILTER_STACKS; i++){
@@ -461,7 +469,6 @@ public class ImageProcessing_Filter extends PApplet {
 //      filter.bloom.apply(pg_src_B, pg_src_A);
       filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
-    
     if( DISPLAY_FILTER == IDX++) {
       pg_src_B.beginDraw();
       pg_src_B.background(0);
@@ -476,6 +483,16 @@ public class ImageProcessing_Filter extends PApplet {
       filter.distancetransform.apply(pg_src_A, pg_src_C);
       swapAC();
     }
+    if( DISPLAY_FILTER == IDX++) {
+      filter.luminance.apply(pg_src_A, pg_src_B);
+      flowfield.create(pg_src_B);
+      
+      flowfield.param.line_scale = 2f;
+      flowfield.param.line_spacing = 5;
+      flowfield.param.shading_mode = 1;
+      flowfield.displayPixel(pg_src_A);
+      flowfield.displayLines(pg_src_A);
+    }
 
     // display result
     background(0);
@@ -487,6 +504,7 @@ public class ImageProcessing_Filter extends PApplet {
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", pg_src_A.width, pg_src_A.height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
+
   
   
   void swapAB(){
@@ -609,6 +627,7 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("Luminance Threshold"         , IDX++)
         .addItem("Luminance Threshold + Bloom" , IDX++)
         .addItem("Distance Transform / Voronoi", IDX++)
+        .addItem("Flow"                        , IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);

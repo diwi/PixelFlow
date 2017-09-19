@@ -20,10 +20,12 @@ import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
 import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import controlP5.Accordion;
@@ -60,6 +62,9 @@ public class ParticleFlow extends PApplet {
   
   DwPixelFlow context;
   DwFlowFieldParticles particles;
+  DwFlowField ff_acc;
+  
+ 
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
@@ -111,6 +116,10 @@ public class ParticleFlow extends PApplet {
     particles.param.size_display   = 10;
     particles.param.size_collision = particles.param.size_display;
     particles.param.velocity_damping  = 0.99f;
+    
+    ff_acc = new DwFlowField(context);
+    ff_acc.param.blur_iterations = 0;
+    ff_acc.param.blur_radius     = 1;
     
     resizeScene();
     
@@ -173,14 +182,15 @@ public class ParticleFlow extends PApplet {
 
     particles.resizeWorld(width, height);
 
-    particles.ff_acc.tex_vel.clear(0.0f);
+    ff_acc.resize(width, height);
+    ff_acc.tex_vel.clear(0.0f);
     if(UPDATE_GRAVITY){
-      DwFilter.get(context).copy.apply(pg_gravity,  particles.ff_acc.tex_vel);
-      DwFilter.get(context).mad.apply( particles.ff_acc.tex_vel,  particles.ff_acc.tex_vel, new float[]{-gravity/10f,0});
+      DwFilter.get(context).copy.apply(pg_gravity,  ff_acc.tex_vel);
+      DwFilter.get(context).mad.apply( ff_acc.tex_vel,  ff_acc.tex_vel, new float[]{-gravity/10f,0});
     }
     
     particles.createObstacleFlowField(pg_obstacles, BG_mask, true);
-    particles.update();
+    particles.update(ff_acc);
   
 
     if(DISPLAY_ID == 0){
@@ -222,9 +232,9 @@ public class ParticleFlow extends PApplet {
       DwGLTexture tex_dst = particles.tex_obstacles_dist;
       DwGLTexture tex_A   = particles.tex_obstacles_dist;
       DwGLTexture tex_B   = particles.tex_collision_dist;
-      float[] mad_A = {0.02f, 0.0f};
-      float[] mad_B = {0.15f, 0.0f};
-      DwFilter.get(context).merge.apply(tex_dst, tex_A, tex_B, mad_A, mad_B);
+      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.02f, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.15f, 0.0f);
+      DwFilter.get(context).merge.apply(tex_dst, texA, texB);
       DwFilter.get(context).copy.apply(tex_dst, pg_canvas);
     }
 
