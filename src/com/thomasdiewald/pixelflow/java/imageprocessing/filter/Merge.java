@@ -201,7 +201,6 @@ public class Merge {
       case 3:   apply(dst.width, dst.height, tex[0], tex[1], tex[2]); break;
       default:  apply(dst.width, dst.height, tex                   ); break;
     }
-    apply(dst.width, dst.height, tex);
     context.endDraw();
     context.end("Merge.apply");
   }
@@ -209,7 +208,6 @@ public class Merge {
   public void apply(DwGLTexture dst, TexMad ... tex){
     context.begin();
     context.beginDraw(dst);
-    apply(dst.w, dst.h, tex);
     switch(tex.length){
       case 2:   apply(dst.w, dst.h, tex[0], tex[1]        ); break;
       case 3:   apply(dst.w, dst.h, tex[0], tex[1], tex[2]); break;
@@ -218,6 +216,8 @@ public class Merge {
     context.endDraw();
     context.end("Merge.apply");
   }
+  
+  
   
 
   
@@ -266,6 +266,9 @@ public class Merge {
     shader_merge3.drawFullScreenQuad(0,0,w,h);
     shader_merge3.end();
   }
+  
+  
+  
   
   
   static public class TexMad {
