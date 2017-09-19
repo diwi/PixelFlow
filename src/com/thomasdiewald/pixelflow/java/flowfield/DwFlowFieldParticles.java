@@ -160,20 +160,20 @@ public class DwFlowFieldParticles{
     
 
     ff_col = new DwFlowField(context);
-    ff_col.param.blur_iterations = 2;
+    ff_col.param.blur_iterations = 1;
     ff_col.param.blur_radius     = 1;
     
     ff_obs = new DwFlowField(context);
-    ff_obs.param.blur_iterations = 2;
+    ff_obs.param.blur_iterations = 1;
     ff_obs.param.blur_radius     = 1;
     
     ff_coh = new DwFlowField(context);
-    ff_coh.param.blur_iterations = 2;
+    ff_coh.param.blur_iterations = 1;
     ff_coh.param.blur_radius     = 1;
 
     ff_sum = new DwFlowField(context);
     ff_sum.param.blur_iterations = 1;
-    ff_sum.param.blur_radius     = 2;
+    ff_sum.param.blur_radius     = 3;
     
 
     merge = new Merge(context);
@@ -433,6 +433,9 @@ public class DwFlowFieldParticles{
   
   
   public void display(PGraphicsOpenGL canvas){
+    if(param.size_display <= 0.0f){
+      return;
+    }
     int w = canvas.width;
     int h = canvas.height;
     int w_particle = tex_particle.src.w;

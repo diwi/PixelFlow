@@ -18,6 +18,7 @@ import java.util.Locale;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
@@ -36,6 +37,7 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
 
 
@@ -59,6 +61,9 @@ public class ParticleFlow extends PApplet {
   PGraphics2D pg_particles;
   PGraphics2D pg_gravity;
   PGraphics2D pg_sprite;
+  
+  SMAA smaa;
+  PGraphics3D pg_aa;
   
   DwPixelFlow context;
   DwFlowFieldParticles particles;
@@ -109,6 +114,9 @@ public class ParticleFlow extends PApplet {
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+
+
+    smaa = new SMAA(context);
     
     liquidfx = new DwLiquidFX(context);
     
@@ -136,11 +144,15 @@ public class ParticleFlow extends PApplet {
       return;
     }
     
+    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
+    
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(0);
+    pg_obstacles.smooth(8);
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
@@ -200,9 +212,9 @@ public class ParticleFlow extends PApplet {
         DwFilter.get(context).copy.apply(pg_checker, pg_particles);
         particles.display(pg_particles);
       } else {
-        particles.displayTrail(pg_particles);
         float mult = 0.985f;
         DwFilter.get(context).multiply.apply(pg_particles, pg_particles, new float[]{mult, mult, mult, mult});
+        particles.displayTrail(pg_particles);
       }
       
       if(APPLY_LIQUID_FX){
@@ -268,6 +280,8 @@ public class ParticleFlow extends PApplet {
 
     
 //    DwFilter.get(context).copy.apply(particles.obstacles.tex_obstacles_FG, pg_canvas);
+    
+//    smaa.apply(pg_canvas, pg_aa);
 
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);
@@ -634,13 +648,16 @@ public class ParticleFlow extends PApplet {
   }
   
   public void setParticleColor(int val){
-    float r=1f, g=1f, b=1f, a=1f, s=1f; 
+    float r=1f, g=1f, b=1f, a=1f, s=1f;
+    
+    float[] ca = particles.param.col_A;
     
     switch(val){
       case 0: r = 0.10f; g = 0.50f; b = 1.00f; a = 10.0f; s = 0.50f;  break;
       case 1: r = 0.40f; g = 0.80f; b = 0.10f; a = 10.0f; s = 0.50f;  break;
       case 2: r = 0.80f; g = 0.40f; b = 0.10f; a = 10.0f; s = 0.50f;  break;
       case 3: r = 0.50f; g = 0.50f; b = 0.50f; a = 10.0f; s = 0.25f;  break;
+      case 4: r = ca[0]; g = ca[1]; b = ca[2]; a =  1.0f; s = 1.00f;  break;
     }
 
     particles.param.col_A = new float[]{ r  , g  , b  , a };
@@ -650,10 +667,10 @@ public class ParticleFlow extends PApplet {
   public void updateSelections(float[] val){
     APPLY_LIQUID_FX     = val[0] > 0;
     DISPLAY_FLOW        = val[1] > 0;
-    UPDATE_COLLISIONS   = val[2] > 0;
-    UPDATE_GRAVITY      = val[3] > 0;
-    UPDATE_SCENE        = val[4] > 0;
-    AUTO_SPAWN          = val[5] > 0;
+//    UPDATE_COLLISIONS   = val[2] > 0;
+    UPDATE_GRAVITY      = val[2] > 0;
+    UPDATE_SCENE        = val[3] > 0;
+    AUTO_SPAWN          = val[4] > 0;
   }
   
   public void setDisplayMode(int val){
@@ -759,7 +776,7 @@ public class ParticleFlow extends PApplet {
       py += oy * 1.5f;
       px = 15;
       cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
+      .setRange(0, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
       
       cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
       .setRange(1, 50).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
@@ -798,11 +815,11 @@ public class ParticleFlow extends PApplet {
       cp5.addCheckBox("updateSelections").setGroup(group_particles).setSize(sy,sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
           .addItem("LIQUID FX"          , 0).activate(APPLY_LIQUID_FX     ? 0 : 10)
-          .addItem("DISPLAY FLOW"       , 1).activate(DISPLAY_FLOW ? 1 : 10)
-          .addItem("UPDATE COLLISIONS"  , 2).activate(UPDATE_COLLISIONS   ? 2 : 10)
-          .addItem("UPDATE GRAVITY"     , 3).activate(UPDATE_GRAVITY      ? 3 : 10)
-          .addItem("UPDATE SCENE"       , 4).activate(UPDATE_SCENE        ? 4 : 10)
-          .addItem("AUTO SPAWN"         , 5).activate(AUTO_SPAWN          ? 5 : 10)
+          .addItem("DISPLAY FLOW"       , 1).activate(DISPLAY_FLOW        ? 1 : 10)
+//          .addItem("UPDATE COLLISIONS"  , 2).activate(UPDATE_COLLISIONS   ? 2 : 10)
+          .addItem("UPDATE GRAVITY"     , 2).activate(UPDATE_GRAVITY      ? 2 : 10)
+          .addItem("UPDATE SCENE"       , 3).activate(UPDATE_SCENE        ? 3 : 10)
+          .addItem("AUTO SPAWN"         , 4).activate(AUTO_SPAWN          ? 4 : 10)
         ;
         
     }
@@ -833,7 +850,7 @@ public class ParticleFlow extends PApplet {
       
       px  = 15;
       py += gui_w-30 + oy;
-      int count = 4;
+      int count = 5;
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_colors = cp5.addRadio("setParticleColor").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(5).plugTo(this, "setParticleColor")
@@ -842,6 +859,7 @@ public class ParticleFlow extends PApplet {
         .addItem("GREEN"  , 1)
         .addItem("ORANGE" , 2)
         .addItem("GRAY"   , 3)
+        .addItem("MONO"   , 4)
         .activate(PARTICLE_COLOR);
 
       for(Toggle toggle : rb_colors.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);

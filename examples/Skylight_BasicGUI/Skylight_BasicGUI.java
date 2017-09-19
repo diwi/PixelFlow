@@ -154,9 +154,8 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sun.param.rgb            = new float[]{1,1,1};
     skylight.sun.param.shadowmap_size = 512;
     
-    
-    smaa = new SMAA(context);
     // postprocessing AA
+    smaa = new SMAA(context);
     pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
     pg_aa.smooth(0);
     pg_aa.textureSampling(5);
