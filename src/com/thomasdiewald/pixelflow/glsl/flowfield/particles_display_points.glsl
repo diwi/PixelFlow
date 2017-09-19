@@ -15,6 +15,7 @@
 
 #define SHADER_VERT 0
 #define SHADER_FRAG_COLLISION 0
+#define SHADER_FRAG_COHERENCE 0
 #define SHADER_FRAG_DISPLAY 0
 
 uniform float     point_size;
@@ -56,6 +57,9 @@ void main(){
 #endif // #if SHADER_VERT
 
 
+
+
+
 #if (SHADER_FRAG_COLLISION==1)
 
 out float out_frag;
@@ -64,7 +68,22 @@ void main(){
   out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
 }
 
-#endif // #if SHADER_FRAG
+#endif // #if SHADER_FRAG_COLLISION
+
+
+
+
+
+#if (SHADER_FRAG_COHERENCE==1)
+
+out float out_frag;
+
+void main(){
+  float len = length(gl_PointCoord * 2.0 - 1.0);
+  if(len > 1.0) len = 0;
+  out_frag = len;
+}
+#endif // #if SHADER_FRAG_COHERENCE
 
 
 
@@ -83,7 +102,7 @@ void main(){
   out_frag.xyzw *= pf;
 }
 
-#endif // #if SHADER_FRAG
+#endif // #if SHADER_FRAG_DISPLAY
 
 
 

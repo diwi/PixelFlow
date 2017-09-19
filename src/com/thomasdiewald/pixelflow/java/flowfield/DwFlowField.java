@@ -73,7 +73,7 @@ public class DwFlowField {
     
     String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
     
-    shader_create  = context.createShader(data_path+"flowfield_create.frag");
+    shader_create        = context.createShader(data_path+"flowfield_create.frag");
     shader_display_pixel = context.createShader(data_path+"flowfield_display_pixel.frag");
     shader_display_lines = context.createShader(data_path+"flowfield_display_lines.glsl", data_path+"flowfield_display_lines.glsl");
     shader_display_lines.frag.setDefine("SHADER_FRAG", 1);
@@ -112,7 +112,6 @@ public class DwFlowField {
   public void create(PGraphicsOpenGL pg_src){
     Texture tex_src = pg_src.getTexture(); if(!tex_src.available())  return;
 
-    
     context.begin();
     
     int w_src = tex_src.glWidth;
@@ -136,8 +135,7 @@ public class DwFlowField {
     context.end("FlowField.create()");
   }
   
-  
-  
+
   public void create(DwGLTexture tex_src){
     context.begin();
     
@@ -162,16 +160,22 @@ public class DwFlowField {
     context.end("FlowField.create()");
   }
   
+  
+  
   public void blur(){
     blur(param.blur_iterations, param.blur_radius);
   }
 
-  
   public void blur(int iterations, int radius){
     for(int i = 0; i < iterations; i++){
       gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
     }
   }
+  
+  
+  
+  
+  
   
   
   public void displayLines(PGraphicsOpenGL dst){

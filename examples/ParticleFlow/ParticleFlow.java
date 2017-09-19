@@ -232,9 +232,11 @@ public class ParticleFlow extends PApplet {
       DwGLTexture tex_dst = particles.tex_obstacles_dist;
       DwGLTexture tex_A   = particles.tex_obstacles_dist;
       DwGLTexture tex_B   = particles.tex_collision_dist;
+      DwGLTexture tex_C   = particles.tex_coherence_dist;
       Merge.TexMad texA = new Merge.TexMad(tex_A, 0.02f, 0.0f);
       Merge.TexMad texB = new Merge.TexMad(tex_B, 0.15f, 0.0f);
-      DwFilter.get(context).merge.apply(tex_dst, texA, texB);
+      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.15f, 0.0f);
+      DwFilter.get(context).merge.apply(tex_dst, texA, texB, texC);
       DwFilter.get(context).copy.apply(tex_dst, pg_canvas);
     }
 
