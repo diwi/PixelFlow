@@ -229,15 +229,37 @@ public class ParticleFlow extends PApplet {
  
     }
     if(DISPLAY_ID == 1){
-      DwGLTexture tex_dst = particles.tex_obstacles_dist;
-      DwGLTexture tex_A   = particles.tex_obstacles_dist;
-      DwGLTexture tex_B   = particles.tex_collision_dist;
-      DwGLTexture tex_C   = particles.tex_coherence_dist;
-      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.02f, 0.0f);
-      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.15f, 0.0f);
-      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.15f, 0.0f);
-      DwFilter.get(context).merge.apply(tex_dst, texA, texB, texC);
-      DwFilter.get(context).copy.apply(tex_dst, pg_canvas);
+      
+      int Z = DwGLTexture.SWIZZLE_0;
+      int O = DwGLTexture.SWIZZLE_0;
+      int R = DwGLTexture.SWIZZLE_R;
+      int G = DwGLTexture.SWIZZLE_G;
+      int B = DwGLTexture.SWIZZLE_B;
+      int A = DwGLTexture.SWIZZLE_A;
+      int[] RGBA = {R,G,B,A};
+      
+//      DwGLTexture tex_dst = pg_canvas;
+      DwGLTexture tex_A = particles.tex_obs_dist;
+      DwGLTexture tex_B = particles.tex_col_dist;
+      DwGLTexture tex_C = particles.tex_coh_dist;
+      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.03f, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.50f, 0.0f);
+      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.01f, 0.0f);
+
+      particles.tex_obs_dist.swizzle(new int[]{Z, Z, R, Z});
+      particles.tex_col_dist.swizzle(new int[]{R, Z, Z, Z});
+      particles.tex_coh_dist.swizzle(new int[]{R, R, Z, Z});
+      
+      DwFilter.get(context).merge.apply(pg_canvas, texA, texB, texC);
+      
+      particles.tex_coh_dist.swizzle(RGBA);
+      particles.tex_col_dist.swizzle(RGBA);
+      particles.tex_obs_dist.swizzle(RGBA);
+      
+//      DwFilter.get(context).copy.apply(tex_dst, pg_canvas);
+      
+      
+
     }
 
     if(DISPLAY_FLOW){
@@ -551,13 +573,21 @@ public class ParticleFlow extends PApplet {
   }
   
   public void set_collision_steps(int val){
-    particles.param.collision_steps = val;
+    particles.param.steps = val;
   }
   
-  public void set_collision_mult(float val){
-    particles.param.collision_mult = val;
+  public void set_mul_acc(float val){
+    particles.param.mul_acc = val;
   }
-
+  public void set_mul_col(float val){
+    particles.param.mul_col = val;
+  }
+  public void set_mul_coh(float val){
+    particles.param.mul_coh = val;
+  }
+  public void set_mul_obs(float val){
+    particles.param.mul_obs = val;
+  }
   
   public void set_shader_collision_mult(float val){
     particles.param.shader_collision_mult = val;
@@ -683,7 +713,7 @@ public class ParticleFlow extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 390)
+      group_particles.setHeight(20).setSize(gui_w, 430)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -741,14 +771,22 @@ public class ParticleFlow extends PApplet {
       .setRange(0f, 2f).setValue(gravity).plugTo(this, "set_gravity");
       
       cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0, 4).setValue(particles.param.collision_steps).plugTo(this, "set_collision_steps")
+      .setRange(0, 4).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
       .snapToTickMarks(true).setNumberOfTickMarks(5);
       ;
       
-      cp5.addSlider("collision mult").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.0f, 8.0f).setValue(particles.param.collision_mult).plugTo(this, "set_collision_mult")
+      cp5.addSlider("mult acceleration").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_acc).plugTo(this, "set_mul_acc")
       ;
-      
+      cp5.addSlider("mult collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_col).plugTo(this, "set_mul_col")
+      ;
+      cp5.addSlider("mult cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_coh).plugTo(this, "set_mul_coh")
+      ;
+      cp5.addSlider("mult obstacles").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_obs).plugTo(this, "set_mul_obs")
+      ;
       
 //      cp5.addSlider("blur_rad").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
 //      .setRange(1, 20).setValue(blur_rad).plugTo(this, "blur_rad");
