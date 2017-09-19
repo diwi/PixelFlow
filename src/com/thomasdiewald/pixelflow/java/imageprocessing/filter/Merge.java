@@ -56,17 +56,6 @@ public class Merge {
     this.context = context;
   }
   
-  
-  private void updateShader(int TEX_LAYERS){
-    // 4) create/update shader
-    if(shader_merge_array == null){
-      shader_merge_array = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_array.frag");
-    }
-    
-    shader_merge_array.frag.setDefine("TEX_LAYERS", TEX_LAYERS);
-  }
-  
-  
   public void apply(DwGLTexture dst, DwGLTexture[] tex_src, float[] tex_weights){
     if(tex_src.length > tex_weights.length) return;
     
@@ -77,11 +66,7 @@ public class Merge {
     for(int i = 0; i < TEX_LAYERS; i++){
       tex_handles[i] = tex_src[i].HANDLE[0];
     }
-    
-    // create/update shader
-    updateShader(TEX_LAYERS);
-    
-    // merge
+
     context.begin();
     context.beginDraw(dst);
     apply(w, h, tex_handles, tex_weights);
@@ -101,11 +86,7 @@ public class Merge {
     for(int i = 0; i < TEX_LAYERS; i++){
       tex_handles[i] = tex_src[i].HANDLE[0];
     }
-    
-    // create/update shader
-    updateShader(TEX_LAYERS);
-    
-    // merge
+
     context.begin();
     context.beginDraw(dst);
     apply(w, h, tex_handles, tex_mad);
@@ -128,10 +109,6 @@ public class Merge {
       tex_handles[i] = tex_src_.glName;
     }
     
-    // create/update shader
-    updateShader(TEX_LAYERS);
-    
-    // merge
     context.begin();
     context.beginDraw(dst);
     apply(w, h, tex_handles, tex_mad);
@@ -147,7 +124,7 @@ public class Merge {
     
     int w = tex_dst.glWidth;
     int h = tex_dst.glHeight;
-    // merge
+
     context.begin();
     context.beginDraw(dst);
     apply(w, h, tex_A.glName, tex_B.glName, mad_A, mad_B);
@@ -158,7 +135,7 @@ public class Merge {
   public void apply(DwGLTexture dst, DwGLTexture src_A, DwGLTexture src_B, float[] mad_A, float[] mad_B){
     int w = dst.w;
     int h = dst.h;
-    // merge
+
     context.begin();
     context.beginDraw(dst);
     apply(w, h, src_A.HANDLE[0], src_B.HANDLE[0], mad_A, mad_B);
@@ -169,16 +146,18 @@ public class Merge {
 
   private void apply(int w, int h, int[] tex_handles, float[] tex_mad){
     int TEX_LAYERS = tex_handles.length;
-    
-    DwGLSLProgram shader = shader_merge_array;
-    shader.begin();
-    shader.uniform2f ("wh_rcp" , 1f/w,  1f/h);
-    shader.uniform2fv("tex_mad", TEX_LAYERS, tex_mad);
-    for(int i = 0; i < TEX_LAYERS; i++){
-      shader.uniformTexture("tex_src["+i+"]", tex_handles[i]);
+    if(shader_merge_array == null){
+      shader_merge_array = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_array.frag");
     }
-    shader.drawFullScreenQuad(0,0,w,h);
-    shader.end();
+    shader_merge_array.frag.setDefine("TEX_LAYERS", TEX_LAYERS);
+    shader_merge_array.begin();
+    shader_merge_array.uniform2f ("wh_rcp" , 1f/w,  1f/h);
+    shader_merge_array.uniform2fv("tex_mad", TEX_LAYERS, tex_mad);
+    for(int i = 0; i < TEX_LAYERS; i++){
+      shader_merge_array.uniformTexture("tex_src["+i+"]", tex_handles[i]);
+    }
+    shader_merge_array.drawFullScreenQuad(0,0,w,h);
+    shader_merge_array.end();
   }
   
   
@@ -186,17 +165,115 @@ public class Merge {
     if(shader_merge_two == null){
       shader_merge_two = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_two.frag");
     }
-
-    DwGLSLProgram shader = shader_merge_two;
-    shader.begin();
-    shader.uniform2f     ("wh_rcp", 1f/w,  1f/h);
-    shader.uniform2f     ("mad_A", mad_A[0], mad_A[1]);
-    shader.uniform2f     ("mad_B", mad_B[0], mad_B[1]);
-    shader.uniformTexture("tex_A", tex_A);
-    shader.uniformTexture("tex_B", tex_B);
-    shader.drawFullScreenQuad(0,0,w,h);
-    shader.end();
+    shader_merge_two.begin();
+    shader_merge_two.uniform2f     ("wh_rcp", 1f/w,  1f/h);
+    shader_merge_two.uniform2f     ("mad_A", mad_A[0], mad_A[1]);
+    shader_merge_two.uniform2f     ("mad_B", mad_B[0], mad_B[1]);
+    shader_merge_two.uniformTexture("tex_A", tex_A);
+    shader_merge_two.uniformTexture("tex_B", tex_B);
+    shader_merge_two.drawFullScreenQuad(0,0,w,h);
+    shader_merge_two.end();
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  public void apply(PGraphicsOpenGL dst, TexMad ... tex){
+    context.begin();
+    context.beginDraw(dst);
+    apply(dst.width, dst.height, tex);
+    context.endDraw();
+    context.end("Merge.apply");
+  }
+  
+  public void apply(DwGLTexture dst, TexMad ... tex){
+    context.begin();
+    context.beginDraw(dst);
+    apply(dst.w, dst.h, tex);
+    context.endDraw();
+    context.end("Merge.apply");
+  }
+  
+  public void apply(DwGLTexture dst, TexMad texA, TexMad texB){
+    context.begin();
+    context.beginDraw(dst);
+    apply(dst.w, dst.h, texA, texB);
+    context.endDraw();
+    context.end("Merge.apply");
+  }
+  
+  public void apply(PGraphicsOpenGL dst, TexMad texA, TexMad texB){
+    context.begin();
+    context.beginDraw(dst);
+    apply(dst.width, dst.height, texA, texB);
+    context.endDraw();
+    context.end("Merge.apply");
+  }
+  
+  
+  private void apply(int w, int h, TexMad ... tex){
+    if(shader_merge_array == null){
+      shader_merge_array = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_array.frag");
+    }
+    shader_merge_array.frag.setDefine("TEX_LAYERS", tex.length);
+    shader_merge_array.begin();
+    shader_merge_array.uniform2f ("wh_rcp" , 1f/w,  1f/h);
+    for(int i = 0; i < tex.length; i++){
+      shader_merge_array.uniform2f     ("tex_mad["+i+"]", tex[i].mul, tex[i].add);
+      shader_merge_array.uniformTexture("tex_src["+i+"]", tex[i].tex);
+    }
+    shader_merge_array.drawFullScreenQuad(0,0,w,h);
+    shader_merge_array.end();
+  }
+  
+  private void apply(int w, int h, TexMad texA, TexMad texB){
+    if(shader_merge_two == null){
+      shader_merge_two = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/merge_two.frag");
+    }
+    shader_merge_two.begin();
+    shader_merge_two.uniform2f     ("wh_rcp" , 1f/w,  1f/h);
+    shader_merge_two.uniform2f     ("mad_A", texA.mul, texA.add);
+    shader_merge_two.uniform2f     ("mad_B", texB.mul, texB.add);
+    shader_merge_two.uniformTexture("tex_A", texA.tex);
+    shader_merge_two.uniformTexture("tex_B", texB.tex);
+    shader_merge_two.drawFullScreenQuad(0,0,w,h);
+    shader_merge_two.end();
+  }
+  
+  
+  
+  
+  static public class TexMad {
+    public int   tex = 0;
+    public float mul = 0;
+    public float add = 0;
+    
+    public TexMad(DwGLTexture tex, float mul, float add){
+      this.tex = tex.HANDLE[0];
+      this.mul = mul;
+      this.add = add;
+    }
+    public TexMad(PGraphicsOpenGL pg, float mul, float add){
+      Texture tex = pg.getTexture(); if(!tex.available()) return;
+      this.tex = tex.glName;
+      this.mul = mul;
+      this.add = add;
+    }
+  }
+  
   
   
 }
