@@ -11,7 +11,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.java.flowfield;
+package com.thomasdiewald.pixelflow.java.flowfieldparticles;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
@@ -21,6 +21,12 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import processing.opengl.PGraphicsOpenGL;
 
 
+/**
+ * @deprecated
+ * Use DwFlowFieldParticles.displayTrail() instead.
+ *
+ */
+@Deprecated
 public class DwFlowFieldStream {
   
   public static class Param {
@@ -59,7 +65,7 @@ public class DwFlowFieldStream {
     this.context = context;
     context.papplet.registerMethod("dispose", this);
     
-    String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+    String data_path = DwPixelFlow.SHADER_DIR+"FlowFieldParticles/deprecated/";
     
     shader_init    = context.createShader(data_path+"flowfieldstream_init.frag");
     shader_update  = context.createShader(data_path+"flowfieldstream_update.frag");

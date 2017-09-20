@@ -276,16 +276,26 @@ public class Merge {
     public float mul = 0;
     public float add = 0;
     
+    public TexMad(){
+    }
     public TexMad(DwGLTexture tex, float mul, float add){
+      set(tex, mul, add);
+    }
+    public TexMad(PGraphicsOpenGL pg, float mul, float add){
+      set(pg, mul, add);
+    } 
+    public TexMad set(DwGLTexture tex, float mul, float add){
       this.tex = tex.HANDLE[0];
       this.mul = mul;
       this.add = add;
+      return this;
     }
-    public TexMad(PGraphicsOpenGL pg, float mul, float add){
-      Texture tex = pg.getTexture(); if(!tex.available()) return;
+    public TexMad set(PGraphicsOpenGL pg, float mul, float add){
+      Texture tex = pg.getTexture(); if(!tex.available()) return this;
       this.tex = tex.glName;
       this.mul = mul;
       this.add = add;
+      return this;
     }
   }
   

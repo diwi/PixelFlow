@@ -13,7 +13,7 @@
 #version 150
 
 #define LINE_MODE 0
-#define SHADING_MODE 0
+#define LINE_SHADING 0
 
 #define SHADER_VERT 0
 #define SHADER_FRAG 0
@@ -70,12 +70,12 @@ void main(){
 #endif // (LINE_MODE == 1)
 
 
-#if (SHADING_MODE == 1)
+#if (LINE_SHADING == 1)
   float r = 0.5 * (1.0 + vel.x);
   float g = 0.5 * (1.0 + vel.y);
   float b = 0.5 * (2.0 - (r + g));
   col_AB = vec4(r, g, b, 1);
-#endif // (SHADING_MODE == 1)
+#endif // (LINE_SHADING == 1)
   
   // finish vertex coordinate
   vec2 vtx_pos_n = vtx_pos * wh_lines_rcp; // [0, 1]

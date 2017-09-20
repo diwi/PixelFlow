@@ -10,7 +10,7 @@
  */
 
 
-package ParticleFlow;
+package FlowFieldParticles_DevDemo;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;

@@ -13,7 +13,7 @@ package ImageProcessing_Filter;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
@@ -492,12 +492,12 @@ public class ImageProcessing_Filter extends PApplet {
       filter.luminance.apply(pg_src_A, pg_src_B);
       flowfield.create(pg_src_B);
       
-      flowfield.param.col_A        = new float[] {0,0,0,1.0f};
-      flowfield.param.col_B        = new float[] {0,0,0,0.1f};
+      flowfield.param.line_col_A        = new float[] {0,0,0,1.0f};
+      flowfield.param.line_col_B        = new float[] {0,0,0,0.1f};
       flowfield.param.line_scale = 1.5f;
       flowfield.param.line_width = 1.0f;
       flowfield.param.line_spacing = 10;
-      flowfield.param.shading_mode = 0;
+      flowfield.param.line_shading = 0;
       flowfield.displayPixel(pg_src_A);
       flowfield.displayLines(pg_src_A);
     }

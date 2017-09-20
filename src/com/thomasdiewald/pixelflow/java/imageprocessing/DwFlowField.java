@@ -12,7 +12,7 @@
 
 
 
-package com.thomasdiewald.pixelflow.java.flowfield;
+package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -37,23 +37,23 @@ public class DwFlowField {
   
   public static class Param {
     
-    public float   line_width   = 1.0f;
     public float   line_spacing = 15;
+    public float   line_width   = 1.0f;
     public float   line_scale   = 1.5f;
-    public int     line_mode    = 0; // 0 or 1, in velocity direction, or normal to it
+    public boolean line_smooth  = true;
     
-    public int     shading_mode    = 0; // 0 =  col_A/col_B, 1 = velocity
+    public int     line_mode    = 0; // 0 or 1, in velocity direction, or normal to it
+    public int     line_shading = 0; // 0 =  col_A/col_B, 1 = velocity
+    
+    public float[] line_col_A        = {1,1,1,1.0f};
+    public float[] line_col_B        = {1,1,1,0.1f};
+    
+    public int     blend_mode   = 0; // BLEND=0; ADD=1
     
     public int     blur_radius     = 2;
     public int     blur_iterations = 1; 
-    
-    public float[] col_A        = {1,1,1,1.0f};
-    public float[] col_B        = {1,1,1,0.1f};
-    
-    public int     blend_mode   = 0; // BLEND=0; ADD=1
-    public boolean smooth       = true;
-    
   }
+  
   
   public DwPixelFlow context;
   
@@ -71,7 +71,7 @@ public class DwFlowField {
     this.context = context;
     context.papplet.registerMethod("dispose", this);
     
-    String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+    String data_path = DwPixelFlow.SHADER_DIR+"Filter/";
     
     shader_create        = context.createShader(data_path+"flowfield_create.frag");
     shader_display_pixel = context.createShader(data_path+"flowfield_display_pixel.frag");
@@ -111,37 +111,16 @@ public class DwFlowField {
   
   public void create(PGraphicsOpenGL pg_src){
     Texture tex_src = pg_src.getTexture(); if(!tex_src.available())  return;
-
-    context.begin();
-    
-    int w_src = tex_src.glWidth;
-    int h_src = tex_src.glHeight;
-
-    resize(w_src, h_src);
-    
-    int w_dst = tex_vel.w;
-    int h_dst = tex_vel.h;
-
-    context.beginDraw(tex_vel);
-    shader_create.begin();
-    shader_create.uniform2f     ("wh_rcp" , 1f/w_dst, 1f/h_dst);
-    shader_create.uniformTexture("tex_src", tex_src.glName);
-    shader_create.drawFullScreenQuad();
-    shader_create.end();
-    context.endDraw();
-
-    blur(param.blur_iterations, param.blur_radius);
-
-    context.end("FlowField.create()");
+    create(tex_src.glName, tex_src.glWidth, tex_src.glHeight);
   }
   
-
   public void create(DwGLTexture tex_src){
+    create(tex_src.HANDLE[0], tex_src.w, tex_src.h);
+  }
+  
+  public void create(int tex_src, int w_src, int h_src){
     context.begin();
     
-    int w_src = tex_src.w;
-    int h_src = tex_src.h;
-
     resize(w_src, h_src);
     
     int w_dst = tex_vel.w;
@@ -161,6 +140,7 @@ public class DwFlowField {
   }
   
   
+
   
   public void blur(){
     blur(param.blur_iterations, param.blur_radius);
@@ -179,29 +159,26 @@ public class DwFlowField {
   
   
   public void displayLines(PGraphicsOpenGL dst){
-
-    int w = dst.width;
-    int h = dst.height;
-    
+    int   w = dst.width;
+    int   h = dst.height;
     int   lines_x   = (int) Math.ceil(w/param.line_spacing);
     int   lines_y   = (int) Math.ceil(h/param.line_spacing);
     int   num_lines = lines_x * lines_y;
     float scale     = param.line_scale;
 
-    shader_display_lines.vert.setDefine("LINE_MODE", param.line_mode);
-    shader_display_lines.vert.setDefine("SHADING_MODE", param.shading_mode);
-    
     context.begin();
     context.beginDraw(dst);
     blendMode();
+    shader_display_lines.vert.setDefine("LINE_MODE"   , param.line_mode);
+    shader_display_lines.vert.setDefine("LINE_SHADING", param.line_shading);
     shader_display_lines.begin();
-    shader_display_lines.uniform4fv    ("col_A"         , 1, param.col_A);
-    shader_display_lines.uniform4fv    ("col_B"         , 1, param.col_B);
+    shader_display_lines.uniform4fv    ("col_A"         , 1, param.line_col_A);
+    shader_display_lines.uniform4fv    ("col_B"         , 1, param.line_col_B);
     shader_display_lines.uniform2i     ("wh_lines"      ,    lines_x,    lines_y);
     shader_display_lines.uniform2f     ("wh_lines_rcp"  , 1f/lines_x, 1f/lines_y);
     shader_display_lines.uniform1f     ("vel_scale"     , scale);
     shader_display_lines.uniformTexture("tex_velocity"  , tex_vel);
-    shader_display_lines.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.smooth);
+    shader_display_lines.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.line_smooth);
     shader_display_lines.end();
     context.endDraw();
     context.end("FlowField.display");
@@ -222,7 +199,6 @@ public class DwFlowField {
     context.end("FlowField.displayPixel");
   }
   
-
   protected void blendMode(){
     context.gl.glEnable(GL.GL_BLEND);
     context.gl.glBlendEquation(GL.GL_FUNC_ADD);
@@ -232,6 +208,5 @@ public class DwFlowField {
       default: context.gl.glBlendFuncSeparate(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_ONE, GL.GL_ONE); break; // BLEND
     }
   }
-  
 
 }

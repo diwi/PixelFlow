@@ -11,7 +11,7 @@
 
 
 
-package ParticleFlow;
+package FlowFieldParticles_DevDemo;
 
 import java.util.Locale;
 
@@ -21,9 +21,9 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
-import com.thomasdiewald.pixelflow.java.flowfield.DwFlowField;
-import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfield.DwFlowFieldParticles.SpawnRadial;
+import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
+import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
@@ -41,7 +41,7 @@ import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
 
 
-public class ParticleFlow extends PApplet {
+public class FlowFieldParticles_DevDemo extends PApplet {
   
   boolean START_FULLSCREEN = !true;
 
@@ -243,7 +243,6 @@ public class ParticleFlow extends PApplet {
     if(DISPLAY_ID == 1){
       
       int Z = DwGLTexture.SWIZZLE_0;
-      int O = DwGLTexture.SWIZZLE_0;
       int R = DwGLTexture.SWIZZLE_R;
       int G = DwGLTexture.SWIZZLE_G;
       int B = DwGLTexture.SWIZZLE_B;
@@ -254,9 +253,9 @@ public class ParticleFlow extends PApplet {
       DwGLTexture tex_A = particles.tex_obs_dist;
       DwGLTexture tex_B = particles.tex_col_dist;
       DwGLTexture tex_C = particles.tex_coh_dist;
-      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.03f, 0.0f);
-      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.50f, 0.0f);
-      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.01f, 0.0f);
+      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.030f * particles.param.mul_obs, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.500f * particles.param.mul_col, 0.0f);
+      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.005f * particles.param.mul_coh, 0.0f);
 
       particles.tex_obs_dist.swizzle(new int[]{Z, Z, R, Z});
       particles.tex_col_dist.swizzle(new int[]{R, Z, Z, Z});
@@ -574,10 +573,14 @@ public class ParticleFlow extends PApplet {
     particles.param.size_display = val;
   }
 
+  public void set_size_cohesion(float val){
+    particles.param.size_cohesion = val;  
+  }
+  
   public void set_size_collision(float val){
     particles.param.size_collision = val;  
   }
-
+  
   public void set_velocity_damping(float val){
     particles.param.velocity_damping = val;  
   }
@@ -775,26 +778,34 @@ public class ParticleFlow extends PApplet {
 
       py += oy * 1.5f;
       px = 15;
-      cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      
+      cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(0, 4).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
+      .snapToTickMarks(true).setNumberOfTickMarks(5);
+      ;
+      
+      py += oy;
+      
+      cp5.addSlider("gravity").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0f, 2f).setValue(gravity).plugTo(this, "set_gravity");
+      
+      cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(0.95f, 1.00f).setValue(particles.param.velocity_damping).plugTo(this, "set_velocity_damping");
+           
+  
+      cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
       .setRange(0, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
       
       cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
       .setRange(1, 50).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
       
-      cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.95f, 1.00f).setValue(particles.param.velocity_damping).plugTo(this, "set_velocity_damping");
+      cp5.addSlider("size cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      .setRange(1, 50).setValue(particles.param.size_cohesion).plugTo(this, "set_size_cohesion");
       
-      cp5.addSlider("gravity").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0f, 2f).setValue(gravity).plugTo(this, "set_gravity");
-      
-      cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0, 4).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
-      .snapToTickMarks(true).setNumberOfTickMarks(5);
-      ;
-      
-      cp5.addSlider("mult acceleration").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_acc).plugTo(this, "set_mul_acc")
-      ;
+
+//      cp5.addSlider("mult acceleration").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+//      .setRange(0.0f, 8.0f).setValue(particles.param.mul_acc).plugTo(this, "set_mul_acc")
+//      ;
       cp5.addSlider("mult collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
       .setRange(0.0f, 8.0f).setValue(particles.param.mul_col).plugTo(this, "set_mul_col")
       ;
@@ -909,7 +920,7 @@ public class ParticleFlow extends PApplet {
 
 
   public static void main(String args[]) {
-    PApplet.main(new String[] { ParticleFlow.class.getName() });
+    PApplet.main(new String[] { FlowFieldParticles_DevDemo.class.getName() });
   }
   
   

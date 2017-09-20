@@ -10,13 +10,14 @@
  */
 
 
-package com.thomasdiewald.pixelflow.java.flowfield;
+package com.thomasdiewald.pixelflow.java.flowfieldparticles;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
@@ -26,6 +27,7 @@ import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 
+@SuppressWarnings("unused")
 public class DwFlowFieldParticles{
   
   public static class Param {
@@ -33,6 +35,7 @@ public class DwFlowFieldParticles{
     // particle size rendering/collision
     public float   size_display   = 10f;
     public float   size_collision = 10f;
+    public float   size_cohesion  = 10f;
     
     // velocity damping
     public float   velocity_damping  = 0.98f;
@@ -112,7 +115,7 @@ public class DwFlowFieldParticles{
     
     String filename;
     
-    String data_path = DwPixelFlow.SHADER_DIR+"flowfield/";
+    String data_path = DwPixelFlow.SHADER_DIR+"FlowFieldParticles/";
     
     shader_create_sprite     = context.createShader(data_path + "create_sprite_texture.frag");
   
@@ -209,7 +212,7 @@ public class DwFlowFieldParticles{
     return spawn_num;
   }
   
-  public int getCollisionRadius(){
+  public int getCollisionSize(){
     // double and odd
     int radius = (int) Math.ceil(param.size_collision * 2f / wh_col);
     if((radius & 1) == 0){
@@ -218,9 +221,9 @@ public class DwFlowFieldParticles{
     return radius;
   }
   
-  public int getCoherenceRadius(){
+  public int getCohesionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_collision * 16f / wh_coh);
+    int radius = (int) Math.ceil(param.size_cohesion * 32 / wh_coh);
     if((radius & 1) == 0){
       radius += 1;
     }
@@ -266,7 +269,7 @@ public class DwFlowFieldParticles{
   
   
   float wh_col = 1;
-  float wh_coh = 8;
+  float wh_coh = 16;
   public void resizeWorld(int w, int h){
     
     int w_obs = w  , h_obs = h;
@@ -500,7 +503,7 @@ public class DwFlowFieldParticles{
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
 
-    int radius = getCollisionRadius();
+    int radius = getCollisionSize();
 
     context.begin();
     
@@ -533,7 +536,7 @@ public class DwFlowFieldParticles{
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
 
-    int radius = getCoherenceRadius();
+    int radius = getCohesionSize();
 
     context.begin();
     
@@ -582,7 +585,7 @@ public class DwFlowFieldParticles{
 
     float[] FG_mask = {FG[0]/255f, FG[1]/255f, FG[2]/255f, FG[3]/255f};
     
-    float FG_offset = getCollisionRadius() / 4;
+    float FG_offset = getCollisionSize() / 4;
     FG_offset -= ff_sum.param.blur_radius - ff_obs.param.blur_radius;
     FG_offset = Math.max(FG_offset, 0);
     
@@ -690,14 +693,17 @@ public class DwFlowFieldParticles{
   
 
   
-
+  TexMad tm_acc = new TexMad();
+  TexMad tm_col = new TexMad();
+  TexMad tm_coh = new TexMad();
+  TexMad tm_obs = new TexMad();
 
   public void update(DwFlowField ff_acc){
 
-    TexMad tm_acc = new TexMad(ff_acc.tex_vel,  1.00f * param.mul_acc / param.steps, 0);
-    TexMad tm_col = new TexMad(ff_col.tex_vel,  1.00f * param.mul_col / param.steps, 0);
-    TexMad tm_coh = new TexMad(ff_coh.tex_vel, -0.05f * param.mul_coh / param.steps, 0);
-    TexMad tm_obs = new TexMad(ff_obs.tex_vel,  2.00f * param.mul_obs / param.steps, 0);
+    tm_acc.set(ff_acc.tex_vel,  1.00f * param.mul_acc / param.steps, 0);
+    tm_col.set(ff_col.tex_vel,  1.00f * param.mul_col / param.steps, 0);
+    tm_coh.set(ff_coh.tex_vel, -0.05f * param.mul_coh / param.steps, 0);
+    tm_obs.set(ff_obs.tex_vel,  2.00f * param.mul_obs / param.steps, 0);
     
     updateVelocity();
  
