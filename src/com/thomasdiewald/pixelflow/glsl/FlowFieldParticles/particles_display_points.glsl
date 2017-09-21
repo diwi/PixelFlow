@@ -60,31 +60,17 @@ void main(){
 
 
 
-#if (SHADER_FRAG_COLLISION==1)
+#if (SHADER_FRAG_COLLISION==1) || (SHADER_FRAG_COHESION==1)
 
-out float out_frag;
-
-void main(){
-  out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
-}
-
-#endif // #if SHADER_FRAG_COLLISION
-
-
-
-
-
-#if (SHADER_FRAG_COHESION==1)
-
-out float out_frag;
+out vec4 out_frag;
 
 void main(){
   float len = length(gl_PointCoord * 2.0 - 1.0);
-  if(len > 1.0) len = 0;
-  out_frag = len;
+  len = max(0, 1.0 - len);
+  out_frag = vec4(len);
 }
-#endif // #if SHADER_FRAG_COHESION
 
+#endif // #if SHADER_FRAG_COLLISION
 
 
 
@@ -97,7 +83,6 @@ in float pressure;
 void main(){
   float falloff = texture(tex_sprite, gl_PointCoord).a;
   out_frag = mix(col_A, col_B, 1.0 - falloff);
-  
   float pf = 1.0 + pressure * shader_collision_mult;
   out_frag.xyzw *= pf;
 }

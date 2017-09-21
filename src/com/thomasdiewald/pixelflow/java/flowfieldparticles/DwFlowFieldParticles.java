@@ -14,6 +14,7 @@ package com.thomasdiewald.pixelflow.java.flowfieldparticles;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -23,6 +24,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
+import processing.opengl.PGL;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -152,7 +154,7 @@ public class DwFlowFieldParticles{
     shader_col_dist.frag.setDefine("SHADER_FRAG_COLLISION", 1);
     shader_col_dist.vert.setDefine("SHADER_VERT"          , 1);
     
-    shader_coh_dist.frag.setDefine("SHADER_FRAG_COLLISION", 1);
+    shader_coh_dist.frag.setDefine("SHADER_FRAG_COHESION" , 1);
     shader_coh_dist.vert.setDefine("SHADER_VERT"          , 1);
 
     
@@ -436,9 +438,8 @@ public class DwFlowFieldParticles{
   
   
   public void display(PGraphicsOpenGL canvas){
-    if(param.size_display <= 0.0f){
-      return;
-    }
+    if(param.size_display <= 0.0f) return;
+    
     int w = canvas.width;
     int h = canvas.height;
     int w_particle = tex_particle.src.w;
@@ -464,6 +465,8 @@ public class DwFlowFieldParticles{
   
   
   public void displayTrail(PGraphicsOpenGL canvas){
+    if(param.display_line_width <= 0.0f) return;
+    
     int w = canvas.width;
     int h = canvas.height;
     int w_particle = tex_particle.src.w;
@@ -496,18 +499,17 @@ public class DwFlowFieldParticles{
   
 
   public void createCollisionFlowField(){
+    if(param.mul_col <= 0.0) return;
     
     int w = tex_col_dist.w;
     int h = tex_col_dist.h;
-    
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
-
-    int radius = getCollisionSize();
 
     context.begin();
     
     context.beginDraw(tex_col_dist);
+    
     context.gl.glColorMask(true, false, false, false);
     context.gl.glClearColor(0,0,0,0);
     context.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
@@ -515,10 +517,11 @@ public class DwFlowFieldParticles{
     context.gl.glBlendEquation(GL.GL_FUNC_ADD);
 //    context.gl.glBlendFunc(GL.GL_SRC_COLOR, GL.GL_ONE_MINUS_SRC_COLOR); // BLEND
     context.gl.glBlendFunc(GL.GL_SRC_COLOR, GL.GL_ONE                ); // ADD
+    
     shader_col_dist.begin();
-    shader_col_dist.uniform1f     ("point_size"   , radius);
-    shader_col_dist.uniform2i     ("wh_position"  , w_particle, h_particle);
-    shader_col_dist.uniformTexture("tex_position" , tex_particle.src);
+    shader_col_dist.uniform1f     ("point_size"  , getCollisionSize());
+    shader_col_dist.uniform2i     ("wh_position" , w_particle, h_particle);
+    shader_col_dist.uniformTexture("tex_position", tex_particle.src);
     shader_col_dist.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_col_dist.end();
     context.endDraw();
@@ -528,7 +531,8 @@ public class DwFlowFieldParticles{
     context.end("DwFlowFieldParticles.createCollisionFlowField");
   }
   
-  public void createCoherenceFlowField(){
+  public void createCohesionFlowField(){
+    if(param.mul_coh <= 0.0) return;
     
     int w = tex_coh_dist.w;
     int h = tex_coh_dist.h;
@@ -536,11 +540,10 @@ public class DwFlowFieldParticles{
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
 
-    int radius = getCohesionSize();
-
     context.begin();
     
     context.beginDraw(tex_coh_dist);
+    
     context.gl.glColorMask(true, false, false, false);
     context.gl.glClearColor(0,0,0,0);
     context.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
@@ -550,9 +553,9 @@ public class DwFlowFieldParticles{
     context.gl.glBlendFunc(GL.GL_SRC_COLOR, GL.GL_ONE                ); // ADD
     
     shader_coh_dist.begin();
-    shader_coh_dist.uniform1f     ("point_size"   , radius);
-    shader_coh_dist.uniform2i     ("wh_position"  , w_particle, h_particle);
-    shader_coh_dist.uniformTexture("tex_position" , tex_particle.src);
+    shader_coh_dist.uniform1f     ("point_size"  , getCohesionSize());
+    shader_coh_dist.uniform2i     ("wh_position" , w_particle, h_particle);
+    shader_coh_dist.uniformTexture("tex_position", tex_particle.src);
     shader_coh_dist.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_coh_dist.end();
     context.endDraw();
@@ -576,10 +579,7 @@ public class DwFlowFieldParticles{
   
   
   public void createObstacleFlowField(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert){
-    
-    if(param.mul_obs == 0.0){
-      return;
-    }
+    if(param.mul_obs <= 0.0) return;
     
     Texture tex_scene = pg_scene.getTexture(); if(!tex_scene.available())  return;
 
@@ -693,23 +693,31 @@ public class DwFlowFieldParticles{
   
 
   
-  TexMad tm_acc = new TexMad();
-  TexMad tm_col = new TexMad();
-  TexMad tm_coh = new TexMad();
-  TexMad tm_obs = new TexMad();
+  public final TexMad tm_acc = new TexMad();
+  public final TexMad tm_col = new TexMad();
+  public final TexMad tm_coh = new TexMad();
+  public final TexMad tm_obs = new TexMad();
+  
+  
+  public void update(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert, DwFlowField ff_acc){
+    resizeWorld(pg_scene.width, pg_scene.height);
+    createObstacleFlowField(pg_scene, FG, FG_invert);
+    update(ff_acc);
+  }
 
   public void update(DwFlowField ff_acc){
-
-    tm_acc.set(ff_acc.tex_vel,  1.00f * param.mul_acc / param.steps, 0);
-    tm_col.set(ff_col.tex_vel,  1.00f * param.mul_col / param.steps, 0);
-    tm_coh.set(ff_coh.tex_vel, -0.05f * param.mul_coh / param.steps, 0);
-    tm_obs.set(ff_obs.tex_vel,  2.00f * param.mul_obs / param.steps, 0);
     
     updateVelocity();
  
     for(int i = 0; i < param.steps; i++){
-      if(param.mul_col != 0.0) createCollisionFlowField();
-      if(param.mul_coh != 0.0) createCoherenceFlowField();
+      
+      createCollisionFlowField();
+      createCohesionFlowField();
+      
+      tm_acc.set(ff_acc.tex_vel,  1.000f * param.mul_acc / param.steps, 0);
+      tm_col.set(ff_col.tex_vel,  1.000f * param.mul_col / param.steps, 0);
+      tm_coh.set(ff_coh.tex_vel, -0.025f * param.mul_coh / param.steps, 0);
+      tm_obs.set(ff_obs.tex_vel,  2.000f * param.mul_obs / param.steps, 0);
    
       merge.apply(ff_sum.tex_vel, tm_acc, tm_col, tm_coh, tm_obs);
       ff_sum.blur();
@@ -717,22 +725,6 @@ public class DwFlowFieldParticles{
       updateAcceleration(ff_sum.tex_vel, 1.0f);
     }
     
-    
-    
-    
-//    updateVelocity();
-//    
-//    for(int i = 0; i < param.collision_steps; i++){
-//      
-//      updateAcceleration(ff_acc.tex_vel, tm_acc.mul);
-//      
-//      if(param.collision_mult != 0.0){
-//        createCollisionFlowField();
-//      }
-//
-//      updateAcceleration(ff_col.tex_vel, tm_col.mul);
-//      updateAcceleration(ff_obs.tex_vel, tm_obs.mul);
-//    }
   }
   
   

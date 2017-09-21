@@ -37,7 +37,6 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
 
 
@@ -62,14 +61,14 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   PGraphics2D pg_gravity;
   PGraphics2D pg_sprite;
   
-  SMAA smaa;
-  PGraphics3D pg_aa;
+//  SMAA smaa;
+//  PGraphics3D pg_aa;
   
   DwPixelFlow context;
+  
   DwFlowFieldParticles particles;
   DwFlowField ff_acc;
   
- 
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
@@ -77,8 +76,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public boolean AUTO_SPAWN        = true;
   public boolean UPDATE_GRAVITY    = true;
   public boolean UPDATE_COLLISIONS = true;
+  public boolean DISPLAY_DIST      = !true;
   public boolean DISPLAY_FLOW      = !true;
-  public int     DISPLAY_ID        = 0;
   public int     DISPLAY_TYPE_ID   = 0;
   public int     BACKGROUND_MODE   = 0;
   public int     PARTICLE_COLOR    = 1;
@@ -115,8 +114,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     context.print();
     context.printGL();
 
-
-    smaa = new SMAA(context);
+//    smaa = new SMAA(context);
     
     liquidfx = new DwLiquidFX(context);
     
@@ -132,11 +130,13 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     resizeScene();
     
     createSprite();
+    
     createGUI();
     
     frameRate(1000);
   }
   
+
 
   public void resizeScene(){
     
@@ -144,9 +144,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       return;
     }
     
-    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_aa.smooth(0);
-    pg_aa.textureSampling(5);
+//    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
+//    pg_aa.smooth(0);
+//    pg_aa.textureSampling(5);
     
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
@@ -183,6 +183,23 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //////////////////////////////////////////////////////////////////////////////
   
   
+  
+  public void particleSimulation(){
+    
+    int w = width;
+    int h = height;
+    
+    ff_acc.resize(w, h);
+    float[] mad = {-gravity/10f, 0};
+    if(!UPDATE_GRAVITY) mad[0] = 0;
+    DwFilter.get(context).copy.apply(pg_gravity, ff_acc.tex_vel);
+    DwFilter.get(context).mad.apply(ff_acc.tex_vel, ff_acc.tex_vel, mad);
+
+    particles.resizeWorld(w, h);
+    particles.createObstacleFlowField(pg_obstacles, BG_mask, true);
+    particles.update(ff_acc);
+  }
+  
 
   public void draw(){
     
@@ -192,23 +209,14 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     autoSpawnParticles();
 
-    particles.resizeWorld(width, height);
-
-    ff_acc.resize(width, height);
-    ff_acc.tex_vel.clear(0.0f);
-    if(UPDATE_GRAVITY){
-      DwFilter.get(context).copy.apply(pg_gravity,  ff_acc.tex_vel);
-      DwFilter.get(context).mad.apply( ff_acc.tex_vel,  ff_acc.tex_vel, new float[]{-gravity/10f,0});
-    }
-    
-    particles.createObstacleFlowField(pg_obstacles, BG_mask, true);
-    particles.update(ff_acc);
+    particleSimulation();
   
-
-    if(DISPLAY_ID == 0){
-
+    
+    
+    if(!DISPLAY_DIST)
+    {
       if(DISPLAY_TYPE_ID == 0){
-        // set pg_checker as background for correct blending
+        // set pg_checker as background for blending
         DwFilter.get(context).copy.apply(pg_checker, pg_particles);
         particles.display(pg_particles);
       } else {
@@ -225,7 +233,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         liquidfx.param.highlight_LoD = 1;
         liquidfx.param.highlight_decay = 0.6f;
         liquidfx.param.sss_enabled = true;
-        liquidfx.param.sss_LoD = 4;
+        liquidfx.param.sss_LoD = 2;
         liquidfx.param.sss_decay = 0.8f;
         liquidfx.apply(pg_particles);
       }
@@ -237,11 +245,10 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       pg_canvas.image(pg_obstacles, 0, 0);
       pg_canvas.image(pg_particles, 0, 0);
       pg_canvas.endDraw();
-
- 
     }
-    if(DISPLAY_ID == 1){
-      
+    
+    
+    if(DISPLAY_DIST){
       int Z = DwGLTexture.SWIZZLE_0;
       int R = DwGLTexture.SWIZZLE_R;
       int G = DwGLTexture.SWIZZLE_G;
@@ -249,44 +256,36 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       int A = DwGLTexture.SWIZZLE_A;
       int[] RGBA = {R,G,B,A};
       
-//      DwGLTexture tex_dst = pg_canvas;
-      DwGLTexture tex_A = particles.tex_obs_dist;
-      DwGLTexture tex_B = particles.tex_col_dist;
-      DwGLTexture tex_C = particles.tex_coh_dist;
-      Merge.TexMad texA = new Merge.TexMad(tex_A, 0.030f * particles.param.mul_obs, 0.0f);
-      Merge.TexMad texB = new Merge.TexMad(tex_B, 0.500f * particles.param.mul_col, 0.0f);
-      Merge.TexMad texC = new Merge.TexMad(tex_C, 0.005f * particles.param.mul_coh, 0.0f);
+      Merge.TexMad texA = new Merge.TexMad(particles.tex_obs_dist, 0.030f * particles.param.mul_obs, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(particles.tex_col_dist, 0.500f * particles.param.mul_col, 0.0f);
+      Merge.TexMad texC = new Merge.TexMad(particles.tex_coh_dist, 0.005f * particles.param.mul_coh, 0.0f);
 
-      particles.tex_obs_dist.swizzle(new int[]{Z, Z, R, Z});
-      particles.tex_col_dist.swizzle(new int[]{R, Z, Z, Z});
-      particles.tex_coh_dist.swizzle(new int[]{R, R, Z, Z});
+      particles.tex_obs_dist.swizzle(new int[]{R, R, R, Z});
+      particles.tex_col_dist.swizzle(new int[]{R, R, R, Z});
+      particles.tex_coh_dist.swizzle(new int[]{R, Z, Z, Z});
       
       DwFilter.get(context).merge.apply(pg_canvas, texA, texB, texC);
       
       particles.tex_coh_dist.swizzle(RGBA);
       particles.tex_col_dist.swizzle(RGBA);
       particles.tex_obs_dist.swizzle(RGBA);
-      
-//      DwFilter.get(context).copy.apply(tex_dst, pg_canvas);
-      
-      
-
     }
 
     if(DISPLAY_FLOW){
       particles.ff_sum.displayPixel(pg_canvas);
     }
 
-    
-//    DwFilter.get(context).copy.apply(particles.obstacles.tex_obstacles_FG, pg_canvas);
-    
 //    smaa.apply(pg_canvas, pg_aa);
 
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);
     blendMode(BLEND);
     
-    
+    info();
+  }
+  
+
+  void info(){
     String txt_device = context.gl.glGetString(GL2ES2.GL_RENDERER).trim().split("/")[0];
     String txt_app = getClass().getSimpleName();
     String txt_fps = String.format(Locale.ENGLISH, "[%s]   [%s]   [%d/%d]   [%7.2f fps]   [particles %,d] ", 
@@ -304,8 +303,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     surface.setTitle(txt_fps);
   }
-  
-
   
   
   
@@ -469,6 +466,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   // GUI
   // Helper
   // Parameters
+  // Interaction (Mouse, Keys)
   //
   //////////////////////////////////////////////////////////////////////////////
   
@@ -508,8 +506,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     }
   }
   
-  
-
   public void mousePressed(){
     if(mouseButton == RIGHT && !cp5.isMouseOver()){
       for(int i = 0; i < mobs.length; i++){
@@ -537,7 +533,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(key == 'w') UPDATE_GRAVITY = !UPDATE_GRAVITY;
     if(key == 'e') UPDATE_SCENE = !UPDATE_SCENE;
     if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
-    if(key >= '1' && key <= '9') DISPLAY_ID = key - '1';
+    if(key == 'd') DISPLAY_DIST = !DISPLAY_DIST;
+//    if(key >= '1' && key <= '9') DISPLAY_ID = key - '1';
     if(key == 'h') toggleGUI(); 
   }
   
@@ -668,17 +665,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   }
   
   public void updateSelections(float[] val){
-    APPLY_LIQUID_FX     = val[0] > 0;
-    DISPLAY_FLOW        = val[1] > 0;
-//    UPDATE_COLLISIONS   = val[2] > 0;
-    UPDATE_GRAVITY      = val[2] > 0;
-    UPDATE_SCENE        = val[3] > 0;
-    AUTO_SPAWN          = val[4] > 0;
+    int ID = 0;
+    DISPLAY_DIST        = val[ID++] > 0;
+    DISPLAY_FLOW        = val[ID++] > 0;
+    UPDATE_GRAVITY      = val[ID++] > 0;
+    UPDATE_SCENE        = val[ID++] > 0;
+    AUTO_SPAWN          = val[ID++] > 0;
+    APPLY_LIQUID_FX     = val[ID++] > 0;
   }
   
-  public void setDisplayMode(int val){
-    DISPLAY_ID = val;
-  }
   public void setDisplayType(int val){
     DISPLAY_TYPE_ID = val;
   }
@@ -723,9 +718,13 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(true);
     
-    int sx, sy, px, py, oy;
-    
-    sx = 100; sy = 14; oy = (int)(sy*1.5f);
+    int sx, sy, px, py;
+    sx = 100; 
+    sy = 14; 
+
+    int dy_group = 20;
+    int dy_item = 4;
+    int dy_grid = 2;
     
 
     ////////////////////////////////////////////////////////////////////////////
@@ -743,97 +742,72 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
       
       {
-        px  = 15;
+        py += 1 * sy + dy_group;
         int count = 2;
-        py += oy * 1.5f;
-        sx = (gui_w-30 - 2 * (count-1)) / count;
-        RadioButton rb_colors = cp5.addRadio("setDisplayMode").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayMode")
-          .setNoneSelectedAllowed(false)
-          .addItem("Canvas"    , 0)
-          .addItem("Collisions", 1)
-          .activate(DISPLAY_ID);
-  
-        for(Toggle toggle : rb_colors.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
-      }
-      
-      {
-        px  = 15;
-        int count = 2;
-        py += oy * 1.5f;
         sx = (gui_w-30 - 2 * (count-1)) / count;
         RadioButton rb_type = cp5.addRadio("setDisplayType").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayType")
           .setNoneSelectedAllowed(false)
           .addItem("Particles", 0)
-          .addItem("Trails"  , 1)
+          .addItem("Trails"   , 1)
           .activate(DISPLAY_TYPE_ID);
   
         for(Toggle toggle : rb_type.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
+        py += sy + dy_group;
       }
-      
-      
-      
-      
 
-      py += oy * 1.5f;
-      px = 15;
-      
       cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 4).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
-      .snapToTickMarks(true).setNumberOfTickMarks(5);
-      ;
+      .setRange(0, 3).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
+      .snapToTickMarks(true).setNumberOfTickMarks(4);
+      py += sy + dy_group;
       
-      py += oy;
-      
-      cp5.addSlider("gravity").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("gravity").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0f, 2f).setValue(gravity).plugTo(this, "set_gravity");
+      py += sy + dy_item;
       
-      cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0.95f, 1.00f).setValue(particles.param.velocity_damping).plugTo(this, "set_velocity_damping");
-           
-  
-      cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      py += sy + dy_group;
+
+      
+      cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
+      py += sy + dy_item;
       
-      cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(1, 50).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
+      py += sy + dy_item;
       
-      cp5.addSlider("size cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("size cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(1, 50).setValue(particles.param.size_cohesion).plugTo(this, "set_size_cohesion");
+      py += sy + dy_group;
       
 
-//      cp5.addSlider("mult acceleration").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-//      .setRange(0.0f, 8.0f).setValue(particles.param.mul_acc).plugTo(this, "set_mul_acc")
-//      ;
-      cp5.addSlider("mult collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_col).plugTo(this, "set_mul_col")
-      ;
-      cp5.addSlider("mult cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_coh).plugTo(this, "set_mul_coh")
-      ;
-      cp5.addSlider("mult obstacles").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_obs).plugTo(this, "set_mul_obs")
-      ;
+      cp5.addSlider("mult collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_col).plugTo(this, "set_mul_col");
+      py += sy + dy_item;
       
-//      cp5.addSlider("blur_rad").setGroup(group_particles).setSize(sx, sy).setPosition(px, py+=oy)
-//      .setRange(1, 20).setValue(blur_rad).plugTo(this, "blur_rad");
-//    
+      cp5.addSlider("mult cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_coh).plugTo(this, "set_mul_coh");
+      py += sy + dy_item;
       
+      cp5.addSlider("mult obstacles").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(0.0f, 8.0f).setValue(particles.param.mul_obs).plugTo(this, "set_mul_obs");
+      py += sy + dy_group;
       
-      
-      py += oy*2;
+
+      int ID = -1;
       cp5.addCheckBox("updateSelections").setGroup(group_particles).setSize(sy,sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
-          .addItem("LIQUID FX"          , 0).activate(APPLY_LIQUID_FX     ? 0 : 10)
-          .addItem("DISPLAY FLOW"       , 1).activate(DISPLAY_FLOW        ? 1 : 10)
-//          .addItem("UPDATE COLLISIONS"  , 2).activate(UPDATE_COLLISIONS   ? 2 : 10)
-          .addItem("UPDATE GRAVITY"     , 2).activate(UPDATE_GRAVITY      ? 2 : 10)
-          .addItem("UPDATE SCENE"       , 3).activate(UPDATE_SCENE        ? 3 : 10)
-          .addItem("AUTO SPAWN"         , 4).activate(AUTO_SPAWN          ? 4 : 10)
-        ;
-        
+          .addItem("DISPLAY DIST"       , ++ID).activate(DISPLAY_DIST        ? ID : 10)
+          .addItem("DISPLAY FLOW"       , ++ID).activate(DISPLAY_FLOW        ? ID : 10)
+          .addItem("UPDATE GRAVITY"     , ++ID).activate(UPDATE_GRAVITY      ? ID : 10)
+          .addItem("UPDATE SCENE"       , ++ID).activate(UPDATE_SCENE        ? ID : 10)
+          .addItem("AUTO SPAWN"         , ++ID).activate(AUTO_SPAWN          ? ID : 10)
+          .addItem("LIQUID FX"          , ++ID).activate(APPLY_LIQUID_FX     ? ID : 10)
+        ; 
     }
+    
     
     
     Group group_sprite = cp5.addGroup("sprite");
@@ -846,21 +820,24 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
       cp5.addSlider("size").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
       .setRange(32, 128).setValue(sprite_param.size).plugTo(this, "set_sprite_param_size");
+      py += sy + dy_item;
 
-      cp5.addSlider("exp1").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("exp1").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 4).setValue(sprite_param.e1).plugTo(this, "set_sprite_param_e1");
+      py += sy + dy_item;
       
-      cp5.addSlider("exp2").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("exp2").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 4).setValue(sprite_param.e2).plugTo(this, "set_sprite_param_e2");
+      py += sy + dy_item;
       
-      cp5.addSlider("mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 4).setValue(sprite_param.mult).plugTo(this, "set_sprite_param_mult");
+      py += sy + dy_group;
       
-      cp5.addButton("sprite_img").setGroup(group_sprite).setPosition(px, py+=oy).setImage(pg_sprite).updateSize();
+      cp5.addButton("sprite_img").setGroup(group_sprite).setPosition(px, py).setImage(pg_sprite).updateSize();
       
       
-      px  = 15;
-      py += gui_w-30 + oy;
+      py += gui_w-30 + dy_group;
       int count = 5;
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_colors = cp5.addRadio("setParticleColor").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
@@ -875,9 +852,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
       for(Toggle toggle : rb_colors.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
       
-      
-      
-      py += oy;
+
+      py += sy + dy_item;
       count = 5;
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_bg = cp5.addRadio("setCheckerboardBG").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
@@ -892,8 +868,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
       for(Toggle toggle : rb_bg.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
       
+      py += sy + dy_item;
       sx = 100;
-      cp5.addSlider("collision_mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py+=oy)
+      cp5.addSlider("collision_mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 1).setValue(particles.param.shader_collision_mult).plugTo(this, "set_shader_collision_mult")
       ;
       
@@ -909,12 +886,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       .addItem(group_sprite   )
       .open()
       ;
-    
 
   }
-  
-  
-
   
   
 
