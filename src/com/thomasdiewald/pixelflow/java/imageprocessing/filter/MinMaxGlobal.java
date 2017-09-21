@@ -44,18 +44,28 @@ public class MinMaxGlobal {
   
   public DwGLSLProgram shader_min;
   public DwGLSLProgram shader_max;
+  public DwGLSLProgram shader_map_v1; // per texel
+  public DwGLSLProgram shader_map_v2; // per channel
   
   public MinMaxGlobal(DwPixelFlow context){
     this.context = context;
     
-    this.shader_min = context.createShader((Object)(this+"_MIN"), DwPixelFlow.SHADER_DIR+"Filter/MinMaxGlobal.frag");
-    this.shader_max = context.createShader((Object)(this+"_MAX"), DwPixelFlow.SHADER_DIR+"Filter/MinMaxGlobal.frag");
+    String path = DwPixelFlow.SHADER_DIR+"Filter/";
+    
+    shader_min = context.createShader((Object)(this+"_MIN"), path+"MinMaxGlobal.frag");
+    shader_max = context.createShader((Object)(this+"_MAX"), path+"MinMaxGlobal.frag");
     
     shader_min.frag.setDefine("MODE_MIN", 1);
     shader_max.frag.setDefine("MODE_MAX", 1);
     
     shader_min.frag.setDefine("STEP_SIZE", STEP_SIZE);
     shader_max.frag.setDefine("STEP_SIZE", STEP_SIZE);
+    
+    shader_map_v1 = context.createShader((Object)(this+"_MAP_V1"), path+"MinMaxGlobal_Map.frag");
+    shader_map_v2 = context.createShader((Object)(this+"_MAP_V2"), path+"MinMaxGlobal_Map.frag");
+    
+    shader_map_v1.frag.setDefine("PER_CHANNEL", 0);
+    shader_map_v2.frag.setDefine("PER_CHANNEL", 1);
   }
   
   public void release(){
@@ -159,6 +169,43 @@ public class MinMaxGlobal {
     
     context.end("MinMaxGlobal.apply");
   }
+  
+  
+  
+  
+  
+  public void map(DwGLTexture tex_src, DwGLTexture tex_dst){
+    map(tex_src, tex_dst, false);
+  }
+  
+  public void map(DwGLTexture tex_src, DwGLTexture tex_dst, boolean per_channel){
+    
+    int w = tex_src.w;
+    int h = tex_src.h;
+    
+    DwGLSLProgram shader = per_channel ? shader_map_v2 : shader_map_v1;
+    
+    context.begin();
+    context.beginDraw(tex_src);
+    shader.begin();
+    shader.uniform2f("wh_rcp", 1f/w, 1f/h);
+    shader.uniformTexture("tex_src", tex_src);
+    shader.uniformTexture("tex_minmax", getVal());
+    shader.drawFullScreenQuad();
+    shader.end();
+    context.endDraw();
+    context.end("MinMaxGlobal.map");
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   /**

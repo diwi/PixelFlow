@@ -12,13 +12,16 @@ package ImageProcessing_Filter;
 
 
 
+import com.jogamp.opengl.GL;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Median;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MinMaxGlobal;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 
@@ -61,9 +64,12 @@ public class ImageProcessing_Filter extends PApplet {
   PGraphics2D pg_src_B;
   PGraphics2D pg_src_C; // just another buffer for temporary results
   PGraphics2D pg_voronoi_centers; // mask for the distance transform (voronoi)
-
+  DwGLTexture tex_A = new DwGLTexture();
+  
   // filters
   DwFilter filter;
+  DwFlowField flowfield;
+  MinMaxGlobal minmax_global;
 
   int CONVOLUTION_KERNEL_INDEX = 0;
   
@@ -136,11 +142,12 @@ public class ImageProcessing_Filter extends PApplet {
   
   
   // display states
-  public boolean DISPLAY_IMAGE    = true;
-  public boolean DISPLAY_GEOMETRY = true;
+  public boolean DISPLAY_IMAGE      = true;
+  public boolean DISPLAY_GEOMETRY   = true;
+  public boolean DISPLAY_ANIMATIONS = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 16;
+  public int     DISPLAY_FILTER = 21;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -161,8 +168,6 @@ public class ImageProcessing_Filter extends PApplet {
   // background image
   PImage img;
   
-  
-  DwFlowField flowfield;
   
   
   int view_w; 
@@ -186,17 +191,20 @@ public class ImageProcessing_Filter extends PApplet {
     context.printGL();
     
     flowfield = new DwFlowField(context);
+    minmax_global = new MinMaxGlobal(context);
     
     filter = new DwFilter(context);
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_A.smooth(4);
+    pg_src_A.smooth(8);
     
     pg_src_B = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_B.smooth(4);
+    pg_src_B.smooth(8);
     
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_C.smooth(4);
+    pg_src_C.smooth(8);
     
+    
+    tex_A.resize(context, GL.GL_RGBA8, view_w, view_h, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, GL.GL_NEAREST, 4, 1);
     
     
     // random distribution of white pixels, that are used as voronoi centers
@@ -352,14 +360,16 @@ public class ImageProcessing_Filter extends PApplet {
         }
       }
       
-      // moving rectangle
-      pg_src_A.fill(100, 175, 255);
-      pg_src_A.rect(rx, ry, rs, rs);
-      
-      // mouse-driven ellipse
-      pg_src_A.fill(255, 150, 0);
-      pg_src_A.noStroke();
-      pg_src_A.ellipse(mouseX, mouseY, 100, 100);
+      if(DISPLAY_ANIMATIONS){
+        // moving rectangle
+        pg_src_A.fill(100, 175, 255);
+        pg_src_A.rect(rx, ry, rs, rs);
+        
+        // mouse-driven ellipse
+        pg_src_A.fill(255, 150, 0);
+        pg_src_A.noStroke();
+        pg_src_A.ellipse(mouseX, mouseY, 100, 100);
+      }
     }
     pg_src_A.endDraw();
     
@@ -501,6 +511,17 @@ public class ImageProcessing_Filter extends PApplet {
       flowfield.displayPixel(pg_src_A);
       flowfield.displayLines(pg_src_A);
     }
+    
+    if(DISPLAY_FILTER == IDX++) {
+
+      filter.copy.apply(pg_src_A, tex_A);
+      minmax_global.apply(tex_A);
+      minmax_global.map(tex_A, tex_A, false);
+      filter.copy.apply(tex_A, pg_src_A);
+      
+      byte[] mima = minmax_global.getVal().getByteTextureData(null);
+      System.out.printf("min[%3d %3d %3d %3d] max[%3d %3d %3d %3d]\n", mima[0]&0xFF, mima[1]&0xFF, mima[2]&0xFF, mima[3]&0xFF, mima[4]&0xFF, mima[5]&0xFF, mima[6]&0xFF, mima[7]&0xFF);
+    }
 
     // display result
     background(0);
@@ -602,18 +623,16 @@ public class ImageProcessing_Filter extends PApplet {
     .setNumberOfTickMarks(10)
     .plugTo(this, "FILTER_STACKS").linebreak();
     
-    
     cp5.addCheckBox("displayContent").setGroup(group_filter).setSize(18, 18).setPosition(10, 330)
     .setItemsPerRow(1).setSpacingColumn(2).setSpacingRow(2)
-    .addItem("display image"   , 1)
-    .addItem("display geometry/noise", 2)
-    .activate(0)
-    .activate(1)
+    .addItem("display image"         , 0).activate(DISPLAY_IMAGE      ? 0 : 3)
+    .addItem("display geometry/noise", 1).activate(DISPLAY_GEOMETRY   ? 1 : 3)
+    .addItem("display animations"    , 2).activate(DISPLAY_ANIMATIONS ? 2 : 3)
     ;
     
     int IDX  = 0;
     cp5.addRadio("displayFilter").setGroup(group_filter)
-        .setPosition(10, 390).setSize(18,18)
+        .setPosition(10, 420).setSize(18,18)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
         .addItem("luminance"                   , IDX++)
         .addItem("box blur"                    , IDX++)
@@ -636,6 +655,7 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("Luminance Threshold + Bloom" , IDX++)
         .addItem("Distance Transform / Voronoi", IDX++)
         .addItem("Flow"                        , IDX++)
+        .addItem("Min Max Mapping"             , IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);
@@ -650,8 +670,9 @@ public class ImageProcessing_Filter extends PApplet {
   }
   
   public void displayContent(float[] val){
-    DISPLAY_IMAGE    = val[0] > 0.0;
-    DISPLAY_GEOMETRY = val[1] > 0.0;
+    DISPLAY_IMAGE      = val[0] > 0.0;
+    DISPLAY_GEOMETRY   = val[1] > 0.0;
+    DISPLAY_ANIMATIONS = val[2] > 0.0;
   }
   
   
