@@ -147,7 +147,7 @@ public class ImageProcessing_Filter extends PApplet {
   public boolean DISPLAY_ANIMATIONS = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 21;
+  public int     DISPLAY_FILTER = 16;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -269,53 +269,52 @@ public class ImageProcessing_Filter extends PApplet {
     
     // pg_src_C is used for the bloom input
     pg_src_C.beginDraw();
-    pg_src_C.rectMode(CENTER);
-    pg_src_C.background(0);
-    
-    
-    if(DISPLAY_GEOMETRY){
-      pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(0, 255, 0);
-      pg_src_C.line(w/2, 0, w/2, h);
-      pg_src_C.line(0, h/2, w, h/2);
-      pg_src_C.line(0, 0, w, h);
-      pg_src_C.line(w, 0, 0, h);
+    {
+      pg_src_C.rectMode(CENTER);
+      pg_src_C.background(0);
       
-      pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(0, 255, 0);
-      pg_src_C.noFill();
-      pg_src_C.ellipse(w/2, h/2, 150, 150);
       
-      pg_src_C.strokeWeight(1);
-      pg_src_C.stroke(0, 255, 0);
-      pg_src_C.noFill();
-      pg_src_C.rect(w/2, h/2, 300, 300);
-      
-      int PEPPER = 1000;
-      randomSeed(1);
-      for(int i = 0; i < PEPPER; i++){
-        float px = ((int) random(20, w-20));
-        float py = ((int) random(20, h-20));
+      if(DISPLAY_GEOMETRY){
+        pg_src_C.strokeWeight(1);
+        pg_src_C.stroke(0, 255, 0);
+        pg_src_C.line(w/2, 0, w/2, h);
+        pg_src_C.line(0, h/2, w, h/2);
+        pg_src_C.line(0, 0, w, h);
+        pg_src_C.line(w, 0, 0, h);
         
+        pg_src_C.strokeWeight(1);
+        pg_src_C.stroke(0, 255, 0);
+        pg_src_C.noFill();
+        pg_src_C.ellipse(w/2, h/2, 150, 150);
+        
+        pg_src_C.strokeWeight(1);
+        pg_src_C.stroke(0, 255, 0);
+        pg_src_C.noFill();
+        pg_src_C.rect(w/2, h/2, 300, 300);
+        
+        int PEPPER = 1000;
+        randomSeed(1);
+        for(int i = 0; i < PEPPER; i++){
+          float px = ((int) random(20, w-20));
+          float py = ((int) random(20, h-20));
+          
+          pg_src_C.noStroke();
+          pg_src_C.fill(0,255,0);
+          pg_src_C.rect(px, py, 2, 2);
+        }
+      }
+      
+      if(DISPLAY_ANIMATIONS){
+        // moving rectangle
+        pg_src_C.fill(100, 175, 255);
+        pg_src_C.rect(rx, ry, rs, rs);
+        
+        // mouse-driven ellipse
+        pg_src_C.fill(255, 150, 0);
         pg_src_C.noStroke();
-        pg_src_C.fill(0,255,0);
-        pg_src_C.rect(px, py, 2, 2);
+        pg_src_C.ellipse(mouseX, mouseY, 100, 100);
       }
     }
-    
-    
-    
-    
-    
-    // moving rectangle
-    pg_src_C.fill(100, 175, 255);
-    pg_src_C.rect(rx, ry, rs, rs);
-    
-    // mouse-driven ellipse
-    pg_src_C.fill(255, 150, 0);
-    pg_src_C.noStroke();
-    pg_src_C.ellipse(mouseX, mouseY, 100, 100);
-    
     pg_src_C.endDraw();
     
     

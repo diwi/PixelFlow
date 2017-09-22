@@ -18,6 +18,7 @@ import java.util.Locale;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
@@ -27,6 +28,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import controlP5.Accordion;
@@ -57,22 +59,27 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   PGraphics2D pg_checker;
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
+  PGraphics2D pg_spheres;
   PGraphics2D pg_particles;
-  PGraphics2D pg_gravity;
   PGraphics2D pg_sprite;
+  PGraphics2D pg_gravity;
+  PGraphics2D pg_impulse;
+//  DwGLTexture tex_impulse = new DwGLTexture();;
   
-//  SMAA smaa;
-//  PGraphics3D pg_aa;
+  FXAA antialiasing;
+  PGraphics2D pg_aa;
   
   DwPixelFlow context;
   
   DwFlowFieldParticles particles;
   DwFlowField ff_acc;
+  DwFlowField ff_impulse;
   
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
   public boolean UPDATE_SCENE      = true;
+  public boolean APPLY_OBSTACLES   = true;
   public boolean AUTO_SPAWN        = true;
   public boolean UPDATE_GRAVITY    = true;
   public boolean UPDATE_COLLISIONS = true;
@@ -107,14 +114,14 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     randomSeed(2);
     for(int i = 0; i < mobs.length; i++){
       float r = random(50,120);
-      mobs[i] = new MouseObstacle(random(r, width-r), random(r,height-r), r);
+      mobs[i] = new MouseObstacle(i, random(r, width-r), random(r,height-r), r);
     }
 
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
-//    smaa = new SMAA(context);
+    antialiasing = new FXAA(context);
     
     liquidfx = new DwLiquidFX(context);
     
@@ -126,6 +133,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ff_acc = new DwFlowField(context);
     ff_acc.param.blur_iterations = 0;
     ff_acc.param.blur_radius     = 1;
+    
+    
+    ff_impulse = new DwFlowField(context);
+    ff_impulse.param.blur_iterations = 1;
+    ff_impulse.param.blur_radius     = 1;
     
     resizeScene();
     
@@ -144,19 +156,27 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       return;
     }
     
-//    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
-//    pg_aa.smooth(0);
-//    pg_aa.textureSampling(5);
+    pg_aa = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_aa.smooth(0);
+    pg_aa.textureSampling(5);
     
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(8);
+    pg_obstacles.smooth(0);
+    
+    pg_spheres = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_spheres.smooth(0);
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_particles, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
+    
+    pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_impulse.smooth(0);
+    DwGLTextureUtils.changeTextureFormat(pg_impulse, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
+    
 
     pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
     pg_gravity.smooth(0);
@@ -182,21 +202,84 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //
   //////////////////////////////////////////////////////////////////////////////
   
-  
-  
-  public void particleSimulation(){
+  float impulse_max = 256;
+  float impulse_mul = 15;
+  float impulse_tsmooth = 0.90f;
+  int   impulse_blur  = 0;
+  public void addImpulse(){
     
     int w = width;
     int h = height;
-    
-    ff_acc.resize(w, h);
-    float[] mad = {-gravity/10f, 0};
-    if(!UPDATE_GRAVITY) mad[0] = 0;
-    DwFilter.get(context).copy.apply(pg_gravity, ff_acc.tex_vel);
-    DwFilter.get(context).mad.apply(ff_acc.tex_vel, ff_acc.tex_vel, mad);
 
+    // impulse center
+    int mx = mouseX;
+    int my = mouseY;
+    // impulse velocity
+    float dx =  mouseX - pmouseX;
+    float dy = (mouseY - pmouseY) * -1;
+    dx *= impulse_mul;
+    dy *= impulse_mul;
+    float dd_sq = dx*dx + dy*dy;
+    float dd_sq_max = impulse_max*impulse_max;
+
+    // clamp velocity
+    if(dd_sq > dd_sq_max){
+      float dd_clamped = impulse_max / sqrt(dd_sq);
+      dx *= dd_clamped;
+      dy *= dd_clamped;
+    }
+
+    // map velocity, to UNSIGNED_BYTE range
+    dx = map(dx, -impulse_max, +impulse_max, 0, 256);
+    dy = map(dy, -impulse_max, +impulse_max, 0, 256);
+    
+    // render impulse
+    pg_impulse.beginDraw();
+    pg_impulse.clear();
+    pg_impulse.blendMode(BLEND);
+    pg_impulse.background(127.5f, 127.5f, 127.5f, 255);
+    pg_impulse.noStroke();
+    if(mousePressed){
+      pg_impulse.fill(dx, dy, 0, 255);
+      pg_impulse.ellipse(mx, my, 100, 100);
+    }
+    pg_impulse.endDraw();
+    
+    
+    
+    
+    ff_impulse.resize(w, h);
+
+    // create impulse texture
+    {
+      TexMad ta = new TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
+      TexMad tb = new TexMad(pg_impulse,  1, -0.5f); // -0.5f ... -127.5f
+      DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
+      ff_impulse.blur(1, impulse_blur);
+    }
+  }
+  
+  
+  
+  
+  public void particleSimulation(){
+
+    int w = width;
+    int h = height;
+
+    ff_acc.resize(w, h);
+
+    // create acceleration texture
+    {
+      TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
+  //    TexMad tb = new TexMad(pg_impulse, 1, -0.5f);
+      TexMad tb = new TexMad(pg_gravity, -gravity/10f, 0); if(!UPDATE_GRAVITY) tb.mul = 0.0f;
+      DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
+    }
+
+    // resize, create obstacles, update physics
     particles.resizeWorld(w, h);
-    particles.createObstacleFlowField(pg_obstacles, BG_mask, true);
+    particles.createObstacleFlowField(pg_obstacles, BG, true);
     particles.update(ff_acc);
   }
   
@@ -209,6 +292,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     autoSpawnParticles();
 
+    addImpulse();
+    
     particleSimulation();
   
     
@@ -243,6 +328,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       pg_canvas.image(pg_checker, 0, 0);
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
+      pg_canvas.image(pg_spheres,0,0);
       pg_canvas.image(pg_particles, 0, 0);
       pg_canvas.endDraw();
     }
@@ -275,10 +361,10 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       particles.ff_sum.displayPixel(pg_canvas);
     }
 
-//    smaa.apply(pg_canvas, pg_aa);
+    antialiasing.apply(pg_canvas, pg_aa);
 
     blendMode(REPLACE);
-    image(pg_canvas, 0, 0);
+    image(pg_aa, 0, 0);
     blendMode(BLEND);
     
     info();
@@ -297,7 +383,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
     fill(col_fg);
     noStroke();
-    rect(0, height, 550, - 20);
+    rect(0, height, 600, - 20);
     fill(255,128,0);
     text(txt_fps, 10, height-6);
     
@@ -324,8 +410,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //////////////////////////////////////////////////////////////////////////////
 
 
-  int[] BG_mask = {0,0,0,0};
-  
+  int[] BG      = { 0, 0, 0,  0};
+  int[] FG      = {16,16,16,255};
+  int[] FG_MOBS = {32,32,32,255};
   void setFill(PGraphicsOpenGL pg, int[] rgba){
     pg.fill(rgba[0], rgba[1], rgba[2], rgba[3]);
   }
@@ -335,85 +422,110 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   
   void updateScene(){
     
-    int col_FG      = color(16, 255);
-    int col_FG_MOBS = color(32, 255);
-
     
+    pg_spheres.beginDraw();
+    pg_spheres.clear();
+    pg_spheres.noStroke();
+    pg_spheres.blendMode(BLEND);
+    for(int i = 0; i < mobs.length; i++){
+      mobs[i].draw(pg_spheres, FG_MOBS);
+    }
+    pg_spheres.endDraw();
+    
+   
     int w = pg_obstacles.width;
     int h = pg_obstacles.height;
     float wh = w/2f;
     float hh = h/2f;
     
-    if(UPDATE_SCENE){
-      rot += 0.005f;
-      slide += 0.004f;
-    }
-    
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
     pg_obstacles.noStroke();
     pg_obstacles.blendMode(REPLACE);
-//    pg_obstacles.background(col_BG);
-
-
     pg_obstacles.rectMode(CORNER);
-    pg_obstacles.fill(col_FG);
+//    pg_obstacles.background(col_BG);
+    
+    setFill(pg_obstacles, BG);
     pg_obstacles.rect(0, 0, w, h);
-    pg_obstacles.fill(0,0,0,0);
-    setFill(pg_obstacles, BG_mask);
-    pg_obstacles.rect(25, 25, w-50, h-50);
-    
-    
-    pg_obstacles.rectMode(CENTER);
-    int count = 10;
-    float dy = h / (float) count;
-    for(int i = 0; i < count; i++){
-      float py = dy * 0.5f + i*dy;
-      pg_obstacles.fill(col_FG);
-      pg_obstacles.rect(w-w/4f, py, 50, 50, 15);
-//      pg_obstacles.rect(  w/4f, py, 50, 50, 15);
-    }
-    
-    pg_obstacles.pushMatrix();
-    {
-      float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
-      pg_obstacles.translate(px, h-250);
-      pg_obstacles.fill(col_FG);
-      pg_obstacles.rect(0, 0, 50, 500);
-    }
-    pg_obstacles.popMatrix();
-    
-    pg_obstacles.pushMatrix();
-    {
-      pg_obstacles.translate(2 * w/7f, h/4f);
-      pg_obstacles.rotate(sin(rot));
-      pg_obstacles.fill(col_FG);
-      pg_obstacles.rect(0, 0, 400, 300, 50);
-      setFill(pg_obstacles, BG_mask);
-      pg_obstacles.rect(0, 0, 350, 250, 25);
-      setFill(pg_obstacles, BG_mask);
-      pg_obstacles.rect(0, -70, 402, 40);
-    }
-    pg_obstacles.popMatrix();
 
-    pg_obstacles.pushMatrix();
-    {
-      float dim = 2 * h/3f;
-      pg_obstacles.translate(wh, h-dim/2);
-      pg_obstacles.rotate(rot);
-      pg_obstacles.fill(col_FG);
-      pg_obstacles.rect(0, 0, dim,  50);
-      pg_obstacles.rect(0, 0,  50, dim, 10);
-      setFill(pg_obstacles, BG_mask);
-      pg_obstacles.rect(0, 0,  100, 100);
+    setFill(pg_obstacles, FG);
+    pg_obstacles.rect(0, 0, w, h);
+    setFill(pg_obstacles, BG);
+    pg_obstacles.rect(25, 25, w-50, h-50);
+      
+    if(APPLY_OBSTACLES)
+    {  
+      if(UPDATE_SCENE){
+        rot += 0.005f;
+        slide += 0.004f;
+      }
+
+      pg_obstacles.rectMode(CENTER);
+      int count = 10;
+      float dy = h / (float) count;
+      for(int i = 0; i < count; i++){
+        float py = dy * 0.5f + i*dy;
+        setFill(pg_obstacles, FG);
+        pg_obstacles.rect(w-w/4f, py, 50, 50, 15);
+  //      pg_obstacles.rect(  w/4f, py, 50, 50, 15);
+      }
+      
+      pg_obstacles.pushMatrix();
+      {
+        float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.rect(0, 0, 50, 500);
+      }
+      pg_obstacles.popMatrix();
+      
+      pg_obstacles.pushMatrix();
+      {
+        pg_obstacles.translate(2 * w/7f, h/4f);
+        pg_obstacles.rotate(sin(rot));
+        setFill(pg_obstacles, FG);
+        pg_obstacles.rect(0, 0, 400, 300, 50);
+        setFill(pg_obstacles, BG);
+        pg_obstacles.rect(0, 0, 350, 250, 25);
+        pg_obstacles.rect(0, -70, 402, 40);
+      }
+      pg_obstacles.popMatrix();
+  
+      pg_obstacles.pushMatrix();
+      {
+        float dim = 2 * h/3f;
+        pg_obstacles.translate(wh, h-dim/2);
+        pg_obstacles.rotate(rot);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.rect(0, 0, dim,  50);
+        pg_obstacles.rect(0, 0,  50, dim, 10);
+        setFill(pg_obstacles, BG);
+        pg_obstacles.rect(0, 0,  100, 100);
+      }
+      pg_obstacles.popMatrix();
+      
     }
-    pg_obstacles.popMatrix();
     
-    for(int i = 0; i < mobs.length; i++){
-      mobs[i].draw(pg_obstacles, col_FG_MOBS);
-    }
+    pg_obstacles.blendMode(BLEND);
+//    for(int i = 0; i < mobs.length; i++){
+//      mobs[i].draw(pg_obstacles, FG_MOBS);
+//    }
+    
+    pg_obstacles.image(pg_spheres, 0, 0);
     
     pg_obstacles.endDraw();
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
   }
   
 
@@ -471,20 +583,28 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //////////////////////////////////////////////////////////////////////////////
   
   static class MouseObstacle{
+    int idx = 0;
     float px = 500;
     float py = 200;
     float r  = 60;
     float dx, dy;
     boolean moving = false;
     
-    public MouseObstacle(float px, float py, float r){
+    public MouseObstacle(int idx, float px, float py, float r){
+      this.idx = idx;
       this.px = px;
       this.py = py;
       this.r = r;
     }
-    void draw(PGraphics pg, int col_fill){
+    void draw(PGraphics pg, int[] rgba){
+      
+      int cr = rgba[0]+2*(idx);
+      int cg = rgba[1]+2*(idx);
+      int cb = rgba[2]+2*(idx);
+      int ca = 196;
+      
       pg.noStroke();
-      pg.fill(col_fill);
+      pg.fill(cr,cg,cb,ca);
       pg.ellipse(px, py, r*2, r*2);
     }
     public boolean inside(float mx, float my){
@@ -672,6 +792,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     UPDATE_SCENE        = val[ID++] > 0;
     AUTO_SPAWN          = val[ID++] > 0;
     APPLY_LIQUID_FX     = val[ID++] > 0;
+    APPLY_OBSTACLES     = val[ID++] > 0;
   }
   
   public void setDisplayType(int val){
@@ -732,7 +853,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 430)
+      group_particles.setHeight(20).setSize(gui_w, 450)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -804,7 +925,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
           .addItem("UPDATE GRAVITY"     , ++ID).activate(UPDATE_GRAVITY      ? ID : 10)
           .addItem("UPDATE SCENE"       , ++ID).activate(UPDATE_SCENE        ? ID : 10)
           .addItem("AUTO SPAWN"         , ++ID).activate(AUTO_SPAWN          ? ID : 10)
-          .addItem("LIQUID FX"          , ++ID).activate(APPLY_LIQUID_FX     ? ID : 10)
+          .addItem("APPLY LIQUID FX"    , ++ID).activate(APPLY_LIQUID_FX     ? ID : 10)
+          .addItem("APPLY OBSTACLES"    , ++ID).activate(APPLY_OBSTACLES     ? ID : 10)
         ; 
     }
     

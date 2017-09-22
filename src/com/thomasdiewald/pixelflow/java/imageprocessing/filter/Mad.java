@@ -52,6 +52,18 @@ public class Mad {
     context.end("Mad.apply");
   }
   
+  public void apply(DwGLTexture src, PGraphicsOpenGL dst, float[] mad) {
+    Texture tex_src = dst.getTexture();
+    if(!tex_src.available()) 
+      return;
+       
+    context.begin();
+    context.beginDraw(dst);
+    apply(tex_src.glName, dst.width, dst.height, mad);
+    context.endDraw();
+    context.end("Mad.apply");
+  }
+  
   
   public void apply(DwGLTexture src, DwGLTexture dst, float[] mad) {
     context.begin();

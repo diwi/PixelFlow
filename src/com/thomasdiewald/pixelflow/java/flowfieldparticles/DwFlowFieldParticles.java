@@ -93,8 +93,8 @@ public class DwFlowFieldParticles{
   public DwGLTexture tex_coh_dist = new DwGLTexture();
 //  public DwGLTexture tex_tmp = new DwGLTexture();
 
-  public DwGLSLProgram shader_obstacles_FG;
-  public DwGLTexture tex_obstacles_FG = new DwGLTexture();
+  public DwGLSLProgram shader_obs_FG;
+  public DwGLTexture tex_obs_FG = new DwGLTexture();
   
   public DistanceTransform distancetransform;
   
@@ -120,21 +120,18 @@ public class DwFlowFieldParticles{
     String data_path = DwPixelFlow.SHADER_DIR+"FlowFieldParticles/";
     
     shader_create_sprite     = context.createShader(data_path + "create_sprite_texture.frag");
-  
-    
+
     shader_spawn_radial      = context.createShader((Object) (this+"radial"    ), data_path + "particles_spawn.frag");
     shader_spawn_rect        = context.createShader((Object) (this+"rect"      ), data_path + "particles_spawn.frag");
     
     shader_spawn_radial.frag.setDefine("SPAWN_RADIAL", 1);
     shader_spawn_rect  .frag.setDefine("SPAWN_RECT"  , 1);
     
-    
     shader_update_vel  = context.createShader((Object) (this+"update"    ), data_path + "particles_update.frag");
     shader_update_acc  = context.createShader((Object) (this+"collision" ), data_path + "particles_update.frag");
     
     shader_update_vel.frag.setDefine("UPDATE_VEL", 1);
     shader_update_acc.frag.setDefine("UPDATE_ACC", 1);
-    
     
     
     filename = data_path + "particles_display_lines.glsl";
@@ -144,43 +141,40 @@ public class DwFlowFieldParticles{
     
     // filename = data_path + "particles_display_quads.glsl";
     filename = data_path + "particles_display_points.glsl";
-    shader_display_particles = context.createShader((Object) (this+"SPRITE"   ), filename, filename);
-    shader_col_dist          = context.createShader((Object) (this+"COLLISION"), filename, filename);
-    shader_coh_dist          = context.createShader((Object) (this+"COHESION"), filename, filename);
-    
+    shader_display_particles = context.createShader((Object) (this+"SPRITE"), filename, filename);
     shader_display_particles.frag.setDefine("SHADER_FRAG_DISPLAY", 1);
     shader_display_particles.vert.setDefine("SHADER_VERT"        , 1);
     
+    shader_col_dist = context.createShader((Object) (this+"COLLISION"), filename, filename);
     shader_col_dist.frag.setDefine("SHADER_FRAG_COLLISION", 1);
     shader_col_dist.vert.setDefine("SHADER_VERT"          , 1);
     
+    shader_coh_dist = context.createShader((Object) (this+"COHESION"), filename, filename);
     shader_coh_dist.frag.setDefine("SHADER_FRAG_COHESION" , 1);
     shader_coh_dist.vert.setDefine("SHADER_VERT"          , 1);
 
-    
     shader_obs_dist = context.createShader(data_path+"obstacles_dist.frag");
-    shader_obstacles_FG  = context.createShader(data_path+"obstacles_FG.frag");
-    
-    distancetransform = new DistanceTransform(context);
+    shader_obs_FG   = context.createShader(data_path+"obstacles_FG.frag");
     
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 1;
+    ff_col.param.blur_radius     = 0;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 1;
-    ff_obs.param.blur_radius     = 1;
+    ff_obs.param.blur_radius     = 0;
     
     ff_coh = new DwFlowField(context);
     ff_coh.param.blur_iterations = 1;
-    ff_coh.param.blur_radius     = 1;
+    ff_coh.param.blur_radius     = 0;
 
     ff_sum = new DwFlowField(context);
     ff_sum.param.blur_iterations = 1;
     ff_sum.param.blur_radius     = 3;
     
 
+    distancetransform = new DistanceTransform(context);
     merge = new Merge(context);
     
     createSpriteTexture(32, 2, 1, 1);
@@ -253,7 +247,7 @@ public class DwFlowFieldParticles{
   
   public void release(){
     distancetransform.release();
-    tex_obstacles_FG.release();
+    tex_obs_FG.release();
 
     ff_col.release();
     ff_obs.release();
@@ -274,7 +268,7 @@ public class DwFlowFieldParticles{
   float wh_coh = 16;
   public void resizeWorld(int w, int h){
     
-    int w_obs = w  , h_obs = h;
+    int w_obs = w, h_obs = h;
     int w_col = (int) Math.ceil(w/wh_col), h_col = (int) Math.ceil(h/wh_col);
     int w_coh = (int) Math.ceil(w/wh_coh), h_coh = (int) Math.ceil(h/wh_coh);
     
@@ -283,7 +277,7 @@ public class DwFlowFieldParticles{
     ff_coh.resize(w_coh, h_coh);
     ff_sum.resize(w, h);
  
-    tex_obstacles_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
+    tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     
     tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
     tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
@@ -592,25 +586,25 @@ public class DwFlowFieldParticles{
     context.begin();
     
     // 1) create FG mask
-    context.beginDraw(tex_obstacles_FG);
-    shader_obstacles_FG.begin();
-    shader_obstacles_FG.uniform4fv    ("FG_mask"  , 1, FG_mask);
-    shader_obstacles_FG.uniform1i     ("FG_invert", FG_invert ? 1 : 0);
-    shader_obstacles_FG.uniformTexture("tex_scene", tex_scene.glName);
-    shader_obstacles_FG.drawFullScreenQuad();
-    shader_obstacles_FG.end();
+    context.beginDraw(tex_obs_FG);
+    shader_obs_FG.begin();
+    shader_obs_FG.uniform4fv    ("FG_mask"  , 1, FG_mask);
+    shader_obs_FG.uniform1i     ("FG_invert", FG_invert ? 1 : 0);
+    shader_obs_FG.uniformTexture("tex_scene", tex_scene.glName);
+    shader_obs_FG.drawFullScreenQuad();
+    shader_obs_FG.end();
     context.endDraw("DwFlowFieldObstacles.create() create FG mask");
     
     // 2) apply distance transform
     distancetransform.param.FG_mask = new float[]{1,1,0,1}; // only obstacle EDGES
     distancetransform.param.FG_invert = false;
-    distancetransform.create(tex_obstacles_FG);
+    distancetransform.create(tex_obs_FG);
     
     // 3) create distance field
     context.beginDraw(tex_obs_dist);
     shader_obs_dist.begin();
     shader_obs_dist.uniform2f     ("mad", 1, FG_offset);
-    shader_obs_dist.uniformTexture("tex_FG"  , tex_obstacles_FG);
+    shader_obs_dist.uniformTexture("tex_FG"  , tex_obs_FG);
     shader_obs_dist.uniformTexture("tex_dtnn", distancetransform.tex_dtnn.src);
     shader_obs_dist.drawFullScreenQuad();
     shader_obs_dist.end();

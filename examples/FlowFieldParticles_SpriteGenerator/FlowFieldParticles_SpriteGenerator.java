@@ -10,7 +10,7 @@
  */
 
 
-package FlowFieldParticles_DevDemo;
+package FlowFieldParticles_SpriteGenerator;
 
 import controlP5.Accordion;
 import controlP5.ControlP5;
@@ -18,24 +18,22 @@ import controlP5.Group;
 import processing.core.*;
 
 
-public class ParticleDistanceFunc extends PApplet {
+public class FlowFieldParticles_SpriteGenerator extends PApplet {
 
   int gui_w = 200;
   int gui_x = 20;
   int gui_y = 20;
-  
   
   int viewport_w = 512 + gui_w + 3*20;
   int viewport_h = 1024 + 2*20;
   int viewport_x = 230;
   int viewport_y = 0;
   
-
-  
   PImage img_sprite;
   PGraphics pg_func;
   PGraphics pg_img;
-  public int size = 256;
+  
+  public int   size = 256;
   public float exp1 = 1f;
   public float exp2 = 1f;
   public float mult = 1f;
@@ -47,17 +45,11 @@ public class ParticleDistanceFunc extends PApplet {
   }
 
   public void setup(){
-    
     updateSprite();
    
     createGUI();
     
     frameRate(1000);
-    System.out.println(0^0);
-    System.out.println(1^0);
-    
-    System.out.println(0^1);
-    System.out.println(1^1);
   }
   
   
@@ -171,8 +163,7 @@ public class ParticleDistanceFunc extends PApplet {
     translate(0, rh);
     rect(0, 0, rw, rh);
     image(pg_func, 0, 0, rw, rh);
-    
-    
+
     stroke(255,0,0, 128);
     strokeWeight(1f);
     line(rw/2, 0, rw/2, rh);
@@ -221,12 +212,10 @@ public class ParticleDistanceFunc extends PApplet {
     cp5 = new ControlP5(this);
     
     int sx, sy, px, py, oy;
-    
     sx = 100; sy = 14; oy = (int)(sy*1.5f);
-    
 
     ////////////////////////////////////////////////////////////////////////////
-    // GUI - FLUID
+    // GUI - PARAMS
     ////////////////////////////////////////////////////////////////////////////
     Group group_sprite = cp5.addGroup("sprite");
     {
@@ -235,10 +224,6 @@ public class ParticleDistanceFunc extends PApplet {
       group_sprite.getCaptionLabel().align(CENTER, CENTER);
       
       px = 10; py = 15;
-      
-//      cp5.addButton("reset").setGroup(group_fluid).plugTo(this, "fluid_reset"     ).setSize(80, 18).setPosition(px    , py);
-//      cp5.addButton("+"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeUp"  ).setSize(39, 18).setPosition(px+=82, py);
-//      cp5.addButton("-"    ).setGroup(group_fluid).plugTo(this, "fluid_resizeDown").setSize(39, 18).setPosition(px+=41, py);
       
       px = 10;
       cp5.addSlider("size").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py+=oy)
@@ -257,8 +242,6 @@ public class ParticleDistanceFunc extends PApplet {
       .setRange(0, 20).setValue(blur).plugTo(this, "set_blur");
     }
     
-
-    
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
@@ -270,11 +253,8 @@ public class ParticleDistanceFunc extends PApplet {
   
   
   
- 
-  
-
   public static void main(String args[]) {
-    PApplet.main(new String[] { ParticleDistanceFunc.class.getName() });
+    PApplet.main(new String[] { FlowFieldParticles_SpriteGenerator.class.getName() });
   }
   
   
