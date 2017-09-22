@@ -219,7 +219,7 @@ public class DwFlowFieldParticles{
   
   public int getCohesionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_cohesion * 32 / wh_coh);
+    int radius = (int) Math.ceil(param.size_cohesion * 16 / wh_coh);
     if((radius & 1) == 0){
       radius += 1;
     }
