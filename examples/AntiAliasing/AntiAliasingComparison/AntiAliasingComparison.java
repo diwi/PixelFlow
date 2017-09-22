@@ -147,7 +147,7 @@ public class AntiAliasingComparison extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
-    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 2000);
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
     peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection

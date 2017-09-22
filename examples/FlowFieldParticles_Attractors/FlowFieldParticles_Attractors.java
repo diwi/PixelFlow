@@ -19,7 +19,6 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
-import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
@@ -27,17 +26,12 @@ import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
-import com.thomasdiewald.pixelflow.java.utils.DwUtils;
-
 import controlP5.Accordion;
 import controlP5.CColor;
 import controlP5.ControlP5;
 import controlP5.Group;
-import controlP5.RadioButton;
-import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
@@ -56,18 +50,9 @@ public class FlowFieldParticles_Attractors extends PApplet {
   int gui_x = 30;
   int gui_y = 30;
   
-  
-  PGraphics2D pg_checker;
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
-  PGraphics2D pg_spheres;
-  PGraphics2D pg_particles;
-  PGraphics2D pg_sprite;
   PGraphics2D pg_impulse;
-  
-  
-  FXAA antialiasing;
-  PGraphics2D pg_aa;
   
   DwPixelFlow context;
   
@@ -78,17 +63,13 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   DwGLSLProgram shd_attractors;
   
-  public boolean AUTO_SPAWN        = true;
-  public boolean DISPLAY_DIST      = !true;
-  public boolean DISPLAY_FLOW      = !true;
-  public int     DISPLAY_TYPE_ID   = 0;
-  public int     BACKGROUND_MODE   = 3;
-  public int     PARTICLE_COLOR    = 2;
-  
-  float mul_attractors = 4f;
-  
+  public boolean AUTO_SPAWN      = true;
+  public boolean DISPLAY_DIST    = !true;
+  public boolean DISPLAY_FLOW    = !true;
 
-  MouseObstacle[] mobs = new MouseObstacle[2];
+  float mul_attractors = 5f;
+  
+  MouseObstacle[] mobs;
 
   public void settings() {
     if(START_FULLSCREEN){
@@ -108,62 +89,41 @@ public class FlowFieldParticles_Attractors extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     surface.setResizable(true);
 
-    randomSeed(2);
-    for(int i = 0; i < mobs.length; i++){
-      float r = 20;
-      mobs[i] = new MouseObstacle(i, random(r, width-r), random(r,height-r), r);
-    }
-    
-    mobs[0].px = 1*width/3f;
-    mobs[0].py = 1*height/2f;
-    
-    mobs[1].px = 2*width/3f;
-    mobs[1].py = 1*height/2f;
-    
-    
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
 
-    antialiasing = new FXAA(context);
-        
+    
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
     
     particles.param.velocity_damping  = 1.00f;
     particles.param.steps = 2;
-    
-    particles.param.size_display   = 10;
-    particles.param.size_collision = particles.param.size_display;
-    particles.param.size_cohesion   = 2;
+    particles.param.shader_collision_mult = 0.2f;
+    particles.param.size_display   = 8;
+    particles.param.size_collision = 8;
+    particles.param.size_cohesion  = 2;
 
-    particles.param.mul_coh = 4;
-    particles.param.mul_col = 0.5f;
-    particles.param.mul_obs = 0.5f;
-    
-    ff_acc = new DwFlowField(context);
-    ff_acc.param.blur_iterations = 0;
-    ff_acc.param.blur_radius     = 1;
-    
+    particles.param.mul_coh = 5.00f;
+    particles.param.mul_col = 0.70f;
+    particles.param.mul_obs = 0.60f;
+
+    ff_acc = new DwFlowField(context); 
     ff_impulse = new DwFlowField(context);
-    ff_impulse.param.blur_iterations = 1;
-    ff_impulse.param.blur_radius     = 1;
-    
     ff_attractors = new DwFlowField(context);
-    ff_attractors.param.blur_iterations = 0;
-    ff_attractors.param.blur_radius     = 1;
     
     shd_attractors = context.createShader("data/attractors.frag");
     
+    mobs = new MouseObstacle[2];
+    mobs[0] = new MouseObstacle(0, 1*width/3f, 1*height/2f, 20);
+    mobs[1] = new MouseObstacle(0, 2*width/3f, 1*height/2f, 20);
+    
     resizeScene();
-    
-    createSprite();
-    
+
     createGUI();
     
     frameRate(1000);
   }
   
-
 
   public void resizeScene(){
     
@@ -171,33 +131,17 @@ public class FlowFieldParticles_Attractors extends PApplet {
       return;
     }
     
-    pg_aa = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_aa.smooth(0);
-    pg_aa.textureSampling(5);
-    
-    pg_checker = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_checker.smooth(0);
-    
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_obstacles.smooth(0);
     
-    pg_spheres = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_spheres.smooth(0);
-    
-    pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_particles.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_particles, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
-    
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_impulse, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
-    
 
-    setParticleColor(PARTICLE_COLOR);
-    setCheckerboardBG(BACKGROUND_MODE);
+    setParticleColor(2);
   }
   
 
@@ -258,7 +202,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
     int w = width;
     int h = height;
     
-
     int     attr_num = mobs.length;
     float[] attr_mass = new float[attr_num];
     float[] attr_pos  = new float[attr_num*2];
@@ -320,30 +263,15 @@ public class FlowFieldParticles_Attractors extends PApplet {
     
     particleSimulation();
   
-
-    if(!DISPLAY_DIST)
-    {
-      if(DISPLAY_TYPE_ID == 0){
-        // set pg_checker as background for blending
-        DwFilter.get(context).copy.apply(pg_checker, pg_particles);
-        particles.display(pg_particles);
-      } else {
-        float mult = 0.985f;
-        DwFilter.get(context).multiply.apply(pg_particles, pg_particles, new float[]{mult, mult, mult, mult});
-        particles.displayTrail(pg_particles);
-      }
-      
-
+    if(!DISPLAY_DIST){
       pg_canvas.beginDraw(); 
       pg_canvas.blendMode(REPLACE);
-      pg_canvas.image(pg_checker, 0, 0);
+      pg_canvas.background(0);
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
-      pg_canvas.image(pg_spheres,0,0);
-      pg_canvas.image(pg_particles, 0, 0);
       pg_canvas.endDraw();
+      particles.display(pg_canvas);
     }
-    
     
     if(DISPLAY_DIST){
       int Z = DwGLTexture.SWIZZLE_0;
@@ -371,11 +299,9 @@ public class FlowFieldParticles_Attractors extends PApplet {
     if(DISPLAY_FLOW){
       particles.ff_sum.displayPixel(pg_canvas);
     }
-
-    antialiasing.apply(pg_canvas, pg_aa);
-
+    
     blendMode(REPLACE);
-    image(pg_aa, 0, 0);
+    image(pg_canvas, 0, 0);
     blendMode(BLEND);
     
     info();
@@ -404,14 +330,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   
   //////////////////////////////////////////////////////////////////////////////
@@ -423,22 +342,12 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
   int[] BG      = { 0, 0, 0,  0};
   int[] FG      = {16,16,16,255};
-  int[] FG_MOBS = {32,32,32,255};
+  int[] FG_MOBS = {96,192,255,255};
   void setFill(PGraphicsOpenGL pg, int[] rgba){
     pg.fill(rgba[0], rgba[1], rgba[2], rgba[3]);
   }
   
   void updateScene(){
-    
-    pg_spheres.beginDraw();
-    pg_spheres.clear();
-    pg_spheres.noStroke();
-    pg_spheres.blendMode(BLEND);
-    for(int i = 0; i < mobs.length; i++){
-      mobs[i].draw(pg_spheres, FG_MOBS);
-    }
-    pg_spheres.endDraw();
-    
     int w = pg_obstacles.width;
     int h = pg_obstacles.height;
 
@@ -454,16 +363,17 @@ public class FlowFieldParticles_Attractors extends PApplet {
     setFill(pg_obstacles, BG);
     pg_obstacles.rect(25, 25, w-50, h-50);
     pg_obstacles.blendMode(BLEND);
-    pg_obstacles.image(pg_spheres, 0, 0);
+    for(int i = 0; i < mobs.length; i++){
+      mobs[i].draw(pg_obstacles, FG_MOBS);
+    }
     pg_obstacles.endDraw();
-
   }
   
 
   public void autoSpawnParticles(){
     if(AUTO_SPAWN && (frameCount%3) == 0){
-      float px = width/2;
-      float py = 50;
+      float px = 100;
+      float py = height-100;
       
       SpawnRadial sr = new SpawnRadial();
       sr.num(1);
@@ -474,7 +384,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     }
     
     boolean IS_GUI = cp5.isMouseOver();
-    
+
     if(!IS_GUI && mousePressed){     
       if(mouseButton == LEFT){
         int count = ceil(particles.getCount() * 0.01f);
@@ -525,11 +435,10 @@ public class FlowFieldParticles_Attractors extends PApplet {
       this.r = r;
     }
     void draw(PGraphics pg, int[] rgba){
-      
-      int cr = rgba[0]+2*(idx);
-      int cg = rgba[1]+2*(idx);
-      int cb = rgba[2]+2*(idx);
-      int ca = 196;
+      int cr = rgba[0];
+      int cg = rgba[1];
+      int cb = rgba[2];
+      int ca = 255;
       
       pg.noStroke();
       pg.fill(cr,cg,cb,ca);
@@ -609,28 +518,21 @@ public class FlowFieldParticles_Attractors extends PApplet {
   public void reset(){
     particles.reset();
   }
-
   public void set_size_display(float val){
     particles.param.size_display = val;
   }
-
   public void set_size_cohesion(float val){
     particles.param.size_cohesion = val;  
   }
-  
   public void set_size_collision(float val){
     particles.param.size_collision = val;  
   }
-  
   public void set_velocity_damping(float val){
     particles.param.velocity_damping = val;  
   }
-
-  
   public void set_collision_steps(int val){
     particles.param.steps = val;
   }
-  
   public void set_mul_acc(float val){
     particles.param.mul_acc = val;
   }
@@ -643,56 +545,13 @@ public class FlowFieldParticles_Attractors extends PApplet {
   public void set_mul_obs(float val){
     particles.param.mul_obs = val;
   }
-  
   public void set_shader_collision_mult(float val){
     particles.param.shader_collision_mult = val;
   }
 
-  
-
-  static class SpriteParam {
-    public int   size = 64;
-    public float e1   = 2f;
-    public float e2   = 1f;
-    public float mult = 1f;
-  }
-  
-  SpriteParam sprite_param = new SpriteParam();
-  
-  public void createSprite(){
-    int size = sprite_param.size;
-    particles.createSpriteTexture(size, sprite_param.e1, sprite_param.e2, sprite_param.mult);
-   
-    if(pg_sprite == null){
-      int wh = gui_w-30;
-      pg_sprite = (PGraphics2D) createGraphics(wh, wh, P2D);
-      pg_sprite.smooth(0);
-    }
-    DwFilter.get(context).copy.apply(particles.param.tex_sprite, pg_sprite);
-  }
-  
-  public void set_sprite_param_size(int val){
-    sprite_param.size = val;
-    createSprite();
-  }
-  public void set_sprite_param_e1(float val){
-    sprite_param.e1 = val;
-    createSprite();
-  }
-  public void set_sprite_param_e2(float val){
-    sprite_param.e2 = val;
-    createSprite();
-  }
-  public void set_sprite_param_mult(float val){
-    sprite_param.mult = val;
-    createSprite();
-  }
-  
   public void setParticleColor(int val){
     float r=1f, g=1f, b=1f, a=1f, s=1f;
-    
     float[] ca = particles.param.col_A;
-    
     switch(val){
       case 0: r = 0.10f; g = 0.50f; b = 1.00f; a = 10.0f; s = 0.50f;  break;
       case 1: r = 0.40f; g = 0.80f; b = 0.10f; a = 10.0f; s = 0.50f;  break;
@@ -700,7 +559,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
       case 3: r = 0.50f; g = 0.50f; b = 0.50f; a = 10.0f; s = 0.25f;  break;
       case 4: r = ca[0]; g = ca[1]; b = ca[2]; a =  1.0f; s = 1.00f;  break;
     }
-
     particles.param.col_A = new float[]{ r  , g  , b  , a };
     particles.param.col_B = new float[]{ r*s, g*s, b*s, 0 };
   }
@@ -712,21 +570,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     AUTO_SPAWN          = val[ID++] > 0;
   }
   
-  public void setDisplayType(int val){
-    DISPLAY_TYPE_ID = val;
-  }
 
-  public void setCheckerboardBG(int val){
-    BACKGROUND_MODE = val;
-    switch(BACKGROUND_MODE){ 
-      case 0: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color( 96, 0), color( 48, 0)); break;
-      case 1: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color(208, 0), color(160, 0)); break;
-      case 2: pg_checker = DwUtils.createCheckerBoard(this, width, height, 128, color(208, 0), color( 48, 0)); break;
-      case 3: pg_checker.beginDraw();  pg_checker.background(  0, 0); pg_checker.endDraw(); break;
-      case 4: pg_checker.beginDraw();  pg_checker.background(255, 0); pg_checker.endDraw(); break;
-    }
-  }
-  
   float mult_fg = 1f;
   float mult_active = 2f;
   float CR = 96;
@@ -736,7 +580,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
   int col_bg    ;
   int col_fg    ;
   int col_active;
-  
   
   ControlP5 cp5;
   
@@ -770,7 +613,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 450)
+      group_particles.setHeight(20).setSize(gui_w, 350)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -778,22 +621,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
       
       cp5.addButton("reset").setGroup(group_particles).plugTo(this, "reset"     ).setSize(80, 18).setPosition(px, py);
 
-      
-      {
-        py += 1 * sy + dy_group;
-        int count = 2;
-        sx = (gui_w-30 - 2 * (count-1)) / count;
-        RadioButton rb_type = cp5.addRadio("setDisplayType").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-          .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayType")
-          .setNoneSelectedAllowed(false)
-          .addItem("Particles", 0)
-          .addItem("Trails"   , 1)
-          .activate(DISPLAY_TYPE_ID);
-  
-        for(Toggle toggle : rb_type.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
-        py += sy + dy_group;
-      }
-
+      py += sy + dy_group;
       cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 3).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
       .snapToTickMarks(true).setNumberOfTickMarks(4);
@@ -843,83 +671,13 @@ public class FlowFieldParticles_Attractors extends PApplet {
           .addItem("AUTO SPAWN"         , ++ID).activate(AUTO_SPAWN          ? ID : 10)
         ; 
     }
-    
-    
-    
-    Group group_sprite = cp5.addGroup("sprite");
-    {
-      group_sprite.setHeight(20).setSize(gui_w, 380)
-      .setBackgroundColor(col_group).setColorBackground(col_group);
-      group_sprite.getCaptionLabel().align(CENTER, CENTER);
-      
-      px = 15; py = 15;
 
-      cp5.addSlider("size").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(32, 128).setValue(sprite_param.size).plugTo(this, "set_sprite_param_size");
-      py += sy + dy_item;
-
-      cp5.addSlider("exp1").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 4).setValue(sprite_param.e1).plugTo(this, "set_sprite_param_e1");
-      py += sy + dy_item;
-      
-      cp5.addSlider("exp2").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 4).setValue(sprite_param.e2).plugTo(this, "set_sprite_param_e2");
-      py += sy + dy_item;
-      
-      cp5.addSlider("mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 4).setValue(sprite_param.mult).plugTo(this, "set_sprite_param_mult");
-      py += sy + dy_group;
-      
-      cp5.addButton("sprite_img").setGroup(group_sprite).setPosition(px, py).setImage(pg_sprite).updateSize();
-      
-      
-      py += gui_w-30 + dy_group;
-      int count = 5;
-      sx = (gui_w-30 - 2 * (count-1)) / count;
-      RadioButton rb_colors = cp5.addRadio("setParticleColor").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(5).plugTo(this, "setParticleColor")
-        .setNoneSelectedAllowed(false)
-        .addItem("BLUE"   , 0)
-        .addItem("GREEN"  , 1)
-        .addItem("ORANGE" , 2)
-        .addItem("GRAY"   , 3)
-        .addItem("MONO"   , 4)
-        .activate(PARTICLE_COLOR);
-
-      for(Toggle toggle : rb_colors.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
-      
-
-      py += sy + dy_item;
-      count = 5;
-      sx = (gui_w-30 - 2 * (count-1)) / count;
-      RadioButton rb_bg = cp5.addRadio("setCheckerboardBG").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setCheckerboardBG")
-        .setNoneSelectedAllowed(false)
-        .addItem("DARK"    , 0)
-        .addItem("LIGHT"   , 1)
-        .addItem("BW"      , 2)
-        .addItem("BLACK"   , 3)
-        .addItem("WHITE"   , 4)
-        .activate(BACKGROUND_MODE);
-
-      for(Toggle toggle : rb_bg.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
-      
-      py += sy + dy_item;
-      sx = 100;
-      cp5.addSlider("collision_mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 1).setValue(particles.param.shader_collision_mult).plugTo(this, "set_shader_collision_mult")
-      ;
-      
-    }
-    
-    
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
     cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
       .setCollapseMode(Accordion.MULTI)
       .addItem(group_particles)
-      .addItem(group_sprite   )
       .open()
       ;
 
