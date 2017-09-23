@@ -44,27 +44,45 @@ import processing.opengl.PGraphicsOpenGL;
 public class FlowFieldParticles_DevDemo extends PApplet {
   
   
-  
+  //
   //
   //
   // GPU FlowFieldParticle DevDemo.
   //
-  //
   // Verlet Particle Simulation based on FlowFields.
-  // A FlowField is simply a velocity texture which is used to update particles.
   //
-  // Acceleration:
+  //
+  // by Thomas Diewald, (C) 2017
+  //
+  //
+  // --- FLOW FIELDS / SDF (DISTANCE FIELDS) ---
+  // A FlowField is simply a velocity texture which is for iteratively updating 
+  // particle-positions.
+  // In my implementation a SDF serves usually as input for a flowfield.
+  // A simple Sobel-filter computes the gradients in x and y.
+  // 
+  //
+  // --- ACCELERATION ---
   // This is probably the most common use for velocity textures in particle
   // simulations, ... using the velocity for the update step.
   // 
-  // Collision:
+  //
+  // ---- COLLISION --- 
   // A FlowField is also used to very efficiently solve collision detection 
   // on the GPU for millions of particles. Up to a certain particle size this
   // works surprisingly well.
   //
-  // Cohesion:
+  //
+  // --- COHESION ---
   // Same as for the collisions I was a bit surprised how well it works for
-  // simulation some particle-to-particle attraction.
+  // simulation particle-to-particle attraction.
+  //
+  //
+  // --- OBSTACLES ---
+  // A distance transform step is applied in the scene obstacles (edges) to get 
+  // a local distance field from which another flow field can be generated.
+  // The resulting velocity texture is used for collision detection.
+  //
   //
   //
   
