@@ -315,7 +315,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       pg_canvas.image(pg_checker, 0, 0);
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
-      pg_canvas.image(pg_spheres,0,0);
+      pg_canvas.image(pg_spheres, 0, 0);
       pg_canvas.image(pg_particles, 0, 0);
       pg_canvas.endDraw();
     }

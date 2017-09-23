@@ -14,22 +14,19 @@ package com.thomasdiewald.pixelflow.java.flowfieldparticles;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
-import processing.opengl.PGL;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 
-@SuppressWarnings("unused")
+
 public class DwFlowFieldParticles{
   
   public static class Param {
@@ -91,7 +88,6 @@ public class DwFlowFieldParticles{
   public DwGLTexture tex_col_dist = new DwGLTexture();
   public DwGLTexture tex_obs_dist = new DwGLTexture();
   public DwGLTexture tex_coh_dist = new DwGLTexture();
-//  public DwGLTexture tex_tmp = new DwGLTexture();
 
   public DwGLSLProgram shader_obs_FG;
   public DwGLTexture tex_obs_FG = new DwGLTexture();
@@ -158,15 +154,15 @@ public class DwFlowFieldParticles{
     
 
     ff_col = new DwFlowField(context);
-    ff_col.param.blur_iterations = 1;
+    ff_col.param.blur_iterations = 0;
     ff_col.param.blur_radius     = 0;
     
     ff_obs = new DwFlowField(context);
-    ff_obs.param.blur_iterations = 1;
+    ff_obs.param.blur_iterations = 0;
     ff_obs.param.blur_radius     = 0;
     
     ff_coh = new DwFlowField(context);
-    ff_coh.param.blur_iterations = 1;
+    ff_coh.param.blur_iterations = 0;
     ff_coh.param.blur_radius     = 0;
 
     ff_sum = new DwFlowField(context);
@@ -260,11 +256,10 @@ public class DwFlowFieldParticles{
     tex_obs_dist.release();
     tex_col_dist.release();
     tex_coh_dist.release();
-//    tex_tmp.release();
   }
   
   
-  float wh_col = 1;
+  float wh_col = 1f;
   float wh_coh = 16;
   public void resizeWorld(int w, int h){
     
@@ -286,9 +281,6 @@ public class DwFlowFieldParticles{
     tex_obs_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
     tex_col_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
     tex_coh_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
-    
-//    tex_tmp.resize(context, GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
-//    tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
   }
   
   
@@ -553,10 +545,7 @@ public class DwFlowFieldParticles{
     shader_coh_dist.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_coh_dist.end();
     context.endDraw();
-    
-    
-//    DwFilter.get(context).gaussblur.apply(tex_coh_dist, tex_coh_dist, tex_tmp, 4);
-    
+     
     ff_coh.create(tex_coh_dist);
     
     context.end("DwFlowFieldParticles.createCoherenceFlowField");
@@ -568,10 +557,7 @@ public class DwFlowFieldParticles{
   
   
   
-  
-  
-  
-  
+
   public void createObstacleFlowField(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert){
     if(param.mul_obs <= 0.0) return;
     
@@ -619,11 +605,6 @@ public class DwFlowFieldParticles{
   
   
   
-  
-  
-  
-  
-  
 
 
   public void updateAcceleration(DwGLTexture tex_velocity, float acc_mult){
@@ -657,8 +638,8 @@ public class DwFlowFieldParticles{
  
   public void updateVelocity(){
 
-    int w_velocity = tex_col_dist.w;
-    int h_velocity = tex_col_dist.h;
+    int w_velocity = ff_sum.tex_vel.w;
+    int h_velocity = ff_sum.tex_vel.h;
     
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
@@ -691,7 +672,6 @@ public class DwFlowFieldParticles{
   public final TexMad tm_col = new TexMad();
   public final TexMad tm_coh = new TexMad();
   public final TexMad tm_obs = new TexMad();
-  
   
   public void update(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert, DwFlowField ff_acc){
     resizeWorld(pg_scene.width, pg_scene.height);

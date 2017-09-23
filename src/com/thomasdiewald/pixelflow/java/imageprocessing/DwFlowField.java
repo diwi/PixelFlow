@@ -19,6 +19,7 @@ import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.GaussianBlur;
 
 import processing.opengl.PGraphicsOpenGL;
@@ -65,7 +66,6 @@ public class DwFlowField {
   
   public DwGLTexture tex_vel = new DwGLTexture();
   public DwGLTexture tex_tmp = new DwGLTexture();
-  public GaussianBlur gaussblur;
   
   public DwFlowField(DwPixelFlow context){
     this.context = context;
@@ -78,10 +78,6 @@ public class DwFlowField {
     shader_display_lines = context.createShader(data_path+"flowfield_display_lines.glsl", data_path+"flowfield_display_lines.glsl");
     shader_display_lines.frag.setDefine("SHADER_FRAG", 1);
     shader_display_lines.vert.setDefine("SHADER_VERT", 1);
-    
-    if(gaussblur == null){
-      gaussblur = new GaussianBlur(context);
-    }
   }
   
   public void dispose(){
@@ -99,13 +95,9 @@ public class DwFlowField {
 
   public void resize(int w, int h){
     boolean resized = tex_vel.resize(context, GL2.GL_RG32F, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, 2, 4);
-    tex_vel.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
-    
-    tex_tmp.resize(context, tex_vel);
-    tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
-    
     if(resized){
-      reset();
+      tex_vel.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+      tex_vel.clear(0);
     }
   }
   
@@ -147,16 +139,17 @@ public class DwFlowField {
   }
 
   public void blur(int iterations, int radius){
+    if(iterations * radius > 0){
+      tex_tmp.resize(context, tex_vel);
+      tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+    }
     for(int i = 0; i < iterations; i++){
-      gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
+      DwFilter.get(context).gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
     }
   }
   
   
-  
-  
-  
-  
+
   
   public void displayLines(PGraphicsOpenGL dst){
     int   w = dst.width;
