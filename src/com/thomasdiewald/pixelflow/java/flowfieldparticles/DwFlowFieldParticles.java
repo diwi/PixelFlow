@@ -671,13 +671,18 @@ public class DwFlowFieldParticles{
   public final TexMad tm_coh = new TexMad();
   public final TexMad tm_obs = new TexMad();
   
-  public void update(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert, DwFlowField ff_acc){
-    resizeWorld(pg_scene.width, pg_scene.height);
-    createObstacleFlowField(pg_scene, FG, FG_invert);
-    update(ff_acc);
-  }
+//  public void update(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert, DwFlowField ff_acc){
+//    resizeWorld(pg_scene.width, pg_scene.height);
+//    createObstacleFlowField(pg_scene, FG, FG_invert);
+//    update(ff_acc);
+//  }
 
   public void update(DwFlowField ff_acc){
+    update(ff_acc.tex_vel);
+  }
+  
+  
+  public void update(DwGLTexture tex_velocity){
     
     updateVelocity();
  
@@ -686,7 +691,7 @@ public class DwFlowFieldParticles{
       createCollisionFlowField();
       createCohesionFlowField();
       
-      tm_acc.set(ff_acc.tex_vel,  1.000f * param.mul_acc / param.steps, 0);
+      tm_acc.set(tex_velocity  ,  1.000f * param.mul_acc / param.steps, 0);
       tm_col.set(ff_col.tex_vel,  1.000f * param.mul_col / param.steps, 0);
       tm_coh.set(ff_coh.tex_vel, -0.025f * param.mul_coh / param.steps, 0);
       tm_obs.set(ff_obs.tex_vel,  3.000f * param.mul_obs / param.steps, 0);
