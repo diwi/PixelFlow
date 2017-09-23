@@ -43,6 +43,32 @@ import processing.opengl.PGraphicsOpenGL;
 
 public class FlowFieldParticles_DevDemo extends PApplet {
   
+  
+  
+  //
+  //
+  // GPU FlowFieldParticle DevDemo.
+  //
+  //
+  // Verlet Particle Simulation based on FlowFields.
+  // A FlowField is simply a velocity texture which is used to update particles.
+  //
+  // Acceleration:
+  // This is probably the most common use for velocity textures in particle
+  // simulations, ... using the velocity for the update step.
+  // 
+  // Collision:
+  // A FlowField is also used to very efficiently solve collision detection 
+  // on the GPU for millions of particles. Up to a certain particle size this
+  // works surprisingly well.
+  //
+  // Cohesion:
+  // Same as for the collisions I was a bit surprised how well it works for
+  // simulation some particle-to-particle attraction.
+  //
+  //
+  
+  
   boolean START_FULLSCREEN = !true;
 
   int viewport_w = 1680;

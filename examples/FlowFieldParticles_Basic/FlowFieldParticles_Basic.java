@@ -70,8 +70,8 @@ public class FlowFieldParticles_Basic extends PApplet {
 
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
-    particles.param.col_A = new float[]{0.10f, 0.50f, 1.00f, 5};
-    particles.param.col_B = new float[]{0.05f, 0.25f, 0.50f, 0};
+    particles.param.col_A = new float[]{0.10f, 0.50f, 0.80f, 5};
+    particles.param.col_B = new float[]{0.05f, 0.25f, 0.40f, 0};
     particles.param.shader_collision_mult = 0.1f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.99f;
@@ -137,7 +137,7 @@ public class FlowFieldParticles_Basic extends PApplet {
 
     int w = pg_obstacles.width;
     int h = pg_obstacles.height;
-    float dim = h/2f;
+    float dim = 2* h/3f;
     
     pg_obstacles.beginDraw();
     pg_obstacles.clear();

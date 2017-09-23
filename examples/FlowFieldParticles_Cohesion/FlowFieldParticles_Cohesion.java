@@ -76,8 +76,8 @@ public class FlowFieldParticles_Cohesion extends PApplet {
 
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
-    particles.param.col_A = new float[]{0.30f, 1.00f, 0.15f, 2};
-    particles.param.col_B = new float[]{0.10f, 0.33f, 0.05f, 0};
+    particles.param.col_A = new float[]{0.30f, 0.60f, 0.15f, 4};
+    particles.param.col_B = new float[]{0.10f, 0.20f, 0.05f, 0};
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.99f;

@@ -89,10 +89,10 @@ public class OpticalFlow_CaptureSettings extends PApplet {
     
     // renderbuffers
     pg_cam_a = (PGraphics2D) createGraphics(cam_w, cam_h, P2D);
-    pg_cam_a.noSmooth();
+    pg_cam_a.smooth(0);
     
     pg_cam_b = (PGraphics2D) createGraphics(cam_w, cam_h, P2D);
-    pg_cam_b.noSmooth();
+    pg_cam_b.smooth(0);
     
     pg_oflow = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_oflow.smooth(4);

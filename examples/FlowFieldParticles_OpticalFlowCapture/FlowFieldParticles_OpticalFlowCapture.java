@@ -29,10 +29,8 @@ import processing.video.Capture;
 public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   
   //
-  //
   // Particle Simulation + Optical Flow.
   // The optical flow of a webcam capture is used as acceleration for the particles.
-  // nt. 
   //
   
   int cam_w = 640;

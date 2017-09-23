@@ -11,7 +11,7 @@
 
 
 
-package FlowFieldParticles_BasicMouseImpulse;
+package FlowFieldParticles_MouseImpulse;
 
 import java.util.Locale;
 
@@ -28,7 +28,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
+public class FlowFieldParticles_MouseImpulse extends PApplet {
   
   //
   //
@@ -77,8 +77,8 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
 
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
-    particles.param.col_A = new float[]{1.00f, 0.30f, 0.15f, 5};
-    particles.param.col_B = new float[]{0.50f, 0.15f, 0.07f, 0};
+    particles.param.col_A = new float[]{0.80f, 0.30f, 0.15f, 5};
+    particles.param.col_B = new float[]{0.40f, 0.15f, 0.07f, 0};
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.99f;
@@ -295,7 +295,7 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowFieldParticles_BasicMouseImpulse.class.getName() });
+    PApplet.main(new String[] { FlowFieldParticles_MouseImpulse.class.getName() });
   }
 
 }
