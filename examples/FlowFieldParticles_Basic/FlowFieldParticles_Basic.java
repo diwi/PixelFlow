@@ -79,7 +79,7 @@ public class FlowFieldParticles_Basic extends PApplet {
     particles.param.size_collision = 8;
     particles.param.size_cohesion  = 4;
     particles.param.mul_coh = 2.00f;
-    particles.param.mul_col = 1.00f;
+    particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 2.00f;
     
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);

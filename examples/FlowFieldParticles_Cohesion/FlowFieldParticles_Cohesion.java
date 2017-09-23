@@ -11,7 +11,7 @@
 
 
 
-package FlowFieldParticles_BasicMouseImpulse;
+package FlowFieldParticles_Cohesion;
 
 import java.util.Locale;
 
@@ -28,13 +28,13 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
+public class FlowFieldParticles_Cohesion extends PApplet {
   
   //
   //
   // Basic starter demo for a FlowFieldParticle simulation.
   //
-  // Gravity, Particle Spawning, Animated Obstacles, Mouse Impulse
+  // Particle Spawning, Animated Obstacles, Mouse Impulse, Cohesion
   //
   // --- controls ----
   // LMB       ... spawn particles
@@ -51,7 +51,6 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
  
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
-  PGraphics2D pg_gravity;
   PGraphics2D pg_impulse;
 
   DwPixelFlow context;
@@ -77,16 +76,16 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
 
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
-    particles.param.col_A = new float[]{1.00f, 0.30f, 0.15f, 5};
-    particles.param.col_B = new float[]{0.50f, 0.15f, 0.07f, 0};
+    particles.param.col_A = new float[]{0.30f, 1.00f, 0.15f, 2};
+    particles.param.col_B = new float[]{0.10f, 0.33f, 0.05f, 0};
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.99f;
     particles.param.size_display   = 8;
     particles.param.size_collision = 8;
-    particles.param.size_cohesion  = 0;
-    particles.param.mul_coh = 0.00f;
-    particles.param.mul_col = 1.00f;
+    particles.param.size_cohesion  = 8;
+    particles.param.mul_coh = 5.00f;
+    particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 2.00f;
     
     
@@ -103,18 +102,11 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
     pg_canvas.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(0);
+    pg_obstacles.smooth(8);
 
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_impulse, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
-
-    pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_gravity.smooth(0);
-    pg_gravity.beginDraw();
-    pg_gravity.blendMode(REPLACE);
-    pg_gravity.background(0, 255, 0);
-    pg_gravity.endDraw();
 
     frameRate(1000);
   }
@@ -178,8 +170,7 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
     ff_acc.resize(w, h);
     {
       TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
-      TexMad tb = new TexMad(pg_gravity, -0.05f, 0);
-      DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
+      DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta);
     }
   }
   
@@ -218,7 +209,7 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
 
     int w = pg_obstacles.width;
     int h = pg_obstacles.height;
-    float dim = h/2f;
+    float dim = 3 * h/4f;
     
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
@@ -236,10 +227,11 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
     pg_obstacles.rectMode(CENTER);
     pg_obstacles.pushMatrix();
     {
-      float px = sin(frameCount/120f) * 0.8f * w/2;
-      pg_obstacles.translate(w/2 + px, h-dim/2);
+      float px = sin(frameCount/240f) * 0.8f * w/2;
+      pg_obstacles.translate(w/2 + px, h/2);
+      pg_obstacles.rotate(frameCount/120f);
       pg_obstacles.fill(0, 255);
-      pg_obstacles.rect(0, 0,  30, dim);
+      pg_obstacles.rect(0, 0,  10, dim);
     }
     pg_obstacles.popMatrix();
     pg_obstacles.endDraw();
@@ -261,7 +253,7 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
     px = vw/2f;
     py = vh/4f;
     vx = 0;
-    vy = 4;
+    vy = 0;
     
     SpawnRadial sr = new SpawnRadial();
     sr.num(count);
@@ -295,7 +287,7 @@ public class FlowFieldParticles_BasicMouseImpulse extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowFieldParticles_BasicMouseImpulse.class.getName() });
+    PApplet.main(new String[] { FlowFieldParticles_Cohesion.class.getName() });
   }
 
 }
