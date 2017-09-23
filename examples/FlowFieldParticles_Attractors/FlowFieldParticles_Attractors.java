@@ -18,7 +18,6 @@ import java.util.Locale;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
@@ -77,9 +76,9 @@ public class FlowFieldParticles_Attractors extends PApplet {
       viewport_h = displayHeight;
       viewport_x = 0;
       viewport_y = 0;
-      fullScreen(P3D);
+      fullScreen(P2D);
     } else {
-      size(viewport_w, viewport_h, P3D);
+      size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
   }
@@ -356,8 +355,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
     pg_obstacles.noStroke();
     pg_obstacles.blendMode(REPLACE);
     pg_obstacles.rectMode(CORNER);
-    setFill(pg_obstacles, BG);
-    pg_obstacles.rect(0, 0, w, h);
     setFill(pg_obstacles, FG);
     pg_obstacles.rect(0, 0, w, h);
     setFill(pg_obstacles, BG);
@@ -371,7 +368,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
 
   public void autoSpawnParticles(){
-    if(AUTO_SPAWN && (frameCount%3) == 0){
+    if(AUTO_SPAWN && (frameCount%6) == 0){
       float px = 100;
       float py = height-100;
       
@@ -381,6 +378,11 @@ public class FlowFieldParticles_Attractors extends PApplet {
       sr.pos(px, height-1 - py);
       sr.vel(0, 0);
       particles.spawn(width, height, sr);
+      
+//      px = width-100;
+//      py = 100;
+//      sr.pos(px, height-1 - py);
+//      particles.spawn(width, height, sr);
     }
     
     boolean IS_GUI = cp5.isMouseOver();

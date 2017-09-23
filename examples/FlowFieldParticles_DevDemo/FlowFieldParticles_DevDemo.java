@@ -19,7 +19,6 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
-import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
@@ -98,9 +97,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       viewport_h = displayHeight;
       viewport_x = 0;
       viewport_y = 0;
-      fullScreen(P3D);
+      fullScreen(P2D);
     } else {
-      size(viewport_w, viewport_h, P3D);
+      size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
   }
@@ -298,15 +297,16 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       }
       
       if(APPLY_LIQUID_FX){
-        liquidfx.param.base_LoD = 1;
-        liquidfx.param.base_blur_radius = 1;
-        liquidfx.param.base_threshold = 0.7f;
-        liquidfx.param.highlight_enabled = true;
-        liquidfx.param.highlight_LoD = 1;
-        liquidfx.param.highlight_decay = 0.6f;
-        liquidfx.param.sss_enabled = true;
-        liquidfx.param.sss_LoD = 2;
-        liquidfx.param.sss_decay = 0.8f;
+        liquidfx.param.base_LoD           = 1;
+        liquidfx.param.base_blur_radius   = 1;
+        liquidfx.param.base_threshold     = 0.6f;
+        liquidfx.param.base_threshold_pow = 25;
+        liquidfx.param.highlight_enabled  = true;
+        liquidfx.param.highlight_LoD      = 1;
+        liquidfx.param.highlight_decay    = 0.6f;
+        liquidfx.param.sss_enabled        = true;
+        liquidfx.param.sss_LoD            = 3;
+        liquidfx.param.sss_decay          = 0.8f;
         liquidfx.apply(pg_particles);
       }
 
@@ -430,10 +430,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     pg_obstacles.noStroke();
     pg_obstacles.blendMode(REPLACE);
     pg_obstacles.rectMode(CORNER);
-//    pg_obstacles.background(col_BG);
-    
-    setFill(pg_obstacles, BG);
-    pg_obstacles.rect(0, 0, w, h);
 
     setFill(pg_obstacles, FG);
     pg_obstacles.rect(0, 0, w, h);

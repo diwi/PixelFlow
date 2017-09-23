@@ -154,8 +154,8 @@ public class DwFlowFieldParticles{
     
 
     ff_col = new DwFlowField(context);
-    ff_col.param.blur_iterations = 0;
-    ff_col.param.blur_radius     = 0;
+    ff_col.param.blur_iterations = 1;
+    ff_col.param.blur_radius     = 1;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 0;
@@ -603,10 +603,8 @@ public class DwFlowFieldParticles{
   }
   
   
-  
-  
 
-
+  
   public void updateAcceleration(DwGLTexture tex_velocity, float acc_mult){
     
     int w_velocity = tex_velocity.w;
@@ -691,7 +689,7 @@ public class DwFlowFieldParticles{
       tm_acc.set(ff_acc.tex_vel,  1.000f * param.mul_acc / param.steps, 0);
       tm_col.set(ff_col.tex_vel,  1.000f * param.mul_col / param.steps, 0);
       tm_coh.set(ff_coh.tex_vel, -0.025f * param.mul_coh / param.steps, 0);
-      tm_obs.set(ff_obs.tex_vel,  2.000f * param.mul_obs / param.steps, 0);
+      tm_obs.set(ff_obs.tex_vel,  3.000f * param.mul_obs / param.steps, 0);
    
       merge.apply(ff_sum.tex_vel, tm_acc, tm_col, tm_coh, tm_obs);
       ff_sum.blur();

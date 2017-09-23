@@ -40,21 +40,21 @@ import processing.opengl.PGraphicsOpenGL;
 public class DwLiquidFX {
 
   static public class Param{
-    public int        base_LoD          = 1;
-    public int        base_blur_radius  = 2;
-    public float      base_threshold    = 0.7f;
+    public int        base_LoD           = 1;
+    public int        base_blur_radius   = 2;
+    public float      base_threshold     = 0.7f;
+    public float      base_threshold_pow = 5;
+    public boolean    highlight_enabled  = true;
+    public float      highlight_decay    = 0.60f;
+    public int        highlight_LoD      = 1;
+    public Sobel.TYPE highlight_dir      = Sobel.TYPE._3x3_BLTR;
+    public boolean    highlight_dir_inv  = true;
     
-    public boolean    highlight_enabled = true;
-    public float      highlight_decay   = 0.60f;
-    public int        highlight_LoD     = 1;
-    public Sobel.TYPE highlight_dir     = Sobel.TYPE._3x3_BLTR;
-    public boolean    highlight_dir_inv = true;
-    
-    public boolean    sss_enabled       = true;
-    public float      sss_decay         = 0.70f;
-    public int        sss_LoD           = 3;
-    public Sobel.TYPE sss_dir           = Sobel.TYPE._3x3_VERT;
-    public boolean    sss_dir_inv       = true;
+    public boolean    sss_enabled        = true;
+    public float      sss_decay          = 0.70f;
+    public int        sss_LoD            = 3;
+    public Sobel.TYPE sss_dir            = Sobel.TYPE._3x3_VERT;
+    public boolean    sss_dir_inv        = true;
   }
   
   // parameter
@@ -199,7 +199,7 @@ public class DwLiquidFX {
     
     // cut border, smooth AA thresholding
     filter.threshold.param.threshold_val = new float[]{0, 0, 0, param.base_threshold};
-    filter.threshold.param.threshold_pow = new float[]{1, 1, 1, 5};
+    filter.threshold.param.threshold_pow = new float[]{1, 1, 1, param.base_threshold_pow};
     filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
     filter.threshold.apply(tex_dst, tex_dst);
     
