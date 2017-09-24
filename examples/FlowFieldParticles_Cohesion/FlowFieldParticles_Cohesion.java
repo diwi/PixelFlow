@@ -269,7 +269,7 @@ public class FlowFieldParticles_Cohesion extends PApplet {
       px = mouseX;
       py = mouseY;
       vx = 0;
-      vx = 0;
+      vy = 0;
       
       sr.num(count);
       sr.dim(radius, radius);

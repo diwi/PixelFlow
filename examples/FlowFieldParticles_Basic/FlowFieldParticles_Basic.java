@@ -197,7 +197,7 @@ public class FlowFieldParticles_Basic extends PApplet {
       px = mouseX;
       py = mouseY;
       vx = (mouseX - pmouseX) * +5;
-      vx = (mouseY - pmouseY) * -5;
+      vy = (mouseY - pmouseY) * -5;
       
       sr.num(count);
       sr.dim(radius, radius);

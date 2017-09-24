@@ -55,7 +55,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   // by Thomas Diewald, (C) 2017
   //
   //
-  // --- FLOW FIELDS / SDF (DISTANCE FIELDS) ---
+  // --- FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ---
   // A FlowField is simply a velocity texture which is for iteratively updating 
   // particle-positions.
   // In my implementation a SDF serves usually as input for a flowfield.
@@ -538,17 +538,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     pg_obstacles.image(pg_spheres, 0, 0);
     
     pg_obstacles.endDraw();
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
     
   }
   

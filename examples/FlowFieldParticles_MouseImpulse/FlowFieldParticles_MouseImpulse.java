@@ -15,9 +15,7 @@ package FlowFieldParticles_MouseImpulse;
 
 import java.util.Locale;
 
-import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
@@ -32,7 +30,7 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
   
   //
   //
-  // Basic starter demo for a FlowFieldParticle simulation.
+  // FlowFieldParticles Demo that shows how to add custom mouse-interactions.
   //
   // Gravity, Particle Spawning, Animated Obstacles, Mouse Impulse
   //
@@ -253,7 +251,7 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
       px = mouseX;
       py = mouseY;
       vx = 0;
-      vx = 0;
+      vy = 0;
       
       sr.num(count);
       sr.dim(radius, radius);
