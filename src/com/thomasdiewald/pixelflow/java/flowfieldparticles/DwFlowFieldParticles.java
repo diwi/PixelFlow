@@ -485,7 +485,7 @@ public class DwFlowFieldParticles{
   
 
   public void createCollisionFlowField(){
-    if(param.mul_col <= 0.0) return;
+    if(param.mul_col * param.size_collision <= 0.0) return;
     
     int w = tex_col_dist.w;
     int h = tex_col_dist.h;
@@ -518,7 +518,7 @@ public class DwFlowFieldParticles{
   }
   
   public void createCohesionFlowField(){
-    if(param.mul_coh <= 0.0) return;
+    if(param.mul_coh * param.size_cohesion <= 0.0) return;
     
     int w = tex_coh_dist.w;
     int h = tex_coh_dist.h;

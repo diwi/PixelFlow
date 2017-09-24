@@ -113,15 +113,18 @@ public class FlowFieldParticles_Impulse extends PApplet {
 
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
-    particles.param.col_A = new float[]{0.80f, 0.30f, 0.15f, 5};
-    particles.param.col_B = new float[]{0.40f, 0.15f, 0.07f, 0};
+//    particles.param.col_A = new float[]{0.80f, 0.30f, 0.15f, 5};
+//    particles.param.col_B = new float[]{0.40f, 0.15f, 0.07f, 0};
+    particles.param.col_A = new float[]{0.20f, 0.40f, 0.80f, 5};
+    particles.param.col_B = new float[]{0.10f, 0.20f, 0.40f, 0};
+    
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.995f;
-    particles.param.size_display   = 10;
-    particles.param.size_collision = 10;
-    particles.param.size_cohesion  = 0;
-    particles.param.mul_coh = 0.00f;
+    particles.param.size_display   = 5;
+    particles.param.size_collision = 5;
+    particles.param.size_cohesion  = 5;
+    particles.param.mul_coh = 5.00f;
     particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
     
@@ -139,7 +142,7 @@ public class FlowFieldParticles_Impulse extends PApplet {
   
   float impulse_max = 256;
   float impulse_mul = 15;
-  float impulse_tsmooth = 0.90f;
+  float impulse_tsmooth = 0.50f;
   int   impulse_blur  = 0;
   
   public void addImpulse(){
@@ -147,24 +150,9 @@ public class FlowFieldParticles_Impulse extends PApplet {
     int w = width;
     int h = height;
     
-    // impulse center/velocity
-    float mx = mouseX;
-    float my = mouseY;
-    float vx = (mouseX - pmouseX) * +impulse_mul;
-    float vy = (mouseY - pmouseY) * -impulse_mul; // flip vertically
-    // clamp velocity
-    float vv_sq = vx*vx + vy*vy;
-    float vv_sq_max = impulse_max*impulse_max;
-    if(vv_sq > vv_sq_max){
-      vx = impulse_max * vx / sqrt(vv_sq);
-      vy = impulse_max * vy / sqrt(vv_sq);
-    }
-    
-    // map velocity, to UNSIGNED_BYTE range
+    float vx, vy;
     final int mid = 127;
-    vx = map(vx, -impulse_max, +impulse_max, 0, mid<<1);
-    vy = map(vy, -impulse_max, +impulse_max, 0, mid<<1);
-    
+
     // render "velocity"
     pg_impulse.beginDraw();
     pg_impulse.blendMode(REPLACE);
@@ -174,20 +162,66 @@ public class FlowFieldParticles_Impulse extends PApplet {
     
     // draw some impulse/acceleration fields
     // not that only the red and green channel is used for velocity
-    pg_impulse.fill(mid, mid+100, 0);
+    float tx = sin(frameCount*0.01f)*100;
+    vx = 0;
+    vy = 100;
+    pg_impulse.pushMatrix();
+    pg_impulse.translate(tx, 0);
+    pg_impulse.fill(mid+vx, mid+vy, 0);
     pg_impulse.rect(1*w/3f, h-100, 100, 200);
+    
+    vx = 127;
+    vy = 64;
+    pg_impulse.fill(mid+vx, mid+vy, 0);
+    pg_impulse.rect(1*w/3f, h-400, 100, 100);
+    
+    pg_impulse.popMatrix();
+    
 
-    pg_impulse.fill(mid+20, mid+20, 0);
-    pg_impulse.rect(2*w/3f, h-100, 200, 200);
+//    float rot = sin(frameCount*0.01f) * 0.5f * PI * 0.5f;
+//    vx = sin(rot) * 127;
+//    vy = cos(rot) * 127;
+//    pg_impulse.pushMatrix();
+//    pg_impulse.translate(2*w/3f, h-200);
+//    pg_impulse.rotate(rot);
+//    pg_impulse.fill(mid+vx, mid+vy, 0);
+//    pg_impulse.rect(0,0, 100, 400, 50);
+//    pg_impulse.popMatrix();
+    
+    vx = 0;
+    vy = 127;
+    pg_impulse.fill(mid+vx, mid+vy, 0);
+    pg_impulse.rect(w-50, h-200, 100, 400);
+    
+    vx = -127;
+    vy = 64;
+    pg_impulse.fill(mid+vx, mid+vy, 0);
+    pg_impulse.rect(w-50, 300, 400, 200);
+    
 
-    pg_impulse.fill(mid, mid+20, 0);
-    pg_impulse.rect(w-50, h/2, 100, h);
 
-    pg_impulse.fill(mid-20, mid, 0);
-    pg_impulse.rect(w/2, 50, w, 100);
+//    vx = -20;
+//    vy = 0;
+//    pg_impulse.fill(mid+vx, mid+vy, 0);
+//    pg_impulse.rect(w/2, 50, w, 100);
         
     if(mousePressed){
-      pg_impulse.fill(vx, vy, 0);
+      // impulse center/velocity
+      float mx = mouseX;
+      float my = mouseY;
+      vx = (mouseX - pmouseX) * +impulse_mul;
+      vy = (mouseY - pmouseY) * -impulse_mul; // flip vertically
+      // clamp velocity
+      float vv_sq = vx*vx + vy*vy;
+      float vv_sq_max = impulse_max*impulse_max;
+      if(vv_sq > vv_sq_max){
+        vx = impulse_max * vx / sqrt(vv_sq);
+        vy = impulse_max * vy / sqrt(vv_sq);
+      }
+      // map velocity, to UNSIGNED_BYTE range
+      vx = 127 * vx / impulse_max;
+      vy = 127 * vy / impulse_max;
+      pg_impulse.fill(mid+vx, mid+vy, 0);
       pg_impulse.ellipse(mx, my, 100, 100);
     }
     pg_impulse.endDraw();
@@ -206,7 +240,7 @@ public class FlowFieldParticles_Impulse extends PApplet {
     ff_acc.resize(w, h);
     {
       TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
-      TexMad tb = new TexMad(pg_gravity, -0.05f, 0);
+      TexMad tb = new TexMad(pg_gravity, -0.025f, 0);
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
   }
@@ -255,8 +289,8 @@ public class FlowFieldParticles_Impulse extends PApplet {
     radius = 10;
     px = 50;
     py = vh-50;
-    vx = 0;
-    vy = 0;
+    vx = 2;
+    vy = 10;
     
     SpawnRadial sr = new SpawnRadial();
     sr.num(count);
