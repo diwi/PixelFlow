@@ -16,11 +16,9 @@ package FlowFieldParticles_Attractors;
 import java.util.Locale;
 
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
@@ -37,6 +35,27 @@ import processing.opengl.PGraphicsOpenGL;
 
 
 public class FlowFieldParticles_Attractors extends PApplet {
+  
+  
+  //
+  //
+  // FlowFieldParticle demo showing how to create and add custom flowfields.
+  // 
+  // In this demo, two attractors (blue circles) are placed to setup
+  // a gravity field, which is used for accelerating particles.
+  // Additionally particles are setup to have a rather high cohesion.
+  //
+  // The result is accumulation of particles around the attractors and
+  // some kind of rotational dynamics around them, probably similar to how 
+  // planets and galaxies could form.
+  //
+  // This is NOT a true nbody-simulation, since the cohesion field is limited
+  // in distance as well as numerous precision issues during the collision 
+  // detection using flow fields. However, it is a simple and nice approach 
+  // to do such a simulation.
+  //
+  //
+  
   
   boolean START_FULLSCREEN = !true;
 
@@ -178,7 +197,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     pg_impulse.beginDraw();
     pg_impulse.background(mid, mid, mid);
     pg_impulse.noStroke();
-    if(mousePressed){
+    if(mousePressed && mouseButton != RIGHT){
       pg_impulse.fill(vx, vy, mid);
       pg_impulse.ellipse(mx, my, 100, 100);
     }
