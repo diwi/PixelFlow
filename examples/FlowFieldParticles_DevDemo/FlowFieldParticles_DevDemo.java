@@ -43,50 +43,48 @@ import processing.opengl.PGraphicsOpenGL;
 
 public class FlowFieldParticles_DevDemo extends PApplet {
   
-  
-  //
   //
   //
   // GPU FlowFieldParticle DevDemo.
-  //
+  // 
   // Verlet Particle Simulation based on FlowFields.
-  //
-  //
-  // by Thomas Diewald, (C) 2017
-  //
-  //
-  // --- FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ---
-  // A FlowField is simply a velocity texture which is for iteratively updating 
+  // 
+  // ___ FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ___
+  // A FlowField is simply a velocity texture which is used for iteratively updating 
   // particle-positions.
-  // In my implementation a SDF serves usually as input for a flowfield.
-  // A simple Sobel-filter computes the gradients in x and y.
+  // E.g. Applying a Sobel-filter (x/y gradients) onto a SDF results in a flowfield.
   // 
   //
-  // --- ACCELERATION ---
+  // ___ ACCELERATION ___
   // This is probably the most common use for velocity textures in particle
   // simulations, ... using the velocity for the update step.
+  //
+  //
+  // ___ COLLISION ___
+  // Particle-Collisions can be solved in a very elegant way, by rendering particles
+  // into a R32F texture using a distance-to-center shading function and additive
+  // blending. In a next step a flowfield from this texture is used for updating 
+  // particles position in the next update step.
+  // This is key to simulate millions of particles on the GPU.
   // 
   //
-  // ---- COLLISION --- 
-  // A FlowField is also used to very efficiently solve collision detection 
-  // on the GPU for millions of particles. Up to a certain particle size this
-  // works surprisingly well.
-  //
-  //
-  // --- COHESION ---
+  // ___ COHESION ___
   // Same as for the collisions I was a bit surprised how well it works for
   // simulation particle-to-particle attraction.
+  // 
   //
-  //
-  // --- OBSTACLES ---
+  // ___ OBSTACLES ___
+  // Handling obstacles is more or less the same as particle-to-particle interaction
+  // is handled.
   // A distance transform step is applied in the scene obstacles (edges) to get 
-  // a local distance field from which another flow field can be generated.
+  // a local distance field from which a flow field can be generated.
   // The resulting velocity texture is used for collision detection.
   //
   //
+  // author: Thomas Diewald, (C) 2017
   //
-  
-  
+  //
+
   boolean START_FULLSCREEN = !true;
 
   int viewport_w = 1680;
@@ -464,7 +462,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     int w = pg_obstacles.width;
     int h = pg_obstacles.height;
     float wh = w/2f;
-    float hh = h/2f;
+    // float hh = h/2f;
     
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
@@ -857,9 +855,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
     int dy_group = 20;
     int dy_item = 4;
-    int dy_grid = 2;
-    
-
     ////////////////////////////////////////////////////////////////////////////
     // GUI - FLUID
     ////////////////////////////////////////////////////////////////////////////

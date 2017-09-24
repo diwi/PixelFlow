@@ -617,8 +617,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
     int dy_group = 20;
     int dy_item = 4;
-    int dy_grid = 2;
-    
 
     ////////////////////////////////////////////////////////////////////////////
     // GUI - FLUID
