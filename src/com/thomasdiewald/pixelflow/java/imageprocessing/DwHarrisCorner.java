@@ -24,7 +24,6 @@ import processing.opengl.PGraphics2D;;
 
 public class DwHarrisCorner {
   
-  
   static public class Param {
     public int     blur_input  = 1;
     public int     blur_harris = 3;
@@ -40,17 +39,22 @@ public class DwHarrisCorner {
   
   public Frame frameCurr = new Frame();
   
-  
   private DwGLSLProgram shader_harrisMatrix;
   private DwGLSLProgram shader_harrisCorner;
   private DwGLSLProgram shader_maximumSupp ;
   private DwGLSLProgram shader_render      ;
   
-  public DwHarrisCorner(DwPixelFlow context, int w, int h){
+  public DwHarrisCorner(DwPixelFlow context){
     this.context = context;
     context.papplet.registerMethod("dispose", this);
     
-    resize(w, h);
+    String path1 = DwPixelFlow.SHADER_DIR+"HarrisCornerDetection/";
+    String path2 = DwPixelFlow.SHADER_DIR+"Filter/";
+    
+    shader_harrisMatrix = context.createShader(path1+"harrisMatrix.frag");
+    shader_harrisCorner = context.createShader(path1+"harrisCorner.frag");
+    shader_maximumSupp  = context.createShader(path2+"LocalNonMaxSuppression.frag");
+    shader_render       = context.createShader(path1+"harrisRender.frag");
   }
 
   public void dispose(){
@@ -59,17 +63,6 @@ public class DwHarrisCorner {
   
   public void release(){
     frameCurr.release();
-  }
-  
-  public void resize(int w, int h) {
-    context.begin();
-    frameCurr.resize(context, w, h);
-    
-    shader_harrisMatrix = context.createShader(DwPixelFlow.SHADER_DIR+"HarrisCornerDetection/harrisMatrix.frag");
-    shader_harrisCorner = context.createShader(DwPixelFlow.SHADER_DIR+"HarrisCornerDetection/harrisCorner.frag");
-    shader_maximumSupp  = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/LocalNonMaxSuppression.frag");
-    shader_render       = context.createShader(DwPixelFlow.SHADER_DIR+"HarrisCornerDetection/harrisRender.frag");
-    context.end("HarrisCorner.resize");
   }
   
   public void reset(){
@@ -84,9 +77,12 @@ public class DwHarrisCorner {
   
 
   public void update(PGraphics2D pg_curr) {
+    
+    int w = pg_curr.width;
+    int h = pg_curr.height;
 
     // 0) resize(w/h) or reformat(rgba/grayscale)
-    resize(frameCurr.w, frameCurr.h);
+    frameCurr.resize(context, w, h);
     
     DwFilter filter = DwFilter.get(context);
     
@@ -104,7 +100,7 @@ public class DwHarrisCorner {
     context.begin();
     context.beginDraw(frameCurr.harrisMatrix);
     shader_harrisMatrix.begin();
-    shader_harrisMatrix.uniform2f     ("wh"    , frameCurr.harrisMatrix.w, frameCurr.harrisMatrix.h);
+    shader_harrisMatrix.uniform2f     ("wh"    , w, h);
     shader_harrisMatrix.uniformTexture("tex_dx", frameCurr.sobelH);
     shader_harrisMatrix.uniformTexture("tex_dy", frameCurr.sobelV);
     shader_harrisMatrix.drawFullScreenQuad();
@@ -119,7 +115,7 @@ public class DwHarrisCorner {
     context.begin();
     context.beginDraw(frameCurr.harrisCorner);
     shader_harrisCorner.begin();
-    shader_harrisCorner.uniform2f     ("wh"     , frameCurr.harrisCorner.w, frameCurr.harrisCorner.h);
+    shader_harrisCorner.uniform2f     ("wh"     , w, h);
     shader_harrisCorner.uniform1f     ("scale"  , param.scale);
     shader_harrisCorner.uniform1f     ("harrisK", param.sensitivity);
     shader_harrisCorner.uniformTexture("tex_harrisMatrix", frameCurr.harrisMatrix);
@@ -133,7 +129,7 @@ public class DwHarrisCorner {
       context.begin();
       context.beginDraw(frameCurr.tmp);
       shader_maximumSupp.begin();
-      shader_maximumSupp.uniform2f     ("wh"              , frameCurr.harrisCorner.w, frameCurr.harrisCorner.h);
+      shader_maximumSupp.uniform2f     ("wh"              , w, h);
       shader_maximumSupp.uniformTexture("tex_harrisCorner", frameCurr.harrisCorner);
       shader_maximumSupp.drawFullScreenQuad();
       shader_maximumSupp.end();

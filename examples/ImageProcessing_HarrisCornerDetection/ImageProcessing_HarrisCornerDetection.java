@@ -78,7 +78,7 @@ public class ImageProcessing_HarrisCornerDetection extends PApplet {
     
     
     // Harris Corner detection
-    harris = new DwHarrisCorner(context, view_w, view_h);
+    harris = new DwHarrisCorner(context);
     
     // draw buffers
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
