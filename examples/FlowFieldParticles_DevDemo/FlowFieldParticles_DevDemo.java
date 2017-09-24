@@ -220,8 +220,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_impulse, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
-    
 
     pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
     pg_gravity.smooth(0);
@@ -267,16 +265,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       vy = impulse_max * vy / sqrt(vv_sq);
     }
     // map velocity, to UNSIGNED_BYTE range
-    vx = map(vx, -impulse_max, +impulse_max, 0, 256);
-    vy = map(vy, -impulse_max, +impulse_max, 0, 256);
+    final int mid = 127;
+    vx = map(vx, -impulse_max, +impulse_max, 0, mid<<1);
+    vy = map(vy, -impulse_max, +impulse_max, 0, mid<<1);
     // render "velocity"
     pg_impulse.beginDraw();
-    pg_impulse.clear();
-    pg_impulse.blendMode(BLEND);
-    pg_impulse.background(127.5f, 127.5f, 127.5f, 255);
+    pg_impulse.background(mid, mid, mid);
     pg_impulse.noStroke();
     if(mousePressed){
-      pg_impulse.fill(vx, vy, 0, 255);
+      pg_impulse.fill(vx, vy, mid);
       pg_impulse.ellipse(mx, my, 100, 100);
     }
     pg_impulse.endDraw();
@@ -285,7 +282,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ff_impulse.resize(width, height);
     {
       TexMad ta = new TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
-      TexMad tb = new TexMad(pg_impulse,  1, -0.5f); // -0.5f ... -127.5f
+      TexMad tb = new TexMad(pg_impulse,  1, -mid/255f);
       DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
       ff_impulse.blur(1, impulse_blur);
     }

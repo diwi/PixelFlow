@@ -105,12 +105,12 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     
     // partcle simulation
     particles = new DwFlowFieldParticles(context, numx * numy);
-    particles.param.col_A = new float[]{0.50f, 1.00f, 0.10f, 1};
-    particles.param.col_B = new float[]{0.25f, 0.50f, 0.05f, 0};
+    particles.param.col_A = new float[]{0.40f, 0.80f, 0.10f, 5};
+    particles.param.col_B = new float[]{0.20f, 0.40f, 0.05f, 0};
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
-    particles.param.velocity_damping  = 0.99f;
-    particles.param.size_display   = particle_size;
+    particles.param.velocity_damping  = 0.995f;
+    particles.param.size_display   = particle_size * 1.5f;
     particles.param.size_collision = particle_size;
     particles.param.size_cohesion  = particle_size;
     particles.param.mul_coh = 0.50f;

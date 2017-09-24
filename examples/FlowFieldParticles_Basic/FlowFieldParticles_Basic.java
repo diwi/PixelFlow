@@ -72,14 +72,14 @@ public class FlowFieldParticles_Basic extends PApplet {
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
     particles.param.col_A = new float[]{0.10f, 0.50f, 0.80f, 5};
     particles.param.col_B = new float[]{0.05f, 0.25f, 0.40f, 0};
-    particles.param.shader_collision_mult = 0.1f;
+    particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
-    particles.param.velocity_damping  = 0.99f;
-    particles.param.size_display   = 8;
-    particles.param.size_collision = 8;
+    particles.param.velocity_damping  = 0.995f;
+    particles.param.size_display   = 10;
+    particles.param.size_collision = 10;
     particles.param.size_cohesion  = 4;
-    particles.param.mul_coh = 2.00f;
-    particles.param.mul_col = 2.00f;
+    particles.param.mul_coh = 0.50f;
+    particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
     
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
