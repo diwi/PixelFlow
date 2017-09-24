@@ -28,38 +28,35 @@ import processing.opengl.Texture;
 /**
  * 
  *
- * GPU FlowFieldParticle DevDemo.<br>
+ * <h1> GPU FlowFieldParticle DevDemo.</h1>
  * <br>
  * Verlet Particle Simulation based on FlowFields.<br>
- *
- *
- * <br>
- * --- FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ---<br>
- * A FlowField is simply a velocity texture which is for iteratively updating 
- * particle-positions.
- * In my implementation a SDF serves usually as input for a flowfield.
- * A simple Sobel-filter computes the gradients in x and y.
  * 
- * <br>
- * --- ACCELERATION ---<br>
+ * <h2> ___ FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ___  </h2>
+ * A FlowField is simply a velocity texture which is used for iteratively updating 
+ * particle-positions.
+ * E.g. Applying a Sobel-filter (x/y gradients) onto a SDF results in a flowfield.
+ * 
+ * <h2> ___ ACCELERATION ___ </h2>
  * This is probably the most common use for velocity textures in particle
  * simulations, ... using the velocity for the update step.
  * 
- * <br>
- * ---- COLLISION --- <br>
- * A FlowField is also used to very efficiently solve collision detection 
- * on the GPU for millions of particles. Up to a certain particle size this
- * works surprisingly well.
- *
- * <br>
- * --- COHESION ---<br>
+ * <h2> ___ COLLISION ___ </h2>
+ * Particle-Collisions can be solved in a very elegant way, by rendering particles
+ * into a R32F texture using a distance-to-center shading function and additive
+ * blending. In a next step a flowfield from this texture is used for updating 
+ * particles position in the next update step.
+ * This is key to simulate millions of particles on the GPU.
+ * 
+ * <h2> ___ COHESION ___ </h2>
  * Same as for the collisions I was a bit surprised how well it works for
  * simulation particle-to-particle attraction.
- *
- * <br>
- * --- OBSTACLES ---<br>
+ * 
+ * <h2> ___ OBSTACLES ___ </h2>
+ * Handling obstacles is more or less the same as particle-to-particle interaction
+ * is handled.
  * A distance transform step is applied in the scene obstacles (edges) to get 
- * a local distance field from which another flow field can be generated.
+ * a local distance field from which a flow field can be generated.
  * The resulting velocity texture is used for collision detection.
  *
  * <br>
