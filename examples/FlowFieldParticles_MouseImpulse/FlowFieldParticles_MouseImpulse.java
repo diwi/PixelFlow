@@ -17,10 +17,10 @@ import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
@@ -175,8 +175,8 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
     // create impulse texture
     ff_impulse.resize(w, h);
     {
-      TexMad ta = new TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
-      TexMad tb = new TexMad(pg_impulse,  1, -mid/255f);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
+      Merge.TexMad tb = new Merge.TexMad(pg_impulse,  1, -mid/255f);
       DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
       ff_impulse.blur(1, impulse_blur);
     }
@@ -185,8 +185,8 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
     // create acceleration texture
     ff_acc.resize(w, h);
     {
-      TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
-      TexMad tb = new TexMad(pg_gravity, -0.05f, 0);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, 1, 0);
+      Merge.TexMad tb = new Merge.TexMad(pg_gravity, -0.05f, 0);
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
   }
@@ -237,7 +237,7 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
     vx = 0;
     vy = 4;
     
-    SpawnRadial sr = new SpawnRadial();
+    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
     sr.num(count);
     sr.dim(radius, radius);
     sr.pos(px, vh-1-py);

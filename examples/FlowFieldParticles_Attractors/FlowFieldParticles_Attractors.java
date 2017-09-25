@@ -20,11 +20,9 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 import controlP5.Accordion;
 import controlP5.CColor;
 import controlP5.ControlP5;
@@ -206,8 +204,8 @@ public class FlowFieldParticles_Attractors extends PApplet {
     // create impulse texture
     ff_impulse.resize(width, height);
     {
-      TexMad ta = new TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
-      TexMad tb = new TexMad(pg_impulse,  1, -mid/255f);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
+      Merge.TexMad tb = new Merge.TexMad(pg_impulse,  1, -mid/255f);
       DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
       ff_impulse.blur(1, impulse_blur);
     }
@@ -253,8 +251,8 @@ public class FlowFieldParticles_Attractors extends PApplet {
     // create acceleration texture
     ff_acc.resize(w, h);
     {
-      TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
-      TexMad tb = new TexMad(ff_attractors.tex_vel, 1, 0);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, 1, 0);
+      Merge.TexMad tb = new Merge.TexMad(ff_attractors.tex_vel, 1, 0);
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
 
@@ -382,7 +380,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
       float px = 100;
       float py = height-100;
       
-      SpawnRadial sr = new SpawnRadial();
+      DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
       sr.num(1);
       sr.dim(10, 10);
       sr.pos(px, height-1 - py);
@@ -518,7 +516,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     int px = mouseX;
     int py = mouseY; py = vh - 1 - py;
     
-    SpawnRadial sr = new SpawnRadial();
+    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
     sr.num(count);
     sr.dim(rad, rad);
     sr.pos(px, py);

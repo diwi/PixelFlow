@@ -22,12 +22,10 @@ import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import controlP5.Accordion;
@@ -279,8 +277,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     // create impulse texture
     ff_impulse.resize(width, height);
     {
-      TexMad ta = new TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
-      TexMad tb = new TexMad(pg_impulse,  1, -mid/255f);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
+      Merge.TexMad tb = new Merge.TexMad(pg_impulse,  1, -mid/255f);
       DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
       ff_impulse.blur(1, impulse_blur);
     }
@@ -298,8 +296,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ff_acc.resize(w, h);
     {
       float mul_gravity = UPDATE_GRAVITY ? -gravity/10f : 0;
-      TexMad ta = new TexMad(ff_impulse.tex_vel, 1, 0);
-      TexMad tb = new TexMad(pg_gravity, mul_gravity, 0);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, 1, 0);
+      Merge.TexMad tb = new Merge.TexMad(pg_gravity, mul_gravity, 0);
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
 
@@ -384,7 +382,12 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     }
 
     if(DISPLAY_FLOW){
+      particles.ff_sum.param.line_spacing = 8;
+      particles.ff_sum.param.line_width   = 0.8f;
+      particles.ff_sum.param.line_scale   = 1.5f;
+      particles.ff_sum.param.line_shading = 0;
       particles.ff_sum.displayPixel(pg_canvas);
+      particles.ff_sum.displayLines(pg_canvas);
     }
 
     antialiasing.apply(pg_canvas, pg_aa);
@@ -547,7 +550,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       float px = 2 * width/7f - 100;
       float py = height/4f;
       
-      SpawnRadial sr = new SpawnRadial();
+      DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
       sr.num(1);
       sr.dim(10, 10);
       sr.pos(px, height-1 - py);
@@ -683,7 +686,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     int px = mouseX;
     int py = mouseY; py = vh - 1 - py;
     
-    SpawnRadial sr = new SpawnRadial();
+    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
     sr.num(count);
     sr.dim(rad, rad);
     sr.pos(px, py);

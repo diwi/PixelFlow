@@ -17,10 +17,10 @@ import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRadial;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
@@ -97,7 +97,7 @@ public class FlowFieldParticles_Basic extends PApplet {
     
     ff_acc = new DwFlowField(context);
     ff_acc.resize(width, height);
-    TexMad ta = new TexMad(pg_gravity, -0.05f, 0);
+    Merge.TexMad ta = new Merge.TexMad(pg_gravity, -0.05f, 0);
     DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta);
 
 
@@ -183,7 +183,7 @@ public class FlowFieldParticles_Basic extends PApplet {
     vx = 0;
     vy = 4;
     
-    SpawnRadial sr = new SpawnRadial();
+    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
     sr.num(count);
     sr.dim(radius, radius);
     sr.pos(px, vh-1-py);

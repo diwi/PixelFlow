@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRect;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import processing.core.*;
@@ -46,7 +45,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   DwOpticalFlow opticalflow;
   DwFlowFieldParticles particles;
 
-  SpawnRect spawn = new SpawnRect();
+  DwFlowFieldParticles.SpawnRect spawn = new DwFlowFieldParticles.SpawnRect();
 
   public void settings() {
     size(cam_w * 2, cam_h * 2, P2D);

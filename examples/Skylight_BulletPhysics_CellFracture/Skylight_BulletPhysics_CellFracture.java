@@ -697,7 +697,8 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
   
   public PShape createVoronoiCellShape(WB_VoronoiCell3D cell, Vector3f center_of_mass){
     
-    boolean[] on_bounds = cell.boundaryArray();
+ 
+    boolean[] on_bounds = cell.getVerticesOnBoundary();
     
     PShape voronoi_cell = createShape(GROUP);
     

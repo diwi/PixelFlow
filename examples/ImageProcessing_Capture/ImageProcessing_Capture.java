@@ -172,8 +172,8 @@ public class ImageProcessing_Capture extends PApplet {
   int cam_w = 640;
   int cam_h = 480;
   
-  int view_w = (int) (cam_w * 1.8);
-  int view_h = (int) (cam_h * 1.8);
+  int view_w = (int) (cam_w * 2);
+  int view_h = (int) (cam_h * 2);
   
   int gui_w = 200;
   
