@@ -16,6 +16,7 @@ import com.jogamp.opengl.GL;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwHarrisCorner;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
@@ -70,7 +71,8 @@ public class ImageProcessing_Filter extends PApplet {
   DwFilter filter;
   DwFlowField flowfield;
   MinMaxGlobal minmax_global;
-
+  DwHarrisCorner harris;
+  
   int CONVOLUTION_KERNEL_INDEX = 0;
   
   // custom convolution kernel
@@ -192,6 +194,7 @@ public class ImageProcessing_Filter extends PApplet {
     
     flowfield = new DwFlowField(context);
     minmax_global = new MinMaxGlobal(context);
+    harris = new DwHarrisCorner(context);
     
     filter = new DwFilter(context);
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
@@ -199,6 +202,9 @@ public class ImageProcessing_Filter extends PApplet {
     
     pg_src_B = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_B.smooth(8);
+    pg_src_B.beginDraw();
+    pg_src_B.clear();
+    pg_src_B.endDraw();
     
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_C.smooth(8);
@@ -230,9 +236,7 @@ public class ImageProcessing_Filter extends PApplet {
 
     
     
-    pg_src_B.beginDraw();
-    pg_src_B.clear();
-    pg_src_B.endDraw();
+
     
 
     createGUI();
@@ -467,6 +471,13 @@ public class ImageProcessing_Filter extends PApplet {
       filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB();
     }
     if( DISPLAY_FILTER == IDX++) {
+      harris.update(pg_src_A);
+      // for better contrast, make the image grayscale, so the harris points (red) 
+      // are  more obvious
+      filter.luminance.apply(pg_src_A, pg_src_B); swapAB();
+      harris.render(pg_src_A);
+    }
+    if( DISPLAY_FILTER == IDX++) {
       filter.bloom.apply(pg_src_C, pg_src_C, pg_src_A);
     }
     if( DISPLAY_FILTER == IDX++) {
@@ -510,14 +521,11 @@ public class ImageProcessing_Filter extends PApplet {
       flowfield.displayPixel(pg_src_A);
       flowfield.displayLines(pg_src_A);
     }
-    
     if(DISPLAY_FILTER == IDX++) {
-
       filter.copy.apply(pg_src_A, tex_A);
       minmax_global.apply(tex_A);
       minmax_global.map(tex_A, tex_A, false);
       filter.copy.apply(tex_A, pg_src_A);
-      
       byte[] mima = minmax_global.getVal().getByteTextureData(null);
       System.out.printf("min[%3d %3d %3d %3d] max[%3d %3d %3d %3d]\n", mima[0]&0xFF, mima[1]&0xFF, mima[2]&0xFF, mima[3]&0xFF, mima[4]&0xFF, mima[5]&0xFF, mima[6]&0xFF, mima[7]&0xFF);
     }
@@ -649,6 +657,7 @@ public class ImageProcessing_Filter extends PApplet {
         .addItem("Dog"                         , IDX++)
         .addItem("median + gauss + sobel(H)"   , IDX++)
         .addItem("median + gauss + laplace"    , IDX++)
+        .addItem("Harris Corner Detection"     , IDX++)
         .addItem("Bloom"                       , IDX++)
         .addItem("Luminance Threshold"         , IDX++)
         .addItem("Luminance Threshold + Bloom" , IDX++)

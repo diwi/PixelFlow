@@ -12,12 +12,17 @@ package ImageProcessing_Capture;
 
 
 
+import com.jogamp.opengl.GL;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwHarrisCorner;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.BinomialBlur;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Laplace;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Median;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MinMaxGlobal;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 
@@ -53,30 +58,23 @@ public class ImageProcessing_Capture extends PApplet {
   // - ...
   //
 
-
   
-  
-  
-  
-  // Camera
-  Capture cam;
- 
   // two draw-buffers for swaping
   PGraphics2D pg_src_A;
   PGraphics2D pg_src_B;
   PGraphics2D pg_src_C; // just another buffer for temporary results
   PGraphics2D pg_voronoi_centers; // mask for the distance transform (voronoi)
+  DwGLTexture tex_A = new DwGLTexture();
   
   // filters
   DwFilter filter;
-  
-  // Harris Corner Detection 
+  DwFlowField flowfield;
+  MinMaxGlobal minmax_global;
   DwHarrisCorner harris;
   
-
   int CONVOLUTION_KERNEL_INDEX = 0;
   
-  // custom convolution kernels
+  // custom convolution kernel
   // https://en.wikipedia.org/wiki/Kernel_(image_processing)
   float[][] kernel = 
     {  
@@ -145,11 +143,12 @@ public class ImageProcessing_Capture extends PApplet {
   
   
   // display states
-  public boolean DISPLAY_IMAGE    = true;
-  public boolean DISPLAY_GEOMETRY = true;
+  public boolean DISPLAY_IMAGE      = true;
+  public boolean DISPLAY_GEOMETRY   = true;
+  public boolean DISPLAY_ANIMATIONS = true;
   
   // filter, currently active
-  public int     DISPLAY_FILTER = 17;
+  public int     DISPLAY_FILTER = 16;
   
   // how often the active filter gets applied
   public int     FILTER_STACKS = 1;
@@ -161,19 +160,20 @@ public class ImageProcessing_Capture extends PApplet {
   
   // bilateral filter
   public int     BILATERAL_RADIUS      = 5;
-  public float   BILATERAL_SIGMA_COLOR = 0.12f;
+  public float   BILATERAL_SIGMA_COLOR = 0.3f;
   public float   BILATERAL_SIGMA_SPACE = 5;
   
   // laplace filter
   public int     LAPLACE_WEIGHT         = 1; // 0, 1, 2
   
-
+  // Camera
+  Capture cam;
   
   int cam_w = 640;
   int cam_h = 480;
   
-  int view_w = 1200;
-  int view_h = (int)(view_w * cam_h/(float)cam_w);
+  int view_w = (int) (cam_w * 1.8);
+  int view_h = (int) (cam_h * 1.8);
   
   int gui_w = 200;
   
@@ -184,26 +184,32 @@ public class ImageProcessing_Capture extends PApplet {
 
   public void setup() {
 
-    // main library context
+
     DwPixelFlow context = new DwPixelFlow(this);
     context.print();
     context.printGL();
     
-    // library filters
+    flowfield = new DwFlowField(context);
+    minmax_global = new MinMaxGlobal(context);
+    harris = new DwHarrisCorner(context);
+    
     filter = new DwFilter(context);
-    
-    // harris corner detection
-    harris = new DwHarrisCorner(context, view_w, view_h);
-    
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_A.smooth(0);
+    pg_src_A.smooth(8);
     
     pg_src_B = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_B.smooth(0);
-
+    pg_src_B.smooth(8);
+    pg_src_B.beginDraw();
+    pg_src_B.clear();
+    pg_src_B.endDraw();
+    
     pg_src_C = (PGraphics2D) createGraphics(view_w, view_h, P2D);
-    pg_src_C.smooth(0);
-
+    pg_src_C.smooth(8);
+    
+    
+    tex_A.resize(context, GL.GL_RGBA8, view_w, view_h, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, GL.GL_NEAREST, 4, 1);
+    
+    
     // random distribution of white pixels, that are used as voronoi centers
     // and serve as a mask for the distance transform.
     int gap = 8;
@@ -246,7 +252,7 @@ public class ImageProcessing_Capture extends PApplet {
   
   public void draw() {
     
-    if( cam.available() ){
+    if(cam.available()) {
       cam.read();
     }
     
@@ -272,8 +278,6 @@ public class ImageProcessing_Capture extends PApplet {
       GAUSSBLUR_SIGMA = BLUR_RADIUS/2f;
       cp5_slider_sigma.setValue(GAUSSBLUR_SIGMA);
     }
-    
-   
     
     int IDX = 0;
     
@@ -324,13 +328,17 @@ public class ImageProcessing_Capture extends PApplet {
       }
     }
     if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB();       }
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ); swapAB(); 
     }
     if( DISPLAY_FILTER == IDX++) { 
-      for(int i = 0; i < FILTER_STACKS; i++){
-        filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_VERT); swapAB(); 
-      }
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_VERT); swapAB(); 
+    }
+    if( DISPLAY_FILTER == IDX++) { 
+      filter.sobel.apply(pg_src_A, pg_src_B, Sobel.TYPE._3x3_HORZ);
+      filter.sobel.apply(pg_src_A, pg_src_C, Sobel.TYPE._3x3_VERT);
+      Merge.TexMad texA = new Merge.TexMad(pg_src_B, 0.5f, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(pg_src_C, 0.5f, 0.0f);
+      filter.merge.apply(pg_src_A, texA, texB);
     }
     if( DISPLAY_FILTER == IDX++) { 
       for(int i = 0; i < FILTER_STACKS; i++){
@@ -360,6 +368,17 @@ public class ImageProcessing_Capture extends PApplet {
       filter.laplace.apply(pg_src_A, pg_src_B, Laplace.TYPE.values()[LAPLACE_WEIGHT]); swapAB();
     }
     if( DISPLAY_FILTER == IDX++) {
+      harris.update(pg_src_A);
+      // for better contrast, make the image grayscale, so the harris points (red) 
+      // are  more obvious
+      filter.luminance.apply(pg_src_A, pg_src_B); swapAB();
+      harris.render(pg_src_A);
+    }
+    if( DISPLAY_FILTER == IDX++) {
+      filter.bloom.apply(pg_src_A);
+    }
+    if( DISPLAY_FILTER == IDX++) {
+//      filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS);
       filter.luminance_threshold.apply(pg_src_A, pg_src_A);
     }
     if( DISPLAY_FILTER == IDX++) {
@@ -368,16 +387,6 @@ public class ImageProcessing_Capture extends PApplet {
       filter.bloom.apply(pg_src_B, pg_src_B, pg_src_A);
     }
     if( DISPLAY_FILTER == IDX++) {
-
-      harris.update(pg_src_A);
-      
-      // for better contrast, make the image grayscale, so the harris points (red) 
-      // are  more obvious
-      filter.luminance.apply(pg_src_A, pg_src_B); swapAB();
-      harris.render(pg_src_A);
-    }
-    
-    if( DISPLAY_FILTER == IDX++) {
       pg_src_B.beginDraw();
       pg_src_B.background(0);
       pg_src_B.noStroke();
@@ -385,25 +394,51 @@ public class ImageProcessing_Capture extends PApplet {
       pg_src_B.rectMode(CENTER);
       pg_src_B.ellipse(mouseX, mouseY, 200, 200);
       pg_src_B.endDraw();
-      
+
       filter.distancetransform.param.FG_mask = new float[]{1,1,1,1};
       filter.distancetransform.create(pg_voronoi_centers);
       filter.distancetransform.apply(pg_src_A, pg_src_C);
       swapAC();
     }
- 
+    if( DISPLAY_FILTER == IDX++) {
+      
+      for(int i = 0; i < FILTER_STACKS; i++){
+        filter.gaussblur.apply(pg_src_A, pg_src_A, pg_src_B, BLUR_RADIUS, GAUSSBLUR_SIGMA);
+      }
+      
+      filter.luminance.apply(pg_src_A, pg_src_B);
+      flowfield.create(pg_src_B);
+      
+      flowfield.param.line_col_A        = new float[] {0,0,0,1.0f};
+      flowfield.param.line_col_B        = new float[] {0,0,0,0.1f};
+      flowfield.param.line_scale = 1.5f;
+      flowfield.param.line_width = 1.0f;
+      flowfield.param.line_spacing = 10;
+      flowfield.param.line_shading = 0;
+      flowfield.displayPixel(pg_src_A);
+      flowfield.displayLines(pg_src_A);
+    }
+    if(DISPLAY_FILTER == IDX++) {
+      filter.copy.apply(pg_src_A, tex_A);
+      minmax_global.apply(tex_A);
+      minmax_global.map(tex_A, tex_A, false);
+      filter.copy.apply(tex_A, pg_src_A);
+      byte[] mima = minmax_global.getVal().getByteTextureData(null);
+      System.out.printf("min[%3d %3d %3d %3d] max[%3d %3d %3d %3d]\n", mima[0]&0xFF, mima[1]&0xFF, mima[2]&0xFF, mima[3]&0xFF, mima[4]&0xFF, mima[5]&0xFF, mima[6]&0xFF, mima[7]&0xFF);
+    }
 
-    
     // display result
     background(0);
+    blendMode(REPLACE);
     image(pg_src_A, 0, 0);
+    blendMode(BLEND);
 
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", pg_src_A.width, pg_src_A.height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
   
-  
+ 
   
   void swapAB(){
     PGraphics2D tmp = pg_src_A;
@@ -492,10 +527,16 @@ public class ImageProcessing_Capture extends PApplet {
     .setNumberOfTickMarks(10)
     .plugTo(this, "FILTER_STACKS").linebreak();
     
-
+    cp5.addCheckBox("displayContent").setGroup(group_filter).setSize(18, 18).setPosition(10, 330)
+    .setItemsPerRow(1).setSpacingColumn(2).setSpacingRow(2)
+    .addItem("display image"         , 0).activate(DISPLAY_IMAGE      ? 0 : 3)
+    .addItem("display geometry/noise", 1).activate(DISPLAY_GEOMETRY   ? 1 : 3)
+    .addItem("display animations"    , 2).activate(DISPLAY_ANIMATIONS ? 2 : 3)
+    ;
+    
     int IDX  = 0;
     cp5.addRadio("displayFilter").setGroup(group_filter)
-        .setPosition(10, 390).setSize(18,18)
+        .setPosition(10, 420).setSize(18,18)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
         .addItem("luminance"                   , IDX++)
         .addItem("box blur"                    , IDX++)
@@ -508,14 +549,18 @@ public class ImageProcessing_Capture extends PApplet {
         .addItem("median 5x5"                  , IDX++)
         .addItem("sobel 3x3 horz"              , IDX++)
         .addItem("sobel 3x3 vert"              , IDX++)
+        .addItem("sobel 3x3 horz/vert"         , IDX++)
         .addItem("laplace"                     , IDX++)
         .addItem("Dog"                         , IDX++)
         .addItem("median + gauss + sobel(H)"   , IDX++)
         .addItem("median + gauss + laplace"    , IDX++)
+        .addItem("Harris Corner Detection"     , IDX++)
+        .addItem("Bloom"                       , IDX++)
         .addItem("Luminance Threshold"         , IDX++)
         .addItem("Luminance Threshold + Bloom" , IDX++)
-        .addItem("Harris Corner Detection"     , IDX++)
-        .addItem("Distance Transform / Voronoi",IDX++)
+        .addItem("Distance Transform / Voronoi", IDX++)
+        .addItem("Flow"                        , IDX++)
+        .addItem("Min Max Mapping"             , IDX++)
         .activate(DISPLAY_FILTER)
         ;
     System.out.println("number of filters: "+IDX);
@@ -530,8 +575,9 @@ public class ImageProcessing_Capture extends PApplet {
   }
   
   public void displayContent(float[] val){
-    DISPLAY_IMAGE    = val[0] > 0.0;
-    DISPLAY_GEOMETRY = val[1] > 0.0;
+    DISPLAY_IMAGE      = val[0] > 0.0;
+    DISPLAY_GEOMETRY   = val[1] > 0.0;
+    DISPLAY_ANIMATIONS = val[2] > 0.0;
   }
   
   
