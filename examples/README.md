@@ -2,6 +2,7 @@
 
 ```
 + Fluid Simulation (GLSL)
++ Flow Field Particles (GLSL)
 + Softbody Dynamics (CPU, GLSL is coming)
 + Skylight Renderer (GLSL)
 + PostProcessing Filters (GLSL)
