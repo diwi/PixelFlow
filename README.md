@@ -15,6 +15,13 @@
     - Flow Field Visualisation
     - Streamlines
     - ...
++ Flow Field Particles (GLSL)
+    - Collision Detection, Particle <-> Particle
+    - Collision Detection, Particle <-> Obstacle
+    - Cohesion
+    - Verlet Integration
+    - FlowField Attractors
+    - ...
 + Softbody Dynamics (CPU, GLSL is coming)
     - 2D and 3D
     - Collision Detection
