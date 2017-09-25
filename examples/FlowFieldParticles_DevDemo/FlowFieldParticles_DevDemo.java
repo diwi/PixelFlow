@@ -44,9 +44,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //
   //
   // GPU FlowFieldParticle DevDemo.
-  // 
+  //
+  //
   // Verlet Particle Simulation based on FlowFields.
   // 
+  //
   // ___ FLOW FIELDS / SDF (SIGNED DISTANCE FIELDS) ___
   // A FlowField is simply a velocity texture which is used for iteratively updating 
   // particle-positions.

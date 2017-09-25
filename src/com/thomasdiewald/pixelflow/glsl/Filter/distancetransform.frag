@@ -68,11 +68,11 @@ void main(){
 
 #define TEXACCESS 0
 
-#if (TEX_READ_VERSION == 0) 
+#if (TEXACCESS == 0) 
   // needs the position to be clamped
   #define getDTNN(tex, off) texelFetch(tex, clamp(pos + off, ivec2(0), wh - 1), 0).xy
 #endif
-#if (TEX_READ_VERSION == 1) 
+#if (TEXACCESS == 1) 
   // needs wrap-param GL_CLAMP_TO_EDGE
   #define getDTNN(tex, off) texture(tex, (gl_FragCoord.xy + off) / wh).xy
 #endif

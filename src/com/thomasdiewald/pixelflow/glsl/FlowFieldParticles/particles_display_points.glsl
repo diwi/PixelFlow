@@ -18,6 +18,8 @@
 #define SHADER_FRAG_COHESION 0
 #define SHADER_FRAG_DISPLAY 0
 
+#define USE_PRESSURE 0
+
 uniform float     point_size;
 uniform ivec2     wh_position;
 uniform float     shader_collision_mult = 1.0;
@@ -29,7 +31,9 @@ uniform vec4      col_B = vec4(0, 0, 0, 0.0);
 
 #if SHADER_VERT
 
-out float pressure;
+#if USE_PRESSURE
+  out float pressure;
+#endif
 
 void main(){
 
@@ -44,11 +48,13 @@ void main(){
   vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
   vec2 pos = particle.xy;
 
+#if USE_PRESSURE
   // should be stripped away by the compiler for SHADER_FRAG_COLLISION == 1
   {
     float vel = length(pos - particle.zw) * 2000;
     pressure = texture(tex_collision, pos).r + vel;
   }
+#endif
 
   gl_Position  = vec4(pos * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   gl_PointSize = point_size;

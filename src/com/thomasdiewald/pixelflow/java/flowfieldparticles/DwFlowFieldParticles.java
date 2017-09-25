@@ -177,6 +177,7 @@ public class DwFlowFieldParticles{
     shader_display_particles = context.createShader((Object) (this+"SPRITE"), filename, filename);
     shader_display_particles.frag.setDefine("SHADER_FRAG_DISPLAY", 1);
     shader_display_particles.vert.setDefine("SHADER_VERT"        , 1);
+    shader_display_particles.vert.setDefine("USE_PRESSURE"       , 1);
     
     shader_col_dist = context.createShader((Object) (this+"COLLISION"), filename, filename);
     shader_col_dist.frag.setDefine("SHADER_FRAG_COLLISION", 1);
