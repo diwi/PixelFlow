@@ -20,7 +20,7 @@
     - Collision Detection, Particle <-> Obstacle
     - Cohesion
     - Verlet Integration
-    - FlowField Attractors
+    - FlowField/SDF(Signed Distance Field) based
     - ...
 + Softbody Dynamics (CPU, GLSL is coming)
     - 2D and 3D
@@ -54,8 +54,12 @@
     - Depth of Field (DoF)
     - Summed Area Table (SAT)
     - Distance Transform (Jumpflood), Voronoi, Distance Map
+    - Global Min Max
+    - Local Min Max
+    - FlowField
     - ...
 + AntiAliasing (GLSL)
+    - MSAA (Processing Default)
     - FXAA
     - SMAA
     - GBAA/DEAA
@@ -64,6 +68,7 @@
     - Subdivision Polyhedra
     - Sampling
     - GLSL-Shader PreProcessor (#define, #include)
+    - GLSL-Shader Uniform Caching
     - ...
 ```  
 
