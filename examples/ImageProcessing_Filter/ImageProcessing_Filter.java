@@ -192,11 +192,11 @@ public class ImageProcessing_Filter extends PApplet {
     context.print();
     context.printGL();
     
+    filter = new DwFilter(context);
     flowfield = new DwFlowField(context);
     minmax_global = new MinMaxGlobal(context);
     harris = new DwHarrisCorner(context);
-    
-    filter = new DwFilter(context);
+
     pg_src_A = (PGraphics2D) createGraphics(view_w, view_h, P2D);
     pg_src_A.smooth(8);
     

@@ -2,6 +2,7 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.core.PConstants;
 import processing.opengl.PGraphics2D;
@@ -65,10 +66,11 @@ public class DwBackgroundSubtraction{
       filter.luminance.apply(pg_src, pg_background_tmp);
       filter.gaussblur.apply(pg_background_tmp, pg_background_tmp, pg_tmp, param.bg_blur_radius);
 
-      float       mix  = bg_frames_counter / (bg_frames_counter + 1f);
-      float[]     madA = {     mix, 0};
-      float[]     madB = {1f - mix, 0};
-      filter.merge.apply(pg_background, pg_background, pg_background_tmp, madA, madB);
+      float  mix  = bg_frames_counter / (bg_frames_counter + 1f);
+      TexMad tm0 = new TexMad(pg_background    ,      mix, 0);
+      TexMad tm1 = new TexMad(pg_background_tmp, 1f - mix, 0);
+      filter.merge.apply(pg_background, tm0, tm1);     
+      
       bg_frames_counter++;
     }
 

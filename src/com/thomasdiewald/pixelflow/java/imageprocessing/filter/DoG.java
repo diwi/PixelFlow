@@ -11,6 +11,8 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
+
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -53,9 +55,9 @@ public class DoG {
     filter.gaussblur.apply(src, dst, tmp, param.kernel_A);
     filter.gaussblur.apply(src, src, tmp, param.kernel_B);
     
-    float[] madA = { +param.mult, param.shift * 0.5f};
-    float[] madB = { -param.mult, param.shift * 0.5f};
-    filter.merge.apply(dst, src, dst, madA, madB);      
+    TexMad tm0 = new TexMad(src, +param.mult, param.shift * 0.5f);
+    TexMad tm1 = new TexMad(dst, -param.mult, param.shift * 0.5f);
+    filter.merge.apply(dst, tm0, tm1);      
   }
   
   

@@ -21,6 +21,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.opengl.PGraphics2D;;
 
@@ -183,13 +184,10 @@ public class DwOpticalFlow {
       filter.gaussblur.apply(frameCurr.velocity, frameCurr.velocity, frameCurr.tmp, param.blur_flow);
       
       // 5) mix with previous velocity
-      DwGLTexture dst  = frameCurr.velocity;
-      DwGLTexture srcA = framePrev.velocity;
-      DwGLTexture srcB = frameCurr.velocity;
-      float       mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99f);
-      float[]     madA = {     mix, 0};
-      float[]     madB = {1f - mix, 0};
-      filter.merge.apply(dst, srcA, srcB, madA, madB);
+      float  mix  = Math.min(Math.max(param.temporal_smoothing, 0), 0.99f);
+      TexMad tm0 = new TexMad(framePrev.velocity,      mix, 0);
+      TexMad tm1 = new TexMad(frameCurr.velocity, 1f - mix, 0);
+      filter.merge.apply(frameCurr.velocity, tm0, tm1);    
     }
 
     UPDATE_STEP++;

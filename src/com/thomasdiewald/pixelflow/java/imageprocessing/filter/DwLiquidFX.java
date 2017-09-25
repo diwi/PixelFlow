@@ -18,6 +18,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.opengl.PGraphicsOpenGL;
 
@@ -84,9 +85,6 @@ public class DwLiquidFX {
   protected int[] swizzle_AAA1 = {SWIZZLE_A, SWIZZLE_A, SWIZZLE_A, SWIZZLE_1};
   protected int[] swizzle_000A = {SWIZZLE_0, SWIZZLE_0, SWIZZLE_0, SWIZZLE_A};
 
-  protected float[] mad_A = new float[]{1,0};
-  protected float[] mad_B = new float[]{1,0};
-  
   protected float[] lo = {0,0,0,0}; // low clamp
   protected float[] hi = {5,5,5,5}; // high clamp
   
@@ -171,7 +169,11 @@ public class DwLiquidFX {
       filter.threshold.param.threshold_mul = new float[]{1, 1, 1, 1};
       filter.threshold.apply(tex_edge, tex_edge);
       tex_edge.swizzle(swizzle_AAA0);
-      filter.merge.apply(tex_blur_base, tex_blur_base, tex_edge, mad_A, mad_B);
+
+      TexMad tm0 = new TexMad(tex_blur_base, 1, 0);
+      TexMad tm1 = new TexMad(tex_edge     , 1, 0);
+      filter.merge.apply(tex_blur_base, tm0, tm1);     
+      
       tex_edge.swizzle(swizzle_RGBA);
     }
 
