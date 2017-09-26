@@ -73,6 +73,11 @@ public class DwFlowFieldParticles{
     public float   size_collision = 10f;
     public float   size_cohesion  = 10f;
     
+    // buffer size scaling
+    public float wh_scale_obs = 2f;
+    public float wh_scale_col = 1f;
+    public float wh_scale_coh = 16;
+    
     // velocity damping
     public float   velocity_damping  = 0.98f;
     
@@ -245,7 +250,7 @@ public class DwFlowFieldParticles{
   
   public int getCollisionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_collision * 2f / wh_scale_col);
+    int radius = (int) Math.ceil(param.size_collision * 2f / param.wh_scale_col);
     if((radius & 1) == 0){
       radius += 1;
     }
@@ -254,7 +259,7 @@ public class DwFlowFieldParticles{
   
   public int getCohesionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_cohesion * 16 / wh_scale_coh);
+    int radius = (int) Math.ceil(param.size_cohesion * 16 / param.wh_scale_coh);
     if((radius & 1) == 0){
       radius += 1;
     }
@@ -299,16 +304,14 @@ public class DwFlowFieldParticles{
   }
   
   
-  public float wh_scale_obs = 1f;
-  public float wh_scale_col = 1f;
-  public float wh_scale_coh = 16;
+
   
   public void resizeWorld(int w, int h){
     
 //    int w_obs = w, h_obs = h;
-    int w_obs = (int) Math.ceil(w/wh_scale_obs), h_obs = (int) Math.ceil(h/wh_scale_obs);
-    int w_col = (int) Math.ceil(w/wh_scale_col), h_col = (int) Math.ceil(h/wh_scale_col);
-    int w_coh = (int) Math.ceil(w/wh_scale_coh), h_coh = (int) Math.ceil(h/wh_scale_coh);
+    int w_obs = (int) Math.ceil(w/param.wh_scale_obs), h_obs = (int) Math.ceil(h/param.wh_scale_obs);
+    int w_col = (int) Math.ceil(w/param.wh_scale_col), h_col = (int) Math.ceil(h/param.wh_scale_col);
+    int w_coh = (int) Math.ceil(w/param.wh_scale_coh), h_coh = (int) Math.ceil(h/param.wh_scale_coh);
     
     ff_obs.resize(w_obs, h_obs);
     ff_col.resize(w_col, h_col);
@@ -468,7 +471,7 @@ public class DwFlowFieldParticles{
   
   
   public void display(PGraphicsOpenGL canvas){
-    if(param.size_display <= 0.0f) return;
+    if(param.size_display <= 0) return;
     
     int w = canvas.width;
     int h = canvas.height;
@@ -495,7 +498,7 @@ public class DwFlowFieldParticles{
   
   
   public void displayTrail(PGraphicsOpenGL canvas){
-    if(param.display_line_width <= 0.0f) return;
+    if(param.display_line_width <= 0) return;
     
     int w = canvas.width;
     int h = canvas.height;
@@ -529,7 +532,7 @@ public class DwFlowFieldParticles{
   
 
   public void createCollisionFlowField(){
-    if(param.mul_col * param.size_collision <= 0.0) return;
+    if(param.mul_col <= 0 || param.size_collision <= 0) return;
     
     int w = tex_col_dist.w;
     int h = tex_col_dist.h;
@@ -562,7 +565,7 @@ public class DwFlowFieldParticles{
   }
   
   public void createCohesionFlowField(){
-    if(param.mul_coh * param.size_cohesion <= 0.0) return;
+    if(param.mul_coh <= 0 || param.size_cohesion <= 0) return;
     
     int w = tex_coh_dist.w;
     int h = tex_coh_dist.h;
@@ -607,7 +610,7 @@ public class DwFlowFieldParticles{
     
     float[] FG_mask = {FG[0]/255f, FG[1]/255f, FG[2]/255f, FG[3]/255f};
     
-    float FG_offset = getCollisionSize() / (4 * wh_scale_obs);
+    float FG_offset = getCollisionSize() / (4 * param.wh_scale_obs);
     FG_offset -= ff_sum.param.blur_radius - ff_obs.param.blur_radius;
     FG_offset = Math.max(FG_offset, 0);
     

@@ -70,7 +70,8 @@ public class DwGLTexture{
   public void release(){
     if(gl != null){
       if(HANDLE != null){
-        gl.glDeleteTextures(1, HANDLE, 0); 
+        gl.glDeleteTextures(1, HANDLE, 0);
+        HANDLE[0] = 0;
         HANDLE = null;
 //        this.target = 0;
 //        this.internalFormat = 0;
@@ -112,12 +113,25 @@ public class DwGLTexture{
     return h; 
   }
   
+  public boolean isTexture(){
+    return (HANDLE != null) && (HANDLE[0] != 0);
+  }
+  
+  public boolean isTexture2(){
+    if(HANDLE != null){
+      return gl.glIsTexture(HANDLE[0]);
+    }
+    return false;
+  }
+
+  
   
   public boolean resize(DwPixelFlow context, DwGLTexture othr){
     return resize(context, othr, othr.w, othr.h);
   }
   
   public boolean resize(DwPixelFlow context, DwGLTexture othr, int w, int h){
+
     return resize(context, 
         othr.internalFormat, 
         w, 
@@ -148,7 +162,8 @@ public class DwGLTexture{
         && this.type == type
         ) return false;
 
-    release();
+    release(); // not sure if its save to just keep using the current texture
+    
     this.context = context;
     this.gl = context.gl;
     this.internalFormat = internalFormat;
@@ -195,13 +210,10 @@ public class DwGLTexture{
     gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, data);
 //    gl.glTexSubImage2D(target, 0, 0, 0, w, h, format, type, data);
     gl.glBindTexture  (target, 0);   
-    
-
-    
-    DwGLError.debug(gl, "DwGLTexture.resize");
-    
+    DwGLError.debug(gl, "DwGLTexture.resize tex");
     
     framebuffer = new DwGLFrameBuffer(gl);
+    DwGLError.debug(gl, "DwGLTexture.resize fbo");
     
     // TODO: create a shared pbo
     HANDLE_pbo = new int[1];
@@ -210,7 +222,7 @@ public class DwGLTexture{
     gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, null, GL2ES3.GL_DYNAMIC_READ);
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
     
-    DwGLError.debug(gl, "DwGLTexture.resize");
+    DwGLError.debug(gl, "DwGLTexture.resize pbo");
 
 //    this.clear(0);
     

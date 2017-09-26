@@ -53,7 +53,7 @@ public class OpticalFlow_Basic extends PApplet {
     context.printGL();
     
     // opticalflow
-    opticalflow = new DwOpticalFlow(context, width, height);
+    opticalflow = new DwOpticalFlow(context);
     
     // some flow parameters
     opticalflow.param.flow_scale         = 100;

@@ -115,6 +115,8 @@ public class GaussianBlurPyramid {
 
     // 3) allocate textures
     for(int i = 0; i < BLUR_LAYERS; i++){
+//      wi = (int) Math.ceil(wi * 0.5f);
+//      hi = (int) Math.ceil(hi * 0.5f);
       tex_temp[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
       tex_blur[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
       tex_temp[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);

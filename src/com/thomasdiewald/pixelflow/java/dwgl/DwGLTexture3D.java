@@ -214,12 +214,11 @@ public class DwGLTexture3D{
 //    gl.glTexSubImage2D(target, 0, 0, 0, w, h, format, type, data);
     gl.glBindTexture  (target, 0);   
     
-
-    
-    DwGLError.debug(gl, "DwGLTexture.resize");
+    DwGLError.debug(gl, "DwGLTexture.resize tex");
     
     
     framebuffer = new DwGLFrameBuffer(gl);
+    DwGLError.debug(gl, "DwGLTexture.resize fbo");
     
     // TODO: create a shared pbo
     HANDLE_pbo = new int[1];
@@ -228,7 +227,7 @@ public class DwGLTexture3D{
     gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, null, GL2ES3.GL_DYNAMIC_READ);
     gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
     
-    DwGLError.debug(gl, "DwGLTexture.resize");
+    DwGLError.debug(gl, "DwGLTexture.resize pbo");
 
 //    this.clear(0);
     

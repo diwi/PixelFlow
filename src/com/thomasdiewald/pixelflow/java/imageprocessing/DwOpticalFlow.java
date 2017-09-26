@@ -55,6 +55,17 @@ public class DwOpticalFlow {
 
   public int UPDATE_STEP = 0;
 
+  public DwOpticalFlow(DwPixelFlow context){
+    this.context = context;
+    this.filter = DwFilter.get(context);
+
+    shader_OF_gray                  = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/OpticalFlowGray.frag");                                                                     
+    shader_OF_rgba                  = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/OpticalFlow.frag");                                                                         
+    shader_OF_renderVelocity        = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityShading.frag");                                                               
+    shader_OF_renderVelocityStreams = context.createShader(DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityStreams.vert", DwPixelFlow.SHADER_DIR+"OpticalFlow/renderVelocityStreams.frag");
+    
+    context.papplet.registerMethod("dispose", this);
+  }
 
   public DwOpticalFlow(DwPixelFlow context, int w, int h){
     this.context = context;

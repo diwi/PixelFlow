@@ -16,6 +16,7 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -122,11 +123,11 @@ public class DwFlowField {
     shader_create.uniformTexture("tex_src", tex_src);
     shader_create.drawFullScreenQuad();
     shader_create.end();
-    context.endDraw();
+    context.endDraw("FlowField.create");
 
     blur(param.blur_iterations, param.blur_radius);
 
-    context.end("FlowField.create()");
+    context.end();
   }
   
   
@@ -137,13 +138,17 @@ public class DwFlowField {
   }
 
   public void blur(int iterations, int radius){
-    if(iterations * radius > 0){
-      tex_tmp.resize(context, tex_vel);
-      tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+    if(!tex_vel.isTexture() || iterations <= 0 || radius <= 0){
+      return;
     }
+    
+    tex_tmp.resize(context, tex_vel);
+    tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+    
     for(int i = 0; i < iterations; i++){
       DwFilter.get(context).gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
     }
+    context.errorCheck("FlowField.blur()");
   }
   
   
@@ -171,8 +176,8 @@ public class DwFlowField {
     shader_display_lines.uniformTexture("tex_velocity"  , tex_vel);
     shader_display_lines.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.line_smooth);
     shader_display_lines.end();
-    context.endDraw();
-    context.end("FlowField.display");
+    context.endDraw("FlowField.displayLines");
+    context.end();
   }
   
   public void displayPixel(PGraphicsOpenGL dst){
