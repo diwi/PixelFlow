@@ -38,7 +38,7 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "0.89";
+    static public final String version = "0.90";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "http://www.thomasdiewald.com";
@@ -51,41 +51,38 @@ public class DwPixelFlow{
 
   static public final PixelFlowInfo INFO;
   
-  static{
+  static {
     INFO = new PixelFlowInfo();
   }
   
   
-  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
-//  public static final String SHADER_DIR = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/";
+//  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
+  public static final String SHADER_DIR = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/";
   
   public PApplet papplet;
   public PJOGL   pjogl;
   public GL2ES2  gl;
   
-  public final DwUtils utils;
+  public final DwUtils utils = new DwUtils(this);
   
   private int scope_depth = 0;
   
-  public DwGLFrameBuffer framebuffer;
+  public final DwGLFrameBuffer framebuffer = new DwGLFrameBuffer();
   
   
   private HashMap<String, DwGLSLProgram> shader_cache = new HashMap<String, DwGLSLProgram>();
   
+  
   public DwPixelFlow(PApplet papplet){
     this.papplet = papplet;
-
-    this.gl = begin(); end();
+    this.papplet.registerMethod("dispose", this);
     
+    begin(); 
     pjogl.enableFBOLayer();
-
-    papplet.registerMethod("dispose", this);
-    
-    utils = new DwUtils(this);
-   
-    framebuffer = new DwGLFrameBuffer(gl);
+    end();
   }
   
+
   public void dispose(){
     release();
   }
@@ -103,10 +100,8 @@ public class DwPixelFlow{
     }
     shader_cache.clear();
         
-    if(framebuffer != null){
-      framebuffer.release();
-      framebuffer = null;
-    }
+    framebuffer.release();
+
   }
   
   
@@ -131,9 +126,10 @@ public class DwPixelFlow{
 
   public GL2ES2 begin(){
 //    System.out.printf("%"+(scope_depth*2+1)+"s GLScope.begin %d\n", " ", scope_depth);
-    if( scope_depth == 0){
+    if(scope_depth == 0){
       pjogl = (PJOGL) papplet.beginPGL(); 
-      gl    = pjogl.gl.getGL2ES2();
+      gl = pjogl.gl.getGL2ES2();
+      framebuffer.allocate(gl);
     }
 
     scope_depth++;

@@ -54,6 +54,8 @@ public class ReactionDiffusion extends PApplet {
     
     // pixelflow context
     context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
 
     // 1) 32 bit per channel
     tex_grayscott.resize(context, GL2.GL_RG32F, width, height, GL2.GL_RG, GL2.GL_FLOAT, GL2.GL_NEAREST, 2, 4);

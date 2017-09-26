@@ -23,6 +23,7 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import processing.opengl.PJOGL;
 
 public class Fluid_CustomParticles extends PApplet {
   
@@ -134,6 +135,7 @@ public class Fluid_CustomParticles extends PApplet {
   public void settings() {
     size(viewport_w, viewport_h, P2D);
     smooth(4);
+    PJOGL.profile = 3;
   }
   
 

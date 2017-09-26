@@ -37,6 +37,7 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.PJOGL;
 
 
 public class FlowFieldParticles_DevDemo extends PApplet {
@@ -145,6 +146,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
+    PJOGL.profile = 3;
     smooth(0);
   }
   
@@ -152,7 +154,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public void setup(){
     surface.setLocation(viewport_x, viewport_y);
     surface.setResizable(true);
-
     randomSeed(2);
     for(int i = 0; i < mobs.length; i++){
       float r = random(50,120);
@@ -170,6 +171,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
     particles.param.size_display   = 10;
     particles.param.size_collision = particles.param.size_display;
+    particles.param.size_cohesion  = 5;
     particles.param.velocity_damping  = 0.99f;
     
     ff_acc = new DwFlowField(context);
@@ -416,7 +418,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
     fill(col_fg);
     noStroke();
-    rect(0, height, 600, - 20);
+    rect(0, height, 650, - 20);
     fill(255,128,0);
     text(txt_fps, 10, height-6);
     

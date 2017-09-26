@@ -21,6 +21,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import processing.opengl.PJOGL;
 import processing.video.Capture;
 
 
@@ -50,6 +51,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   public void settings() {
     size(cam_w * 2, cam_h * 2, P2D);
     smooth(0);
+    PJOGL.profile = 3;
   }
   
   public void setup(){

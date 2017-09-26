@@ -71,7 +71,7 @@ public class DwFlowFieldParticles{
     // particle size rendering/collision
     public float   size_display   = 10f;
     public float   size_collision = 10f;
-    public float   size_cohesion  = 10f;
+    public float   size_cohesion  =  5f;
     
     // buffer size scaling
     public float wh_scale_obs = 2f;
@@ -199,7 +199,7 @@ public class DwFlowFieldParticles{
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 1;
+    ff_col.param.blur_radius     = 2;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 0;
@@ -525,7 +525,7 @@ public class DwFlowFieldParticles{
     shader_display_trails.drawFullScreenLines(0, 0, w, h, spawn_num, lwidth, lsmooth);
     shader_display_trails.end();
     context.endDraw();
-    context.end("DwFlowFieldParticles.display");
+    context.end("DwFlowFieldParticles.displayTrail");
   }
   
 
@@ -557,7 +557,7 @@ public class DwFlowFieldParticles{
     shader_col_dist.uniformTexture("tex_position", tex_particle.src);
     shader_col_dist.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_col_dist.end();
-    context.endDraw();
+    context.endDraw("DwFlowFieldParticles.createCollisionFlowField shader_col_dist");
     
     ff_col.create(tex_col_dist);
     
@@ -574,7 +574,7 @@ public class DwFlowFieldParticles{
     int h_particle = tex_particle.src.h;
 
     context.begin();
-    
+
     context.beginDraw(tex_coh_dist);
     
     context.gl.glColorMask(true, false, false, false);
@@ -591,11 +591,11 @@ public class DwFlowFieldParticles{
     shader_coh_dist.uniformTexture("tex_position", tex_particle.src);
     shader_coh_dist.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_coh_dist.end();
-    context.endDraw();
+    context.endDraw("DwFlowFieldParticles.createCohesionFlowField shader_coh_dist");
      
     ff_coh.create(tex_coh_dist);
     
-    context.end("DwFlowFieldParticles.createCoherenceFlowField");
+    context.end("DwFlowFieldParticles.createCohesionFlowField");
   }
   
   

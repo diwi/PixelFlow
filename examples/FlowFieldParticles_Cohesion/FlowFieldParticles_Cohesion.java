@@ -25,6 +25,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+import processing.opengl.PJOGL;
 
 
 
@@ -65,6 +66,7 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
     size(viewport_w, viewport_h, P2D);
     smooth(0);
+    PJOGL.profile = 3;
   }
   
 

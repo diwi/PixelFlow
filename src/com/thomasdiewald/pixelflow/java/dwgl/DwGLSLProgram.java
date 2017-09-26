@@ -348,18 +348,18 @@ public class DwGLSLProgram {
   public void drawFullScreenPoints(int x, int y, int w, int h, int num_points, boolean smooth){
     gl.glViewport(x, y, w, h);
 
+    gl.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
+    gl.glEnable(GL2.GL_POINT_SPRITE);
+    gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
+    
     if(smooth){
       gl.glEnable(GL2.GL_POINT_SMOOTH);
       gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
     } else {
       gl.glDisable(GL2.GL_POINT_SMOOTH);
     }
-    
-//    gl.glEnable(GL3.GL_VERTEX_PROGRAM_POINT_SIZE);
-    gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
-    gl.glEnable(GL2ES1.GL_POINT_SPRITE);
-    
-    gl.glDrawArrays(GL2ES2.GL_POINTS, 0, num_points);
+    DwGLError.debug(gl, "DwGLSLProgram.drawFullScreenPoints");
+    gl.glDrawArrays(GL2.GL_POINTS, 0, num_points);
   }
   
   

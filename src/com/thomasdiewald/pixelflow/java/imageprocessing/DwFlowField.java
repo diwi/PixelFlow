@@ -16,7 +16,6 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -111,12 +110,12 @@ public class DwFlowField {
   
   public void create(int tex_src, int w_src, int h_src){
     context.begin();
-    
+
     resize(w_src, h_src);
     
     int w_dst = tex_vel.w;
     int h_dst = tex_vel.h;
-
+    
     context.beginDraw(tex_vel);
     shader_create.begin();
     shader_create.uniform2f     ("wh_rcp" , 1f/w_dst, 1f/h_dst);

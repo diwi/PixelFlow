@@ -27,9 +27,13 @@ public class DwGLFrameBuffer {
   public int max_color_attachments;
   public int max_draw_buffers;
   public int max_bind;
-  public DwGLFrameBuffer(GL2ES2 gl){
-    allocate(gl);
+  
+  public DwGLFrameBuffer(){
   }
+  
+//  public DwGLFrameBuffer(GL2ES2 gl){
+//    allocate(gl);
+//  }
   
   public void release(){
     if(gl != null){

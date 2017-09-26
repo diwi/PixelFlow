@@ -217,7 +217,9 @@ public class DwGLTexture3D{
     DwGLError.debug(gl, "DwGLTexture.resize tex");
     
     
-    framebuffer = new DwGLFrameBuffer(gl);
+    framebuffer = new DwGLFrameBuffer();
+    framebuffer.allocate(gl);
+    
     DwGLError.debug(gl, "DwGLTexture.resize fbo");
     
     // TODO: create a shared pbo
