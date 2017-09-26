@@ -60,6 +60,8 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
   
   
   public void settings() {
+    viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
+    viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
     size(viewport_w, viewport_h, P2D);
     smooth(0);
   }
@@ -68,7 +70,6 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
   public void setup(){
     surface.setLocation(viewport_x, viewport_y);
 
-   
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     

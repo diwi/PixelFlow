@@ -92,14 +92,11 @@ public class Bloom {
       float weight = DwUtils.mix(fac, 1.0f + step - fac, param.radius);
       weights[i*2 + 0] = param.mult * weight;
       weights[i*2 + 1] = 0;
-
-//      weights[i] = param.mult * step;
     }
     return weights;
   }
   
 
-  
   
   
   /**

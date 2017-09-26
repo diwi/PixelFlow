@@ -61,6 +61,8 @@ public class FlowFieldParticles_Cohesion extends PApplet {
   
 
   public void settings() {
+    viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
+    viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
     size(viewport_w, viewport_h, P2D);
     smooth(0);
   }

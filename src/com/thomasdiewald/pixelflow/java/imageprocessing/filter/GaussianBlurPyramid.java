@@ -98,10 +98,10 @@ public class GaussianBlurPyramid {
     int hi = h;
     
     // 1) compute number of blur layers
-    int layers_limit = Math.max(DwUtils.log2ceil(wi), DwUtils.log2ceil(hi)) >> 1;
+    int layers_limit = Math.max(DwUtils.log2ceil(wi), DwUtils.log2ceil(hi)) - 1;
     BLUR_LAYERS_MAX = Math.min(BLUR_LAYERS_MAX, layers_limit);
     BLUR_LAYERS     = Math.min(BLUR_LAYERS_MAX, BLUR_LAYERS);
-    
+     
     // 2) init/release textures if needed
     if(tex_blur.length < BLUR_LAYERS){
       release();

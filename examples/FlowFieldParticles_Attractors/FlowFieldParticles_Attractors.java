@@ -69,6 +69,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
   PGraphics2D pg_impulse;
+  PGraphics2D pg_luminance;
   
   DwPixelFlow context;
   
@@ -79,9 +80,11 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   DwGLSLProgram shd_attractors;
   
-  public boolean AUTO_SPAWN      = true;
+
   public boolean DISPLAY_DIST    = !true;
-  public boolean DISPLAY_FLOW    = !true;
+  public boolean DISPLAY_FLOW    = !true;  
+  public boolean AUTO_SPAWN      = true;
+  public boolean APPLY_BLOOM     = true;
 
   float mul_attractors = 5f;
   
@@ -95,6 +98,8 @@ public class FlowFieldParticles_Attractors extends PApplet {
       viewport_y = 0;
       fullScreen(P2D);
     } else {
+      viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
+      viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
@@ -149,6 +154,9 @@ public class FlowFieldParticles_Attractors extends PApplet {
     
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
+    
+    pg_luminance = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_luminance.smooth(0);
     
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_obstacles.smooth(0);
@@ -280,7 +288,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     if(!DISPLAY_DIST){
       pg_canvas.beginDraw(); 
       pg_canvas.blendMode(REPLACE);
-      pg_canvas.background(0);
+      pg_canvas.background(1);
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
       pg_canvas.endDraw();
@@ -312,6 +320,19 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
     if(DISPLAY_FLOW){
       particles.ff_sum.displayPixel(pg_canvas);
+    }
+       
+    if(APPLY_BLOOM){
+      DwFilter filter = DwFilter.get(context);
+      filter.luminance_threshold.param.threshold = 0.3f; // when 0, all colors are used
+      filter.luminance_threshold.param.exponent  = 5;
+      filter.luminance_threshold.apply(pg_canvas, pg_luminance);
+  
+      filter.bloom.gaussianpyramid.setBlurLayers(10);
+      filter.bloom.param.blur_radius = 1;
+      filter.bloom.param.mult   = 2;    //map(mouseX, 0, width, 0, 10);
+      filter.bloom.param.radius = 0.05f;//map(mouseY, 0, height, 0, 1);
+      filter.bloom.apply(pg_luminance, null, pg_canvas);
     }
     
     blendMode(REPLACE);
@@ -578,6 +599,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     DISPLAY_DIST        = val[ID++] > 0;
     DISPLAY_FLOW        = val[ID++] > 0;
     AUTO_SPAWN          = val[ID++] > 0;
+    APPLY_BLOOM         = val[ID++] > 0;
   }
   
 
@@ -621,7 +643,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 350)
+      group_particles.setHeight(20).setSize(gui_w, 370)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -677,6 +699,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
           .addItem("DISPLAY DIST"       , ++ID).activate(DISPLAY_DIST        ? ID : 10)
           .addItem("DISPLAY FLOW"       , ++ID).activate(DISPLAY_FLOW        ? ID : 10)
           .addItem("AUTO SPAWN"         , ++ID).activate(AUTO_SPAWN          ? ID : 10)
+          .addItem("APPLY BLOOM"        , ++ID).activate(APPLY_BLOOM         ? ID : 10)
         ; 
     }
 

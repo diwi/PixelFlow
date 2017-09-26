@@ -94,7 +94,7 @@ public class DistanceTransformDemo extends PApplet {
     context.print();
     context.printGL();
 
-    frameRate(60);
+    frameRate(600);
   }
   
   

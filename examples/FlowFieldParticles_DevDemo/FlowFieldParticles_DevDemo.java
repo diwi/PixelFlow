@@ -15,7 +15,7 @@ package FlowFieldParticles_DevDemo;
 
 import java.util.Locale;
 
-import com.jogamp.opengl.GL2ES2;
+
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
@@ -141,6 +141,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       viewport_y = 0;
       fullScreen(P2D);
     } else {
+      viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
+      viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
@@ -215,7 +217,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_particles, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
-    
+
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
 
@@ -403,7 +405,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   
 
   void info(){
-    String txt_device = context.gl.glGetString(GL2ES2.GL_RENDERER).trim().split("/")[0];
+    String txt_device = context.gl.glGetString(GL3.GL_RENDERER).trim().split("/")[0];
     String txt_app = getClass().getSimpleName();
     String txt_fps = String.format(Locale.ENGLISH, "[%s]   [%s]   [%d/%d]   [%7.2f fps]   [particles %,d] ", 
         txt_app, txt_device, 

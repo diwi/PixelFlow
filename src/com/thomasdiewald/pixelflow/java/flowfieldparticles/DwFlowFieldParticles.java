@@ -19,11 +19,11 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.Texture;
 
 /**
  * 
@@ -128,6 +128,7 @@ public class DwFlowFieldParticles{
 
   public DwGLSLProgram shader_obs_FG;
   public DwGLTexture tex_obs_FG = new DwGLTexture();
+  public DwGLTexture tex_obs  = new DwGLTexture();
   
   public DistanceTransform distancetransform;
   
@@ -244,7 +245,7 @@ public class DwFlowFieldParticles{
   
   public int getCollisionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_collision * 2f / wh_col);
+    int radius = (int) Math.ceil(param.size_collision * 2f / wh_scale_col);
     if((radius & 1) == 0){
       radius += 1;
     }
@@ -253,7 +254,7 @@ public class DwFlowFieldParticles{
   
   public int getCohesionSize(){
     // double and odd
-    int radius = (int) Math.ceil(param.size_cohesion * 16 / wh_coh);
+    int radius = (int) Math.ceil(param.size_cohesion * 16 / wh_scale_coh);
     if((radius & 1) == 0){
       radius += 1;
     }
@@ -282,7 +283,8 @@ public class DwFlowFieldParticles{
   public void release(){
     distancetransform.release();
     tex_obs_FG.release();
-
+    tex_obs.release();
+    
     ff_col.release();
     ff_obs.release();
     ff_coh.release();
@@ -297,13 +299,16 @@ public class DwFlowFieldParticles{
   }
   
   
-  float wh_col = 1f;
-  float wh_coh = 16;
+  public float wh_scale_obs = 1f;
+  public float wh_scale_col = 1f;
+  public float wh_scale_coh = 16;
+  
   public void resizeWorld(int w, int h){
     
-    int w_obs = w, h_obs = h;
-    int w_col = (int) Math.ceil(w/wh_col), h_col = (int) Math.ceil(h/wh_col);
-    int w_coh = (int) Math.ceil(w/wh_coh), h_coh = (int) Math.ceil(h/wh_coh);
+//    int w_obs = w, h_obs = h;
+    int w_obs = (int) Math.ceil(w/wh_scale_obs), h_obs = (int) Math.ceil(h/wh_scale_obs);
+    int w_col = (int) Math.ceil(w/wh_scale_col), h_col = (int) Math.ceil(h/wh_scale_col);
+    int w_coh = (int) Math.ceil(w/wh_scale_coh), h_coh = (int) Math.ceil(h/wh_scale_coh);
     
     ff_obs.resize(w_obs, h_obs);
     ff_col.resize(w_col, h_col);
@@ -311,6 +316,7 @@ public class DwFlowFieldParticles{
     ff_sum.resize(w, h);
  
     tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
+    tex_obs   .resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     
     tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
     tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
@@ -599,13 +605,13 @@ public class DwFlowFieldParticles{
   public void createObstacleFlowField(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert){
     if(param.mul_obs <= 0.0) return;
     
-    Texture tex_scene = pg_scene.getTexture(); if(!tex_scene.available())  return;
-
     float[] FG_mask = {FG[0]/255f, FG[1]/255f, FG[2]/255f, FG[3]/255f};
     
-    float FG_offset = getCollisionSize() / 4;
+    float FG_offset = getCollisionSize() / (4 * wh_scale_obs);
     FG_offset -= ff_sum.param.blur_radius - ff_obs.param.blur_radius;
     FG_offset = Math.max(FG_offset, 0);
+    
+    DwFilter.get(context).copy.apply(pg_scene, tex_obs);
     
     context.begin();
     
@@ -614,7 +620,7 @@ public class DwFlowFieldParticles{
     shader_obs_FG.begin();
     shader_obs_FG.uniform4fv    ("FG_mask"  , 1, FG_mask);
     shader_obs_FG.uniform1i     ("FG_invert", FG_invert ? 1 : 0);
-    shader_obs_FG.uniformTexture("tex_scene", tex_scene.glName);
+    shader_obs_FG.uniformTexture("tex_scene", tex_obs);
     shader_obs_FG.drawFullScreenQuad();
     shader_obs_FG.end();
     context.endDraw("DwFlowFieldObstacles.create() create FG mask");
