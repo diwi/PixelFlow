@@ -63,6 +63,8 @@
     - FXAA
     - SMAA
     - GBAA/DEAA
++ Shadertoy (GLSL)
+    - Wrapper for running existing Shadertoy sketches inside Processing.
 + Utils
     - HalfEdge
     - Subdivision Polyhedra
