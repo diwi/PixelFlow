@@ -64,7 +64,6 @@ public class ShaderToy_AlienCorridor extends PApplet {
     
     pg_noise = (PGraphics2D) createGraphics(512, 512, P2D);
     pg_noise.smooth(0);
-//    pg_noise.textureSampling(3);
     pg_noise.beginDraw();
     pg_noise.noStroke();
     for(int y = 0; y < pg_noise.height; y++){
