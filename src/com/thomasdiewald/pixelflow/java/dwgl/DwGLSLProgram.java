@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2ES1;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL3;

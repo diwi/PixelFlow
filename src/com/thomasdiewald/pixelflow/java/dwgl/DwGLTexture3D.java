@@ -63,7 +63,7 @@ public class DwGLTexture3D{
   
   public DwGLTexture3D createEmtpyCopy(){
     DwGLTexture3D tex = new DwGLTexture3D();
-    tex.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
+    tex.resize(context, this);
     return tex;
   }
  

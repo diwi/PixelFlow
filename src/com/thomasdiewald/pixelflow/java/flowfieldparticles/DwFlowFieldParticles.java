@@ -321,13 +321,9 @@ public class DwFlowFieldParticles{
     tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     tex_obs   .resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     
-    tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
-    tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
-    tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, 1, 4);
-    
-    tex_obs_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
-    tex_col_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
-    tex_coh_dist.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+    tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
   }
   
   

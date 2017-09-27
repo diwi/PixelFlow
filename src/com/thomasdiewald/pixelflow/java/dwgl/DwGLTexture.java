@@ -63,7 +63,7 @@ public class DwGLTexture{
   
   public DwGLTexture createEmtpyCopy(){
     DwGLTexture tex = new DwGLTexture();
-    tex.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+    tex.resize(context, this);
     return tex;
   }
  
@@ -146,14 +146,22 @@ public class DwGLTexture{
   }
   
   public boolean resize(DwPixelFlow context, int w, int h){
-    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+    return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
   
   public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
-    return resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel, null);
+    return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
+  }
+  
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel){
+    return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
+  }
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+    return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, data);
   }
 
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel, Buffer data){
 
     if(w <= 0 || h <= 0) return false;
     if(    this.w == w 
@@ -161,20 +169,25 @@ public class DwGLTexture{
         && this.internalFormat == internalFormat
         && this.format == format
         && this.type == type
+        && this.filter == filter
+        && this.wrap == wrap
         ) return false;
 
     release(); // not sure if its save to just keep using the current texture
     
     this.context = context;
     this.gl = context.gl;
+    
     this.internalFormat = internalFormat;
     this.w = w;
     this.h = h;
     this.format = format;
     this.type = type;
     this.filter = filter;
+    this.wrap = wrap;
     this.num_channel = num_channel;
     this.byte_per_channel = byte_per_channel;
+
 
     HANDLE = new int[1];
     gl.glGenTextures(1, HANDLE, 0);
@@ -239,19 +252,29 @@ public class DwGLTexture{
   //  GL_MIRRORED_REPEAT 
   //  GL_REPEAT
   //  GL_MIRROR_CLAMP_TO_EDGE 
-  public void setParam_WRAP_S_T(int param){
+  public void setParam_WRAP_S_T(int wrap){
+    this.wrap = wrap;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, param);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, param);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
     gl.glBindTexture  (target, 0);
   }
   
-  public void setParam_WRAP_S_T(int param, float[] border_color){
+  public void setParam_WRAP_S_T(int wrap, float[] border_color){
+    this.wrap = wrap;
     gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, param);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, param);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
     gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
     gl.glBindTexture   (target, 0);
+  }
+  
+  public void setParam_Filter(int filter){
+    this.filter = filter;
+    gl.glBindTexture  (target, HANDLE[0]);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
+    gl.glBindTexture  (target, 0);
   }
   
   public void setParam_Filter(int minfilter, int magfilter){
