@@ -49,7 +49,7 @@ public class DwGLSLShader{
       this.content = loadSource(path);
     }
     
-    parseDefines(content);
+    parseDefines();
   }
   
   
@@ -139,7 +139,7 @@ public class DwGLSLShader{
     return content;
   }
   
-  public void parseDefines(String[] content){
+  public void parseDefines(){
     for(int i = 0; i < content.length; i++){
       String line = content[i].trim();
       if(line.startsWith("#define ")){
