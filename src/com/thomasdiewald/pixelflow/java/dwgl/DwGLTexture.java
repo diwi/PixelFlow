@@ -40,6 +40,7 @@ public class DwGLTexture{
   public int format           = GL2ES2.GL_RGBA;
   public int type             = GL2ES2.GL_UNSIGNED_BYTE;
   public int filter           = GL2ES2.GL_NEAREST;
+  public int wrap             = GL2ES2.GL_CLAMP_TO_BORDER;
   public int num_channel      = 4;
   public int byte_per_channel = 1;
   
@@ -138,7 +139,7 @@ public class DwGLTexture{
         h, 
         othr.format, 
         othr.type, 
-        othr.filter, 
+        othr.filter,
         othr.num_channel,
         othr.byte_per_channel
         );
@@ -188,16 +189,17 @@ public class DwGLTexture{
     // TODO
     gl.glPixelStorei(GL2ES2.GL_UNPACK_ALIGNMENT, 1);
     gl.glPixelStorei(GL2ES2.GL_PACK_ALIGNMENT,   1);
+    
+    gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
+    
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_BASE_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAX_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_EDGE);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_EDGE);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_REPEAT);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_REPEAT);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
-    
-    gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
     
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);

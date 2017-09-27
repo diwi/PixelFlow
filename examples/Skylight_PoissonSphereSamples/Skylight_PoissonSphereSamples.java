@@ -162,7 +162,7 @@ public class Skylight_PoissonSphereSamples extends PApplet {
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 1.0f;
     skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.shadowmap_size = 256; // quality vs. performance
+    skylight.sky.param.shadowmap_size = 512; // quality vs. performance
     
     // parameters for sun-light
     skylight.sun.param.iterations     = 60;
