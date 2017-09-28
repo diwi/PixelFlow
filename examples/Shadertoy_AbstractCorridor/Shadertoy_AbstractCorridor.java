@@ -63,18 +63,18 @@ public class Shadertoy_AbstractCorridor extends PApplet {
     
     pg_0.beginDraw();
     pg_0.background(100,200,0);
-    pg_0.noStroke();
-    int lines = 5;
-    for(int y = 0; y < lines; y++){
-      for(int x = 0; x < lines; x++){
-        int px = x * pg_0.width / (lines-1);
-        int py = y * pg_0.width / (lines-1);
-        pg_0.fill(0);
-        pg_0.rect(px-1,0,2,height);
-        pg_0.fill(0);
-        pg_0.rect(0,py-1,width,2);
-      }
-    }
+//    pg_0.noStroke();
+//    int lines = 5;
+//    for(int y = 0; y < lines; y++){
+//      for(int x = 0; x < lines; x++){
+//        int px = x * pg_0.width / (lines-1);
+//        int py = y * pg_0.width / (lines-1);
+//        pg_0.fill(0);
+//        pg_0.rect(px-1,0,2,height);
+//        pg_0.fill(0);
+//        pg_0.rect(0,py-1,width,2);
+//      }
+//    }
     pg_0.endDraw();
     
     pg_1.beginDraw();

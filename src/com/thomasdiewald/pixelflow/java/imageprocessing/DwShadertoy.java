@@ -432,11 +432,9 @@ public class DwShadertoy{
    * @param tex_dst
    */
   public void apply(PGraphics pg_dst){
-    if(!pg_dst.isGL()) return;
-    resize(pg_dst.width, pg_dst.height);
-    context.begin();
-    render(pg_dst.width, pg_dst.height);
-    context.end();
+    if(pg_dst.isGL()){
+      apply((PGraphicsOpenGL)pg_dst);
+    }
   }
   
   
