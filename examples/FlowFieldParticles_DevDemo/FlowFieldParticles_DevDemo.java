@@ -225,7 +225,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     pg_trails = (PGraphics2D) createGraphics(width, height, P2D);
     pg_trails.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_trails, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
-
+    
     pg_trails_tmp = (PGraphics2D) createGraphics(width, height, P2D);
     pg_trails_tmp.smooth(0);
     DwGLTextureUtils.changeTextureFormat(pg_trails_tmp, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);

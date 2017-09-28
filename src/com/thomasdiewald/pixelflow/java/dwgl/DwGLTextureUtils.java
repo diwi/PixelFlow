@@ -14,7 +14,6 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 import processing.core.PGraphics;
 import processing.core.PVector;
-import processing.opengl.FrameBuffer;
 import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
@@ -28,7 +27,7 @@ public class DwGLTextureUtils {
   
   
   static public void changeTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
-    changeTextureFormat(pg, internal_format, format, type, GL2ES2.GL_NEAREST, GL2ES2.GL_CLAMP_TO_EDGE);
+    changeTextureFormat(pg, internal_format, format, type, GL2ES2.GL_NEAREST);
   }
   
   static public void changeTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type, int filter){
@@ -47,13 +46,43 @@ public class DwGLTextureUtils {
     pgl.bindTexture  (tex.glTarget, 0);
     pg.endPGL();
     
-//    FrameBuffer mfb = pg.getFrameBuffer(true);
-//    FrameBuffer ofb = pg.getFrameBuffer(false);
-//    if (ofb != null && mfb != null) {
-//      mfb.copyColor(ofb);
-//    }
-    
+    pg.beginDraw();
+    pg.clear();
+    pg.endDraw();
+   
   }
+  
+  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
+    changeShadowTextureFormat(pg, internal_format, format, type, GL2ES2.GL_NEAREST);
+  }
+  
+  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type, int filter){
+    changeShadowTextureFormat(pg, internal_format, format, type, filter, GL2ES2.GL_CLAMP_TO_EDGE);
+  }
+  
+  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int filter, int wrap, int type){
+    Texture tex = pg.getTexture();
+    PGL pgl = pg.beginPGL();
+    pgl.bindTexture(tex.glTarget, tex.glName);
+//    float[] border =  new float[]{0,0,0,0};
+//    pgl.texParameterfv(tex.glTarget, GL2ES2.GL_TEXTURE_BORDER_COLOR, FloatBuffer.wrap(border));
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, filter); 
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
+//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);
+//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_FUNC, GL2.GL_LEQUAL);
+//    pgl.texParameteri(tex.glTarget, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY); 
+    pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
+    pgl.bindTexture(tex.glTarget, 0);
+    pg.endPGL();
+    
+    pg.beginDraw();
+    pg.clear();
+    pg.endDraw();
+  }
+  
+  
   
   // GL_CLAMP
   // GL_CLAMP_TO_BORDER
@@ -87,34 +116,28 @@ public class DwGLTextureUtils {
   }
   
   
-  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
-//    FrameBuffer fbo = pg.getFrameBuffer();
+  /**
+   * When chaning multiple parameters, its better to use this source-code directly.
+   * 
+   * @param pg
+   * @param pname
+   * @param param
+   */
+  static public void changeTextureParam(PGraphicsOpenGL pg, int pname, int param){
     Texture tex = pg.getTexture();
     PGL pgl = pg.beginPGL();
-    pgl.bindTexture(tex.glTarget, tex.glName);
-    
-//    float[] border =  new float[]{0,0,0,0};
-
-  
-//    pgl.texParameterfv(tex.glTarget, GL2ES2.GL_TEXTURE_BORDER_COLOR, FloatBuffer.wrap(border));
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_EDGE);
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_EDGE);
-    
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST); // GL_NEAREST, GL_LINEAR
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-    
-//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_FUNC, GL2.GL_LEQUAL);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY); 
-    
-    
-    pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
-
-    pgl.bindTexture(tex.glTarget, 0);
+    pgl.bindTexture  (tex.glTarget, tex.glName);
+    pgl.texParameteri(tex.glTarget, pname, param);
+    pgl.bindTexture  (tex.glTarget, 0);
     pg.endPGL();
   }
+  
+
+  
+  
+  
+  
+  
   
   
   static public void generateMipMaps(DwPixelFlow context, PGraphicsOpenGL pg){
