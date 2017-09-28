@@ -25,26 +25,48 @@ import processing.opengl.Texture;
  */
 public class DwGLTextureUtils {
   
+  
   static public void changeTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
     pg.loadTexture();
-//    FrameBuffer fbo = pg.getFrameBuffer();
-    Texture     tex = pg.getTexture();
-    PGL pgl;
-    pgl = pg.beginPGL();
+    Texture tex = pg.getTexture();
+    PGL pgl = pg.beginPGL();
     pgl.bindTexture(tex.glTarget, tex.glName);
-
-    
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST); // GL_NEAREST, GL_LINEAR
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-    
-//    
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_COMPARE_MODE, GL2ES2.GL_COMPARE_REF_TO_TEXTURE);
-//    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_COMPARE_FUNC, GL2ES2.GL_LEQUAL);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY); 
     pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
-
+    pgl.bindTexture(tex.glTarget, 0);
+    pg.endPGL();
+  }
+  
+  // GL_CLAMP
+  // GL_CLAMP_TO_BORDER
+  // GL_CLAMP_TO_EDGE
+  // GL_REPEAT
+  // GL_MIRRORED_REPEAT
+  static public void changeTextureWrap(PGraphicsOpenGL pg, int wrap){
+    pg.loadTexture();
+    Texture tex = pg.getTexture();
+    PGL pgl = pg.beginPGL();
+    pgl.bindTexture(tex.glTarget, tex.glName); 
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
+    pgl.bindTexture(tex.glTarget, 0);
+    pg.endPGL();
+  }
+  
+  // GL_NEAREST
+  // GL_LINEAR
+  // GL_NEAREST_MIPMAP_NEAREST 
+  // GL_LINEAR_MIPMAP_NEAREST  
+  // GL_NEAREST_MIPMAP_LINEAR  
+  // GL_LINEAR_MIPMAP_LINEAR  
+  static public void changeTextureFilter(PGraphicsOpenGL pg, int min_filter, int mag_filter){
+    pg.loadTexture();
+    Texture tex = pg.getTexture();
+    PGL pgl = pg.beginPGL();
+    pgl.bindTexture(tex.glTarget, tex.glName);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, min_filter);
+    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, mag_filter);
     pgl.bindTexture(tex.glTarget, 0);
     pg.endPGL();
   }

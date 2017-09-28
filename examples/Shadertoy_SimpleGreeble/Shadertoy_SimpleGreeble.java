@@ -18,14 +18,17 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 
 import processing.core.PApplet;
-import processing.opengl.PGraphics2D;
-
 
 public class Shadertoy_SimpleGreeble extends PApplet {
 
+
+  //
+  // Shadertoy Demo:   https://www.shadertoy.com/view/4tXcRl
+  // Shadertoy Author: https://www.shadertoy.com/user/blackjero
+  //
+  
   DwPixelFlow context;
   DwShadertoy toy;
-  PGraphics2D pg_canvas;
 
   public void settings() {
     size(1280, 720, P2D);
@@ -39,27 +42,18 @@ public class Shadertoy_SimpleGreeble extends PApplet {
     context.print();
     context.printGL();
     
-    toy = new DwShadertoy(context, "data/SimpleGreeble_Image.frag");
+    toy = new DwShadertoy(context, "data/SimpleGreeble.frag");
 
     frameRate(60);
   }
 
-  public void resizeScene(){
-    if(pg_canvas == null || width != pg_canvas.width || height != pg_canvas.height){
-      pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-      toy.reset();
-    }
-  }
-  
   public void draw() {
-    resizeScene();
-
-    toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
-    toy.apply(pg_canvas);
     
-    blendMode(REPLACE);
-    image(pg_canvas, 0, 0);
-        
+    if(mousePressed){
+      toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
+    }
+    toy.apply(this.g);
+         
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }

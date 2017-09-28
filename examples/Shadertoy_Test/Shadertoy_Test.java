@@ -10,27 +10,30 @@
  */
 
 
-package Shadertoy_Seascape;
-
+package Shadertoy_Test;
 
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
-
 import processing.core.PApplet;
 
 
 
-public class Shadertoy_Seascape extends PApplet {
+public class Shadertoy_Test extends PApplet {
   
   //
-  // Shadertoy Demo:   https://www.shadertoy.com/view/Ms2SD1
-  // Shadertoy Author: https://www.shadertoy.com/user/TDM
+  // Shadertoy Demo:   
+  // Shadertoy Author: 
   //
+  
+  // Basic 2-pass demo to get started.
+  //
+  // toyA: Test_BufA.frag ... creates some output
+  // toy : Test.frag      ... simply copies the result from toyA
   
   DwPixelFlow context;
-  DwShadertoy toy;
-
+  DwShadertoy toy, toyA;
+  
   public void settings() {
     size(1280, 720, P2D);
     smooth(0);
@@ -43,24 +46,29 @@ public class Shadertoy_Seascape extends PApplet {
     context.print();
     context.printGL();
     
-    toy = new DwShadertoy(context, "data/Seascape.frag");
-
+    toyA = new DwShadertoy(context, "data/Test_BufA.frag");
+    toy  = new DwShadertoy(context, "data/Test.frag");
+    
     frameRate(60);
   }
 
+  
   public void draw() {
-        
+
     if(mousePressed){
       toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
     }
-    toy.apply(this.g);
+    toyA.apply(width, height);
     
+    toy.set_iChannel(0, toyA);
+    toy.apply(this.g);
+
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Shadertoy_Seascape.class.getName() });
+    PApplet.main(new String[] { Shadertoy_Test.class.getName() });
   }
 }

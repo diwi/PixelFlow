@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture3D;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureCube;
 
+import processing.core.PGraphics;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
@@ -60,9 +61,13 @@ public class DwShadertoy{
   
   public long iTime_start = System.currentTimeMillis();
   
+  public boolean auto_reset_on_resize = true;
+  
   public DwShadertoy(DwPixelFlow context, String shader_filename){
     this.context = context;
+    this.context.papplet.registerMethod("dispose", this);
     createShader(shader_filename);
+    resize(context.papplet.width, context.papplet.height);
   }
   
 
@@ -96,11 +101,19 @@ public class DwShadertoy{
     return this;
   }
   
+  public void dispose(){
+    release();
+  }
+  
+  public void release(){
+    tex.release();
+    reset();
+  }
   
   
   public boolean resize(int w, int h){
     boolean resized = tex.resize(context, GL2.GL_RGBA32F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
-    if(resized){
+    if(resized && auto_reset_on_resize){
       reset();
     }
     return resized;
@@ -277,7 +290,7 @@ public class DwShadertoy{
    */
   public void set_iChannel(int channel, int tex_handle, int tex_w, int tex_h, int tex_d, String type){
     set_iChannel          (channel, tex_handle);
-    set_iChannelResolution(channel, tex_w, tex_h, 1.0f);
+    set_iChannelResolution(channel, tex_w, tex_h, tex_d);
     set_iChannelType      (channel, type);
   }
   
@@ -349,7 +362,6 @@ public class DwShadertoy{
     set_iTimeDelta(1f/context.papplet.frameRate);
     set_iTime();
     set_iDate();
-    set_iFrame(iFrame + 1);
 
     shader.begin();
     shader.uniform3fv    ("iResolution"       , 1, iResolution       );
@@ -369,13 +381,17 @@ public class DwShadertoy{
     shader.drawFullScreenQuad();
     shader.end();
     
+    set_iFrame(iFrame + 1);
   }
   
+  
+
   
   /**
    * execute shader, using the default rendertarget.
    */
-  public void apply(){
+  public void apply(int w, int h){
+    resize(w, h);
     context.begin();
     context.beginDraw(tex);
     render(tex.w, tex.h);
@@ -389,6 +405,7 @@ public class DwShadertoy{
    * @param tex_dst
    */
   public void apply(DwGLTexture tex_dst){
+    resize(tex_dst.w, tex_dst.h);
     context.begin();
     context.beginDraw(tex_dst);
     render(tex_dst.w, tex_dst.h);
@@ -397,10 +414,11 @@ public class DwShadertoy{
   }
   
   /**
-   * execute shader, using the given rendertarget.
+   * execute shader, using the given PGRaphics-rendertarget.
    * @param tex_dst
    */
   public void apply(PGraphicsOpenGL pg_dst){
+    resize(pg_dst.width, pg_dst.height);
     pg_dst.getTexture();
     context.begin();
     context.beginDraw(pg_dst);
@@ -409,7 +427,18 @@ public class DwShadertoy{
     context.end();
   }
   
-
+  /**
+   * execute shader, using the given PGRaphics-rendertarget.
+   * @param tex_dst
+   */
+  public void apply(PGraphics pg_dst){
+    if(!pg_dst.isGL()) return;
+    resize(pg_dst.width, pg_dst.height);
+    context.begin();
+    render(pg_dst.width, pg_dst.height);
+    context.end();
+  }
+  
   
   
 }

@@ -22,20 +22,17 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 
 import processing.core.PApplet;
-import processing.opengl.PGraphics2D;
 
 
 public class Shadertoy_ExpansiveReactionDiffusion extends PApplet {
-
+  
+  //
+  // Shadertoy Demo:   https://www.shadertoy.com/view/4dcGW2
+  // Shadertoy Author: https://www.shadertoy.com/user/Flexi
+  //
+  
   DwPixelFlow context;
-  
-  DwShadertoy toyA;
-  DwShadertoy toyB;
-  DwShadertoy toyC;
-  DwShadertoy toyD;
-  DwShadertoy toy;
-  PGraphics2D pg_canvas;
-  
+  DwShadertoy toy, toyA, toyB, toyC, toyD;
   DwGLTexture tex_noise = new DwGLTexture();
  
   public void settings() {
@@ -54,34 +51,27 @@ public class Shadertoy_ExpansiveReactionDiffusion extends PApplet {
     toyB = new DwShadertoy(context, "data/ExpansiveReactionDiffusion_BufB.frag");
     toyC = new DwShadertoy(context, "data/ExpansiveReactionDiffusion_BufC.frag");
     toyD = new DwShadertoy(context, "data/ExpansiveReactionDiffusion_BufD.frag");
-    toy  = new DwShadertoy(context, "data/ExpansiveReactionDiffusion_Image.frag");
+    toy  = new DwShadertoy(context, "data/ExpansiveReactionDiffusion.frag");
     
     // create noise texture
     int wh = 256;
-
     byte[] bdata = new byte[wh * wh * 4];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
-    for(int i = 0; i < bdata.length; i++){
-      bdata[i] = (byte) random(0, 255);
+    for(int i = 0; i < bdata.length;){
+      bdata[i++] = (byte) random(0, 255);
+      bdata[i++] = (byte) random(0, 255);
+      bdata[i++] = (byte) random(0, 255);
+      bdata[i++] = (byte) 255;
     }
     tex_noise.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
     
     frameRate(60);
   }
 
-  public void resizeScene(){
-    if(pg_canvas == null || width != pg_canvas.width || height != pg_canvas.height){
-      pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-      toy.reset();
-    }
-    toyA.resize(width, height);
-    toyB.resize(width, height);
-    toyC.resize(width, height);
-    toyD.resize(width, height);
-  }
+
   
   public void draw() {
-    resizeScene();
+    blendMode(REPLACE);
 
     if(mousePressed){
       toyA.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
@@ -95,25 +85,22 @@ public class Shadertoy_ExpansiveReactionDiffusion extends PApplet {
     toyA.set_iChannel(1, toyC);
     toyA.set_iChannel(2, toyD);
     toyA.set_iChannel(3, tex_noise);
-    toyA.apply();
+    toyA.apply(width, height);
     
     toyB.set_iChannel(0, toyA);
-    toyB.apply();
+    toyB.apply(width, height);
     
     toyC.set_iChannel(0, toyB);
-    toyC.apply();
+    toyC.apply(width, height);
     
     toyD.set_iChannel(0, toyA);
-    toyD.apply();
+    toyD.apply(width, height);
     
     toy.set_iChannel(0, toyA);
     toy.set_iChannel(2, toyC);
     toy.set_iChannel(3, tex_noise);
-    toy.apply(pg_canvas);
+    toy.apply(this.g);
     
-
-    blendMode(REPLACE);
-    image(pg_canvas, 0, 0);
         
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);

@@ -22,17 +22,17 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 
 import processing.core.PApplet;
-import processing.opengl.PGraphics2D;
 
 
 public class Shadertoy_Elevated extends PApplet {
-
+  
+  //
+  // Shadertoy Demo:   https://www.shadertoy.com/view/MdX3Rr
+  // Shadertoy Author: https://www.shadertoy.com/user/iq
+  //
+  
   DwPixelFlow context;
-  
-  DwShadertoy toyA;
-  DwShadertoy toy;
-  PGraphics2D pg_canvas;
-  
+  DwShadertoy toy, toyA;
   DwGLTexture tex_noise = new DwGLTexture();
   
   public void settings() {
@@ -48,11 +48,10 @@ public class Shadertoy_Elevated extends PApplet {
     context.printGL();
     
     toyA = new DwShadertoy(context, "data/Elevated_BufA.frag");
-    toy  = new DwShadertoy(context, "data/Elevated_Image.frag");
+    toy  = new DwShadertoy(context, "data/Elevated.frag");
     
     // create noise texture
     int wh = 256;
-
     byte[] bdata = new byte[wh * wh];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
     for(int i = 0; i < bdata.length; i++){
@@ -61,30 +60,18 @@ public class Shadertoy_Elevated extends PApplet {
     tex_noise.resize(context, GL2.GL_R8, wh, wh, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, bbuffer);
     frameRate(60);
   }
-
-  public void resizeScene(){
-    if(pg_canvas == null || width != pg_canvas.width || height != pg_canvas.height){
-      pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-      toy.reset();
-    }
-    toyA.resize(width, height);
-  }
   
   public void draw() {
-    resizeScene();
 
     if(mousePressed){
       toyA.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
     }
     toyA.set_iChannel(0, tex_noise);
-    toyA.apply();
+    toyA.apply(width, height);
     
     toy.set_iChannel(0, toyA);
-    toy.apply(pg_canvas);
+    toy.apply(this.g);
     
-    blendMode(REPLACE);
-    image(pg_canvas, 0, 0);
-        
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
