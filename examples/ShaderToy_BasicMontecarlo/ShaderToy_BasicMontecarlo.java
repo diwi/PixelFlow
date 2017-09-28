@@ -45,6 +45,7 @@ public class Shadertoy_BasicMontecarlo extends PApplet {
     frameRate(60);
   }
 
+  
   public void resizeScene(){
     if(pg_canvas == null || width != pg_canvas.width || height != pg_canvas.height){
       pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
