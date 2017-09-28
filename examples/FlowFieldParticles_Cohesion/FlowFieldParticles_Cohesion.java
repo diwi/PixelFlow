@@ -15,9 +15,7 @@ package FlowFieldParticles_Cohesion;
 
 import java.util.Locale;
 
-import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -44,12 +42,11 @@ public class FlowFieldParticles_Cohesion extends PApplet {
   //
   //
   
-  int viewport_w = 1680;
-  int viewport_h = 1024;
+  int viewport_w = 1280;
+  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
- 
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
   PGraphics2D pg_impulse;
@@ -110,65 +107,62 @@ public class FlowFieldParticles_Cohesion extends PApplet {
 
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_impulse, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
 
     frameRate(1000);
   }
-  
-  
-
-  
-  
-  
   
   
   float impulse_max = 256;
   float impulse_mul = 15;
   float impulse_tsmooth = 0.90f;
   int   impulse_blur  = 0;
-  
   public void addImpulse(){
     
     int w = width;
     int h = height;
     
-    // impulse center/velocity
-    float mx = mouseX;
-    float my = mouseY;
-    float vx = (mouseX - pmouseX) * +impulse_mul;
-    float vy = (mouseY - pmouseY) * -impulse_mul; // flip vertically
-    // clamp velocity
-    float vv_sq = vx*vx + vy*vy;
-    float vv_sq_max = impulse_max*impulse_max;
-    if(vv_sq > vv_sq_max){
-      vx = impulse_max * vx / sqrt(vv_sq);
-      vy = impulse_max * vy / sqrt(vv_sq);
-    }
-    // map velocity, to UNSIGNED_BYTE range
-    vx = map(vx, -impulse_max, +impulse_max, 0, 256);
-    vy = map(vy, -impulse_max, +impulse_max, 0, 256);
+    float vx, vy;
+    final int mid = 127;
+
     // render "velocity"
     pg_impulse.beginDraw();
-    pg_impulse.clear();
-    pg_impulse.blendMode(BLEND);
-    pg_impulse.background(127.5f, 127.5f, 127.5f, 255);
+    pg_impulse.blendMode(REPLACE);
+    pg_impulse.background(mid, mid, mid, 0);
     pg_impulse.noStroke();
+    pg_impulse.rectMode(CENTER);
+    
     if(mousePressed){
-      pg_impulse.fill(vx, vy, 0, 255);
-      pg_impulse.ellipse(mx, my, 100, 100);
+      // impulse center/velocity
+      float mx = mouseX;
+      float my = mouseY;
+      vx = (mouseX - pmouseX) * +impulse_mul;
+      vy = (mouseY - pmouseY) * -impulse_mul; // flip vertically
+      // clamp velocity
+      float vv_sq = vx*vx + vy*vy;
+      float vv_sq_max = impulse_max*impulse_max;
+      if(vv_sq > vv_sq_max){
+        vx = impulse_max * vx / sqrt(vv_sq);
+        vy = impulse_max * vy / sqrt(vv_sq);
+      }
+      // map velocity, to UNSIGNED_BYTE range
+      vx = 127 * vx / impulse_max;
+      vy = 127 * vy / impulse_max;
+      if(vv_sq != 0){
+        pg_impulse.fill(mid+vx, mid+vy, 0);
+        pg_impulse.ellipse(mx, my, 100, 100);
+      }
     }
     pg_impulse.endDraw();
-    
+
     
     // create impulse texture
     ff_impulse.resize(w, h);
     {
       Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, impulse_tsmooth, 0);
-      Merge.TexMad tb = new Merge.TexMad(pg_impulse,  1, -0.5f); // -0.5f ... -127.5f
+      Merge.TexMad tb = new Merge.TexMad(pg_impulse,  1, -mid/255f);
       DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
       ff_impulse.blur(1, impulse_blur);
     }
-    
     
     // create acceleration texture
     ff_acc.resize(w, h);
@@ -177,6 +171,22 @@ public class FlowFieldParticles_Cohesion extends PApplet {
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta);
     }
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 
 
@@ -198,7 +208,7 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     pg_canvas.background(255);
     pg_canvas.image(pg_obstacles, 0, 0);
     pg_canvas.endDraw();
-    particles.display(pg_canvas);
+    particles.displayParticles(pg_canvas);
 
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);

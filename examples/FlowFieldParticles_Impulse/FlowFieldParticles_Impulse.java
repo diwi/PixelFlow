@@ -254,7 +254,7 @@ public class FlowFieldParticles_Impulse extends PApplet {
     pg_canvas.image(pg_impulse, 0, 0);
     pg_canvas.image(pg_obstacles, 0, 0);
     pg_canvas.endDraw();
-    particles.display(pg_canvas);
+    particles.displayParticles(pg_canvas);
 
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);

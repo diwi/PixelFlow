@@ -1,6 +1,6 @@
 /**
  * 
- * PixelFlow | Copyright (C]) 2017 Thomas Diewald - www.thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
  * https://github.com/diwi/PixelFlow.git
  * 

@@ -36,6 +36,10 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   int cam_w = 640;
   int cam_h = 480;
   
+
+  int viewp_w = 1280;
+  int viewp_h = (int) (viewp_w * cam_h/(float)cam_w);
+
   Capture cam;
 
   PGraphics2D pg_canvas;
@@ -49,7 +53,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   DwFlowFieldParticles.SpawnRect spawn = new DwFlowFieldParticles.SpawnRect();
 
   public void settings() {
-    size(cam_w * 2, cam_h * 2, P2D);
+    size(viewp_w, viewp_h, P2D);
     smooth(0);
     PJOGL.profile = 3;
   }
@@ -118,6 +122,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
     particles.param.mul_acc = 0.10f; // optical flow multiplier
+    particles.param.wh_scale_obs = 1;
     
     // init stuff that doesn't change
     particles.resizeWorld(width, height); 
@@ -154,7 +159,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     pg_canvas.image(pg_cam, 0, 0, width, height);
     pg_canvas.image(pg_obstacles, 0, 0);
     pg_canvas.endDraw();
-    particles.display(pg_canvas);
+    particles.displayParticles(pg_canvas);
 
     // display result
     image(pg_canvas, 0, 0);

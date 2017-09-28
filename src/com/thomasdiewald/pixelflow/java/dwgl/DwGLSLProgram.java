@@ -330,13 +330,13 @@ public class DwGLSLProgram {
     if(smooth){
       gl.glEnable(GL2.GL_LINE_SMOOTH);
       gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_FASTEST);
-//    gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST);
+//      gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST);
     } else {
       gl.glDisable(GL2.GL_LINE_SMOOTH);
     }
     gl.glLineWidth(line_width);
     
-    gl.glDrawArrays(GL2ES2.GL_LINES, 0, num_lines * 2);
+    gl.glDrawArrays(GL2.GL_LINES, 0, num_lines * 2);
   }
   
   

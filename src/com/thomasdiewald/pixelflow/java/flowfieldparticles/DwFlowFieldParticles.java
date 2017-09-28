@@ -466,16 +466,29 @@ public class DwFlowFieldParticles{
 
   
   
-  public void display(PGraphicsOpenGL canvas){
+  public void displayParticles(PGraphicsOpenGL canvas){
     if(param.size_display <= 0) return;
-    
-    int w = canvas.width;
-    int h = canvas.height;
-    int w_particle = tex_particle.src.w;
-    int h_particle = tex_particle.src.h;
-    
     context.begin();
     context.beginDraw(canvas);
+    displayParticles(canvas.width, canvas.height);
+    context.endDraw();
+    context.end("DwFlowFieldParticles.display");
+  }
+  
+  public void displayParticles(DwGLTexture canvas){
+    if(param.size_display <= 0) return;
+    context.begin();
+    context.beginDraw(canvas);
+    displayParticles(canvas.w, canvas.h);
+    context.endDraw();
+    context.end("DwFlowFieldParticles.display");
+  }
+  
+  
+  protected void displayParticles(int w, int h){
+    if(param.size_display <= 0) return;
+    int w_particle = tex_particle.src.w;
+    int h_particle = tex_particle.src.h;
     blendMode();
     shader_display_particles.begin();
     shader_display_particles.uniform1f     ("shader_collision_mult", param.shader_collision_mult);
@@ -488,24 +501,35 @@ public class DwFlowFieldParticles{
     shader_display_particles.uniformTexture("tex_sprite"   , param.tex_sprite);
     shader_display_particles.drawFullScreenPoints(0, 0, w, h, spawn_num, false);
     shader_display_particles.end();
-    context.endDraw();
-    context.end("DwFlowFieldParticles.display");
   }
+  
+  
   
   
   public void displayTrail(PGraphicsOpenGL canvas){
     if(param.display_line_width <= 0) return;
-    
-    int w = canvas.width;
-    int h = canvas.height;
-    int w_particle = tex_particle.src.w;
-    int h_particle = tex_particle.src.h;
-    
-    float   lwidth  = param.display_line_width;
-    boolean lsmooth = param.display_line_smooth;
-    
     context.begin();
     context.beginDraw(canvas);
+    displayTrail(canvas.width, canvas.height);
+    context.endDraw();
+    context.end("DwFlowFieldParticles.displayTrail");
+  }
+  
+  public void displayTrail(DwGLTexture canvas){
+    if(param.display_line_width <= 0) return;
+    context.begin();
+    context.beginDraw(canvas);
+    displayTrail(canvas.w, canvas.h);
+    context.endDraw();
+    context.end("DwFlowFieldParticles.displayTrail");
+  }
+  
+  private void displayTrail(int w, int h){
+    if(param.display_line_width <= 0) return;
+    int w_particle = tex_particle.src.w;
+    int h_particle = tex_particle.src.h;
+    float   lwidth  = param.display_line_width;
+    boolean lsmooth = param.display_line_smooth;
     blendMode();
     shader_display_trails.begin();
     shader_display_trails.uniform1f     ("shader_collision_mult", param.shader_collision_mult);
@@ -520,11 +544,9 @@ public class DwFlowFieldParticles{
     shader_display_trails.uniformTexture("tex_position" , tex_particle.src);
     shader_display_trails.drawFullScreenLines(0, 0, w, h, spawn_num, lwidth, lsmooth);
     shader_display_trails.end();
-    context.endDraw();
-    context.end("DwFlowFieldParticles.displayTrail");
   }
   
-
+  
   
 
   public void createCollisionFlowField(){

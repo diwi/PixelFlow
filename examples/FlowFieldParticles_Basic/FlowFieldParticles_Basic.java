@@ -41,8 +41,8 @@ public class FlowFieldParticles_Basic extends PApplet {
   //
   //
   
-  int viewport_w = 1680;
-  int viewport_h = 1024;
+  int viewport_w = 1280;
+  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
 
@@ -126,7 +126,7 @@ public class FlowFieldParticles_Basic extends PApplet {
     pg_canvas.background(255);
     pg_canvas.image(pg_obstacles, 0, 0);
     pg_canvas.endDraw();
-    particles.display(pg_canvas);
+    particles.displayParticles(pg_canvas);
 
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);

@@ -64,6 +64,7 @@ void main(){
   out_frag = col_A;
   float pf = 1.0 + pressure * shader_collision_mult;
   out_frag.xyzw *= pf;
+  out_frag = clamp(out_frag, 0.0, 1.0);
 }
 
 #endif // #if SHADER_FRAG

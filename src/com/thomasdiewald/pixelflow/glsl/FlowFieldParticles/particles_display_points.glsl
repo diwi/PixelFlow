@@ -91,6 +91,7 @@ void main(){
   out_frag = mix(col_A, col_B, 1.0 - falloff);
   float pf = 1.0 + pressure * shader_collision_mult;
   out_frag.xyzw *= pf;
+  out_frag = clamp(out_frag, 0.0, 1.0);
 }
 
 #endif // #if SHADER_FRAG_DISPLAY

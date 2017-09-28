@@ -87,6 +87,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   //
 
   boolean START_FULLSCREEN = !true;
+  
 
   int viewport_w = 1680;
   int viewport_h = 1024;
@@ -97,17 +98,17 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   int gui_x = 30;
   int gui_y = 30;
   
-  
   PGraphics2D pg_checker;
   PGraphics2D pg_canvas;
   PGraphics2D pg_obstacles;
   PGraphics2D pg_spheres;
   PGraphics2D pg_particles;
+  PGraphics2D pg_trails;
+  PGraphics2D pg_trails_tmp;
   PGraphics2D pg_sprite;
   PGraphics2D pg_gravity;
   PGraphics2D pg_impulse;
-//  DwGLTexture tex_impulse = new DwGLTexture();;
-  
+
   FXAA antialiasing;
   PGraphics2D pg_aa;
   
@@ -126,8 +127,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public boolean UPDATE_GRAVITY    = true;
   public boolean DISPLAY_DIST      = !true;
   public boolean DISPLAY_FLOW      = !true;
-  public int     DISPLAY_TYPE_ID   = 0;
-  public int     BACKGROUND_MODE   = 0;
+  public int     DISPLAY_TYPE_ID   = 1;
+  public int     BACKGROUND_MODE   = 3;
   public int     PARTICLE_COLOR    = 1;
   
   float gravity = 1;
@@ -173,7 +174,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.param.size_collision = particles.param.size_display;
     particles.param.size_cohesion  = 5;
     particles.param.velocity_damping  = 0.99f;
-    
+    particles.param.display_line_width = 1f;
+    particles.param.display_line_smooth = false;
+
     ff_acc = new DwFlowField(context);
     ff_acc.param.blur_iterations = 0;
     ff_acc.param.blur_radius     = 1;
@@ -218,8 +221,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_particles, GL3.GL_RGBA16_SNORM, GL3.GL_RGBA, GL3.GL_FLOAT);
+    
+    pg_trails = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_trails.smooth(0);
+    DwGLTextureUtils.changeTextureFormat(pg_trails, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
 
+    pg_trails_tmp = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_trails_tmp.smooth(0);
+    DwGLTextureUtils.changeTextureFormat(pg_trails_tmp, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
+       
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
 
@@ -329,37 +339,47 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
     if(!DISPLAY_DIST)
     {
+      
+      PGraphics2D pg_rendered = pg_particles;
+      
       if(DISPLAY_TYPE_ID == 0){
+        pg_rendered = pg_particles;
         // set pg_checker as background for blending
         DwFilter.get(context).copy.apply(pg_checker, pg_particles);
-        particles.display(pg_particles);
+        particles.displayParticles(pg_particles);
+        
+        if(APPLY_LIQUID_FX){
+          liquidfx.param.base_LoD           = 1;
+          liquidfx.param.base_blur_radius   = 1;
+          liquidfx.param.base_threshold     = 0.6f;
+          liquidfx.param.base_threshold_pow = 25;
+          liquidfx.param.highlight_enabled  = true;
+          liquidfx.param.highlight_LoD      = 1;
+          liquidfx.param.highlight_decay    = 0.6f;
+          liquidfx.param.sss_enabled        = true;
+          liquidfx.param.sss_LoD            = 3;
+          liquidfx.param.sss_decay          = 0.8f;
+          liquidfx.apply(pg_particles);
+        }
+        
       } else {
+        pg_rendered = pg_trails;
         float mult = 0.985f;
-        DwFilter.get(context).multiply.apply(pg_particles, pg_particles, new float[]{mult, mult, mult, mult});
-        particles.displayTrail(pg_particles);
+        DwFilter.get(context).multiply.apply(pg_trails, pg_trails, new float[]{mult, mult, mult, mult});
+        
+        if((frameCount % 2) == 0){
+          DwFilter.get(context).gaussblur.apply(pg_trails, pg_trails, pg_trails_tmp, 3);
+        }
+        particles.displayTrail(pg_trails);
       }
       
-      if(APPLY_LIQUID_FX){
-        liquidfx.param.base_LoD           = 1;
-        liquidfx.param.base_blur_radius   = 1;
-        liquidfx.param.base_threshold     = 0.6f;
-        liquidfx.param.base_threshold_pow = 25;
-        liquidfx.param.highlight_enabled  = true;
-        liquidfx.param.highlight_LoD      = 1;
-        liquidfx.param.highlight_decay    = 0.6f;
-        liquidfx.param.sss_enabled        = true;
-        liquidfx.param.sss_LoD            = 3;
-        liquidfx.param.sss_decay          = 0.8f;
-        liquidfx.apply(pg_particles);
-      }
-
       pg_canvas.beginDraw(); 
       pg_canvas.blendMode(REPLACE);
       pg_canvas.image(pg_checker, 0, 0);
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
       pg_canvas.image(pg_spheres, 0, 0);
-      pg_canvas.image(pg_particles, 0, 0);
+      pg_canvas.image(pg_rendered, 0, 0);
       pg_canvas.endDraw();
     }
     
@@ -395,12 +415,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       particles.ff_sum.displayPixel(pg_canvas);
       particles.ff_sum.displayLines(pg_canvas);
     }
+    
+  
 
     antialiasing.apply(pg_canvas, pg_aa);
-
-    blendMode(REPLACE);
+    
+    blendMode(REPLACE); 
     image(pg_aa, 0, 0);
     blendMode(BLEND);
+    
     
     info();
   }

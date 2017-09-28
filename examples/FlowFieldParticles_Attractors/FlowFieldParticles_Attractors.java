@@ -30,6 +30,7 @@ import controlP5.Group;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.PJOGL;
 
 
 public class FlowFieldParticles_Attractors extends PApplet {
@@ -57,8 +58,8 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   boolean START_FULLSCREEN = !true;
 
-  int viewport_w = 1680;
-  int viewport_h = 1024;
+  int viewport_w = 1280;
+  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -103,6 +104,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
       size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
+    PJOGL.profile = 3;
   }
   
 
@@ -292,7 +294,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
       pg_canvas.blendMode(BLEND);   
       pg_canvas.image(pg_obstacles, 0, 0);
       pg_canvas.endDraw();
-      particles.display(pg_canvas);
+      particles.displayParticles(pg_canvas);
     }
     
     if(DISPLAY_DIST){
