@@ -13,13 +13,8 @@
 package Shadertoy_AbstractCorridor;
 
 
-
-import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
