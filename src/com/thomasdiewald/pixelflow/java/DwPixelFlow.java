@@ -188,12 +188,18 @@ public class DwPixelFlow{
   
   PGraphicsOpenGL pgl_dst = null;
   public void beginDraw(PGraphicsOpenGL dst){
-    ACTIVE_FRAMEBUFFER = true;
     beginDraw(dst, true);
   }
   
   public void beginDraw(PGraphicsOpenGL dst, boolean multisample){
+    // in case dst is the primary papplet graphics buffer, dont mess with the fbo
+    if(dst == dst.parent.g){
+//      defaultRenderSettings(0, 0, dst.width, dst.height); // TODO, need this?
+      return;
+    }
+    
     ACTIVE_FRAMEBUFFER = true;
+    
     FrameBuffer fbo = dst.getFrameBuffer(multisample);
     if(fbo == null){
       multisample = false;
@@ -206,18 +212,22 @@ public class DwPixelFlow{
     }
     this.pgl_dst = dst;
   }
+  
   public void endDraw(){
+    if(ACTIVE_FRAMEBUFFER){
+      if(framebuffer != null && framebuffer.isActive()){
+        framebuffer.unbind();
+      } else {
+        gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
+      }
+   
+      if(pgl_dst != null){
+        updateFBO(pgl_dst);
+        
+        pgl_dst = null;
+      }
+    }
     ACTIVE_FRAMEBUFFER = false;
-    if(framebuffer != null && framebuffer.isActive()){
-      framebuffer.unbind();
-    } else {
-      gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
-    }
-    
-    if(pgl_dst != null){
-      updateFBO(pgl_dst);
-      pgl_dst = null;
-    }
   }
   
   public void endDraw(String error_msg){
