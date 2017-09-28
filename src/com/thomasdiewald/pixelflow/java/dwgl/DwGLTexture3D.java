@@ -40,6 +40,7 @@ public class DwGLTexture3D{
   public int format           = GL2ES2.GL_RGBA;
   public int type             = GL2ES2.GL_UNSIGNED_BYTE;
   public int filter           = GL2ES2.GL_NEAREST;
+  public int wrap             = GL2ES2.GL_CLAMP_TO_BORDER;
   public int num_channel      = 4;
   public int byte_per_channel = 1;
   
@@ -140,20 +141,36 @@ public class DwGLTexture3D{
         othr.format, 
         othr.type, 
         othr.filter, 
+        othr.wrap,
         othr.num_channel,
         othr.byte_per_channel
         );
   }
   
+//  public boolean resize(DwPixelFlow context, int w, int h, int d){
+//    return resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel, null);
+//  }
+//  
+//  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel){
+//    return resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
+//  }
+  
   public boolean resize(DwPixelFlow context, int w, int h, int d){
-    return resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
+    return resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
   
   public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel){
-    return resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel, null);
+    return resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
+  
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel){
+    return resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel, null);
+  }
+//  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+//    return resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel, data);
+//  }
 
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel, Buffer data){
 
     if(w <= 0 || h <= 0 || d <= 0) return false;
     if(    this.w == w 
@@ -162,6 +179,8 @@ public class DwGLTexture3D{
         && this.internalFormat == internalFormat
         && this.format == format
         && this.type == type
+        && this.filter == filter
+        && this.wrap == wrap
         ) return false;
 
     release();
@@ -174,6 +193,7 @@ public class DwGLTexture3D{
     this.format = format;
     this.type = type;
     this.filter = filter;
+    this.wrap = wrap;
     this.num_channel = num_channel;
     this.byte_per_channel = byte_per_channel;
 
@@ -190,18 +210,20 @@ public class DwGLTexture3D{
     // TODO
     gl.glPixelStorei(GL2ES2.GL_UNPACK_ALIGNMENT, 1);
     gl.glPixelStorei(GL2ES2.GL_PACK_ALIGNMENT,   1);
+    
+    gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
+
+    
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_BASE_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAX_LEVEL, 0);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_EDGE);
 //    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_EDGE);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_REPEAT);
 //     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_REPEAT);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, GL2ES2.GL_CLAMP_TO_BORDER);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, GL2ES2.GL_CLAMP_TO_BORDER);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, GL2ES2.GL_CLAMP_TO_BORDER);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
 
-    gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
-    
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
     
@@ -242,21 +264,31 @@ public class DwGLTexture3D{
   //  GL_MIRRORED_REPEAT 
   //  GL_REPEAT
   //  GL_MIRROR_CLAMP_TO_EDGE 
-  public void setParam_WRAP_S_T(int param){
+  public void setParam_WRAP_S_T(int wrap){
+    this.wrap = wrap;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, param);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, param);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, param);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
     gl.glBindTexture  (target, 0);
   }
   
-  public void setParam_WRAP_S_T(int param, float[] border_color){
+  public void setParam_WRAP_S_T(int wrap, float[] border_color){
+    this.wrap = wrap;
     gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_R, param);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, param);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, param);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_R, wrap);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
     gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
     gl.glBindTexture   (target, 0);
+  }
+  
+  public void setParam_Filter(int filter){
+    this.filter = filter;
+    gl.glBindTexture  (target, HANDLE[0]);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter);
+    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
+    gl.glBindTexture  (target, 0);
   }
   
   public void setParam_Filter(int minfilter, int magfilter){
@@ -668,10 +700,26 @@ public class DwGLTexture3D{
     public TexturePingPong(){
     }
 
-    public void resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int  num_channel, int byte_per_channel){
-      src.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
-      dst.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+    
+    public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int wrap, int  num_channel, int byte_per_channel){
+      boolean resized = false;
+      resized |= src.resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel);
+      resized |= dst.resize(context, internalFormat, w, h, d, format, type, filter, wrap, num_channel, byte_per_channel);
+      return resized;
     }
+
+    public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int  num_channel, int byte_per_channel){
+      boolean resized = false;
+      resized |= src.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+      resized |= dst.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+      return resized;
+    }
+    
+    
+//    public void resize(DwPixelFlow context, int internalFormat, int w, int h, int d, int format, int type, int filter, int  num_channel, int byte_per_channel){
+//      src.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+//      dst.resize(context, internalFormat, w, h, d, format, type, filter, num_channel, byte_per_channel);
+//    }
 
     public void release(){
       if(src != null){ src.release(); }

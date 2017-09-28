@@ -140,6 +140,7 @@ public class DwGLTexture{
         othr.format, 
         othr.type, 
         othr.filter,
+        othr.wrap,
         othr.num_channel,
         othr.byte_per_channel
         );
@@ -693,6 +694,13 @@ public class DwGLTexture{
     public DwGLTexture dst = new DwGLTexture(); 
 
     public TexturePingPong(){
+    }
+    
+    public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int  num_channel, int byte_per_channel){
+      boolean resized = false;
+      resized |= src.resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel);
+      resized |= dst.resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel);
+      return resized;
     }
 
     public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int  num_channel, int byte_per_channel){
