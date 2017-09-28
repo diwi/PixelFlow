@@ -10,7 +10,7 @@
  */
 
 
-package ShaderToy_RaymarchingPrimitives;
+package Shadertoy_RaymarchingPrimitives;
 
 
 
@@ -22,7 +22,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class ShaderToy_RaymarchingPrimitives extends PApplet {
+public class Shadertoy_RaymarchingPrimitives extends PApplet {
   
   DwPixelFlow context;
   DwShadertoy toy;
@@ -72,6 +72,6 @@ public class ShaderToy_RaymarchingPrimitives extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { ShaderToy_RaymarchingPrimitives.class.getName() });
+    PApplet.main(new String[] { Shadertoy_RaymarchingPrimitives.class.getName() });
   }
 }

@@ -10,24 +10,30 @@
  */
 
 
-package ShaderToy_BloodCells;
+package Shadertoy_AbstractCorridor;
 
 
 
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
 
 
-public class ShaderToy_BloodCells extends PApplet {
+public class Shadertoy_AbstractCorridor extends PApplet {
   
   DwPixelFlow context;
   DwShadertoy toy;
   
   PGraphics2D pg_canvas;
+  
+  PGraphics2D pg_0;
+  PGraphics2D pg_1;
 
   public void settings() {
     size(1280, 720, P2D);
@@ -41,7 +47,21 @@ public class ShaderToy_BloodCells extends PApplet {
     context.print();
     context.printGL();
     
-    toy = new DwShadertoy(context, "data/BloodCells_Image.frag");
+    toy = new DwShadertoy(context, "data/AbstractCorridor_Image.frag");
+    
+    int w = 512;
+    int h = 512;
+    
+    pg_0 = (PGraphics2D) createGraphics(w, h, P2D);
+    pg_1 = (PGraphics2D) createGraphics(w, h, P2D);
+
+    pg_0.beginDraw();
+    pg_0.background(100,200,0);
+    pg_0.endDraw();
+    
+    pg_1.beginDraw();
+    pg_1.background(200,100,0);
+    pg_1.endDraw();
 
     frameRate(60);
   }
@@ -57,6 +77,11 @@ public class ShaderToy_BloodCells extends PApplet {
     
     resizeScene();
     
+    if(mousePressed){
+      toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
+    }
+    toy.set_iChannel(0, pg_0);
+    toy.set_iChannel(1, pg_1);
     toy.apply(pg_canvas);
     
     // put it on the screen
@@ -69,6 +94,6 @@ public class ShaderToy_BloodCells extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { ShaderToy_BloodCells.class.getName() });
+    PApplet.main(new String[] { Shadertoy_AbstractCorridor.class.getName() });
   }
 }

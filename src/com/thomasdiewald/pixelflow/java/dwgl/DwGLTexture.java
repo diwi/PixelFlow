@@ -278,6 +278,12 @@ public class DwGLTexture{
     gl.glBindTexture  (target, 0);
   }
   
+  // GL_NEAREST
+  // GL_LINEAR
+  // GL_NEAREST_MIPMAP_NEAREST 
+  // GL_LINEAR_MIPMAP_NEAREST  
+  // GL_NEAREST_MIPMAP_LINEAR  
+  // GL_LINEAR_MIPMAP_LINEAR   
   public void setParam_Filter(int minfilter, int magfilter){
     gl.glBindTexture  (target, HANDLE[0]);
     gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, minfilter);

@@ -10,7 +10,7 @@
  */
 
 
-package Shadertoy_SimpleGreeble;
+package Shadertoy_BloodCells;
 
 
 
@@ -21,10 +21,12 @@ import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
 
-public class Shadertoy_SimpleGreeble extends PApplet {
 
+public class Shadertoy_BloodCells extends PApplet {
+  
   DwPixelFlow context;
   DwShadertoy toy;
+  
   PGraphics2D pg_canvas;
 
   public void settings() {
@@ -39,7 +41,7 @@ public class Shadertoy_SimpleGreeble extends PApplet {
     context.print();
     context.printGL();
     
-    toy = new DwShadertoy(context, "data/SimpleGreeble_Image.frag");
+    toy = new DwShadertoy(context, "data/BloodCells_Image.frag");
 
     frameRate(60);
   }
@@ -52,11 +54,12 @@ public class Shadertoy_SimpleGreeble extends PApplet {
   }
   
   public void draw() {
+    
     resizeScene();
-
-    toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
+    
     toy.apply(pg_canvas);
     
+    // put it on the screen
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);
         
@@ -66,6 +69,6 @@ public class Shadertoy_SimpleGreeble extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Shadertoy_SimpleGreeble.class.getName() });
+    PApplet.main(new String[] { Shadertoy_BloodCells.class.getName() });
   }
 }

@@ -10,23 +10,31 @@
  */
 
 
-package Shadertoy_SimpleGreeble;
+package Shadertoy_Elevated;
 
 
 
+import java.nio.ByteBuffer;
+
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
 
-public class Shadertoy_SimpleGreeble extends PApplet {
+public class Shadertoy_Elevated extends PApplet {
 
   DwPixelFlow context;
+  
+  DwShadertoy toyA;
   DwShadertoy toy;
   PGraphics2D pg_canvas;
-
+  
+  DwGLTexture tex_noise = new DwGLTexture();
+  
   public void settings() {
     size(1280, 720, P2D);
     smooth(0);
@@ -39,8 +47,18 @@ public class Shadertoy_SimpleGreeble extends PApplet {
     context.print();
     context.printGL();
     
-    toy = new DwShadertoy(context, "data/SimpleGreeble_Image.frag");
+    toyA = new DwShadertoy(context, "data/Elevated_BufA.frag");
+    toy  = new DwShadertoy(context, "data/Elevated_Image.frag");
+    
+    // create noise texture
+    int wh = 256;
 
+    byte[] bdata = new byte[wh * wh];
+    ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
+    for(int i = 0; i < bdata.length; i++){
+      bdata[i] = (byte) random(0, 256);
+    }
+    tex_noise.resize(context, GL2.GL_R8, wh, wh, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, bbuffer);
     frameRate(60);
   }
 
@@ -49,12 +67,19 @@ public class Shadertoy_SimpleGreeble extends PApplet {
       pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
       toy.reset();
     }
+    toyA.resize(width, height);
   }
   
   public void draw() {
     resizeScene();
 
-    toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
+    if(mousePressed){
+      toyA.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
+    }
+    toyA.set_iChannel(0, tex_noise);
+    toyA.apply();
+    
+    toy.set_iChannel(0, toyA);
     toy.apply(pg_canvas);
     
     blendMode(REPLACE);
@@ -66,6 +91,6 @@ public class Shadertoy_SimpleGreeble extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Shadertoy_SimpleGreeble.class.getName() });
+    PApplet.main(new String[] { Shadertoy_Elevated.class.getName() });
   }
 }

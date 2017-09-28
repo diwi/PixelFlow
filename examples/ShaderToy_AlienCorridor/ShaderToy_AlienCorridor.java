@@ -10,7 +10,7 @@
  */
 
 
-package ShaderToy_AlienCorridor;
+package Shadertoy_AlienCorridor;
 
 
 
@@ -25,20 +25,16 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class ShaderToy_AlienCorridor extends PApplet {
+public class Shadertoy_AlienCorridor extends PApplet {
   
   DwPixelFlow context;
   
-  DwShadertoy toy_BufA;
-  DwShadertoy toy_BufB;
-  DwShadertoy toy_BufC;
-  DwShadertoy toy_BufD;
-  DwShadertoy toy_Image;
+  DwShadertoy toyA;
+  DwShadertoy toyB;
+  DwShadertoy toyC;
+  DwShadertoy toyD;
+  DwShadertoy toy;
   
-  DwGLTexture texA = new DwGLTexture();
-  DwGLTexture texB = new DwGLTexture();
-  DwGLTexture texC = new DwGLTexture();
-  DwGLTexture texD = new DwGLTexture();
   DwGLTexture tex_noise = new DwGLTexture();
   
   PGraphics2D pg_canvas;
@@ -56,11 +52,11 @@ public class ShaderToy_AlienCorridor extends PApplet {
     context.print();
     context.printGL();
     
-    toy_BufA  = new DwShadertoy(context, "data/AlienCorridor_BufA.frag");
-    toy_BufB  = new DwShadertoy(context, "data/AlienCorridor_BufB.frag");
-    toy_BufC  = new DwShadertoy(context, "data/AlienCorridor_BufC.frag");
-    toy_BufD  = new DwShadertoy(context, "data/AlienCorridor_BufD.frag");
-    toy_Image = new DwShadertoy(context, "data/AlienCorridor_Image.frag");
+    toyA  = new DwShadertoy(context, "data/AlienCorridor_BufA.frag");
+    toyB  = new DwShadertoy(context, "data/AlienCorridor_BufB.frag");
+    toyC  = new DwShadertoy(context, "data/AlienCorridor_BufC.frag");
+    toyD  = new DwShadertoy(context, "data/AlienCorridor_BufD.frag");
+    toy   = new DwShadertoy(context, "data/AlienCorridor_Image.frag");
     
     pg_noise = (PGraphics2D) createGraphics(512, 512, P2D);
     pg_noise.smooth(0);
@@ -87,18 +83,13 @@ public class ShaderToy_AlienCorridor extends PApplet {
   public void resizeScene(){
     if(pg_canvas == null || width != pg_canvas.width || height != pg_canvas.height){
       pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-
-      toy_BufA.reset();
-      toy_BufB.reset();
-      toy_BufC.reset();
-      toy_BufD.reset();
-      toy_Image.reset();
-      
-      texA.resize(context, GL2.GL_RGBA32F, width, height, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
-      texB.resize(context, GL2.GL_RGBA32F, width, height, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
-      texC.resize(context, GL2.GL_RGBA32F, width, height, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
-      texD.resize(context, GL2.GL_RGBA32F, width, height, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
+      toy.reset();
     }
+    
+    toyA.resize(width, height);
+    toyB.resize(width, height);
+    toyC.resize(width, height);
+    toyD.resize(width, height);
   }
   
 
@@ -106,28 +97,24 @@ public class ShaderToy_AlienCorridor extends PApplet {
     
     resizeScene();
     
-    toy_BufA.set_iChannel(0, tex_noise);
-    toy_BufA.apply(texA);
+    toyA.set_iChannel(0, tex_noise);
+    toyA.apply();
     
-    toy_BufB.set_iChannel(0, texA);
-    toy_BufB.apply(texB);
+    toyB.set_iChannel(0, toyA);
+    toyB.apply();
     
-    toy_BufC.set_iChannel(0, texB);
-    toy_BufC.apply(texC);
+    toyC.set_iChannel(0, toyB);
+    toyC.apply();
     
-    toy_BufD.set_iChannel(0, texC);
-    toy_BufD.apply(texD);
+    toyD.set_iChannel(0, toyC);
+    toyD.apply();
     
-    toy_Image.set_iChannel(0, texD);
-    toy_Image.set_iChannel(1, texA);
-    toy_Image.apply(pg_canvas);
+    toy.set_iChannel(0, toyD);
+    toy.set_iChannel(1, toyA);
+    toy.apply(pg_canvas);
     
-
-    // put it on the screen
-    blendMode(REPLACE);
     image(pg_canvas, 0, 0);
 
-        
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
   }
@@ -135,6 +122,6 @@ public class ShaderToy_AlienCorridor extends PApplet {
 
  
   public static void main(String args[]) {
-    PApplet.main(new String[] { ShaderToy_AlienCorridor.class.getName() });
+    PApplet.main(new String[] { Shadertoy_AlienCorridor.class.getName() });
   }
 }

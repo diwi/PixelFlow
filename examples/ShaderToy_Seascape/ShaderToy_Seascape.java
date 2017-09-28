@@ -10,7 +10,7 @@
  */
 
 
-package ShaderToy_Seascape;
+package Shadertoy_Seascape;
 
 
 
@@ -22,7 +22,7 @@ import processing.opengl.PGraphics2D;
 
 
 
-public class ShaderToy_Seascape extends PApplet {
+public class Shadertoy_Seascape extends PApplet {
   
   DwPixelFlow context;
   DwShadertoy toy;
@@ -72,6 +72,6 @@ public class ShaderToy_Seascape extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { ShaderToy_Seascape.class.getName() });
+    PApplet.main(new String[] { Shadertoy_Seascape.class.getName() });
   }
 }

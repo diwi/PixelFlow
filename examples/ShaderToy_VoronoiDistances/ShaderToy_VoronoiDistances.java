@@ -10,7 +10,7 @@
  */
 
 
-package ShaderToy_VoronoiDistances;
+package Shadertoy_VoronoiDistances;
 
 
 
@@ -25,7 +25,7 @@ import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
 
-public class ShaderToy_VoronoiDistances extends PApplet {
+public class Shadertoy_VoronoiDistances extends PApplet {
 
   DwPixelFlow context;
   DwShadertoy toy;
@@ -47,12 +47,13 @@ public class ShaderToy_VoronoiDistances extends PApplet {
     toy = new DwShadertoy(context, "data/VoronoiDistances_Image.frag");
     
     // create noise texture
-    byte[] bdata = new byte[256 * 256 * 4];
+    int wh = 256;
+    byte[] bdata = new byte[wh * wh * 4];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
     for(int i = 0; i < bdata.length; i++){
       bdata[i] = (byte) random(0, 256);
     }
-    tex0.resize(context, GL2.GL_RGBA8, 256, 256, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, GL2.GL_REPEAT, 4, 1, bbuffer);
+    tex0.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
     
     frameRate(60);
   }
@@ -80,6 +81,6 @@ public class ShaderToy_VoronoiDistances extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { ShaderToy_VoronoiDistances.class.getName() });
+    PApplet.main(new String[] { Shadertoy_VoronoiDistances.class.getName() });
   }
 }
