@@ -117,6 +117,17 @@ public class DwGLTexture3D{
     return d; 
   }
   
+  public boolean isTexture(){
+    return (HANDLE != null) && (HANDLE[0] != 0);
+  }
+  
+  public boolean isTexture2(){
+    if(HANDLE != null){
+      return gl.glIsTexture(HANDLE[0]);
+    }
+    return false;
+  }
+
   
   public int getMem_Byte(){
     return w * h * d * byte_per_channel * num_channel;

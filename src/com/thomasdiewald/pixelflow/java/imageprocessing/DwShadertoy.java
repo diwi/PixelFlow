@@ -48,12 +48,8 @@ public class DwShadertoy{
   public float         iSampleRate        = 44100         ; // uniform float iSampleRate;           // image/buffer/sound    The sound sample rate (typically 44100)
   public float[]       iChannelTime       = new float[4]  ; // uniform float iChannelTime[4];       // image/buffer          Time for channel (if video or sound), in seconds
   public float[]       iChannelResolution = new float[12] ; // uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture resolution for each channel
- 
   public int[]         iChannel           = new int[4]    ; // uniform sampler[2D,3D,Cube] iChannel0..3; // image/buffer/sound    Sampler for input textures i
 
-  // DwGLTexture    [] iChannel2D   = new DwGLTexture[4]  ; // uniform sampler2D   iChannel0..3;          // image/buffer/sound    Sampler for input textures i
-  // DwGLTexture3D  [] iChannel3D   = new DwGLTexture3D[4]; // uniform sampler3D   iChannel0..3;          // image/buffer/sound    Sampler for input textures i
-  // DwGLTextureCube[] iChannelCube = new DwGLTexture3D[4]; // uniform samplerCube iChannel0..3;          // image/buffer/sound    Sampler for input textures i, TODO
 
   /**
    * Default RGBA32F-Rendertarget for this buffer.
@@ -230,6 +226,9 @@ public class DwShadertoy{
     iChannelTime[2] = time_CH2;
     iChannelTime[3] = time_CH3;
   }
+  
+  
+  
   /**
    * uniform vec3 iChannelResolution[4]; // image/buffer/sound, Input texture resolution for each channel
    * @param channel
@@ -242,18 +241,55 @@ public class DwShadertoy{
     iChannelResolution[channel * 3 + 1] = dim_h;
     iChannelResolution[channel * 3 + 2] = dim_d;
   }
-  
+  /**
+   * sampler2D, sampler3D, samplerCube
+   * @param channel
+   * @param type
+   */
+  public void set_iChannelType(int channel, String type){
+    shader.frag.setDefine("SAMPLER"+channel, type);
+  }
   
   /**
    * uniform sampler2D iChannel0..3; // image/buffer/sound, Sampler for input textures i
    * @param channel
    * @param tex
    */
+  public void set_iChannel(int channel, int tex_handle){
+    iChannel[channel] = tex_handle;
+  }
+  
+
+
+  
+  
+  
+  /**
+   * generic function to set channel texture data
+   * uniform sampler2D iChannel0..3; // image/buffer/sound, Sampler for input textures i
+   * 
+   * @param channel
+   * @param tex_handle  gl texture handle
+   * @param tex_w       width
+   * @param tex_h       height
+   * @param tex_d       depth
+   * @param type        sampler-type
+   */
+  public void set_iChannel(int channel, int tex_handle, int tex_w, int tex_h, int tex_d, String type){
+    set_iChannel          (channel, tex_handle);
+    set_iChannelResolution(channel, tex_w, tex_h, 1.0f);
+    set_iChannelType      (channel, type);
+  }
+  
+
+  /**
+   * uniform sampler2D iChannel0..3; // image/buffer/sound, Sampler for input textures i
+   * @param channel
+   * @param tex
+   */
   public void set_iChannel(int channel, DwShadertoy toy){
-    if(toy.tex.isTexture() && channel >= 0 && channel <= 3){
-      iChannel[channel] = toy.tex.HANDLE[0];
-      set_iChannelResolution(channel, toy.tex.w, toy.tex.h, 1.0f);
-      shader.frag.setDefine("SAMPLER"+channel, "sampler2D");
+    if(toy.tex.isTexture()){
+      set_iChannel(channel, toy.tex.HANDLE[0], toy.tex.w, toy.tex.h, 1, "sampler2D");
     }
   }
   
@@ -263,13 +299,9 @@ public class DwShadertoy{
    * @param tex
    */
   public void set_iChannel(int channel, PGraphicsOpenGL pg){
-    if(channel >= 0 && channel <= 3){
-      Texture tex = pg.getTexture(); 
-      if(tex.available()){
-        iChannel[channel] = tex.glName;
-        set_iChannelResolution(channel, tex.glWidth, tex.glHeight, 1.0f);
-        shader.frag.setDefine("SAMPLER"+channel, "sampler2D");
-      }
+    Texture tex2D = pg.getTexture(); 
+    if(tex2D.available()){
+      set_iChannel(channel, tex2D.glName, tex2D.glWidth, tex2D.glHeight, 1, "sampler2D");
     }
   }
   
@@ -279,10 +311,8 @@ public class DwShadertoy{
    * @param tex
    */
   public void set_iChannel(int channel, DwGLTexture tex2D){
-    if(tex2D != null && channel >= 0 && channel <= 3){
-      iChannel[channel] = tex2D.HANDLE[0];
-      set_iChannelResolution(channel, tex2D.w, tex2D.h, 1.0f);
-      shader.frag.setDefine("SAMPLER"+channel, "sampler2D");
+    if(tex2D.isTexture()){
+      set_iChannel(channel, tex2D.HANDLE[0], tex2D.w, tex2D.h, 1, "sampler2D");
     }
   }
   /**
@@ -291,10 +321,8 @@ public class DwShadertoy{
    * @param tex
    */
   public void set_iChannel(int channel, DwGLTexture3D tex3D){
-    if(tex3D != null && channel >= 0 && channel <= 3){
-      iChannel[channel] = tex3D.HANDLE[0];
-      set_iChannelResolution(channel, tex3D.w, tex3D.h, tex3D.d);
-      shader.frag.setDefine("SAMPLER"+channel, "sampler3D");
+    if(tex3D.isTexture()){
+      set_iChannel(channel, tex3D.HANDLE[0], tex3D.w, tex3D.h, tex3D.d, "sampler3D");
     }
   }
   
@@ -305,10 +333,8 @@ public class DwShadertoy{
    */
   public void set_iChannel(int channel, DwGLTextureCube texCube){
     System.out.println("WARNING: DwShadertoy.set_iChannel(int, DwGLTextureCube) is not implemented yet!");
-//    if(texCube != null && channel >= 0 && channel <= 3){
-//      iChannel[channel] = texCube.HANDLE[0];
-//      set_iChannelResolution(channel, texCube.w, texCube.h, texCube.d);
-//      shader.frag.setDefine("SAMPLER"+channel, "samplerCube");
+//    if(texCube.isTexture()){
+//      set_iChannel(channel, texCube.HANDLE[0], texCube.w, texCube.h, texCube.d, "samplerCube");
 //    }
   }
   
@@ -323,44 +349,31 @@ public class DwShadertoy{
     set_iTimeDelta(1f/context.papplet.frameRate);
     set_iTime();
     set_iDate();
+    set_iFrame(iFrame + 1);
 
     shader.begin();
-    shader.uniform3fv("iResolution"       , 1, iResolution       ); // vec3  iResolution;           image/buffer      
-    shader.uniform1f ("iTime"             , iTime                ); // float iTime;                 image/sound/buffer
-    shader.uniform1f ("iTimeDelta"        , iTimeDelta           ); // float iTimeDelta;            image/buffer      
-    shader.uniform1i ("iFrame"            , iFrame               ); // int   iFrame;                image/buffer      
-    shader.uniform1f ("iFrameRate"        , iFrameRate           ); // float iFrameRate;            image/buffer      
-    shader.uniform4fv("iMouse"            , 1, iMouse            ); // vec4  iMouse;                image/buffer      
-    shader.uniform4fv("iDate"             , 1, iDate             ); // vec4  iDate;                 image/buffer/sound
-    shader.uniform1f ("iSampleRate"       , iSampleRate          ); // float iSampleRate;           image/buffer/sound
-    shader.uniform1fv("iChannelTime"      , 4, iChannelTime      ); // float iChannelTime[4];       image/buffer      
-    shader.uniform3fv("iChannelResolution", 4, iChannelResolution); // vec3  iChannelResolution[4]; image/buffer/sound
-    
-    shader.uniformTexture ("iChannel0", iChannel[0]);
-    shader.uniformTexture ("iChannel1", iChannel[1]);
-    shader.uniformTexture ("iChannel2", iChannel[2]);
-    shader.uniformTexture ("iChannel3", iChannel[3]);
-    
- 
-//    if(iChannel2D[0] != null) shader.uniformTexture ("iChannel0", iChannel2D[0]);
-//    if(iChannel2D[1] != null) shader.uniformTexture ("iChannel1", iChannel2D[1]);
-//    if(iChannel2D[2] != null) shader.uniformTexture ("iChannel2", iChannel2D[2]);
-//    if(iChannel2D[3] != null) shader.uniformTexture ("iChannel3", iChannel2D[3]);
-//    
-//    if(iChannel3D[0] != null) shader.uniformTexture ("iChannel0", iChannel3D[0]);
-//    if(iChannel3D[1] != null) shader.uniformTexture ("iChannel1", iChannel3D[1]);
-//    if(iChannel3D[2] != null) shader.uniformTexture ("iChannel2", iChannel3D[2]);
-//    if(iChannel3D[3] != null) shader.uniformTexture ("iChannel3", iChannel3D[3]);
-    
+    shader.uniform3fv    ("iResolution"       , 1, iResolution       );
+    shader.uniform1f     ("iTime"             , iTime                );
+    shader.uniform1f     ("iTimeDelta"        , iTimeDelta           );
+    shader.uniform1i     ("iFrame"            , iFrame               );
+    shader.uniform1f     ("iFrameRate"        , iFrameRate           );
+    shader.uniform4fv    ("iMouse"            , 1, iMouse            );
+    shader.uniform4fv    ("iDate"             , 1, iDate             );
+    shader.uniform1f     ("iSampleRate"       , iSampleRate          );
+    shader.uniform1fv    ("iChannelTime"      , 4, iChannelTime      );
+    shader.uniform3fv    ("iChannelResolution", 4, iChannelResolution);
+    shader.uniformTexture("iChannel0"         , iChannel[0]          );
+    shader.uniformTexture("iChannel1"         , iChannel[1]          );
+    shader.uniformTexture("iChannel2"         , iChannel[2]          );
+    shader.uniformTexture("iChannel3"         , iChannel[3]          );
     shader.drawFullScreenQuad();
     shader.end();
     
-    set_iFrame(iFrame + 1);
   }
   
+  
   /**
-   * execute shader, using tex_dst as rendertarget.
-   * @param tex_dst
+   * execute shader, using the default rendertarget.
    */
   public void apply(){
     context.begin();
@@ -372,7 +385,7 @@ public class DwShadertoy{
   
   
   /**
-   * execute shader, using tex_dst as rendertarget.
+   * execute shader, using the given rendertarget.
    * @param tex_dst
    */
   public void apply(DwGLTexture tex_dst){
@@ -384,7 +397,7 @@ public class DwShadertoy{
   }
   
   /**
-   * execute shader, using pg_dst as rendertarget.
+   * execute shader, using the given rendertarget.
    * @param tex_dst
    */
   public void apply(PGraphicsOpenGL pg_dst){
