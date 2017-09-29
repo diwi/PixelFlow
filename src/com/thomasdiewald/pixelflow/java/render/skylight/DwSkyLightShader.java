@@ -106,7 +106,7 @@ public class DwSkyLightShader {
       pg_shading[i].smooth(0);
       pg_shading[i].textureSampling(2);
       
-      DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT);
+      DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
       
       pg_shading[i].beginDraw();
       pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);

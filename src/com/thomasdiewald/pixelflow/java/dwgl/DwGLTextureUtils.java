@@ -36,6 +36,10 @@ public class DwGLTextureUtils {
   
   static public void changeTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type, int filter, int wrap){
     Texture tex = pg.getTexture();
+    if(!tex.available()){
+      System.out.println("ERROR DwGLTextureUtils.changeTextureFormat: PGraphicsOpenGL texture not available.");
+      return;
+    }
     PGL pgl = pg.beginPGL();
     pgl.bindTexture  (tex.glTarget, tex.glName);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
@@ -49,41 +53,9 @@ public class DwGLTextureUtils {
     pg.beginDraw();
     pg.clear();
     pg.endDraw();
-   
   }
   
-  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
-    changeShadowTextureFormat(pg, internal_format, format, type, GL2ES2.GL_NEAREST);
-  }
-  
-  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type, int filter){
-    changeShadowTextureFormat(pg, internal_format, format, type, filter, GL2ES2.GL_CLAMP_TO_EDGE);
-  }
-  
-  static public void changeShadowTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int filter, int wrap, int type){
-    Texture tex = pg.getTexture();
-    PGL pgl = pg.beginPGL();
-    pgl.bindTexture(tex.glTarget, tex.glName);
-//    float[] border =  new float[]{0,0,0,0};
-//    pgl.texParameterfv(tex.glTarget, GL2ES2.GL_TEXTURE_BORDER_COLOR, FloatBuffer.wrap(border));
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MAG_FILTER, filter); 
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-    pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_TEXTURE_COMPARE_FUNC, GL2.GL_LEQUAL);
-//    pgl.texParameteri(tex.glTarget, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY); 
-    pgl.texImage2D(tex.glTarget, 0, internal_format, tex.glWidth, tex.glHeight, 0, format, type, null);
-    pgl.bindTexture(tex.glTarget, 0);
-    pg.endPGL();
-    
-    pg.beginDraw();
-    pg.clear();
-    pg.endDraw();
-  }
-  
-  
-  
+
   // GL_CLAMP
   // GL_CLAMP_TO_BORDER
   // GL_CLAMP_TO_EDGE
@@ -91,6 +63,10 @@ public class DwGLTextureUtils {
   // GL_MIRRORED_REPEAT
   static public void changeTextureWrap(PGraphicsOpenGL pg, int wrap){
     Texture tex = pg.getTexture();
+    if(!tex.available()){
+      System.out.println("ERROR DwGLTextureUtils.changeTextureWrap: PGraphicsOpenGL texture not available.");
+      return;
+    }
     PGL pgl = pg.beginPGL();
     pgl.bindTexture  (tex.glTarget, tex.glName); 
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
@@ -107,6 +83,10 @@ public class DwGLTextureUtils {
   // GL_LINEAR_MIPMAP_LINEAR  
   static public void changeTextureFilter(PGraphicsOpenGL pg, int min_filter, int mag_filter){
     Texture tex = pg.getTexture();
+    if(!tex.available()){
+      System.out.println("ERROR DwGLTextureUtils.changeTextureFilter: PGraphicsOpenGL texture not available.");
+      return;
+    }
     PGL pgl = pg.beginPGL();
     pgl.bindTexture  (tex.glTarget, tex.glName);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, min_filter);
@@ -125,6 +105,10 @@ public class DwGLTextureUtils {
    */
   static public void changeTextureParam(PGraphicsOpenGL pg, int pname, int param){
     Texture tex = pg.getTexture();
+    if(!tex.available()){
+      System.out.println("ERROR DwGLTextureUtils.changeTextureParam: PGraphicsOpenGL texture not available.");
+      return;
+    }
     PGL pgl = pg.beginPGL();
     pgl.bindTexture  (tex.glTarget, tex.glName);
     pgl.texParameteri(tex.glTarget, pname, param);
@@ -142,6 +126,10 @@ public class DwGLTextureUtils {
   
   static public void generateMipMaps(DwPixelFlow context, PGraphicsOpenGL pg){
     Texture tex = pg.getTexture();
+    if(!tex.available()){
+      System.out.println("ERROR DwGLTextureUtils.generateMipMaps: PGraphicsOpenGL texture not available.");
+      return;
+    }
 //    tex.usingMipmaps(true, 3);
 //    System.out.println(tex.usingMipmaps());
     context.begin();
