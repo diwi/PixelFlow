@@ -174,9 +174,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.param.size_collision = particles.param.size_display;
     particles.param.size_cohesion  = 5;
     
-    particles.param.wh_scale_coh = 16;
-    particles.param.wh_scale_col = 1;
-    particles.param.wh_scale_obs = 1;
+    particles.param.wh_scale_coh = 4;
+    particles.param.wh_scale_col = 0;
+    particles.param.wh_scale_obs = 0;
     
     particles.param.velocity_damping  = 0.99f;
     particles.param.display_line_width = 1f;
@@ -345,10 +345,10 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(!DISPLAY_DIST)
     {
       
-      PGraphics2D pg_rendered = pg_particles;
+      PGraphics2D pg_display = pg_particles;
       
       if(DISPLAY_TYPE_ID == 0){
-        pg_rendered = pg_particles;
+        pg_display = pg_particles;
         // set pg_checker as background for blending
         DwFilter.get(context).copy.apply(pg_checker, pg_particles);
         particles.displayParticles(pg_particles);
@@ -368,13 +368,13 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         }
         
       } else {
-        pg_rendered = pg_trails;
-        float mult = 0.985f;
-        DwFilter.get(context).multiply.apply(pg_trails, pg_trails, new float[]{mult, mult, mult, mult});
-        
-        if((frameCount % 2) == 0){
-          DwFilter.get(context).gaussblur.apply(pg_trails, pg_trails, pg_trails_tmp, 3);
-        }
+        pg_display = pg_trails;
+        // mix pg_checker as background for blending
+        float mix = 0.980f;
+        Merge.TexMad ta =  new Merge.TexMad(pg_checker, 1-mix, 0);
+        Merge.TexMad tb =  new Merge.TexMad(pg_trails ,   mix, 0);
+        DwFilter.get(context).merge.apply(pg_trails, ta, tb);
+        DwFilter.get(context).gaussblur.apply(pg_trails, pg_trails, pg_trails_tmp, 1);
         particles.displayTrail(pg_trails);
       }
       
@@ -382,9 +382,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       pg_canvas.blendMode(REPLACE);
       pg_canvas.image(pg_checker, 0, 0);
       pg_canvas.blendMode(BLEND);   
+      pg_canvas.image(pg_display, 0, 0);
       pg_canvas.image(pg_obstacles, 0, 0);
       pg_canvas.image(pg_spheres, 0, 0);
-      pg_canvas.image(pg_rendered, 0, 0);
       pg_canvas.endDraw();
     }
     
@@ -400,7 +400,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       Merge.TexMad texA = new Merge.TexMad(particles.tex_obs_dist, 0.030f * particles.param.mul_obs, 0.0f);
       Merge.TexMad texB = new Merge.TexMad(particles.tex_col_dist, 0.500f * particles.param.mul_col, 0.0f);
       Merge.TexMad texC = new Merge.TexMad(particles.tex_coh_dist, 0.005f * particles.param.mul_coh, 0.0f);
-
+      
+      texA.mul *= 1<<particles.param.wh_scale_obs;
+//      texB.mul *= 1<<particles.param.wh_scale_col;
+//      texC.mul *= 1<<particles.param.wh_scale_coh;
+      
       particles.tex_obs_dist.swizzle(new int[]{R, R, R, Z});
       particles.tex_col_dist.swizzle(new int[]{R, R, R, Z});
       particles.tex_coh_dist.swizzle(new int[]{R, Z, Z, Z});
@@ -966,15 +970,18 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       
       
       cp5.addSlider("wh_scale_coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 32).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh");
+      .setRange(0, 4).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh")
+      .snapToTickMarks(true).setNumberOfTickMarks(5).showTickMarks(false);
       py += sy + dy_item;
       
       cp5.addSlider("wh_scale_col").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 8).setValue(param.wh_scale_col).plugTo(param, "wh_scale_col");
+      .setRange(0, 2).setValue(param.wh_scale_col).plugTo(param, "wh_scale_col")
+      .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
       py += sy + dy_item;
       
       cp5.addSlider("wh_scale_obs").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 8).setValue(param.wh_scale_obs).plugTo(param, "wh_scale_obs");
+      .setRange(0, 2).setValue(param.wh_scale_obs).plugTo(param, "wh_scale_obs")
+      .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
       py += sy + dy_group;
       
 
