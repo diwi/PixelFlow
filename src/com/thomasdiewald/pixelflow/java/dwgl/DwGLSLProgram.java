@@ -150,7 +150,11 @@ public class DwGLSLProgram {
     gl.glUseProgram(0);
   }
   
-  
+  public void end(String error_msg){
+    end();
+    DwGLError.debug(gl, error_msg);
+  }
+
   
   HashMap<String, Integer> uniform_loc = new HashMap<String, Integer>();
 

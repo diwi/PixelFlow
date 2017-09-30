@@ -329,11 +329,12 @@ public class FlowFieldParticles_Attractors extends PApplet {
       filter.luminance_threshold.param.threshold = 0.3f; // when 0, all colors are used
       filter.luminance_threshold.param.exponent  = 5;
       filter.luminance_threshold.apply(pg_canvas, pg_luminance);
-  
-      filter.bloom.gaussianpyramid.setBlurLayers(10);
+      
+      filter.bloom.setBlurLayers(10);
+//      filter.bloom.gaussianpyramid.setBlurLayers(10);
       filter.bloom.param.blur_radius = 1;
-      filter.bloom.param.mult   = 2;    //map(mouseX, 0, width, 0, 10);
-      filter.bloom.param.radius = 0.05f;//map(mouseY, 0, height, 0, 1);
+      filter.bloom.param.mult   = 1.2f;    //map(mouseX, 0, width, 0, 10);
+      filter.bloom.param.radius = 0.1f;//map(mouseY, 0, height, 0, 1);
       filter.bloom.apply(pg_luminance, null, pg_canvas);
     }
     

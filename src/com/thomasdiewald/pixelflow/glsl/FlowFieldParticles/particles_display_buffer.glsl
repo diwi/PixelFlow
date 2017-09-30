@@ -12,26 +12,16 @@
 
 #version 150
 
-
 #define SHADER_VERT 0
 #define SHADER_FRAG 0
 
-
 uniform float     point_size;
 uniform ivec2     wh_position;
-uniform float     shader_collision_mult = 1.0;
-uniform sampler2D tex_collision;
 uniform sampler2D tex_position;
-uniform sampler2D tex_sprite;
-uniform vec4      col_A = vec4(1, 1, 1, 1.0);
-uniform vec4      col_B = vec4(0, 0, 0, 0.0);
 
 #if SHADER_VERT
 
-out float pressure;
-
 void main(){
-
   // get point index / vertex index
   int point_id = gl_VertexID;
 
@@ -41,30 +31,20 @@ void main(){
   
   // get particle position, velocity
   vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
-  vec2 pos = particle.xy;
 
-  float vel = length(pos - particle.zw) * 2000;
-  pressure = texture(tex_collision, pos).r + vel;
-
-  gl_Position  = vec4(pos * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
+  gl_Position  = vec4(particle.xy * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   gl_PointSize = point_size;
 }
 
 #endif // #if SHADER_VERT
 
 
-
 #if SHADER_FRAG
 
-out vec4 out_frag;
-in float pressure;
+out float out_frag;
 
 void main(){
-  float falloff = texture(tex_sprite, gl_PointCoord).a;
-  out_frag = mix(col_A, col_B, 1.0 - falloff);
-  float pf = 1.0 + pressure * shader_collision_mult;
-  out_frag.xyzw *= pf;
-  out_frag = clamp(out_frag, 0.0, 1.0);
+  out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
 }
 
 #endif // #if SHADER_FRAG

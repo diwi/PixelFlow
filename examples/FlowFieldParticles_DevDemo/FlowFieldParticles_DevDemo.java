@@ -128,7 +128,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public boolean DISPLAY_DIST      = !true;
   public boolean DISPLAY_FLOW      = !true;
   public int     DISPLAY_TYPE_ID   = 1;
-  public int     BACKGROUND_MODE   = 3;
+  public int     BACKGROUND_MODE   = 0;
   public int     PARTICLE_COLOR    = 1;
   
   float gravity = 1;
@@ -173,6 +173,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.param.size_display   = 10;
     particles.param.size_collision = particles.param.size_display;
     particles.param.size_cohesion  = 5;
+    
+    particles.param.wh_scale_coh = 16;
+    particles.param.wh_scale_col = 1;
+    particles.param.wh_scale_obs = 1;
+    
     particles.param.velocity_damping  = 0.99f;
     particles.param.display_line_width = 1f;
     particles.param.display_line_smooth = false;
@@ -881,6 +886,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(true);
     
+    DwFlowFieldParticles.Param param = particles.param;
+    
     int sx, sy, px, py;
     sx = 100; 
     sy = 14; 
@@ -892,7 +899,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 450)
+      group_particles.setHeight(20).setSize(gui_w, 520)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -915,9 +922,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         for(Toggle toggle : rb_type.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);
         py += sy + dy_group;
       }
+      
+
 
       cp5.addSlider("collision steps").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 3).setValue(particles.param.steps).plugTo(this, "set_collision_steps")
+      .setRange(0, 3).setValue(param.steps).plugTo(this, "set_collision_steps")
       .snapToTickMarks(true).setNumberOfTickMarks(4);
       py += sy + dy_group;
       
@@ -926,33 +935,46 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       py += sy + dy_item;
       
       cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.95f, 1.00f).setValue(particles.param.velocity_damping).plugTo(this, "set_velocity_damping");
+      .setRange(0.95f, 1.00f).setValue(param.velocity_damping).plugTo(this, "set_velocity_damping");
       py += sy + dy_group;
 
       
       cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
+      .setRange(0, 50).setValue(param.size_display).plugTo(this, "set_size_display");
       py += sy + dy_item;
       
       cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 50).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
+      .setRange(1, 50).setValue(param.size_collision).plugTo(this, "set_size_collision");
       py += sy + dy_item;
       
       cp5.addSlider("size cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 50).setValue(particles.param.size_cohesion).plugTo(this, "set_size_cohesion");
+      .setRange(1, 50).setValue(param.size_cohesion).plugTo(this, "set_size_cohesion");
       py += sy + dy_group;
       
 
       cp5.addSlider("mult collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_col).plugTo(this, "set_mul_col");
+      .setRange(0.0f, 8.0f).setValue(param.mul_col).plugTo(this, "set_mul_col");
       py += sy + dy_item;
       
       cp5.addSlider("mult cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_coh).plugTo(this, "set_mul_coh");
+      .setRange(0.0f, 8.0f).setValue(param.mul_coh).plugTo(this, "set_mul_coh");
       py += sy + dy_item;
       
       cp5.addSlider("mult obstacles").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.0f, 8.0f).setValue(particles.param.mul_obs).plugTo(this, "set_mul_obs");
+      .setRange(0.0f, 8.0f).setValue(param.mul_obs).plugTo(this, "set_mul_obs");
+      py += sy + dy_group;
+      
+      
+      cp5.addSlider("wh_scale_coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(1, 32).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh");
+      py += sy + dy_item;
+      
+      cp5.addSlider("wh_scale_col").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(1, 8).setValue(param.wh_scale_col).plugTo(param, "wh_scale_col");
+      py += sy + dy_item;
+      
+      cp5.addSlider("wh_scale_obs").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(1, 8).setValue(param.wh_scale_obs).plugTo(param, "wh_scale_obs");
       py += sy + dy_group;
       
 
@@ -1032,7 +1054,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       py += sy + dy_item;
       sx = 100;
       cp5.addSlider("collision_mult").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 1).setValue(particles.param.shader_collision_mult).plugTo(this, "set_shader_collision_mult")
+      .setRange(0, 1).setValue(param.shader_collision_mult).plugTo(this, "set_shader_collision_mult")
       ;
       
     }
