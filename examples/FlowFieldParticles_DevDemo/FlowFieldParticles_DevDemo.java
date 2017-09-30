@@ -127,7 +127,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public boolean UPDATE_GRAVITY    = true;
   public boolean DISPLAY_DIST      = !true;
   public boolean DISPLAY_FLOW      = !true;
-  public int     DISPLAY_TYPE_ID   = 1;
+  public int     DISPLAY_TYPE_ID   = 0;
   public int     BACKGROUND_MODE   = 0;
   public int     PARTICLE_COLOR    = 1;
   
@@ -526,11 +526,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       pg_obstacles.rectMode(CENTER);
       int count = 10;
       float dy = h / (float) count;
+      float rad = dy*0.85f;
       for(int i = 0; i < count; i++){
         float py = dy * 0.5f + i*dy;
         setFill(pg_obstacles, FG);
-        pg_obstacles.rect(w-w/4f, py, 50, 50, 15);
-  //      pg_obstacles.rect(  w/4f, py, 50, 50, 15);
+        pg_obstacles.rect(w-w/4f, py, rad, rad, rad*0.3f);
       }
       
       pg_obstacles.pushMatrix();
@@ -538,7 +538,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
         pg_obstacles.translate(px, h-250);
         setFill(pg_obstacles, FG);
-        pg_obstacles.rect(0, 0, 50, 500);
+        pg_obstacles.rect(0, 0, 30, 500);
       }
       pg_obstacles.popMatrix();
       
@@ -560,8 +560,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         pg_obstacles.translate(wh, h-dim/2);
         pg_obstacles.rotate(rot);
         setFill(pg_obstacles, FG);
-        pg_obstacles.rect(0, 0, dim,  50);
-        pg_obstacles.rect(0, 0,  50, dim, 10);
+        pg_obstacles.rect(0, 0, dim,  30);
+        pg_obstacles.rect(0, 0,  30, dim);
         setFill(pg_obstacles, BG);
         pg_obstacles.rect(0, 0,  100, 100);
       }
@@ -969,14 +969,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       py += sy + dy_group;
       
       
-      cp5.addSlider("wh_scale_coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 4).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh")
-      .snapToTickMarks(true).setNumberOfTickMarks(5).showTickMarks(false);
-      py += sy + dy_item;
       
       cp5.addSlider("wh_scale_col").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 2).setValue(param.wh_scale_col).plugTo(param, "wh_scale_col")
       .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
+      py += sy + dy_item;
+      
+      cp5.addSlider("wh_scale_coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      .setRange(0, 4).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh")
+      .snapToTickMarks(true).setNumberOfTickMarks(5).showTickMarks(false);
       py += sy + dy_item;
       
       cp5.addSlider("wh_scale_obs").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)

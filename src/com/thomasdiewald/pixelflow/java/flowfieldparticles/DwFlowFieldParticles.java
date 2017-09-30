@@ -123,24 +123,23 @@ public class DwFlowFieldParticles{
   public DwGLSLProgram shader_particles_dist;
   public DwGLSLProgram shader_obstacles_dist;
 
-
+  
   public DwGLTexture.TexturePingPong tex_particle = new DwGLTexture.TexturePingPong();
   
   public DwGLTexture tex_col_dist = new DwGLTexture();
   public DwGLTexture tex_obs_dist = new DwGLTexture();
   public DwGLTexture tex_coh_dist = new DwGLTexture();
 
+  public DwFlowField ff_col;
+  public DwFlowField ff_obs;
+  public DwFlowField ff_coh;
+  public DwFlowField ff_sum;
+  
   public DwGLSLProgram shader_obstacles_FG;
   public DwGLTexture tex_obs_FG = new DwGLTexture();
   public DwGLTexture tex_obs  = new DwGLTexture();
   
   public DistanceTransform distancetransform;
-  
-  
-  public DwFlowField ff_col;
-  public DwFlowField ff_obs;
-  public DwFlowField ff_coh;
-  public DwFlowField ff_sum;
   
   protected int spawn_idx = 0;
   protected int spawn_num = 0;
@@ -153,29 +152,25 @@ public class DwFlowFieldParticles{
     
     String data_path = DwPixelFlow.SHADER_DIR+"FlowFieldParticles/";
     
-    shader_create_sprite     = context.createShader(data_path + "create_sprite_texture.frag");
+    shader_create_sprite = context.createShader(data_path + "create_sprite_texture.frag");
 
-    shader_spawn_radial      = context.createShader((Object) (this+"radial"    ), data_path + "particles_spawn.frag");
-    shader_spawn_rect        = context.createShader((Object) (this+"rect"      ), data_path + "particles_spawn.frag");
-    
+    shader_spawn_radial = context.createShader((Object) (this+"radial"), data_path + "particles_spawn.frag");
     shader_spawn_radial.frag.setDefine("SPAWN_RADIAL", 1);
+    shader_spawn_rect   = context.createShader((Object) (this+"rect"  ), data_path + "particles_spawn.frag");
     shader_spawn_rect  .frag.setDefine("SPAWN_RECT"  , 1);
     
-    shader_update_vel  = context.createShader((Object) (this+"update"    ), data_path + "particles_update.frag");
-    shader_update_acc  = context.createShader((Object) (this+"collision" ), data_path + "particles_update.frag");
-    
+    shader_update_vel  = context.createShader((Object) (this+"update"), data_path + "particles_update.frag");
     shader_update_vel.frag.setDefine("UPDATE_VEL", 1);
+    shader_update_acc  = context.createShader((Object) (this+"collision"), data_path + "particles_update.frag");
     shader_update_acc.frag.setDefine("UPDATE_ACC", 1);
     
-
-    // filename = data_path + "particles_display_quads.glsl";
-    filename = data_path + "particles_display_points.glsl";
+    filename = data_path + "particles_display_points.glsl"; // "particles_display_quads.glsl"
     shader_display_particles = context.createShader((Object) (this+"SPRITE"), filename, filename);
     shader_display_particles.frag.setDefine("SHADER_FRAG", 1);
     shader_display_particles.vert.setDefine("SHADER_VERT", 1);
     
     filename = data_path + "particles_display_lines.glsl";
-    shader_display_trails     = context.createShader((Object) (this+"LINES"   ), filename, filename);
+    shader_display_trails     = context.createShader((Object) (this+"LINES"), filename, filename);
     shader_display_trails.frag.setDefine("SHADER_FRAG", 1);
     shader_display_trails.vert.setDefine("SHADER_VERT", 1);
 
@@ -227,9 +222,7 @@ public class DwFlowFieldParticles{
   }
   
   
-  public void dispose(){
-    release();
-  }
+
   
   public int getCount(){
     return spawn_num;
@@ -273,9 +266,11 @@ public class DwFlowFieldParticles{
     spawn_num = 0;
   }
   
+  
+  public void dispose(){
+    release();
+  }
 
-  
-  
   public void release(){
     distancetransform.release();
     tex_obs_FG.release();
@@ -303,7 +298,7 @@ public class DwFlowFieldParticles{
     float scale_col = 1 << param.wh_scale_col;
     float scale_coh = 1 << param.wh_scale_coh;
     
-    int w_sum = w,                                     h_sum = h;
+    int w_sum = w,                            h_sum = h;
     int w_obs = (int) Math.ceil(w/scale_obs), h_obs = (int) Math.ceil(h/scale_obs);
     int w_col = (int) Math.ceil(w/scale_col), h_col = (int) Math.ceil(h/scale_col);
     int w_coh = (int) Math.ceil(w/scale_coh), h_coh = (int) Math.ceil(h/scale_coh);
