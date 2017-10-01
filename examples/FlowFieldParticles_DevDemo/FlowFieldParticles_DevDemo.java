@@ -181,7 +181,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.param.velocity_damping  = 0.99f;
     particles.param.display_line_width = 1f;
     particles.param.display_line_smooth = false;
-
+    
     ff_acc = new DwFlowField(context);
     ff_acc.param.blur_iterations = 0;
     ff_acc.param.blur_radius     = 1;
@@ -326,11 +326,16 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.resizeWorld(w, h);
     particles.createObstacleFlowField(pg_obstacles, BG, true);
     particles.update(ff_acc);
+    
+
+
   }
   
 
   public void draw(){
     
+//    particles.param.timestep = 1f/frameRate;
+
     resizeScene();
     
     updateScene();
@@ -519,8 +524,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(APPLY_OBSTACLES)
     {  
       if(UPDATE_SCENE){
-        rot += 0.005f;
-        slide += 0.004f;
+        rot   += particles.param.timestep * 0.8f;
+        slide += particles.param.timestep * 0.4f;
       }
 
       pg_obstacles.rectMode(CENTER);
@@ -705,7 +710,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(key == 'e') UPDATE_SCENE = !UPDATE_SCENE;
     if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
     if(key == 'd') DISPLAY_DIST = !DISPLAY_DIST;
-//    if(key >= '1' && key <= '9') DISPLAY_ID = key - '1';
     if(key == 'h') toggleGUI(); 
   }
   
@@ -970,17 +974,17 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       
       
       
-      cp5.addSlider("wh_scale_col").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      cp5.addSlider("wh scale col").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 2).setValue(param.wh_scale_col).plugTo(param, "wh_scale_col")
       .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
       py += sy + dy_item;
       
-      cp5.addSlider("wh_scale_coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      cp5.addSlider("wh scale coh").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 4).setValue(param.wh_scale_coh).plugTo(param, "wh_scale_coh")
       .snapToTickMarks(true).setNumberOfTickMarks(5).showTickMarks(false);
       py += sy + dy_item;
       
-      cp5.addSlider("wh_scale_obs").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+      cp5.addSlider("wh scale obs").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 2).setValue(param.wh_scale_obs).plugTo(param, "wh_scale_obs")
       .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
       py += sy + dy_group;

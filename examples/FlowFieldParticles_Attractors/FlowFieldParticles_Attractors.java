@@ -122,6 +122,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     particles.param.velocity_damping  = 1.00f;
     particles.param.steps = 2;
     particles.param.shader_collision_mult = 0.2f;
+    
     particles.param.size_display   = 8;
     particles.param.size_collision = 8;
     particles.param.size_cohesion  = 2;
@@ -129,6 +130,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     particles.param.mul_coh = 5.00f;
     particles.param.mul_col = 0.70f;
     particles.param.mul_obs = 0.60f;
+    
 
     ff_acc = new DwFlowField(context); 
     ff_impulse = new DwFlowField(context);
@@ -251,8 +253,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   }
   
   
-  
-  
+
   public void particleSimulation(){
 
     int w = width;
@@ -266,9 +267,21 @@ public class FlowFieldParticles_Attractors extends PApplet {
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
 
-    // resize, create obstacles, update physics
-    particles.resizeWorld(w, h);
-    particles.createObstacleFlowField(pg_obstacles, BG, true);
+    // resize buffers
+    boolean resized = particles.resizeWorld(w, h);
+    
+    // check if obstacles changed
+    boolean UPDATE_OBSTACLES = resized;
+    for(int i = 0; i < mobs.length; i++){
+      UPDATE_OBSTACLES |= mobs[i].moving;
+    }
+    
+    // update obstacles, in case something changed
+    if(UPDATE_OBSTACLES){
+      particles.createObstacleFlowField(pg_obstacles, BG, true);
+    }
+    
+    // update physics
     particles.update(ff_acc);
   }
   
@@ -322,6 +335,8 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
     if(DISPLAY_FLOW){
       particles.ff_sum.displayPixel(pg_canvas);
+      
+      
     }
        
     if(APPLY_BLOOM){
@@ -671,15 +686,15 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
       
       cp5.addSlider("size display").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0, 50).setValue(particles.param.size_display).plugTo(this, "set_size_display");
+      .setRange(0, 20).setValue(particles.param.size_display).plugTo(this, "set_size_display");
       py += sy + dy_item;
       
       cp5.addSlider("size collision").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 50).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
+      .setRange(1, 20).setValue(particles.param.size_collision).plugTo(this, "set_size_collision");
       py += sy + dy_item;
       
       cp5.addSlider("size cohesion").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(1, 50).setValue(particles.param.size_cohesion).plugTo(this, "set_size_cohesion");
+      .setRange(1, 40).setValue(particles.param.size_cohesion).plugTo(this, "set_size_cohesion");
       py += sy + dy_group;
       
 

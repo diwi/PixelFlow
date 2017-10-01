@@ -50,7 +50,9 @@ public class DwFlowField {
     public int     blend_mode   = 0; // BLEND=0; ADD=1
     
     public int     blur_radius     = 2;
-    public int     blur_iterations = 1; 
+    public int     blur_iterations = 1;
+    
+    public boolean HIGHP_FLOAT = false; // false=GL2.GL_RG16F, true=GL2.GL_RG32F; 
   }
   
   
@@ -91,12 +93,19 @@ public class DwFlowField {
     tex_vel.clear(0);
   }
 
-  public void resize(int w, int h){
-    boolean resized = tex_vel.resize(context, GL2.GL_RG32F, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, 2, 4);
+  public boolean resize(int w, int h){
+    int internalFormat   = GL2.GL_RG16F;
+    int byte_per_channel = 2;
+    if(param.HIGHP_FLOAT){
+      internalFormat   = GL2.GL_RG32F;
+      byte_per_channel = 4;
+    }
+    boolean resized = tex_vel.resize(context, internalFormat, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, 2, byte_per_channel);
     if(resized){
       tex_vel.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
       tex_vel.clear(0);
     }
+    return resized;
   }
   
   public void create(PGraphicsOpenGL pg_src){

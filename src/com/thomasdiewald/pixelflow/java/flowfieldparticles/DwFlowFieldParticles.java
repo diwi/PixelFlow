@@ -20,7 +20,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DistanceTransform;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge.TexMad;
 
 import processing.opengl.PGraphicsOpenGL;
@@ -68,6 +67,9 @@ public class DwFlowFieldParticles{
   
   public static class Param {
     
+    // physics timestep, ... milliseconds per frame ... 1 / frameRate
+    public float timestep = 1 / 120f;
+    
     // particle size rendering/collision
     public float   size_display   = 10f;
     public float   size_collision = 10f;
@@ -79,7 +81,7 @@ public class DwFlowFieldParticles{
     public int wh_scale_obs = 0; // 1 << wh_scale_obs ... 1 << 0 ...  2
     
     // velocity damping
-    public float   velocity_damping  = 0.98f;
+    public float   velocity_damping  = 0.985f;
     
     // update
     public int     steps = 1;
@@ -92,8 +94,8 @@ public class DwFlowFieldParticles{
     // display stuff
     public float   shader_collision_mult = 0.1f;
     
-    public float[] col_A        = {1.0f, 1.0f, 1.0f, 10.0f};
-    public float[] col_B        = {0.0f, 0.0f, 0.0f,  0.0f};
+    public float[] col_A = {1.0f, 1.0f, 1.0f, 10.0f};
+    public float[] col_B = {0.0f, 0.0f, 0.0f,  0.0f};
 
     public int     blend_mode   = 0; // BLEND=0; ADD=1
     
@@ -228,25 +230,35 @@ public class DwFlowFieldParticles{
     return spawn_num;
   }
   
-
-  public int getObstacleSize(){
-    float scale_obs = 1 << param.wh_scale_obs;
-    int radius = (int) Math.ceil(param.size_collision / (2f * scale_obs));
-    radius += 1 - (radius & 1); // add 1 to make radius an odd number
-    return radius;
+  public float getTimestep(){
+    return Math.min(1, 120 * param.timestep);
   }
+  
+  public float getTimestepSq(){
+    float timestep = getTimestep();
+    return timestep * timestep;
+  }
+
   
   public int getCollisionSize(){
     float scale_col = 1 << param.wh_scale_col;
     int radius = (int) Math.ceil(param.size_collision * 2f / scale_col);
-    radius += 1 - (radius & 1); // add 1 to make radius an odd number
+    radius += 1 - (radius & 1); // make radius an odd number
+//    radius += (radius & 1); //  make radius an even number
     return radius;
   }
   
   public int getCohesionSize(){
     float scale_coh = 1 << param.wh_scale_coh;
     int radius = (int) Math.ceil(param.size_cohesion * 16 / scale_coh);
-    radius += 1 - (radius & 1); // add 1 to make radius an odd number
+    radius += 1 - (radius & 1); // make radius an odd number
+    return radius;
+  }
+  
+  public int getObstacleSize(){
+    float scale_obs = 1 << param.wh_scale_obs;
+    int radius = (int) Math.ceil(param.size_collision / (2f * scale_obs));
+    radius += 1 - (radius & 1); // make radius an odd number
     return radius;
   }
   
@@ -292,7 +304,7 @@ public class DwFlowFieldParticles{
   
 
   
-  public void resizeWorld(int w, int h){
+  public boolean resizeWorld(int w, int h){
     
     float scale_obs = 1 << param.wh_scale_obs;
     float scale_col = 1 << param.wh_scale_col;
@@ -303,17 +315,20 @@ public class DwFlowFieldParticles{
     int w_col = (int) Math.ceil(w/scale_col), h_col = (int) Math.ceil(h/scale_col);
     int w_coh = (int) Math.ceil(w/scale_coh), h_coh = (int) Math.ceil(h/scale_coh);
     
-    ff_obs.resize(w_obs, h_obs);
-    ff_col.resize(w_col, h_col);
-    ff_coh.resize(w_coh, h_coh);
-    ff_sum.resize(w_sum, h_sum);
- 
-    tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
-    tex_obs   .resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
+    boolean resized = false;
     
-    tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
-    tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
-    tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    resized |= ff_obs.resize(w_obs, h_obs);
+    resized |= ff_col.resize(w_col, h_col);
+    resized |= ff_coh.resize(w_coh, h_coh);
+    resized |= ff_sum.resize(w_sum, h_sum);
+ 
+    resized |= tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
+    resized |= tex_obs   .resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
+    
+    resized |= tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    resized |= tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    resized |= tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    return resized;
   }
   
   
@@ -390,13 +405,15 @@ public class DwFlowFieldParticles{
     int fsq_w = w_particle;
     int fsq_h = (hi + w_particle) / w_particle;
     
+    float ts = getTimestep();
+    
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_spawn_radial.begin();
     shader_spawn_radial.uniform1i     ("spawn.num"      , type.num);
     shader_spawn_radial.uniform2f     ("spawn.pos"      , type.pos[0], type.pos[1]);
     shader_spawn_radial.uniform2f     ("spawn.dim"      , type.dim[0], type.dim[1]);
-    shader_spawn_radial.uniform2f     ("spawn.vel"      , type.vel[0], type.vel[1]);
+    shader_spawn_radial.uniform2f     ("spawn.vel"      , type.vel[0]*ts, type.vel[1]*ts);
     shader_spawn_radial.uniform1f     ("spawn.off"      , off);
     shader_spawn_radial.uniform2i     ("lo_hi"          , lo, hi);
     shader_spawn_radial.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
@@ -431,13 +448,15 @@ public class DwFlowFieldParticles{
     int fsq_w = w_particle;
     int fsq_h = (hi + w_particle) / w_particle;
 
+    float ts = getTimestep();
+    
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_spawn_rect.begin();
     shader_spawn_rect.uniform2i     ("spawn.num"       , type.num[0], type.num[1]);
     shader_spawn_rect.uniform2f     ("spawn.pos"       , type.pos[0], type.pos[1]);
     shader_spawn_rect.uniform2f     ("spawn.dim"       , type.dim[0], type.dim[1]);
-    shader_spawn_rect.uniform2f     ("spawn.vel"       , type.vel[0], type.vel[1]);
+    shader_spawn_rect.uniform2f     ("spawn.vel"       , type.vel[0]*ts, type.vel[1]*ts);
     shader_spawn_rect.uniform2i     ("lo_hi"          , lo, hi);
     shader_spawn_rect.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
     shader_spawn_rect.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
@@ -693,7 +712,7 @@ public class DwFlowFieldParticles{
     context.beginDraw(tex_particle.dst);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_vel.uniform2f     ("vel_minmax"     , 0.00f, 6);
+    shader_update_vel.uniform2f     ("vel_minmax"     , 0.00f, 12);
     shader_update_vel.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -706,25 +725,19 @@ public class DwFlowFieldParticles{
   }
   
   
-
-  
   public final TexMad tm_acc = new TexMad();
   public final TexMad tm_col = new TexMad();
   public final TexMad tm_coh = new TexMad();
   public final TexMad tm_obs = new TexMad();
   
-//  public void update(PGraphicsOpenGL pg_scene, int[] FG, boolean FG_invert, DwFlowField ff_acc){
-//    resizeWorld(pg_scene.width, pg_scene.height);
-//    createObstacleFlowField(pg_scene, FG, FG_invert);
-//    update(ff_acc);
-//  }
 
   public void update(DwFlowField ff_acc){
     update(ff_acc.tex_vel);
   }
   
-  
   public void update(DwGLTexture tex_velocity){
+    
+    float timestep_sq = getTimestep();
     
     updateVelocity();
  
@@ -733,10 +746,10 @@ public class DwFlowFieldParticles{
       createCollisionFlowField();
       createCohesionFlowField();
       
-      tm_acc.set(tex_velocity  ,  1.000f * param.mul_acc / param.steps, 0);
-      tm_col.set(ff_col.tex_vel,  1.000f * param.mul_col / param.steps, 0);
-      tm_coh.set(ff_coh.tex_vel, -0.025f * param.mul_coh / param.steps, 0);
-      tm_obs.set(ff_obs.tex_vel,  3.000f * param.mul_obs / param.steps, 0);
+      tm_acc.set(tex_velocity  ,  1.000f * timestep_sq * param.mul_acc / param.steps, 0);
+      tm_col.set(ff_col.tex_vel,  1.000f * timestep_sq * param.mul_col / param.steps, 0);
+      tm_coh.set(ff_coh.tex_vel, -0.025f * timestep_sq * param.mul_coh / param.steps, 0);
+      tm_obs.set(ff_obs.tex_vel,  3.000f * timestep_sq * param.mul_obs / param.steps, 0);
       
       DwFilter.get(context).merge.apply(ff_sum.tex_vel, tm_acc, tm_col, tm_coh, tm_obs);
       ff_sum.blur();
