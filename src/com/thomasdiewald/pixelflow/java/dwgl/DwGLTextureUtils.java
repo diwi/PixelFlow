@@ -9,9 +9,7 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -129,7 +127,7 @@ public class DwGLTextureUtils {
     PGL pgl = pg.beginPGL();
     pgl.bindTexture   (tex.glTarget, tex.glName);
     pgl.texParameteri (tex.glTarget, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-    pgl.texParameteri (tex.glTarget, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
+//    pgl.texParameteri (tex.glTarget, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
     pgl.generateMipmap(tex.glTarget);
     pgl.bindTexture   (tex.glTarget, 0);
     pg.endPGL();

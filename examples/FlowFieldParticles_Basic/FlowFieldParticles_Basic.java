@@ -196,10 +196,11 @@ public class FlowFieldParticles_Basic extends PApplet {
     sr.vel(vx, vy);
     particles.spawn(vw, vh, sr);
 
-    if(mousePressed){     
+    if(mousePressed){
+      float pr = particles.getCollisionSize() * 0.5f;
       count = ceil(particles.getCount() * 0.01f);
-      count = min(max(count, 1), 10000);  
-      radius = ceil(sqrt(count));
+      count = min(max(count, 1), 4000);  
+      radius = ceil(sqrt(count * pr * pr));
       px = mouseX;
       py = mouseY;
       vx = (mouseX - pmouseX) * +5;

@@ -524,8 +524,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(APPLY_OBSTACLES)
     {  
       if(UPDATE_SCENE){
-        rot   += particles.param.timestep * 0.8f;
-        slide += particles.param.timestep * 0.4f;
+        rot   += particles.getTimestep() * 0.008f;
+        slide += particles.getTimestep() * 0.004f;
       }
 
       pg_obstacles.rectMode(CENTER);

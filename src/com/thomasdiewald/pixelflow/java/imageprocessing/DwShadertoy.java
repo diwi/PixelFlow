@@ -107,7 +107,6 @@ public class DwShadertoy{
   
   public void release(){
     tex.release();
-    reset();
   }
   
   
@@ -115,6 +114,7 @@ public class DwShadertoy{
     boolean resized = tex.resize(context, GL2.GL_RGBA32F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 4, 4);
     if(resized && auto_reset_on_resize){
       reset();
+      tex.clear(0.0f);
     }
     return resized;
   }

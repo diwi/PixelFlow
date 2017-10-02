@@ -1,14 +1,13 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
-import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 public class DwGLTextureCube {
 
-  static private int TEX_COUNT = 0;
+//  static private int TEX_COUNT = 0;
 
   public DwPixelFlow context;
-  private GL2ES2 gl;
+//  private GL2ES2 gl;
 
   public int[] HANDLE = null;
 

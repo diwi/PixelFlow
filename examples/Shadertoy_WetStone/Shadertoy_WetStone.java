@@ -37,11 +37,11 @@ public class Shadertoy_WetStone extends PApplet {
   
   public void setup() {
     surface.setResizable(true);
-    
+
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
-    
+
     toy = new DwShadertoy(context, "data/WetStone.frag");
     
     frameRate(60);
@@ -52,7 +52,8 @@ public class Shadertoy_WetStone extends PApplet {
     if(mousePressed){
       toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
     }
-    toy.apply(this.g);
+
+    toy.apply(g);
 
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);

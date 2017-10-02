@@ -64,6 +64,8 @@ public class Shadertoy_PlasmaGlobe extends PApplet {
     }
     
     tex_noise.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
+    tex_noise.generateMipMap();
+    
     frameRate(60);
   }
 
@@ -73,7 +75,7 @@ public class Shadertoy_PlasmaGlobe extends PApplet {
       toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
     }
     toy.set_iChannel(0, tex_noise);
-    toy.apply(this.g);
+    toy.apply(g);
 
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
