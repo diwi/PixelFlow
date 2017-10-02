@@ -16,6 +16,7 @@ package FlowFieldParticles_DamBreak;
 import java.util.Locale;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -60,6 +61,9 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   DwFlowField ff_acc;
   DwFlowField ff_impulse;
   
+  public boolean UPDATE_PHYSICS = true;
+  public boolean DISPLAY_DIST   = false;
+  public boolean DISPLAY_FLOW   = false;
   
   public void settings() {
     viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
@@ -117,7 +121,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
     particles.param.col_A = new float[]{0.80f, 0.10f, 0.20f, 5};
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
-    particles.param.shader_collision_mult = 0.25f;
+    particles.param.shader_collision_mult = 0.20f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 1;
     particles.param.size_display   = 8;
@@ -221,22 +225,69 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   public void draw(){
     updateColor();
 
-    particles.param.timestep = 1f/frameRate;
     
-    spawnParticles();
+    if(UPDATE_PHYSICS){
+      particles.param.timestep = 1f/frameRate;
+      
+      spawnParticles();
+  
+      addImpulse();
+      
+      // update particle simulation
+      particles.update(ff_acc);
+    }
+    
+    
+    if(!DISPLAY_DIST){
+      // render obstacles + particles
+      pg_canvas.beginDraw(); 
+      pg_canvas.background(255);
+      pg_canvas.image(pg_obstacles, 0, 0);
+      pg_canvas.endDraw();
+      particles.displayParticles(pg_canvas);
+    }
 
-    addImpulse();
-    
-    // update particle simulation
-    particles.update(ff_acc);
-    
-    // render obstacles + particles
-    pg_canvas.beginDraw(); 
-    pg_canvas.background(255);
-    pg_canvas.image(pg_obstacles, 0, 0);
-    pg_canvas.endDraw();
-    particles.displayParticles(pg_canvas);
 
+    if(DISPLAY_DIST){
+      int Z = DwGLTexture.SWIZZLE_0;
+      int R = DwGLTexture.SWIZZLE_R;
+      int G = DwGLTexture.SWIZZLE_G;
+      int B = DwGLTexture.SWIZZLE_B;
+      int A = DwGLTexture.SWIZZLE_A;
+      int[] RGBA = {R,G,B,A};
+      
+      Merge.TexMad texA = new Merge.TexMad(particles.tex_obs_dist, 0.030f * particles.param.mul_obs, 0.0f);
+      Merge.TexMad texB = new Merge.TexMad(particles.tex_col_dist, 0.500f * particles.param.mul_col, 0.0f);
+      Merge.TexMad texC = new Merge.TexMad(particles.tex_coh_dist, 0.005f * particles.param.mul_coh, 0.0f);
+      
+      texA.mul *= 1<<particles.param.wh_scale_obs;
+//      texB.mul *= 1<<particles.param.wh_scale_col;
+//      texC.mul *= 1<<particles.param.wh_scale_coh;
+      
+      particles.tex_obs_dist.swizzle(new int[]{R, R, R, Z});
+      particles.tex_col_dist.swizzle(new int[]{R, R, R, Z});
+      particles.tex_coh_dist.swizzle(new int[]{R, Z, Z, Z});
+      
+      DwFilter.get(context).merge.apply(pg_canvas, texA, texB, texC);
+      
+      particles.tex_coh_dist.swizzle(RGBA);
+      particles.tex_col_dist.swizzle(RGBA);
+      particles.tex_obs_dist.swizzle(RGBA);
+    }
+
+    if(DISPLAY_FLOW){
+      particles.ff_sum.param.line_spacing = 8;
+      particles.ff_sum.param.line_width   = 0.8f;
+      particles.ff_sum.param.line_scale   = 1.5f;
+      particles.ff_sum.param.line_shading = 0;
+      particles.ff_sum.displayPixel(pg_canvas);
+      particles.ff_sum.displayLines(pg_canvas);
+    }
+    
+    
+    
+    
+    
     blendMode(REPLACE);
     image(pg_canvas, 0, 0);
     blendMode(BLEND);
@@ -254,6 +305,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     
     float px,py,vx,vy,radius;
     int count, vw, vh;
+    float vel = 0f;
     
     vw = width;
     vh = height;
@@ -273,13 +325,15 @@ public class FlowFieldParticles_DamBreak extends PApplet {
 //    particles.spawn(vw, vh, sr);
 
     if(mousePressed && mouseButton == LEFT){     
-      count = ceil(particles.getCount() * 0.01f);
-      count = min(max(count, 1), 10000);  
-      radius = ceil(sqrt(count));
+      count = ceil(particles.getCount() * 0.001f);
+      count = min(max(count, 1), 1000);
+      
+      float pr = particles.getCollisionSize() * 0.25f;
+      radius = ceil(sqrt(count * pr * pr));
       px = mouseX;
       py = mouseY;
-      vx = 0;
-      vy = 0;
+      vx = (mouseX-pmouseX) * +vel;
+      vy = (mouseY-pmouseY) * -vel;
       
       sr.num(count);
       sr.dim(radius, radius);
@@ -313,8 +367,13 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     
   }
   
+
+  
   public void keyReleased(){
     if(key == 'r') reset();
+    if(key == 't') UPDATE_PHYSICS = !UPDATE_PHYSICS;
+    if(key == '1') DISPLAY_DIST   = !DISPLAY_DIST;
+    if(key == '2') DISPLAY_FLOW   = !DISPLAY_FLOW;
   }
   
   

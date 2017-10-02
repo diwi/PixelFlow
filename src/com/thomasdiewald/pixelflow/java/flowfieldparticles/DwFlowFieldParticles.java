@@ -125,18 +125,17 @@ public class DwFlowFieldParticles{
   public DwGLSLProgram shader_particles_dist;
   public DwGLSLProgram shader_obstacles_dist;
 
-  
   public DwGLTexture.TexturePingPong tex_particle = new DwGLTexture.TexturePingPong();
   
   public DwGLTexture tex_col_dist = new DwGLTexture();
   public DwGLTexture tex_obs_dist = new DwGLTexture();
   public DwGLTexture tex_coh_dist = new DwGLTexture();
-
+  
   public DwFlowField ff_col;
   public DwFlowField ff_obs;
   public DwFlowField ff_coh;
   public DwFlowField ff_sum;
-  
+
   public DwGLSLProgram shader_obstacles_FG;
   public DwGLTexture tex_obs_FG = new DwGLTexture();
   public DwGLTexture tex_obs  = new DwGLTexture();
@@ -292,13 +291,15 @@ public class DwFlowFieldParticles{
     ff_obs.release();
     ff_coh.release();
     ff_sum.release();
-    
+
     param.tex_sprite.release();
     tex_particle.release();
     
     tex_obs_dist.release();
     tex_col_dist.release();
     tex_coh_dist.release();
+    
+
   }
   
   
@@ -321,13 +322,14 @@ public class DwFlowFieldParticles{
     resized |= ff_col.resize(w_col, h_col);
     resized |= ff_coh.resize(w_coh, h_coh);
     resized |= ff_sum.resize(w_sum, h_sum);
- 
+    
     resized |= tex_obs_FG.resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     resized |= tex_obs   .resize(context, GL2.GL_RGBA, w_obs, h_obs, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
     
     resized |= tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     resized |= tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     resized |= tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+
     return resized;
   }
   
@@ -616,6 +618,12 @@ public class DwFlowFieldParticles{
   
   
   
+  
+  
+  
+  
+  
+  
  
   
 
@@ -728,6 +736,7 @@ public class DwFlowFieldParticles{
   }
   
   
+
   public final TexMad tm_acc = new TexMad();
   public final TexMad tm_col = new TexMad();
   public final TexMad tm_coh = new TexMad();
@@ -738,21 +747,21 @@ public class DwFlowFieldParticles{
     update(ff_acc.tex_vel);
   }
   
-  public void update(DwGLTexture tex_velocity){
+  public void update(DwGLTexture tex_acc){
     
-    float timestep_sq = getTimestep();
-    
+    float timestep = getTimestep() / param.steps;
+
     updateVelocity();
- 
+
     for(int i = 0; i < param.steps; i++){
       
       createCollisionFlowField();
       createCohesionFlowField();
       
-      tm_acc.set(tex_velocity  ,  1.000f * timestep_sq * param.mul_acc / param.steps, 0);
-      tm_col.set(ff_col.tex_vel,  1.000f * timestep_sq * param.mul_col / param.steps, 0);
-      tm_coh.set(ff_coh.tex_vel, -0.025f * timestep_sq * param.mul_coh / param.steps, 0);
-      tm_obs.set(ff_obs.tex_vel,  3.000f * timestep_sq * param.mul_obs / param.steps, 0);
+      tm_acc.set(       tex_acc,  1.000f * param.mul_acc * timestep, 0);
+      tm_col.set(ff_col.tex_vel,  1.000f * param.mul_col * timestep, 0);
+      tm_coh.set(ff_coh.tex_vel, -0.025f * param.mul_coh * timestep, 0);
+      tm_obs.set(ff_obs.tex_vel,  3.000f * param.mul_obs * timestep, 0);
       
       DwFilter.get(context).merge.apply(ff_sum.tex_vel, tm_acc, tm_col, tm_coh, tm_obs);
       ff_sum.blur();
@@ -760,6 +769,8 @@ public class DwFlowFieldParticles{
       updateAcceleration(ff_sum.tex_vel, 1.0f);
     }
     
+//    updateVelocity();
+
   }
   
   

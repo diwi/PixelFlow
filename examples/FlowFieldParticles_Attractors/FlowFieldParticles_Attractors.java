@@ -129,7 +129,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
     particles.param.mul_coh = 5.00f;
     particles.param.mul_col = 0.70f;
-    particles.param.mul_obs = 0.60f;
+    particles.param.mul_obs = 2.00f;
     
 
     ff_acc = new DwFlowField(context); 
@@ -288,7 +288,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
 
   public void draw(){
     
-    particles.param.timestep = 1f/frameRate;
+    particles.param.timestep = 1/frameRate;
     
     resizeScene();
     

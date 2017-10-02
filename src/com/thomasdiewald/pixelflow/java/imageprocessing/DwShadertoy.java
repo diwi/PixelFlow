@@ -17,7 +17,6 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 import java.time.LocalDateTime;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL4;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -454,7 +453,7 @@ public class DwShadertoy{
   
   
   
-/*
+
   
   static public enum TexFilter{
     NEAREST(GL2.GL_NEAREST, GL2.GL_NEAREST),
@@ -482,17 +481,17 @@ public class DwShadertoy{
   
     
   public static void setTextureFilter(DwGLTexture tex, TexFilter filter){
-    tex.setParam_Filter(filter.min, filter.mag); 
+    tex.setParam_Filter(filter.min, filter.mag);
+    if(filter == TexFilter.MIPMAP){
+      tex.generateMipMap();
+    }
   }
   public static void setTextureWrap(DwGLTexture tex, TexWrap wrap){
     tex.setParam_WRAP_S_T(wrap.wrap); 
   }
-  public static void setTextureParam(DwGLTexture tex, TexFilter filter, TexWrap wrap){
-    tex.setParam_Filter(filter.min, filter.mag);
-    tex.setParam_WRAP_S_T(wrap.wrap); 
-  }
+
   
-*/
+
   
   
 }

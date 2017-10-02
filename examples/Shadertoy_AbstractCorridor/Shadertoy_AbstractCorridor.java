@@ -51,18 +51,23 @@ public class Shadertoy_AbstractCorridor extends PApplet {
     
     toy = new DwShadertoy(context, "data/AbstractCorridor.frag");
     
+    
+    // load assets
     PImage img0 = loadImage("examples/Shadertoy_AbstractCorridor/data/Abstract 2.jpg");
     PImage img1 = loadImage("examples/Shadertoy_AbstractCorridor/data/Wood.jpg");
     
+    // create textures
     tex_0.resize(context, GL2.GL_RGBA8, img0.width, img0.height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4,1);
     tex_1.resize(context, GL2.GL_RGBA8, img1.width, img1.height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4,1);
     
+    // copy images to textures
     DwFilter.get(context).copy.apply(img0, tex_0);
     DwFilter.get(context).copy.apply(img1, tex_1);
     
-    tex_0.generateMipMap();
-    tex_1.generateMipMap();
-
+    // mipmap
+    DwShadertoy.setTextureFilter(tex_0, DwShadertoy.TexFilter.MIPMAP);
+    DwShadertoy.setTextureFilter(tex_1, DwShadertoy.TexFilter.MIPMAP);
+    
     frameRate(60);
   }
 
