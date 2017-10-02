@@ -295,6 +295,7 @@ public class DwGLTexture{
   public void generateMipMap(){
     gl.glBindTexture   (target, HANDLE[0]);
     gl.glTexParameteri (target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+    gl.glTexParameteri (target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
     gl.glGenerateMipmap(target);
     gl.glBindTexture   (target, 0);
   }

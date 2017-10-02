@@ -41,8 +41,8 @@ public class FlowFieldParticles_Basic extends PApplet {
   //
   //
   
-  int viewport_w = 1280;
-  int viewport_h = 720;
+  int viewport_w = 1680;
+  int viewport_h = 1024;
   int viewport_x = 230;
   int viewport_y = 0;
 
@@ -112,6 +112,8 @@ public class FlowFieldParticles_Basic extends PApplet {
 
   public void draw(){
     
+    particles.param.timestep = 1f/frameRate;
+    
     updateScene();
  
     spawnParticles();
@@ -153,7 +155,7 @@ public class FlowFieldParticles_Basic extends PApplet {
     pg_obstacles.fill(0, 255);
     pg_obstacles.rect(0, 0, w, h);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(25, 25, w-50, h-50);
+    pg_obstacles.rect(10, 10, w-20, h-20);
 
     // animated obstacles
     pg_obstacles.rectMode(CENTER);
@@ -162,8 +164,8 @@ public class FlowFieldParticles_Basic extends PApplet {
       pg_obstacles.translate(w/2, h-dim/2);
       pg_obstacles.rotate(frameCount/60f);
       pg_obstacles.fill(0, 255);
-      pg_obstacles.rect(0, 0, dim,  30);
-      pg_obstacles.rect(0, 0,  30, dim);
+      pg_obstacles.rect(0, 0, dim,  20);
+      pg_obstacles.rect(0, 0,  20, dim);
     }
     pg_obstacles.popMatrix();
     pg_obstacles.endDraw();

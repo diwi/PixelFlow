@@ -157,7 +157,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     surface.setResizable(true);
     randomSeed(2);
     for(int i = 0; i < mobs.length; i++){
-      float r = random(50,120);
+      float r = 50 + i*15;
       mobs[i] = new MouseObstacle(i, random(r, width-r), random(r,height-r), r);
     }
 
@@ -334,7 +334,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
   public void draw(){
     
-//    particles.param.timestep = 1f/frameRate;
+    particles.param.timestep = 1f/frameRate;
 
     resizeScene();
     

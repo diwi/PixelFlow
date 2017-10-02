@@ -89,6 +89,7 @@ public class DwUtils {
     int   idx = (int) val_map;
     float frac = val_map - idx;
     
+    
     if(idx == idx_max){
       rgb[0] = pallette[idx][0];
       rgb[1] = pallette[idx][1];

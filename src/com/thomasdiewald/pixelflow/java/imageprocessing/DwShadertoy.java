@@ -17,6 +17,7 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 import java.time.LocalDateTime;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -437,6 +438,61 @@ public class DwShadertoy{
     }
   }
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+/*
+  
+  static public enum TexFilter{
+    NEAREST(GL2.GL_NEAREST, GL2.GL_NEAREST),
+    LINEAR(GL2.GL_LINEAR, GL2.GL_LINEAR),
+    MIPMAP(GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
+    
+    int min, mag;
+    
+    private TexFilter(int min, int mag){
+      this.min = min;
+      this.mag = mag;
+    }
+  }
+  
+  static public enum TexWrap{
+    CLAMP(GL2.GL_CLAMP_TO_EDGE),
+    REPEAT(GL2.GL_MIRRORED_REPEAT);
+    
+    int wrap;
+    
+    private TexWrap(int wrap){
+      this.wrap = wrap;
+    }
+  }
+  
+    
+  public static void setTextureFilter(DwGLTexture tex, TexFilter filter){
+    tex.setParam_Filter(filter.min, filter.mag); 
+  }
+  public static void setTextureWrap(DwGLTexture tex, TexWrap wrap){
+    tex.setParam_WRAP_S_T(wrap.wrap); 
+  }
+  public static void setTextureParam(DwGLTexture tex, TexFilter filter, TexWrap wrap){
+    tex.setParam_Filter(filter.min, filter.mag);
+    tex.setParam_WRAP_S_T(wrap.wrap); 
+  }
+  
+*/
   
   
 }

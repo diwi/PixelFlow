@@ -42,8 +42,8 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
   //
   //
   
-  int viewport_w = 1280;
-  int viewport_h = 720;
+  int viewport_w = 1680;
+  int viewport_h = 1024;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -96,7 +96,11 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
     pg_obstacles.fill(0, 255);
     pg_obstacles.rect(0, 0, width, height);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(25, 25, width-50, height-50);
+    pg_obstacles.rect(10, 10, width-20, height-20);
+    
+    
+    pg_obstacles.fill(0, 255);
+    pg_obstacles.rect(width/2, height-300, 100, 250);
     pg_obstacles.endDraw();
     
     
@@ -120,7 +124,7 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.995f;
     particles.param.size_display   = 5;
-    particles.param.size_collision = 4;
+    particles.param.size_collision = 5;
     particles.param.size_cohesion  = 0;
     particles.param.mul_coh = 0.00f;
     particles.param.mul_col = 1.00f;
@@ -197,6 +201,8 @@ public class FlowFieldParticles_MouseImpulse extends PApplet {
 
 
   public void draw(){
+    
+    particles.param.timestep = 1f/frameRate;
     
     spawnParticles();
 

@@ -676,12 +676,14 @@ public class DwFlowFieldParticles{
 
     int viewport_w = w_particle;
     int viewport_h = (spawn_num + w_particle) / w_particle;
+
+    float timestep = getTimestep();
     
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_update_acc.begin();
     shader_update_acc.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f, 6);
+    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f * timestep, 6 * timestep);
     shader_update_acc.uniform1f     ("acc_mult"       , acc_mult);
     shader_update_acc.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_acc.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -707,12 +709,13 @@ public class DwFlowFieldParticles{
     int viewport_h = (spawn_num + w_particle) / w_particle;
 
     float vel_mult = param.velocity_damping;
-
+    float timestep = getTimestep();
+    
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_vel.uniform2f     ("vel_minmax"     , 0.00f, 12);
+    shader_update_vel.uniform2f     ("vel_minmax"     , 0.00f * timestep, 12 * timestep);
     shader_update_vel.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);

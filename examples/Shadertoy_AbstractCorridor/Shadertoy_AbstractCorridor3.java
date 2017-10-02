@@ -15,16 +15,16 @@ package Shadertoy_AbstractCorridor;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.opengl.PGraphics2D;
 
 
 
-public class Shadertoy_AbstractCorridor extends PApplet {
+
+public class Shadertoy_AbstractCorridor3 extends PApplet {
   
   //
   // Shadertoy Demo:   https://www.shadertoy.com/view/MlXSWX
@@ -34,8 +34,8 @@ public class Shadertoy_AbstractCorridor extends PApplet {
   DwPixelFlow context;
   DwShadertoy toy;
 
-  DwGLTexture tex_0 = new DwGLTexture();
-  DwGLTexture tex_1 = new DwGLTexture();
+  PGraphics2D pg_0;
+  PGraphics2D pg_1;
 
   public void settings() {
     size(1280, 720, P2D);
@@ -51,18 +51,28 @@ public class Shadertoy_AbstractCorridor extends PApplet {
     
     toy = new DwShadertoy(context, "data/AbstractCorridor.frag");
     
+
     PImage img0 = loadImage("examples/Shadertoy_AbstractCorridor/data/Abstract 2.jpg");
     PImage img1 = loadImage("examples/Shadertoy_AbstractCorridor/data/Wood.jpg");
     
-    tex_0.resize(context, GL2.GL_RGBA8, img0.width, img0.height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4,1);
-    tex_1.resize(context, GL2.GL_RGBA8, img1.width, img1.height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4,1);
+    pg_0 = (PGraphics2D) createGraphics(img0.width, img0.height, P2D);
+    pg_1 = (PGraphics2D) createGraphics(img1.width, img1.height, P2D);
     
-    DwFilter.get(context).copy.apply(img0, tex_0);
-    DwFilter.get(context).copy.apply(img1, tex_1);
+    pg_0.beginDraw();
+    pg_0.image(img0, 0, 0);
+    pg_0.endDraw();
     
-    tex_0.generateMipMap();
-    tex_1.generateMipMap();
+    pg_1.beginDraw();
+    pg_1.image(img1, 0, 0);
+    pg_1.endDraw();
 
+    DwGLTextureUtils.changeTextureWrap  (pg_0, GL2.GL_MIRRORED_REPEAT);
+    DwGLTextureUtils.changeTextureFilter(pg_0, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
+    DwGLTextureUtils.generateMipMaps    (pg_0);
+    DwGLTextureUtils.changeTextureWrap  (pg_1, GL2.GL_MIRRORED_REPEAT);
+    DwGLTextureUtils.changeTextureFilter(pg_1, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
+    DwGLTextureUtils.generateMipMaps    (pg_1);
+    
     frameRate(60);
   }
 
@@ -72,9 +82,12 @@ public class Shadertoy_AbstractCorridor extends PApplet {
     if(mousePressed){
       toy.set_iMouse(mouseX, height-1-mouseY, mouseX, height-1-mouseY);
     }
-    toy.set_iChannel(0, tex_0);
-    toy.set_iChannel(1, tex_1);
+    toy.set_iChannel(0, pg_0);
+    toy.set_iChannel(1, pg_1);
     toy.apply(this.g);
+    
+//    image(pg_0, 0, 0);
+//    image(pg_1, 0, 0);
 
     String txt_fps = String.format(getClass().getSimpleName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
     surface.setTitle(txt_fps);
@@ -82,6 +95,6 @@ public class Shadertoy_AbstractCorridor extends PApplet {
   
   
   public static void main(String args[]) {
-    PApplet.main(new String[] { Shadertoy_AbstractCorridor.class.getName() });
+    PApplet.main(new String[] { Shadertoy_AbstractCorridor3.class.getName() });
   }
 }

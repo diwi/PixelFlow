@@ -9,6 +9,7 @@
 package com.thomasdiewald.pixelflow.java.dwgl;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
@@ -118,31 +119,23 @@ public class DwGLTextureUtils {
   
 
   
-  
-  
-  
-  
-  
-  
-  static public void generateMipMaps(DwPixelFlow context, PGraphicsOpenGL pg){
+  static public void generateMipMaps(PGraphicsOpenGL pg){
     Texture tex = pg.getTexture();
     if(!tex.available()){
       System.out.println("ERROR DwGLTextureUtils.generateMipMaps: PGraphicsOpenGL texture not available.");
       return;
     }
-//    tex.usingMipmaps(true, 3);
-//    System.out.println(tex.usingMipmaps());
-    context.begin();
-    context.gl.glBindTexture   (GL2ES2.GL_TEXTURE_2D, tex.glName);
-    context.gl.glTexParameteri (GL2ES2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-//    context.gl.glTexParameteri (GL2ES2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_NEAREST);
-    context.gl.glGenerateMipmap(GL2ES2.GL_TEXTURE_2D);
-    context.gl.glBindTexture   (GL2ES2.GL_TEXTURE_2D, 0);
-    context.end();
+
+    PGL pgl = pg.beginPGL();
+    pgl.bindTexture   (tex.glTarget, tex.glName);
+    pgl.texParameteri (tex.glTarget, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+    pgl.texParameteri (tex.glTarget, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
+    pgl.generateMipmap(tex.glTarget);
+    pgl.bindTexture   (tex.glTarget, 0);
+    pg.endPGL();
   }
-  
-  
-  
+
+
   
   
   

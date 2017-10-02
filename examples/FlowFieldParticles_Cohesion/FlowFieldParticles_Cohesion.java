@@ -82,9 +82,9 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.995f;
-    particles.param.size_display   = 15;
-    particles.param.size_collision = 15;
-    particles.param.size_cohesion  = 15;
+    particles.param.size_display   = 12;
+    particles.param.size_collision = 12;
+    particles.param.size_cohesion  = 8;
     particles.param.mul_coh = 10.00f;
     particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
@@ -192,6 +192,8 @@ public class FlowFieldParticles_Cohesion extends PApplet {
 
   public void draw(){
     
+    particles.param.timestep = 1f/frameRate;
+    
     updateScene();
  
     spawnParticles();
@@ -235,7 +237,7 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     pg_obstacles.fill(0, 255);
     pg_obstacles.rect(0, 0, w, h);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(25, 25, w-50, h-50);
+    pg_obstacles.rect(10, 10, w-20, h-20);
 
     // animated obstacles
     pg_obstacles.rectMode(CENTER);
