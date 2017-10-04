@@ -161,6 +161,8 @@ public class FlowFieldParticles_SpriteGenerator extends PApplet {
     
     
     translate(0, rh);
+    noStroke();
+    fill(0);
     rect(0, 0, rw, rh);
     image(pg_func, 0, 0, rw, rh);
 

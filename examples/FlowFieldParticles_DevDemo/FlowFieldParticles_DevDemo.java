@@ -121,6 +121,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
+  public boolean UPDATE_PHYSICS    = true;
   public boolean UPDATE_SCENE      = true;
   public boolean APPLY_OBSTACLES   = true;
   public boolean AUTO_SPAWN        = true;
@@ -324,11 +325,10 @@ public class FlowFieldParticles_DevDemo extends PApplet {
 
     // resize, create obstacles, update physics
     particles.resizeWorld(w, h);
-    particles.createObstacleFlowField(pg_obstacles, BG, true);
-    particles.update(ff_acc);
-    
-
-
+    if(UPDATE_PHYSICS){
+      particles.createObstacleFlowField(pg_obstacles, BG, true);
+      particles.update(ff_acc);
+    }
   }
   
 
@@ -701,11 +701,14 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     for(int i = 0; i < mobs.length; i++){
       mobs[i].endMove(mouseX, mouseY);
     }
+    
+//    spawn(0,1);
   }
   
   
   public void keyReleased(){
     if(key == 'r') reset();
+    if(key == 't') UPDATE_PHYSICS = !UPDATE_PHYSICS;
     if(key == 'w') UPDATE_GRAVITY = !UPDATE_GRAVITY;
     if(key == 'e') UPDATE_SCENE = !UPDATE_SCENE;
     if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
@@ -741,15 +744,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     particles.reset();
   }
 
-  public void set_size_display(float val){
+  public void set_size_display(int val){
     particles.param.size_display = val;
   }
 
-  public void set_size_cohesion(float val){
+  public void set_size_cohesion(int val){
     particles.param.size_cohesion = val;  
   }
   
-  public void set_size_collision(float val){
+  public void set_size_collision(int val){
     particles.param.size_collision = val;  
   }
   
@@ -841,6 +844,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   
   public void updateSelections(float[] val){
     int ID = 0;
+
+    UPDATE_PHYSICS      = val[ID++] > 0;
     DISPLAY_DIST        = val[ID++] > 0;
     DISPLAY_FLOW        = val[ID++] > 0;
     UPDATE_GRAVITY      = val[ID++] > 0;
@@ -907,7 +912,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     Group group_particles = cp5.addGroup("particles");
     {
-      group_particles.setHeight(20).setSize(gui_w, 520)
+      group_particles.setHeight(20).setSize(gui_w, 540)
       .setBackgroundColor(col_group).setColorBackground(col_group);
       group_particles.getCaptionLabel().align(CENTER, CENTER);
       
@@ -989,10 +994,34 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       .snapToTickMarks(true).setNumberOfTickMarks(3).showTickMarks(false);
       py += sy + dy_group;
       
+      
+      
+//      cp5.addSlider("ff_col blur").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+//      .setRange(0, 10).setValue(particles.ff_col.param.blur_radius).plugTo(particles.ff_col.param, "blur_radius")
+//      .snapToTickMarks(true).setNumberOfTickMarks(11).showTickMarks(false);
+//      py += sy + dy_item;
+//      
+//      cp5.addSlider("ff_coh blur").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+//      .setRange(0, 10).setValue(particles.ff_coh.param.blur_radius).plugTo(particles.ff_coh.param, "blur_radius")
+//      .snapToTickMarks(true).setNumberOfTickMarks(11).showTickMarks(false);
+//      py += sy + dy_item;
+//      
+//      cp5.addSlider("ff_obs blur").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+//      .setRange(0, 10).setValue(particles.ff_obs.param.blur_radius).plugTo(particles.ff_obs.param, "blur_radius")
+//      .snapToTickMarks(true).setNumberOfTickMarks(11).showTickMarks(false);
+//      py += sy + dy_item;
+//      
+//      cp5.addSlider("ff_sum blur").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
+//      .setRange(0, 10).setValue(particles.ff_sum.param.blur_radius).plugTo(particles.ff_sum.param, "blur_radius")
+//      .snapToTickMarks(true).setNumberOfTickMarks(11).showTickMarks(false);
+//      py += sy + dy_group;
+      
+      
 
       int ID = -1;
       cp5.addCheckBox("updateSelections").setGroup(group_particles).setSize(sy,sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
+          .addItem("UPDATE PHYSICS     ", ++ID).activate(UPDATE_PHYSICS      ? ID : 10)
           .addItem("DISPLAY DIST"       , ++ID).activate(DISPLAY_DIST        ? ID : 10)
           .addItem("DISPLAY FLOW"       , ++ID).activate(DISPLAY_FLOW        ? ID : 10)
           .addItem("UPDATE GRAVITY"     , ++ID).activate(UPDATE_GRAVITY      ? ID : 10)

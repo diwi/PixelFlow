@@ -71,9 +71,9 @@ public class DwFlowFieldParticles{
     public float timestep = 1 / 120f;
     
     // particle size rendering/collision
-    public float   size_display   = 10f;
-    public float   size_collision = 10f;
-    public float   size_cohesion  =  5f;
+    public int   size_display   = 10;
+    public int   size_collision = 10;
+    public int   size_cohesion  =  5;
     
     // buffer size scaling ... 1 << scale ... pow(2, scale)
     public int wh_scale_col = 0; // 1 << wh_scale_col ... 1 << 0 ...  1
@@ -185,7 +185,7 @@ public class DwFlowFieldParticles{
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 2;
+    ff_col.param.blur_radius     = 1;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 1;
@@ -516,6 +516,8 @@ public class DwFlowFieldParticles{
   
   protected void displayParticles(int w, int h){
     if(param.size_display <= 0) return;
+    int w_velocity = ff_sum.tex_vel.w;
+    int h_velocity = ff_sum.tex_vel.h;
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
     blendMode();
@@ -523,6 +525,7 @@ public class DwFlowFieldParticles{
     shader_display_particles.uniform1f     ("shader_collision_mult", param.shader_collision_mult);
     shader_display_particles.uniform1f     ("point_size"   , param.size_display);
     shader_display_particles.uniform2i     ("wh_position"  , w_particle, h_particle);
+    shader_display_particles.uniform2f     ("wh_velocity"  , w_velocity, h_velocity);
     shader_display_particles.uniform4fv    ("col_A"        , 1, param.col_A);
     shader_display_particles.uniform4fv    ("col_B"        , 1, param.col_B);
     shader_display_particles.uniformTexture("tex_collision", tex_col_dist);
@@ -748,6 +751,10 @@ public class DwFlowFieldParticles{
   }
   
   public void update(DwGLTexture tex_acc){
+    
+    ff_sum.param.blur_iterations = 1;
+    ff_sum.param.blur_radius = Math.max(2, getCollisionSize() / 20);
+
     
     float timestep = getTimestep() / param.steps;
 

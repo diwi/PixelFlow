@@ -115,7 +115,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     particles.param.shader_collision_mult = 0.2f;
     particles.param.steps = 2;
     particles.param.velocity_damping  = 0.995f;
-    particles.param.size_display   = particle_size * 1.5f;
+    particles.param.size_display   = ceil(particle_size * 1.5f);
     particles.param.size_collision = particle_size;
     particles.param.size_cohesion  = particle_size;
     particles.param.mul_coh = 0.50f;
@@ -150,7 +150,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
       // compute Optical Flow
       opticalflow.update(pg_cam);
     }
-    
+    particles.param.timestep = 1f/frameRate;
     // update particles, using the opticalflow for acceleration
     particles.update(opticalflow.frameCurr.velocity);
     

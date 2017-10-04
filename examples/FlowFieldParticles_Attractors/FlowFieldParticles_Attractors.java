@@ -81,7 +81,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   DwGLSLProgram shd_attractors;
   
-
+  public boolean UPDATE_PHYSICS  = true;
   public boolean DISPLAY_DIST    = !true;
   public boolean DISPLAY_FLOW    = !true;  
   public boolean AUTO_SPAWN      = true;
@@ -281,8 +281,10 @@ public class FlowFieldParticles_Attractors extends PApplet {
       particles.createObstacleFlowField(pg_obstacles, BG, true);
     }
     
-    // update physics
-    particles.update(ff_acc);
+    if(UPDATE_PHYSICS){
+      // update physics
+      particles.update(ff_acc);
+    }
   }
   
 
@@ -537,8 +539,9 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
   public void keyReleased(){
     if(key == 'r') reset();
-    if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
-    if(key == 'd') DISPLAY_DIST = !DISPLAY_DIST;
+    if(key == 't') UPDATE_PHYSICS = !UPDATE_PHYSICS;
+    if(key == 'f') DISPLAY_FLOW   = !DISPLAY_FLOW;
+    if(key == 'd') DISPLAY_DIST   = !DISPLAY_DIST;
     if(key == 'h') toggleGUI(); 
   }
   
@@ -569,13 +572,13 @@ public class FlowFieldParticles_Attractors extends PApplet {
   public void reset(){
     particles.reset();
   }
-  public void set_size_display(float val){
+  public void set_size_display(int val){
     particles.param.size_display = val;
   }
-  public void set_size_cohesion(float val){
+  public void set_size_cohesion(int val){
     particles.param.size_cohesion = val;  
   }
-  public void set_size_collision(float val){
+  public void set_size_collision(int val){
     particles.param.size_collision = val;  
   }
   public void set_velocity_damping(float val){

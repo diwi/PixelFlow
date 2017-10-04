@@ -19,6 +19,7 @@
 
 uniform float     point_size;
 uniform ivec2     wh_position;
+uniform vec2      wh_velocity;
 uniform float     shader_collision_mult = 1.0;
 uniform sampler2D tex_collision;
 uniform sampler2D tex_position;
@@ -42,9 +43,9 @@ void main(){
   // get particle position, velocity
   vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
   vec2 pos = particle.xy;
+  vec2 vel = (particle.xy - particle.zw) * wh_velocity;
 
-  float vel = length(pos - particle.zw) * 2000;
-  pressure = texture(tex_collision, pos).r + vel;
+  pressure = texture(tex_collision, pos).r + length(vel) * 2.0;
 
   gl_Position  = vec4(pos * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   gl_PointSize = point_size;
@@ -60,11 +61,10 @@ out vec4 out_frag;
 in float pressure;
 
 void main(){
-  float falloff = texture(tex_sprite, gl_PointCoord).a;
-  out_frag = mix(col_A, col_B, 1.0 - falloff);
-  float pf = 1.0 + pressure * shader_collision_mult;
-  out_frag.xyzw *= pf;
-  out_frag = clamp(out_frag, 0.0, 1.0);
+  float falloff = 1.0 - texture(tex_sprite, gl_PointCoord).a;
+  out_frag  = mix(col_A, col_B, falloff);
+  out_frag *= 1.0 + pressure * shader_collision_mult;
+  out_frag  = clamp(out_frag, 0.0, 1.0);
 }
 
 #endif // #if SHADER_FRAG

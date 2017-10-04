@@ -292,7 +292,7 @@ public class DwFluid2D{
     // the divergence of a vector field is a scalar field.
     divergence(tex_velocity.src, tex_divergence);
   
-    // jacobi solver
+    // jacobi solver, pressure projection
     tex_pressure.src.clear(0);
     for (int i = 0; i < param.num_jacobi_projection; ++i) {
       jacobiPressure(tex_pressure.src, tex_divergence, tex_pressure.dst);
