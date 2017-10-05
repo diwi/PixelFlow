@@ -190,8 +190,8 @@ public class DwGLTexture3D{
         && this.internalFormat == internalFormat
         && this.format == format
         && this.type == type
-        && this.filter == filter
-        && this.wrap == wrap
+//        && this.filter == filter
+//        && this.wrap == wrap
         ) return false;
 
     release();

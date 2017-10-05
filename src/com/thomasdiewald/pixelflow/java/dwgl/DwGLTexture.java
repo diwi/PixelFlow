@@ -170,8 +170,8 @@ public class DwGLTexture{
         && this.internalFormat == internalFormat
         && this.format == format
         && this.type == type
-        && this.filter == filter
-        && this.wrap == wrap
+//        && this.filter == filter
+//        && this.wrap == wrap
         ) return false;
 
     release(); // not sure if its save to just keep using the current texture
