@@ -82,7 +82,7 @@ public class MinMaxGlobal {
     
     // 1) compute number of blur layers
     layers = Math.max(DwUtils.logNceil(w, STEP_SIZE), DwUtils.logNceil(h, STEP_SIZE)) + 1;
- 
+
     // 2) init/release textures if needed
     if(tex.length < layers){
       release();
@@ -90,6 +90,8 @@ public class MinMaxGlobal {
       for(int i = 0; i < layers; i++){
         tex[i] = new DwGLTexture();
       }
+    } else {
+//      return;
     }
 
     // 3) allocate textures
