@@ -127,8 +127,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.size_display   = 8;
     particles.param.size_collision = 8;
     particles.param.size_cohesion  = 8;
-    particles.param.mul_coh = 0.50f;
-    particles.param.mul_col = 1.50f;
+    particles.param.mul_coh = 1.00f;
+    particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 3.00f;
     
     

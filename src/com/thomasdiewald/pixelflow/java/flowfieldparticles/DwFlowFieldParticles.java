@@ -185,7 +185,7 @@ public class DwFlowFieldParticles{
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 1;
+    ff_col.param.blur_radius     = 3;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 1;
@@ -694,7 +694,7 @@ public class DwFlowFieldParticles{
     context.beginDraw(tex_particle.dst);
     shader_update_acc.begin();
     shader_update_acc.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f * timestep, 6 * timestep);
+    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f * timestep, 12 * timestep);
     shader_update_acc.uniform1f     ("acc_mult"       , acc_mult);
     shader_update_acc.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_acc.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -726,7 +726,7 @@ public class DwFlowFieldParticles{
     context.beginDraw(tex_particle.dst);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_vel.uniform2f     ("vel_minmax"     , 0.00f * timestep, 12 * timestep);
+    shader_update_vel.uniform2f     ("vel_minmax"     , 0.000f * timestep, 12 * timestep);
     shader_update_vel.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -753,7 +753,7 @@ public class DwFlowFieldParticles{
   public void update(DwGLTexture tex_acc){
     
     ff_sum.param.blur_iterations = 1;
-    ff_sum.param.blur_radius = Math.max(2, getCollisionSize() / 20);
+    ff_sum.param.blur_radius = Math.min(Math.max(Math.round(getCollisionSize() / 6f), 2), 8);
 
     
     float timestep = getTimestep() / param.steps;
