@@ -122,7 +122,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
-  public boolean APPLY_BLOOM       = true;
+  public boolean APPLY_BLOOM       = false;
   public boolean UPDATE_PHYSICS    = true;
   public boolean UPDATE_SCENE      = true;
   public boolean APPLY_OBSTACLES   = true;
