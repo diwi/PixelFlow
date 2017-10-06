@@ -258,7 +258,8 @@ public class Merge {
 
   
   public TexMad[] alloc(DwGLTexture[] tex_src, float[] tex_weights){
-    if(tex_src.length > tex_weights.length * 2) return null;
+    if((tex_src.length * 2) != tex_weights.length) return null;
+    
     TexMad[] tex = new TexMad[tex_src.length];
     for(int i = 0; i < tex.length; i++){
       tex[i] = new TexMad(tex_src[i], tex_weights[i*2+0], tex_weights[i*2+1]);
@@ -267,7 +268,7 @@ public class Merge {
   }
   
   public TexMad[] alloc(PGraphicsOpenGL[] tex_src, float[] tex_weights){
-    if(tex_src.length > tex_weights.length * 2) return null;
+    if((tex_src.length * 2) != tex_weights.length) return null;
     
     TexMad[] tex = new TexMad[tex_src.length];
     for(int i = 0; i < tex.length; i++){

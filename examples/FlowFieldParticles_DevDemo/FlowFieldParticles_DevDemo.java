@@ -108,7 +108,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   PGraphics2D pg_sprite;
   PGraphics2D pg_gravity;
   PGraphics2D pg_impulse;
-
+  PGraphics2D pg_luminance;
+  
   FXAA antialiasing;
   PGraphics2D pg_aa;
   
@@ -121,6 +122,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   DwLiquidFX liquidfx;
 
   public boolean APPLY_LIQUID_FX   = false;
+  public boolean APPLY_BLOOM       = true;
   public boolean UPDATE_PHYSICS    = true;
   public boolean UPDATE_SCENE      = true;
   public boolean APPLY_OBSTACLES   = true;
@@ -238,6 +240,9 @@ public class FlowFieldParticles_DevDemo extends PApplet {
        
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
+    
+    pg_luminance = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_luminance.smooth(0);
 
     pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
     pg_gravity.smooth(0);
@@ -331,10 +336,56 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     }
   }
   
+  float[][] pallette = {
+      { 32,  32, 32},
+      {196,  96,  0},
+      {128, 128,  0},
+      {  0,  96,196},
+      { 96,  96, 96},
+  };
+  
+  public void updateColor(){
+//    float mix = sin(frameCount*0.001f) * 0.5f + 0.5f;
+    float mix = map(mouseX, 0, width, 0, 1);
+    float[] rgb1 = DwUtils.getColor(pallette, mix, null);
+    float s1 = 1f/255f;
+    float s2 = s1 * 0.33f;
+    
+    rgb1[0] = 12;
+    rgb1[1] = 8;
+    rgb1[2] = 2;
+    
+    particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 2.0f};
+    particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
+    
+    
+//    float r = rgb1[0];
+//    float g = rgb1[1];
+//    float b = rgb1[2];
+//    float lum = (r+g+b)/3.0f;
+////    System.out.println(lum);
+//    float fac = 64 / lum;
+////    System.out.println(fac);
+//    
+//    rgb1[0] *= fac;
+//    rgb1[1] *= fac;
+//    rgb1[2] *= fac;
+//    
+////    rgb1[0] = 96;
+////    rgb1[1] = 48;
+////    rgb1[2] = 24;
+//    
+//    particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 2.0f};
+//    particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
+  }
+
+  
 
   public void draw(){
     
     particles.param.timestep = 1f/frameRate;
+    
+//    updateColor();
 
     resizeScene();
     
@@ -376,10 +427,33 @@ public class FlowFieldParticles_DevDemo extends PApplet {
         pg_display = pg_trails;
         // mix pg_checker as background for blending
         float mix = 0.980f;
-        Merge.TexMad ta =  new Merge.TexMad(pg_checker, 1-mix, 0);
-        Merge.TexMad tb =  new Merge.TexMad(pg_trails ,   mix, 0);
-        DwFilter.get(context).merge.apply(pg_trails, ta, tb);
-        DwFilter.get(context).gaussblur.apply(pg_trails, pg_trails, pg_trails_tmp, 1);
+//        Merge.TexMad ta =  new Merge.TexMad(pg_checker, 1-mix, 0);
+//        Merge.TexMad tb =  new Merge.TexMad(pg_trails ,   mix, 0);
+//        DwFilter.get(context).merge.apply(pg_trails, ta, tb);
+        
+
+        float[] mult = {mix* mix * mix, mix * mix, mix, mix};
+        
+        
+        
+        float mx = map(mouseX, 0, width, -1, 1);
+        float my = map(mouseY, 0, height, -1, 1);
+        float r = 0.5f * (1.0f + mx);
+        float g = 0.5f * (1.0f + my);
+        float b = 0.5f * (2.0f - (r + g));
+        
+        mult[0] = 1 - r * 0.04f;
+        mult[1] = 1 - g * 0.04f;
+        mult[2] = 1 - b * 0.04f;
+        mult[3] = (mult[0] + mult[1] + mult[2])/3.0f;
+        
+        
+        
+        DwFilter.get(context).multiply.apply(pg_trails, pg_trails, mult);
+        
+        if((frameCount%1) == 0){
+          DwFilter.get(context).gaussblur.apply(pg_trails, pg_trails, pg_trails_tmp, 1);
+        }
         particles.displayTrail(pg_trails);
       }
       
@@ -431,8 +505,22 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     }
     
   
-
     antialiasing.apply(pg_canvas, pg_aa);
+    
+    if(APPLY_BLOOM){
+      DwFilter filter = DwFilter.get(context);
+      filter.luminance_threshold.param.threshold = 0.7f; // when 0, all colors are used
+      filter.luminance_threshold.param.exponent  = 7;
+      filter.luminance_threshold.apply(pg_aa, pg_luminance);
+      
+      filter.bloom.setBlurLayers(10);
+//      filter.bloom.gaussianpyramid.setBlurLayers(10);
+      filter.bloom.param.blur_radius = 1;
+      filter.bloom.param.mult   = 0.5f; //map(mouseX, 0, width, 0, 2);
+      filter.bloom.param.radius = 0.7f; //map(mouseY, 0, height, 0, 1);
+      filter.bloom.apply(pg_luminance, null, pg_aa);
+    }
+    
     
     blendMode(REPLACE); 
     image(pg_aa, 0, 0);
@@ -597,8 +685,15 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       sr.num(1);
       sr.dim(10, 10);
       sr.pos(px, height-1 - py);
-      sr.vel(4, 4);
+      sr.vel(6, 4);
       particles.spawn(width, height, sr);
+      
+      sr.num(1);
+      sr.dim(30, 30);
+      sr.pos(width-px, height-1 - py);
+      sr.vel(-6, 2);
+      particles.spawn(width, height, sr);
+
 
     }
     
@@ -713,6 +808,14 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(key == 'e') UPDATE_SCENE = !UPDATE_SCENE;
     if(key == 'f') DISPLAY_FLOW = !DISPLAY_FLOW;
     if(key == 'd') DISPLAY_DIST = !DISPLAY_DIST;
+    if(key == 'b') APPLY_BLOOM = !APPLY_BLOOM;
+    if(key == '1') setParticleColor(0);
+    if(key == '2') setParticleColor(1);
+    if(key == '3') setParticleColor(2);
+    if(key == '4') setParticleColor(3);
+    if(key == '5') setParticleColor(4);
+    if(key == '6') setParticleColor(5);
+    
     if(key == 'h') toggleGUI(); 
   }
   
@@ -835,7 +938,8 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       case 1: r = 0.40f; g = 0.80f; b = 0.10f; a = 10.0f; s = 0.50f;  break;
       case 2: r = 0.80f; g = 0.40f; b = 0.10f; a = 10.0f; s = 0.50f;  break;
       case 3: r = 0.50f; g = 0.50f; b = 0.50f; a = 10.0f; s = 0.25f;  break;
-      case 4: r = ca[0]; g = ca[1]; b = ca[2]; a =  1.0f; s = 1.00f;  break;
+      case 4: r = 0.10f; g = 0.10f; b = 0.10f; a = 10.0f; s = 0.25f;  break;
+      case 5: r = ca[0]; g = ca[1]; b = ca[2]; a =  1.0f; s = 1.00f;  break;
     }
 
     particles.param.col_A = new float[]{ r  , g  , b  , a };
@@ -852,6 +956,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     UPDATE_SCENE        = val[ID++] > 0;
     AUTO_SPAWN          = val[ID++] > 0;
     APPLY_LIQUID_FX     = val[ID++] > 0;
+    APPLY_BLOOM         = val[ID++] > 0;
     APPLY_OBSTACLES     = val[ID++] > 0;
   }
   
@@ -1028,6 +1133,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
           .addItem("UPDATE SCENE"       , ++ID).activate(UPDATE_SCENE        ? ID : 10)
           .addItem("AUTO SPAWN"         , ++ID).activate(AUTO_SPAWN          ? ID : 10)
           .addItem("APPLY LIQUID FX"    , ++ID).activate(APPLY_LIQUID_FX     ? ID : 10)
+          .addItem("APPLY BLOOM"        , ++ID).activate(APPLY_BLOOM         ? ID : 10)
           .addItem("APPLY OBSTACLES"    , ++ID).activate(APPLY_OBSTACLES     ? ID : 10)
         ; 
     }
@@ -1062,16 +1168,17 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       
       
       py += gui_w-30 + dy_group;
-      int count = 5;
+      int count = 6;
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_colors = cp5.addRadio("setParticleColor").setGroup(group_sprite).setSize(sx, sy).setPosition(px, py)
-        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(5).plugTo(this, "setParticleColor")
+        .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setParticleColor")
         .setNoneSelectedAllowed(false)
         .addItem("BLUE"   , 0)
         .addItem("GREEN"  , 1)
-        .addItem("ORANGE" , 2)
-        .addItem("GRAY"   , 3)
-        .addItem("MONO"   , 4)
+        .addItem("RED" , 2)
+        .addItem("W"   , 3)
+        .addItem("B"   , 4)
+        .addItem("MONO"   , 5)
         .activate(PARTICLE_COLOR);
 
       for(Toggle toggle : rb_colors.getItems()) toggle.getCaptionLabel().alignX(CENTER).alignY(CENTER);

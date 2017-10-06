@@ -17,10 +17,10 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GLES3;
 
 public class DwGLFrameBuffer {
+  
   public GL2ES2 gl;
   
-
-  public int[] HANDLE_fbo = null;
+  public final int[] HANDLE_fbo = {0};
   public int[] bind_color_attachments = new int[0]; // currently bound rendertargets
   public int[] bind_targets           = new int[0]; // currently bound rendertargets
   
@@ -35,18 +35,22 @@ public class DwGLFrameBuffer {
 //    allocate(gl);
 //  }
   
+  public boolean isFBO(){
+    return (gl != null) && (HANDLE_fbo[0] > 0);
+  }
+  
   public void release(){
-    if(gl != null){
-      if(HANDLE_fbo != null) gl.glDeleteFramebuffers(1, HANDLE_fbo, 0); 
-      HANDLE_fbo = null;
-      gl = null;
+    if(!isFBO()){
+      return;
     }
+
+    gl.glDeleteFramebuffers(1, HANDLE_fbo, 0); 
+    HANDLE_fbo[0] = 0;
   }
   
 
   public void allocate(GL2ES2 gl){
-    if(HANDLE_fbo == null){
-      HANDLE_fbo = new int[1];
+    if(!isFBO()){
       this.gl = gl;
       gl.glGenFramebuffers(1, HANDLE_fbo, 0);
       

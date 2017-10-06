@@ -44,7 +44,8 @@ public class DwGLSLShader{
     this.path = path;
     
     if(type == GL2ES2.GL_VERTEX_SHADER && path == null || path.length() == 0){
-      createDefaultVertexShader();
+      this.content = createDefaultVertexShader();
+      this.path = "fullscreenquad.vert";
     } else {
       this.content = loadSource(path);
     }
@@ -54,15 +55,13 @@ public class DwGLSLShader{
   
   
   // vertex shader (fullscreenquad) 
-  private void createDefaultVertexShader(){
-    this.path = "fullscreenquad.vert";
-    content = new String[]
-        {
+  private static String[] createDefaultVertexShader(){
+    String[]content = {
            " "
           ,"#version 150"
           ,""
-          ,"precision mediump float;"
-          ,"precision mediump int;"
+          ,"precision mediump float;" // TODO
+          ,"precision mediump int;"   // TODO
           ,""                                     
           ,"void main(){"                         
           ,"  int x = ((gl_VertexID<<1) & 2) - 1;"
@@ -75,6 +74,7 @@ public class DwGLSLShader{
     for(int i = 0; i < content.length; i++){
       content[i] += DwUtils.NL;
     }
+    return content;
   }
   
   
