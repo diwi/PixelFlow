@@ -11,7 +11,7 @@
 
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
-import com.jogamp.opengl.GLES3;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -83,9 +83,7 @@ public class DistanceTransform {
   
   public void resize(int w, int h){
     
-    tex_dtnn.resize(context, GLES3.GL_RG16UI, w, h, GLES3.GL_RG_INTEGER, GLES3.GL_UNSIGNED_SHORT, GLES3.GL_NEAREST, 2, 2);
-    tex_dtnn.src.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
-    tex_dtnn.dst.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE); 
+    tex_dtnn.resize(context, GL2.GL_RG16UI, w, h, GL2.GL_RG_INTEGER, GL2.GL_UNSIGNED_SHORT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE, 2, 2);
 
     int POS_MAX_LIMIT = 0x7FFF;
     int POS_MAX = Math.max(w, h) * 2;
@@ -148,8 +146,7 @@ public class DistanceTransform {
     int w = tex_dtnn.src.w;
     int h = tex_dtnn.src.h;
     
-    tex_dist.resize(context, GLES3.GL_R32F, w, h, GLES3.GL_RED, GLES3.GL_FLOAT, GLES3.GL_LINEAR, 1, 4);
-    tex_dist.setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+    tex_dist.resize(context, GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     
     context.begin();
     context.beginDraw(tex_dist);

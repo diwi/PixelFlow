@@ -286,48 +286,98 @@ public class DwGLTexture3D{
   
   
   
-  
-  
-  //  GL_CLAMP_TO_EDGE
-  //  GL_CLAMP_TO_BORDER
-  //  GL_MIRRORED_REPEAT 
-  //  GL_REPEAT
-  //  GL_MIRROR_CLAMP_TO_EDGE 
-  public void setParam_WRAP_S_T(int wrap){
+  /**
+   * <pre>
+   * GL_CLAMP_TO_EDGE
+   * GL_CLAMP_TO_BORDER
+   * GL_MIRRORED_REPEAT 
+   * GL_REPEAT (default)
+   * GL_MIRROR_CLAMP_TO_EDGE
+   * </pre>
+   * @param wrap
+   */
+  public void setParamWrap(int wrap){
     this.wrap = wrap;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_R, wrap);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, wrap);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_T, wrap);
     gl.glBindTexture  (target, 0);
   }
   
-  public void setParam_WRAP_S_T(int wrap, float[] border_color){
+  /**
+   * <pre>
+   * GL_CLAMP_TO_EDGE
+   * GL_CLAMP_TO_BORDER
+   * GL_MIRRORED_REPEAT 
+   * GL_REPEAT (default)
+   * GL_MIRROR_CLAMP_TO_EDGE
+   * </pre>
+   * @param wrap
+   */
+  public void setParamWrap(int wrap, float[] border_color){
     this.wrap = wrap;
     gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_R, wrap);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
-    gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_R, wrap);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_T, wrap);
+    gl.glTexParameterfv(target, GL2.GL_TEXTURE_BORDER_COLOR, border_color, 0);
     gl.glBindTexture   (target, 0);
   }
   
-  public void setParam_Filter(int filter){
+  /**
+   * <pre>
+   * GL_TEXTURE_MAG_FILTER
+   *  - GL_NEAREST
+   *  - GL_LINEAR (default)
+   *  
+   * GL_TEXTURE_MIN_FILTER
+   *  - GL_NEAREST ................... nearest texel
+   *  - GL_LINEAR .................... linear  texel
+   *  - GL_NEAREST_MIPMAP_NEAREST .... nearest texel, nearest mipmap (default)
+   *  - GL_LINEAR_MIPMAP_NEAREST ..... linear  texel, nearest mipmap 
+   *  - GL_NEAREST_MIPMAP_LINEAR ..... nearest texel, linear mipmap
+   *  - GL_LINEAR_MIPMAP_LINEAR ...... linear  texel, linear mipmap
+   * </pre>
+   * 
+   * @param minfilter
+   * @param magfilter
+   */
+  public void setParamFilter(int filter){
     this.filter = filter;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, filter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, filter);
     gl.glBindTexture  (target, 0);
   }
   
-  public void setParam_Filter(int minfilter, int magfilter){
+ 
+  /**
+   * <pre>
+   * GL_TEXTURE_MAG_FILTER
+   *  - GL_NEAREST
+   *  - GL_LINEAR (default)
+   *  
+   * GL_TEXTURE_MIN_FILTER
+   *  - GL_NEAREST ................... nearest texel
+   *  - GL_LINEAR .................... linear  texel
+   *  - GL_NEAREST_MIPMAP_NEAREST .... nearest texel, nearest mipmap (default)
+   *  - GL_LINEAR_MIPMAP_NEAREST ..... linear  texel, nearest mipmap 
+   *  - GL_NEAREST_MIPMAP_LINEAR ..... nearest texel, linear mipmap
+   *  - GL_LINEAR_MIPMAP_LINEAR ...... linear  texel, linear mipmap
+   * </pre>
+   * 
+   * @param minfilter
+   * @param magfilter
+   */
+  public void setParamFilter(int minfilter, int magfilter){
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, minfilter);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, magfilter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, minfilter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, magfilter);
     gl.glBindTexture  (target, 0);
   }
   
-  
+
   public void generateMipMap(){
     gl.glBindTexture   (target, HANDLE[0]);
     gl.glTexParameteri (target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);

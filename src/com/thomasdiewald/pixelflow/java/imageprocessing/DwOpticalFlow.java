@@ -13,8 +13,7 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 
-import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GLES3;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
@@ -91,10 +90,11 @@ public class DwOpticalFlow {
   
   public void resize(int w, int h) {
     context.begin();
-    frameCurr.resize(context, w, h, param.grayscale);
-    framePrev.resize(context, w, h, param.grayscale);
     
-    if(frameCurr.resized || framePrev.resized){
+    boolean resized = false;
+    resized |= frameCurr.resize(context, w, h, param.grayscale);
+    resized |= framePrev.resize(context, w, h, param.grayscale);
+    if(resized){
       reset();
     }
     
@@ -213,9 +213,9 @@ public class DwOpticalFlow {
   public DwGLRenderSettingsCallback rcb = new DwGLRenderSettingsCallback() {
     @Override
     public void set(DwPixelFlow context, int x, int y, int w, int h) {
-      context.gl.glEnable(GLES3.GL_BLEND);
-      context.gl.glBlendEquationSeparate(GLES3.GL_FUNC_ADD, GLES3.GL_FUNC_ADD);
-      context.gl.glBlendFuncSeparate(GLES3.GL_SRC_ALPHA, GLES3.GL_ONE_MINUS_SRC_ALPHA, GLES3.GL_ONE, GLES3.GL_ONE);
+      context.gl.glEnable(GL2.GL_BLEND);
+      context.gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+      context.gl.glBlendFuncSeparate(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA, GL2.GL_ONE, GL2.GL_ONE);
     }
   };
 
@@ -323,16 +323,9 @@ public class DwOpticalFlow {
   
   
   
-  
-  
-  
 
-  
-  
-  
-  
-  
   public static class Frame{
+    
     public DwPixelFlow context;
     public DwGLTexture frame    = new DwGLTexture();
     public DwGLTexture sobelH   = new DwGLTexture();
@@ -340,8 +333,6 @@ public class DwOpticalFlow {
     public DwGLTexture velocity = new DwGLTexture();
     public DwGLTexture tmp      = new DwGLTexture();
     
-    
-    public boolean resized = false;
     protected int w, h;
     
     public Frame(){
@@ -365,34 +356,24 @@ public class DwOpticalFlow {
       context.end();
     }
     
-    public void resize(DwPixelFlow context_, int w, int h, boolean grayscale){
-      int internalformat = grayscale ? GL2ES2.GL_R16F : GL2ES2.GL_RGBA16F;
-      int format         = grayscale ? GL2ES2.GL_RED  : GL2ES2.GL_RGBA;
-      int channels       = grayscale ? 1              : 4;
-      int type           = GL2ES2.GL_FLOAT;
-      int wrap_st        = GL2ES2.GL_MIRRORED_REPEAT;
-      
+    public boolean resize(DwPixelFlow context_, int w, int h, boolean grayscale){
+      int internalformat = grayscale ? GL2.GL_R16F : GL2.GL_RGBA16F;
+      int format         = grayscale ? GL2.GL_RED  : GL2.GL_RGBA;
+      int channels       = grayscale ? 1           : 4;
+
       this.context = context_;
       this.w = w;
       this.h = h;
         
       context.begin();
-      resized = false;
-      resized |= frame   .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
-      resized |= sobelH  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
-      resized |= sobelV  .resize(context, internalformat   , w, h, format        , type, GL2ES2.GL_LINEAR, channels, 2);
-      resized |= velocity.resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , type, GL2ES2.GL_LINEAR, 2       , 2);
-      resized |= tmp     .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, type, GL2ES2.GL_LINEAR, 4       , 2);
-      if(resized) {
-        frame   .setParam_WRAP_S_T(wrap_st);
-        sobelH  .setParam_WRAP_S_T(wrap_st);
-        sobelV  .setParam_WRAP_S_T(wrap_st);
-        velocity.setParam_WRAP_S_T(wrap_st);
-        tmp     .setParam_WRAP_S_T(wrap_st);
-        
-//        clear(0.0f);
-      }
+      boolean resized = false;
+      resized |= frame   .resize(context, internalformat, w, h, format     , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, channels, 2);
+      resized |= sobelH  .resize(context, internalformat, w, h, format     , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, channels, 2);
+      resized |= sobelV  .resize(context, internalformat, w, h, format     , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, channels, 2);
+      resized |= velocity.resize(context, GL2.GL_RG16F  , w, h, GL2.GL_RG  , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 2       , 2);
+      resized |= tmp     .resize(context, GL2.GL_RGBA16F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4       , 2);
       context.end();
+      return resized;
     }
 
     

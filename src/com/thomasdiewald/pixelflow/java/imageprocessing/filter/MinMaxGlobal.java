@@ -13,7 +13,7 @@
 
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
-import com.jogamp.opengl.GLES3;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -102,7 +102,7 @@ public class MinMaxGlobal {
       }
       
       tex[i].resize(context, src, w, h);
-      tex[i].setParam_WRAP_S_T(GLES3.GL_REPEAT);
+      tex[i].setParamWrap(GL2.GL_MIRRORED_REPEAT);
 //      System.out.println(i+", "+w+", "+h);
       w = (int) Math.ceil(w / (float) STEP_SIZE);
       h = (int) Math.ceil(h / (float) STEP_SIZE);

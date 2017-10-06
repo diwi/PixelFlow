@@ -30,11 +30,7 @@ public class DwGLFrameBuffer {
   
   public DwGLFrameBuffer(){
   }
-  
-//  public DwGLFrameBuffer(GL2ES2 gl){
-//    allocate(gl);
-//  }
-  
+
   public boolean isFBO(){
     return (gl != null) && (HANDLE_fbo[0] > 0);
   }

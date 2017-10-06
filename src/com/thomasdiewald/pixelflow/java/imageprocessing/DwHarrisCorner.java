@@ -13,7 +13,7 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 
-import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -201,7 +201,7 @@ public class DwHarrisCorner {
       context.end();
     }
     
-    public void resize(DwPixelFlow context_, int w, int h){
+    public boolean resize(DwPixelFlow context_, int w, int h){
 
       this.context = context_;
       this.w = w;
@@ -209,27 +209,16 @@ public class DwHarrisCorner {
         
       context.begin();
       boolean resized = false;
-      resized |= frame       .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 1,4);
-      resized |= sobelH      .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 1,4);
-      resized |= sobelV      .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 1,4);
-      resized |= harrisMatrix.resize(context, GL2ES2.GL_RGB16F , w, h, GL2ES2.GL_RGB , GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 3,4);
-      resized |= harrisCorner.resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 1,4);
-      resized |= tmp         .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, GL2ES2.GL_FLOAT, GL2ES2.GL_LINEAR, 4,4);
-      if(resized) updateParams();
+      resized |= frame       .resize(context, GL2.GL_R16F   , w, h, GL2.GL_RED , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1,4);
+      resized |= sobelH      .resize(context, GL2.GL_R16F   , w, h, GL2.GL_RED , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1,4);
+      resized |= sobelV      .resize(context, GL2.GL_R16F   , w, h, GL2.GL_RED , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1,4);
+      resized |= harrisMatrix.resize(context, GL2.GL_RGB16F , w, h, GL2.GL_RGB , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 3,4);
+      resized |= harrisCorner.resize(context, GL2.GL_R16F   , w, h, GL2.GL_RED , GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1,4);
+      resized |= tmp         .resize(context, GL2.GL_RGBA16F, w, h, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4,4);
       context.end();
+      return resized;
     }
 
-    private void updateParams(){
-      context.begin();
-      frame       .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      sobelH      .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      sobelV      .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      harrisMatrix.setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      harrisCorner.setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      tmp         .setParam_WRAP_S_T(GL2ES2.GL_MIRRORED_REPEAT);
-      context.end();
-    }
-    
   }
   
   

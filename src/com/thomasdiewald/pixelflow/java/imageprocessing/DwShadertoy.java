@@ -481,13 +481,13 @@ public class DwShadertoy{
   
     
   public static void setTextureFilter(DwGLTexture tex, TexFilter filter){
-    tex.setParam_Filter(filter.min, filter.mag);
+    tex.setParamFilter(filter.min, filter.mag);
     if(filter == TexFilter.MIPMAP){
       tex.generateMipMap();
     }
   }
   public static void setTextureWrap(DwGLTexture tex, TexWrap wrap){
-    tex.setParam_WRAP_S_T(wrap.wrap); 
+    tex.setParamWrap(wrap.wrap); 
   }
 
   

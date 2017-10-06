@@ -12,7 +12,6 @@
 package com.thomasdiewald.pixelflow.java.imageprocessing.filter;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
@@ -76,8 +75,8 @@ public class GaussianBlurPyramid {
   // more precision is good, like 16F
   
   public void resize(PGraphicsOpenGL src){
-//    resize(src.width, src.height, GLES3.GL_RGBA8, GLES3.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, 4, 1);
-    resize(src.width, src.height, GL2.GL_RGBA16F, GLES3.GL_RGBA, GL2.GL_FLOAT, 4, 2);
+//    resize(src.width, src.height, GL2.GL_RGBA8, GL2.GL_RGBA, GLES3.GL_UNSIGNED_BYTE, 4, 1);
+    resize(src.width, src.height, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, 4, 2);
   }
   
   public void resize(DwGLTexture src){
@@ -117,10 +116,8 @@ public class GaussianBlurPyramid {
     for(int i = 0; i < BLUR_LAYERS; i++){
 //      wi = (int) Math.ceil(wi * 0.5f);
 //      hi = (int) Math.ceil(hi * 0.5f);
-      tex_temp[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
-      tex_blur[i].resize(context, internal_format, wi, hi, format, type, GLES3.GL_LINEAR, num_channels, bbp);
-      tex_temp[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
-      tex_blur[i].setParam_WRAP_S_T(GLES3.GL_CLAMP_TO_EDGE);
+      tex_temp[i].resize(context, internal_format, wi, hi, format, type, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, num_channels, bbp);
+      tex_blur[i].resize(context, internal_format, wi, hi, format, type, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, num_channels, bbp);
       wi = (int) Math.ceil(wi * 0.5f);
       hi = (int) Math.ceil(hi * 0.5f);
     }

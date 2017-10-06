@@ -17,12 +17,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
-import com.jogamp.opengl.GLES3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 public class DwGLTexture{
@@ -36,12 +33,12 @@ public class DwGLTexture{
   public final int[] HANDLE = {0};
 
   // some default values
-  public final int target     = GL2ES2.GL_TEXTURE_2D;
-  public int internalFormat   = GL2ES2.GL_RGBA8;
-  public int format           = GL2ES2.GL_RGBA;
-  public int type             = GL2ES2.GL_UNSIGNED_BYTE;
-  public int filter           = GL2ES2.GL_NEAREST;
-  public int wrap             = GL2ES2.GL_CLAMP_TO_BORDER;
+  public final int target     = GL2.GL_TEXTURE_2D;
+  public int internalFormat   = GL2.GL_RGBA8;
+  public int format           = GL2.GL_RGBA;
+  public int type             = GL2.GL_UNSIGNED_BYTE;
+  public int filter           = GL2.GL_NEAREST;
+  public int wrap             = GL2.GL_CLAMP_TO_BORDER;
   public int num_channel      = 4;
   public int byte_per_channel = 1;
   
@@ -144,7 +141,6 @@ public class DwGLTexture{
   }
   
   public boolean resize(DwPixelFlow context, DwGLTexture othr, int w, int h){
-
     return resize(context, 
         othr.internalFormat, 
         w, h, 
@@ -153,28 +149,51 @@ public class DwGLTexture{
         othr.filter,
         othr.wrap,
         othr.num_channel,
-        othr.byte_per_channel
-        );
+        othr.byte_per_channel);
   }
   
   public boolean resize(DwPixelFlow context, int w, int h){
     return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
   
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
+  public boolean resize(DwPixelFlow context, 
+      int internalFormat, 
+      int w, int h, 
+      int format, int type, 
+      int filter, 
+      int num_channel, int byte_per_channel
+      ){
     return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
   
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel){
+  public boolean resize(DwPixelFlow context, 
+      int internalFormat, 
+      int w, int h, 
+      int format, int type, 
+      int filter, int wrap, 
+      int num_channel, int byte_per_channel)
+  {
     return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, null);
   }
   
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel, Buffer data){
+  public boolean resize(DwPixelFlow context, 
+      int internalFormat, 
+      int w, int h, 
+      int format, int type, 
+      int filter, 
+      int num_channel, int byte_per_channel, Buffer data
+      ){
     return resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel, data);
   }
 
 
-  public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int num_channel, int byte_per_channel, Buffer data){
+  public boolean resize(DwPixelFlow context, 
+      int internalFormat, 
+      int w, int h, 
+      int format, int type, 
+      int filter, int wrap, 
+      int num_channel, int byte_per_channel, Buffer data
+      ){
 
     this.context = context;
     this.gl = context.gl;
@@ -201,7 +220,7 @@ public class DwGLTexture{
     
     B_BIND = B_ALLOC | B_RESIZE | B_FILTER | B_WRAP;
     
-    
+
     // assign fields
     this.w                = w;
     this.h                = h;
@@ -215,7 +234,6 @@ public class DwGLTexture{
     
     
     if(B_ALLOC){
-      
       // no release require, textures are not re-gen-erated on the fly
       // release();
       
@@ -227,52 +245,48 @@ public class DwGLTexture{
       
       // alloc pbo
       gl.glGenBuffers(1, HANDLE_pbo, 0);
-      gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
-      gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, null, GL2.GL_DYNAMIC_READ);
-      gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
+      gl.glBindBuffer(GL2.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
+      gl.glBufferData(GL2.GL_PIXEL_PACK_BUFFER, 0, null, GL2.GL_DYNAMIC_READ);
+      gl.glBindBuffer(GL2.GL_PIXEL_PACK_BUFFER, 0);
       context.errorCheck("DwGLTexture.resize pbo");
       
       // increase counter
       ++TEX_COUNT;
     }
     
-    if(B_RESIZE)
-    {
+    if(B_BIND){
       gl.glBindTexture(target, HANDLE[0]);
-      
+    }
+    
+    if(B_RESIZE){
       gl.glBindTexture(target, HANDLE[0]);
-//    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_BASE_LEVEL, 0);
-//    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAX_LEVEL, 0);
+//    gl.glTexParameteri(target, GL2.GL_TEXTURE_BASE_LEVEL, 0);
+//    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
       
-      gl.glPixelStorei(GL2ES2.GL_UNPACK_ALIGNMENT, 1);
-      gl.glPixelStorei(GL2ES2.GL_PACK_ALIGNMENT  , 1);
+      gl.glPixelStorei(GL2.GL_UNPACK_ALIGNMENT, 1);
+      gl.glPixelStorei(GL2.GL_PACK_ALIGNMENT  , 1);
 //    int[] val = new int[1];
-//    gl.glGetIntegerv(GL2ES2.GL_UNPACK_ALIGNMENT, val, 0);
+//    gl.glGetIntegerv(GL2.GL_UNPACK_ALIGNMENT, val, 0);
 //    System.out.println("GL_UNPACK_ALIGNMENT "+val[0]);
-//    gl.glGetIntegerv(GL2ES2.GL_PACK_ALIGNMENT, val, 0);
+//    gl.glGetIntegerv(GL2.GL_PACK_ALIGNMENT, val, 0);
 //    System.out.println("GL_PACK_ALIGNMENT "+val[0]);
       
       gl.glTexImage2D   (target, 0, internalFormat, w, h, 0, format, type, data);
 //    gl.glTexSubImage2D(target, 0, 0, 0, w, h, format, type, data);
     }
       
-    if(B_FILTER)
-    {
-      gl.glBindTexture(target, HANDLE[0]);
-      gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
-      gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
+    if(B_FILTER){
+      gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
+      gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, filter);
     }
 
-    if(B_WRAP)
-    {
-      gl.glBindTexture(target, HANDLE[0]);
-      gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-      gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
-      gl.glTexParameterfv(target, GL2ES2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
+    if(B_WRAP){
+      gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_S, wrap);
+      gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_T, wrap);
+      gl.glTexParameterfv(target, GL2.GL_TEXTURE_BORDER_COLOR, new float[]{0,0,0,0}, 0);
     }
 
-    if(B_BIND)
-    {
+    if(B_BIND){
       gl.glBindTexture(target, 0);   
       context.errorCheck("DwGLTexture.resize tex");
     }
@@ -286,75 +300,139 @@ public class DwGLTexture{
   
   
 
-  
-  
-  
-  //  GL_CLAMP_TO_EDGE
-  //  GL_CLAMP_TO_BORDER
-  //  GL_MIRRORED_REPEAT 
-  //  GL_REPEAT
-  //  GL_MIRROR_CLAMP_TO_EDGE 
-  public void setParam_WRAP_S_T(int wrap){
+
+
+  /**
+   * <pre>
+   * GL_CLAMP_TO_EDGE
+   * GL_CLAMP_TO_BORDER
+   * GL_MIRRORED_REPEAT 
+   * GL_REPEAT (default)
+   * GL_MIRROR_CLAMP_TO_EDGE
+   * </pre>
+   * @param wrap
+   */
+  public void setParamWrap(int wrap){
     this.wrap = wrap;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_T, wrap);
     gl.glBindTexture  (target, 0);
   }
   
-  public void setParam_WRAP_S_T(int wrap, float[] border_color){
+  /**
+   * <pre>
+   * GL_CLAMP_TO_EDGE
+   * GL_CLAMP_TO_BORDER
+   * GL_MIRRORED_REPEAT 
+   * GL_REPEAT (default)
+   * GL_MIRROR_CLAMP_TO_EDGE
+   * </pre>
+   * @param wrap
+   */
+  public void setParamWrap(int wrap, float[] border_color){
     this.wrap = wrap;
     gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_S, wrap);
-    gl.glTexParameteri (target, GL2ES2.GL_TEXTURE_WRAP_T, wrap);
-    gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border_color, 0);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_S, wrap);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_WRAP_T, wrap);
+    gl.glTexParameterfv(target, GL2.GL_TEXTURE_BORDER_COLOR, border_color, 0);
     gl.glBindTexture   (target, 0);
   }
   
-  public void setParam_Filter(int filter){
+  /**
+   * <pre>
+   * GL_TEXTURE_MAG_FILTER
+   *  - GL_NEAREST
+   *  - GL_LINEAR (default)
+   *  
+   * GL_TEXTURE_MIN_FILTER
+   *  - GL_NEAREST ................... nearest texel
+   *  - GL_LINEAR .................... linear  texel
+   *  - GL_NEAREST_MIPMAP_NEAREST .... nearest texel, nearest mipmap (default)
+   *  - GL_LINEAR_MIPMAP_NEAREST ..... linear  texel, nearest mipmap 
+   *  - GL_NEAREST_MIPMAP_LINEAR ..... nearest texel, linear mipmap
+   *  - GL_LINEAR_MIPMAP_LINEAR ...... linear  texel, linear mipmap
+   * </pre>
+   * 
+   * @param minfilter
+   * @param magfilter
+   */
+  public void setParamFilter(int filter){
     this.filter = filter;
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, filter);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, filter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, filter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, filter);
     gl.glBindTexture  (target, 0);
   }
   
-  // GL_NEAREST
-  // GL_LINEAR
-  // GL_NEAREST_MIPMAP_NEAREST 
-  // GL_LINEAR_MIPMAP_NEAREST  
-  // GL_NEAREST_MIPMAP_LINEAR  
-  // GL_LINEAR_MIPMAP_LINEAR   
-  public void setParam_Filter(int minfilter, int magfilter){
+ 
+  /**
+   * <pre>
+   * GL_TEXTURE_MAG_FILTER
+   *  - GL_NEAREST
+   *  - GL_LINEAR (default)
+   *  
+   * GL_TEXTURE_MIN_FILTER
+   *  - GL_NEAREST ................... nearest texel
+   *  - GL_LINEAR .................... linear  texel
+   *  - GL_NEAREST_MIPMAP_NEAREST .... nearest texel, nearest mipmap (default)
+   *  - GL_LINEAR_MIPMAP_NEAREST ..... linear  texel, nearest mipmap 
+   *  - GL_NEAREST_MIPMAP_LINEAR ..... nearest texel, linear mipmap
+   *  - GL_LINEAR_MIPMAP_LINEAR ...... linear  texel, linear mipmap
+   * </pre>
+   * 
+   * @param minfilter
+   * @param magfilter
+   */
+  public void setParamFilter(int minfilter, int magfilter){
     gl.glBindTexture  (target, HANDLE[0]);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MIN_FILTER, minfilter);
-    gl.glTexParameteri(target, GL2ES2.GL_TEXTURE_MAG_FILTER, magfilter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, minfilter);
+    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, magfilter);
     gl.glBindTexture  (target, 0);
   }
   
   
-  public void generateMipMap(){
-    gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameteri (target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-//    gl.glTexParameteri (target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
-    gl.glGenerateMipmap(target);
-    gl.glBindTexture   (target, 0);
-    DwGLError.debug(gl, "DwGLTexture.generateMipMap");
-  }
+
   
-  public void setParam_Border(float[] border){
+  
+  public void setParamBorder(float[] border){
     gl.glBindTexture   (target, HANDLE[0]);
-    gl.glTexParameterfv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border, 0);
+    gl.glTexParameterfv(target, GL2.GL_TEXTURE_BORDER_COLOR, border, 0);
     gl.glBindTexture   (target, 0);
   }
-  public void setParam_Border(int[] border){
+  public void setParamBorder(int[] border){
     gl.glBindTexture    (target, HANDLE[0]);
-    gl.glTexParameterIiv(target, GLES3.GL_TEXTURE_BORDER_COLOR, border, 0);
+    gl.glTexParameterIiv(target, GL2.GL_TEXTURE_BORDER_COLOR, border, 0);
     gl.glBindTexture    (target, 0);
   }
   
   
   
+  /*
+  
+    https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
+    
+    GL_TEXTURE_COMPARE_FUNC
+    GL_TEXTURE_COMPARE_MODE
+    GL_TEXTURE_MIN_FILTER
+    GL_TEXTURE_MAG_FILTER
+    GL_TEXTURE_LOD_BIAS
+    GL_TEXTURE_MIN_LOD
+    GL_TEXTURE_MAX_LOD
+    GL_TEXTURE_MAX_LEVEL
+    GL_TEXTURE_BASE_LEVEL
+    GL_DEPTH_STENCIL_TEXTURE_MODE
+    GL_TEXTURE_SWIZZLE_R
+    GL_TEXTURE_SWIZZLE_G
+    GL_TEXTURE_SWIZZLE_B
+    GL_TEXTURE_SWIZZLE_A
+    GL_TEXTURE_SWIZZLE_RGBA
+    GL_TEXTURE_BORDER_COLOR
+    GL_TEXTURE_WRAP_R
+    GL_TEXTURE_WRAP_S
+    GL_TEXTURE_WRAP_T
+    
+  */
   
   public void glTexParameteri(int param, int value, boolean bind){
     if(bind) bind();
@@ -393,16 +471,6 @@ public class DwGLTexture{
   
   
   
-  public void bind(){
-    gl.glBindTexture(target, HANDLE[0]);
-  }
-  public void unbind(){
-    gl.glBindTexture(target, 0);
-  }
-  
-  
-  
-  
   
   
   // some predefined swizzles
@@ -421,6 +489,29 @@ public class DwGLTexture{
   
   public void swizzle(int[] i4_GL_TEXTURE_SWIZZLE_RGBA){
     glTexParameteriv(GL2.GL_TEXTURE_SWIZZLE_RGBA, i4_GL_TEXTURE_SWIZZLE_RGBA, true);
+  }
+  
+  
+  
+  public void generateMipMap(){
+    gl.glBindTexture   (target, HANDLE[0]);
+    gl.glTexParameteri (target, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
+//    gl.glTexParameteri (target, GL2.GL_GENERATE_MIPMAP, GL2.GL_TRUE);
+    gl.glGenerateMipmap(target);
+    gl.glBindTexture   (target, 0);
+    DwGLError.debug(gl, "DwGLTexture.generateMipMap");
+  }
+  
+  
+  
+  
+  
+  
+  public void bind(){
+    gl.glBindTexture(target, HANDLE[0]);
+  }
+  public void unbind(){
+    gl.glBindTexture(target, 0);
   }
   
   
@@ -489,15 +580,15 @@ public class DwGLTexture{
     int buffer_size = data_len * byte_per_channel;
   
     context.beginDraw(this);
-    gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
-    gl.glBufferData(GL2ES3.GL_PIXEL_PACK_BUFFER, buffer_size, null, GL2ES3.GL_DYNAMIC_READ);
+    gl.glBindBuffer(GL2.GL_PIXEL_PACK_BUFFER, HANDLE_pbo[0]);
+    gl.glBufferData(GL2.GL_PIXEL_PACK_BUFFER, buffer_size, null, GL2.GL_DYNAMIC_READ);
     gl.glReadPixels(x, y, w, h, format, type, 0);
     
-    ByteBuffer bbuffer = gl.glMapBufferRange(GL2ES3.GL_PIXEL_PACK_BUFFER, 0, buffer_size, GL2ES3.GL_MAP_READ_BIT);
-//    ByteBuffer bbuffer = gl.glMapBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, GL2ES3.GL_READ_ONLY);
+    ByteBuffer bbuffer = gl.glMapBufferRange(GL2.GL_PIXEL_PACK_BUFFER, 0, buffer_size, GL2.GL_MAP_READ_BIT);
+//    ByteBuffer bbuffer = gl.glMapBuffer(GL2.GL_PIXEL_PACK_BUFFER, GL2.GL_READ_ONLY);
     
-    gl.glUnmapBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER);
-    gl.glBindBuffer(GL2ES3.GL_PIXEL_PACK_BUFFER, 0);
+    gl.glUnmapBuffer(GL2.GL_PIXEL_PACK_BUFFER);
+    gl.glBindBuffer(GL2.GL_PIXEL_PACK_BUFFER, 0);
     context.endDraw();
     
     DwGLError.debug(gl, "DwGLTexture.getData_GL2ES3");
@@ -716,44 +807,48 @@ public class DwGLTexture{
   }
   
   public void clear(float r, float g, float b, float a){
-    if(framebuffer != null){
+    if(framebuffer.isFBO()){
       framebuffer.clearTexture(r,g,b,a, this);
     }
   }
   
-//  public void beginDraw(){
-//    framebuffer.bind(this);
-//    gl.glViewport(0, 0, w, h);
-//    
-//    // default settings
-//    gl.glColorMask(true, true, true, true);
-//    gl.glDepthMask(false);
-//    gl.glDisable(GL.GL_DEPTH_TEST);
-//    gl.glDisable(GL.GL_STENCIL_TEST);
-//    gl.glDisable(GL.GL_BLEND);
-//    //  gl.glClearColor(0, 0, 0, 0);
-//    //  gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
-//  }
-//  public void endDraw(){
-//    framebuffer.unbind();
-//  }
 
-
-  static public class TexturePingPong{
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  static public class TexturePingPong {
     public DwGLTexture src = new DwGLTexture(); 
     public DwGLTexture dst = new DwGLTexture(); 
 
     public TexturePingPong(){
     }
     
-    public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int wrap, int  num_channel, int byte_per_channel){
+    public boolean resize(DwPixelFlow context, 
+        int internalFormat, 
+        int w, int h, 
+        int format, int type, 
+        int filter, int wrap, 
+        int num_channel, int byte_per_channel)
+    {
       boolean resized = false;
       resized |= src.resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel);
       resized |= dst.resize(context, internalFormat, w, h, format, type, filter, wrap, num_channel, byte_per_channel);
       return resized;
     }
 
-    public boolean resize(DwPixelFlow context, int internalFormat, int w, int h, int format, int type, int filter, int  num_channel, int byte_per_channel){
+    public boolean resize(DwPixelFlow context, 
+        int internalFormat, 
+        int w, int h, 
+        int format, int type, 
+        int filter, 
+        int  num_channel, int byte_per_channel){
       boolean resized = false;
       resized |= src.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
       resized |= dst.resize(context, internalFormat, w, h, format, type, filter, num_channel, byte_per_channel);
@@ -766,8 +861,7 @@ public class DwGLTexture{
     }
 
     public void swap(){
-      DwGLTexture tmp;
-      tmp = src;
+      DwGLTexture tmp = src;
       src = dst;
       dst = tmp;
     }

@@ -100,9 +100,8 @@ public class DwFlowField {
       internalFormat   = GL2.GL_RG32F;
       byte_per_channel = 4;
     }
-    boolean resized = tex_vel.resize(context, internalFormat, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, 2, byte_per_channel);
+    boolean resized = tex_vel.resize(context, internalFormat, w, h, GL2.GL_RG, GL.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 2, byte_per_channel);
     if(resized){
-      tex_vel.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
       tex_vel.clear(0);
     }
     return resized;
@@ -151,7 +150,7 @@ public class DwFlowField {
     }
     
     tex_tmp.resize(context, tex_vel);
-    tex_tmp.setParam_WRAP_S_T(GL2.GL_CLAMP_TO_EDGE);
+    tex_tmp.setParamWrap(GL2.GL_CLAMP_TO_EDGE);
     
     for(int i = 0; i < iterations; i++){
       DwFilter.get(context).gaussblur.apply(tex_vel, tex_vel, tex_tmp, radius);
