@@ -752,10 +752,6 @@ public class DwFlowFieldParticles{
   
   public void update(DwGLTexture tex_acc){
     
-    ff_sum.param.blur_iterations = 1;
-    ff_sum.param.blur_radius = Math.min(Math.max(Math.round(getCollisionSize() / 6f), 2), 8);
-
-    
     float timestep = getTimestep() / param.steps;
 
     updateVelocity();
