@@ -102,7 +102,7 @@ public class GaussianBlurPyramid {
     BLUR_LAYERS     = Math.min(BLUR_LAYERS_MAX, BLUR_LAYERS);
      
     // 2) init/release textures if needed
-    if(tex_blur.length < BLUR_LAYERS){
+    if(tex_blur.length != BLUR_LAYERS){
       release();
       tex_blur = new DwGLTexture[BLUR_LAYERS];
       tex_temp = new DwGLTexture[BLUR_LAYERS];
