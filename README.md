@@ -38,11 +38,13 @@
     - Box Blur
     - Binomial Blur
     - Gauss Blur
+    - Gauss Blur Pyramid
     - Median
     - Bilateral Filter
     - Custom Convolution Kernel
     - DoG (Difference of Gaussian)
     - BackgroundSubtraction
+    - Difference
     - Laplace
     - Sobel
     - Gamma Correction
@@ -52,10 +54,12 @@
     - Optical Flow
     - Bloom
     - Depth of Field (DoF)
+    - Liquid FX Filter
     - Summed Area Table (SAT)
     - Distance Transform (Jumpflood), Voronoi, Distance Map
     - Global Min Max
     - Local Min Max
+    - Merge Shader
     - FlowField
     - ...
 + AntiAliasing (GLSL)
@@ -115,6 +119,12 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://i.vimeocdn.com/video/644816088.jpg" alt="alt text" width="30%">](https://vimeo.com/225484146 "MovieWall")
 [<img src="https://i.vimeocdn.com/video/645059994.jpg" alt="alt text" width="30%">](https://vimeo.com/225671748 "VoxelCapture")
 
+#### Flow Field Particle Simulation
+[<img src="https://i.vimeocdn.com/video/659213047.jpg" alt="alt text" width="30%">](https://vimeo.com/236955859 "Flow Field Particles - Trails HD")
+[<img src="https://i.vimeocdn.com/video/659220662.jpg" alt="alt text" width="30%">](https://vimeo.com/236964112 "Flow Field Particles - Trails HD - 100K Particles")
+[<img src="https://i.vimeocdn.com/video/659039289.jpg" alt="alt text" width="30%">](https://vimeo.com/236821149 "Flow Field Particles - DevDemo [R&D]")
+
+<br>
 
 More Videos on [Vimeo](https://vimeo.com/user56436843).
 
