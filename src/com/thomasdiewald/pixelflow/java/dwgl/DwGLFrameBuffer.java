@@ -14,11 +14,13 @@ package com.thomasdiewald.pixelflow.java.dwgl;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLES3;
 
 public class DwGLFrameBuffer {
   
   public GL2ES2 gl;
+  public GL3 gl3;
   
   public final int[] HANDLE_fbo = {0};
   public int[] bind_color_attachments = new int[0]; // currently bound rendertargets
@@ -48,6 +50,9 @@ public class DwGLFrameBuffer {
   public void allocate(GL2ES2 gl){
     if(!isFBO()){
       this.gl = gl;
+      if(gl.isGL3()){
+        this.gl3 = gl.getGL3();
+      }
       gl.glGenFramebuffers(1, HANDLE_fbo, 0);
       
       int[] buf = new int[1];
@@ -149,13 +154,54 @@ public class DwGLFrameBuffer {
   }
   
   
+  
+  
+  /**
+   *  GL3 glFramebufferTexture
+   * @param tex
+   */
+  public void bind(DwGLTexture3D ... tex){
+   
+    if(IS_ACTIVE){
+      unbind(); // unbind, in case of bind() is called consecutively
+    }
+    
+    int count = tex.length;  
+    if(count > max_bind){
+      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);
+      count = max_bind;
+    }
+    bind_color_attachments = new int[count];
+    bind_targets           = null;
+    
+    gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+    for(int i = 0; i < count; i++){
+      bind_color_attachments[i] = GL3.GL_COLOR_ATTACHMENT0 + i;
+      gl3.glFramebufferTexture(GL3.GL_FRAMEBUFFER, bind_color_attachments[i], tex[i].HANDLE[0], 0);
+    }
+    
+    gl.glDrawBuffers(bind_color_attachments.length, bind_color_attachments, 0);
+    IS_ACTIVE = true;
+  }
+  
+  
+  
+  
+  
   public void unbind(){ 
     for(int i = 0; i < bind_color_attachments.length; i++){
-      if(   bind_targets[i] == GL2.GL_TEXTURE_2D_ARRAY
-         || bind_targets[i] == GL2.GL_TEXTURE_3D){
-        gl.glFramebufferTexture3D(GL2ES2.GL_FRAMEBUFFER, bind_color_attachments[i], bind_targets[i], 0, 0, 0);
-      } else {
-        gl.glFramebufferTexture2D(GL2ES2.GL_FRAMEBUFFER, bind_color_attachments[i], bind_targets[i], 0, 0);
+      if(bind_targets == null && gl3 != null)
+      {
+        gl3.glFramebufferTexture(GL3.GL_FRAMEBUFFER, bind_color_attachments[i], 0, 0);
+      }
+      else 
+      {
+        if(   bind_targets[i] == GL2.GL_TEXTURE_2D_ARRAY
+           || bind_targets[i] == GL2.GL_TEXTURE_3D){
+          gl.glFramebufferTexture3D(GL2ES2.GL_FRAMEBUFFER, bind_color_attachments[i], bind_targets[i], 0, 0, 0);
+        } else {
+          gl.glFramebufferTexture2D(GL2ES2.GL_FRAMEBUFFER, bind_color_attachments[i], bind_targets[i], 0, 0);
+        }
       }
     }
     bind_color_attachments = new int[0];

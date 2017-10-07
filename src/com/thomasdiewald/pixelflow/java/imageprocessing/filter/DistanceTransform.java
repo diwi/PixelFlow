@@ -168,11 +168,11 @@ public class DistanceTransform {
     context.begin();
     context.beginDraw(dst);
     shader_threshold.begin();
-    shader_threshold.uniform2f     ("wh_rcp", 1f/w, 1f/h);
-    shader_threshold.uniform4fv    ("colA", 1, colA);
-    shader_threshold.uniform4fv    ("colB", 1, colB);
+    shader_threshold.uniform2f     ("wh_rcp"   , 1f/w, 1f/h);
+    shader_threshold.uniform4fv    ("colA"     , 1, colA);
+    shader_threshold.uniform4fv    ("colB"     , 1, colB);
     shader_threshold.uniform1f     ("threshold", distance_threshold);
-    shader_threshold.uniformTexture("tex_dtnn", tex_dtnn.src);
+    shader_threshold.uniformTexture("tex_dtnn" , tex_dtnn.src);
     shader_threshold.drawFullScreenQuad();
     shader_threshold.end();
     context.endDraw();
@@ -183,23 +183,35 @@ public class DistanceTransform {
   /**
    * texel-data lookup at the nearest neighbor -> voronoi
    * 
-   * @param src
+   * @param src src color at nn-lookup position
    * @param dst
    */
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst){
-    Texture tex_src  = src.getTexture();  if(!tex_src .available())  return;
-    Texture tex_dst  = dst.getTexture();  if(!tex_dst .available())  return;
+    Texture tex_src = src.getTexture();  if(!tex_src .available()) return;
+    Texture tex_dst = dst.getTexture();  if(!tex_dst .available()) return;
     
     if(src == dst){
       System.out.println("DistanceTransform.apply error: read-write race");
     }
+    int w_dst = dst.width;
+    int h_dst = dst.height;
     
+    int w_src = src.width;
+    int h_src = src.height;
+    
+    int w_dtnn = tex_dtnn.src.w;
+    int h_dtnn = tex_dtnn.src.h;
+    
+
     context.begin();
     context.beginDraw(dst);
     shader_voronoi.begin();
-    shader_voronoi.uniformTexture("tex_src", tex_src.glName);
-    shader_voronoi.uniformTexture("tex_dtnn", tex_dtnn.src);
-    shader_voronoi.uniform1f     ("dist_norm", param.voronoi_distance_normalization);
+    shader_voronoi.uniform2f     ("wh_rcp"     , 1f/w_dst, 1f/h_dst);
+    shader_voronoi.uniform2f     ("wh_src_rcp" , 1f/w_src, 1f/h_src);
+    shader_voronoi.uniform2f     ("wh_dtnn_rcp", 1f/w_dtnn, 1f/h_dtnn);
+    shader_voronoi.uniform1f     ("dist_norm"  , param.voronoi_distance_normalization);
+    shader_voronoi.uniformTexture("tex_src"    , tex_src.glName);
+    shader_voronoi.uniformTexture("tex_dtnn"   , tex_dtnn.src);
     shader_voronoi.drawFullScreenQuad();
     shader_voronoi.end();
     context.endDraw();

@@ -19,7 +19,7 @@ import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
 
 /**
- * @author Thomas
+ * @author Thomas Diewald
  *
  */
 public class DwGLTextureUtils {

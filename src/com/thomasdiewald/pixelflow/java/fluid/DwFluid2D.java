@@ -1,6 +1,6 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C)  2016 Thomas Diewald - http://thomasdiewald.com
  * 
  * A Processing/Java library for high performance GPU-Computing (GLSL).
  * MIT License: https://opensource.org/licenses/MIT
@@ -12,7 +12,7 @@
 package com.thomasdiewald.pixelflow.java.fluid;
 
 
-import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -65,8 +65,7 @@ public class DwFluid2D{
   public  int   grid_scale;
   public  int   fluid_w, fluid_h; 
   public  int   viewp_w, viewp_h; 
-  private float fluid_w_inv, fluid_h_inv;
-  
+
   // fluid parameters
   public Param param = new Param();
    
@@ -165,34 +164,29 @@ public class DwFluid2D{
 
   public void resize(int viewport_width, int viewport_height, int fluidgrid_scale) {
     
-    this.grid_scale = Math.max(1, fluidgrid_scale);
+    grid_scale = Math.max(1, fluidgrid_scale);
     
     viewp_w = viewport_width;
     viewp_h = viewport_height;
     
-    fluid_w = Math.max(1, viewp_w / grid_scale);
-    fluid_h = Math.max(1, viewp_h / grid_scale);
-    
-    fluid_w_inv = 1.0f / fluid_w;
-    fluid_h_inv = 1.0f / fluid_h;
-    
-    int w = fluid_w;
-    int h = fluid_h;
+    fluid_w = (int) Math.ceil(viewp_w / (float) grid_scale);
+    fluid_h = (int) Math.ceil(viewp_h / (float) grid_scale);
     
     context.begin();
-    
-    release();
-   
-    tex_velocity   .resize(context, GL2ES2.GL_RG16F  , w, h, GL2ES2.GL_RG  , GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 2,4);
-    tex_density    .resize(context, GL2ES2.GL_RGBA16F, w, h, GL2ES2.GL_RGBA, GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 4,4);
-    tex_temperature.resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 1,4);
-    tex_curl       .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 1,4);
-    tex_divergence .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 1,4);
-    tex_pressure   .resize(context, GL2ES2.GL_R16F   , w, h, GL2ES2.GL_RED , GL2ES2.GL_FLOAT        , GL2ES2.GL_LINEAR , 1,4);
-    tex_obstacleC  .resize(context, GL2ES2.GL_R8     , w, h, GL2ES2.GL_RED , GL2ES2.GL_UNSIGNED_BYTE, GL2ES2.GL_NEAREST, 1,1);
-    tex_obstacleN  .resize(context, GL2ES2.GL_RGBA   , w, h, GL2ES2.GL_RGBA, GL2ES2.GL_UNSIGNED_BYTE, GL2ES2.GL_NEAREST, 4,1);
-    
-    reset();
+
+    boolean resized = false;
+    resized |= tex_velocity   .resize(context, GL2.GL_RG16F  , fluid_w, fluid_h, GL2.GL_RG  , GL2.GL_FLOAT        , GL2.GL_LINEAR , 2,4);
+    resized |= tex_density    .resize(context, GL2.GL_RGBA16F, fluid_w, fluid_h, GL2.GL_RGBA, GL2.GL_FLOAT        , GL2.GL_LINEAR , 4,4);
+    resized |= tex_temperature.resize(context, GL2.GL_R16F   , fluid_w, fluid_h, GL2.GL_RED , GL2.GL_FLOAT        , GL2.GL_LINEAR , 1,4);
+    resized |= tex_curl       .resize(context, GL2.GL_R16F   , fluid_w, fluid_h, GL2.GL_RED , GL2.GL_FLOAT        , GL2.GL_LINEAR , 1,4);
+    resized |= tex_divergence .resize(context, GL2.GL_R16F   , fluid_w, fluid_h, GL2.GL_RED , GL2.GL_FLOAT        , GL2.GL_LINEAR , 1,4);
+    resized |= tex_pressure   .resize(context, GL2.GL_R16F   , fluid_w, fluid_h, GL2.GL_RED , GL2.GL_FLOAT        , GL2.GL_LINEAR , 1,4);
+    resized |= tex_obstacleC  .resize(context, GL2.GL_R8     , fluid_w, fluid_h, GL2.GL_RED , GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 1,1);
+    resized |= tex_obstacleN  .resize(context, GL2.GL_RGBA8  , fluid_w, fluid_h, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4,1);
+
+    if(resized){
+      reset();
+    }
     
     context.end("Fluid.resize");
   }
@@ -321,7 +315,7 @@ public class DwFluid2D{
   private void createObstacleN(){                                         
     context.beginDraw(tex_obstacleN.dst);
     shader_obstacleBounds.begin();
-    shader_obstacleBounds.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv); 
+    shader_obstacleBounds.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h); 
     shader_obstacleBounds.uniformTexture("tex_obstacleC", tex_obstacleC.src);
     shader_obstacleBounds.drawFullScreenQuad();
     shader_obstacleBounds.end();
@@ -334,7 +328,7 @@ public class DwFluid2D{
   private void advect(DwGLTexture tex_velocity, DwGLTexture tex_source, DwGLTexture tex_dst, float dissipation){
     context.beginDraw(tex_dst);
     shader_advect.begin();
-    shader_advect.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv); 
+    shader_advect.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h); 
     shader_advect.uniform1f     ("timestep"     , param.timestep          );
     shader_advect.uniform1f     ("rdx"          , 1.0f / param.gridscale        ); 
     shader_advect.uniform1f     ("dissipation"  , dissipation             );
@@ -364,7 +358,7 @@ public class DwFluid2D{
   private void buoyancy(DwGLTexture tex_velocity, DwGLTexture tex_temperature, DwGLTexture tex_density, DwGLTexture tex_dst){
     context.beginDraw(tex_dst);
     shader_buoyancy.begin();
-    shader_buoyancy.uniform2f     ("wh_inv"             , fluid_w_inv, fluid_h_inv ); 
+    shader_buoyancy.uniform2f     ("wh_inv"             , 1.0f/fluid_w, 1.0f/fluid_h ); 
     shader_buoyancy.uniform1f     ("temperature_ambient", param.temperature_ambient);
     shader_buoyancy.uniform1f     ("timestep"           , param.timestep           );           
     shader_buoyancy.uniform1f     ("fluid_buoyancy"     , param.fluid_buoyancy     );     
@@ -382,7 +376,7 @@ public class DwFluid2D{
   private void vorticity(DwGLTexture tex_velocity, DwGLTexture tex_dst, float vorticity){
     context.beginDraw(tex_curl);
     shader_vorticityCurl.begin();
-    shader_vorticityCurl.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv); 
+    shader_vorticityCurl.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h); 
     shader_vorticityCurl.uniform1f     ("halfrdx"      , 0.5f / param.gridscale        );
     shader_vorticityCurl.uniformTexture("tex_velocity" , tex_velocity );
     shader_vorticityCurl.uniformTexture("tex_obstacleC", tex_obstacleC.src);
@@ -393,7 +387,7 @@ public class DwFluid2D{
     
     context.beginDraw(tex_dst);
     shader_vorticityForce.begin();
-    shader_vorticityForce.uniform2f     ("wh_inv"      , fluid_w_inv, fluid_h_inv);
+    shader_vorticityForce.uniform2f     ("wh_inv"      , 1.0f/fluid_w, 1.0f/fluid_h);
     shader_vorticityForce.uniform1f     ("halfrdx"     , 0.5f / param.gridscale        );       
     shader_vorticityForce.uniform1f     ("timestep"    , param.timestep          );         
     shader_vorticityForce.uniform1f     ("vorticity"   , vorticity               );              
@@ -409,7 +403,7 @@ public class DwFluid2D{
   private void divergence(DwGLTexture tex_velocity, DwGLTexture tex_dst){
     context.beginDraw(tex_dst);
     shader_divergence.begin();
-    shader_divergence.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv);
+    shader_divergence.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h);
     shader_divergence.uniform1f     ("halfrdx"      , 0.5f / param.gridscale);
     shader_divergence.uniformTexture("tex_velocity" , tex_velocity );
     shader_divergence.uniformTexture("tex_obstacleC", tex_obstacleC.src);
@@ -432,7 +426,7 @@ public class DwFluid2D{
   private void jacobi(DwGLTexture tex_x, DwGLTexture tex_b, DwGLTexture tex_dst, float alpha, float rBeta){
     context.beginDraw(tex_dst);
     shader_jacobi.begin();
-    shader_jacobi.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv);
+    shader_jacobi.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h);
     shader_jacobi.uniform1f     ("alpha"        , alpha);
     shader_jacobi.uniform1f     ("rBeta"        , rBeta);
     shader_jacobi.uniformTexture("tex_x"        , tex_x);
@@ -449,7 +443,7 @@ public class DwFluid2D{
   private void gradient(DwGLTexture tex_velocity, DwGLTexture tex_pressure,  DwGLTexture tex_dst){
     context.beginDraw(tex_dst);
     shader_gradient.begin();
-    shader_gradient.uniform2f     ("wh_inv"       , fluid_w_inv, fluid_h_inv);
+    shader_gradient.uniform2f     ("wh_inv"       , 1.0f/fluid_w, 1.0f/fluid_h);
     shader_gradient.uniform1f     ("halfrdx"      , 1.0f / param.gridscale);
 //    shader_gradient.uniform1f     ("halfrdx"      , 0.5f / param.gridscale);
     shader_gradient.uniformTexture("tex_velocity" , tex_velocity );

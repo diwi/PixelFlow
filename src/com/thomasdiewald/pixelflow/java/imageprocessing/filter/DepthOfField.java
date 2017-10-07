@@ -46,6 +46,10 @@ public class DepthOfField {
     if(shader == null){
       shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/depth_of_field.frag");
     }
+    
+    if(src == dst){
+      System.out.println("DepthOfField.apply error: read-write race");
+    }
 
     int w = dst.width;
     int h = dst.height;
@@ -71,6 +75,10 @@ public class DepthOfField {
     Texture tex_geom = geom.pg_geom.getTexture();  if(!tex_geom.available())  return;
     if(shader == null){
       shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/depth_of_field.frag");
+    }
+    
+    if(src == dst){
+      System.out.println("DepthOfField.apply error: read-write race");
     }
 
     int w = dst.width;
