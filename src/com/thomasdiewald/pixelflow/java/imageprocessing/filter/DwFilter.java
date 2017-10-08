@@ -43,11 +43,11 @@ public class DwFilter {
   public final Clamp               clamp;
   public final Difference          difference;
   public final MinMaxLocal         minmaxlocal;
+  public final MinMaxGlobal        minmaxglobal;
   
   public DwFilter(DwPixelFlow context_){
     this.context = context_;
-    
-    context.papplet.registerMethod("dispose", this);
+    this.context.papplet.registerMethod("dispose", this);
     
     copy                = new Copy               (context);
     merge               = new Merge              (context);
@@ -74,6 +74,7 @@ public class DwFilter {
     clamp               = new Clamp              (context);
     difference          = new Difference         (context);
     minmaxlocal         = new MinMaxLocal        (context);
+    minmaxglobal        = new MinMaxGlobal       (context);
     
     filter_cache.put(context, this);
   }
@@ -100,6 +101,7 @@ public class DwFilter {
     summedareatable.release();
     bloom.release();
     gausspyramid.release();
+    minmaxglobal.release();
   }
   
 }

@@ -14,9 +14,7 @@ package Miscellaneous.MinMax_Demo;
 
 
 
-import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.MinMaxGlobal;
 import processing.core.PApplet;
@@ -36,12 +34,6 @@ public class MinMax_Demo extends PApplet {
   
   DwPixelFlow context;
   
-  // Min-Max Filter
-  MinMaxGlobal minmax;
-  
-  // temp texture, to copy the PGraphics
-  DwGLTexture tex = new DwGLTexture();
-  
   PGraphics2D pg;
 
   public void settings() {
@@ -50,12 +42,8 @@ public class MinMax_Demo extends PApplet {
   }
   
   public void setup() {
-    
     context = new DwPixelFlow(this);
     
-    minmax = new MinMaxGlobal(context);
-    tex.resize(context, GL2.GL_RGBA8, width, height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_NEAREST, 4, 1);
-
     pg = (PGraphics2D) createGraphics(width, height, P2D);
     pg.smooth(0);
 
@@ -78,16 +66,14 @@ public class MinMax_Demo extends PApplet {
       pg.rect(mouseX, mouseY, 1, 1);
       pg.endDraw();
     }
-    
-    // copy to native OpenGL tex
-    DwFilter.get(context).copy.apply(pg, tex);
+   
     
     // run parallel reduction Min/Max filter
-    minmax.apply(tex);
+    MinMaxGlobal minmax = DwFilter.get(context).minmaxglobal;
+    minmax.apply(pg);
     
     // read min/max-result
     byte[] result = minmax.getVal().getByteTextureData(null);
-
 
     // draw rendering
     clear();

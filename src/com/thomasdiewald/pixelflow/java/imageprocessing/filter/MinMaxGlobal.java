@@ -20,6 +20,9 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
+import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.Texture;
+
 
 
 /**
@@ -70,29 +73,35 @@ public class MinMaxGlobal {
   
   public void release(){
     for(int i = 0; i < tex.length; i++){
-      if(tex[i] != null) tex[i].release();
+      if(tex[i] != null){
+        tex[i].release();
+        tex[i] = null;
+      }
     }
   }
   
+  
+  public void resize(DwGLTexture tex){
+    resize(tex.internalFormat, tex.w, tex.h, tex.format, tex.type, tex.filter, tex.num_channel, tex.byte_per_channel);
+  }
+  
+  public void resize(PGraphicsOpenGL pg){
+    resize(GL2.GL_RGBA8, pg.width, pg.height, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, 4, 1);
+  }
+  
+  public void resize(int iformat, int w, int h, int format, int type, int filter, int num_channel, int byte_per_channel){
 
-  public void resize(DwGLTexture src){
-
-    int w = src.w;
-    int h = src.h;
-    
     // 1) compute number of blur layers
     layers = Math.max(DwUtils.logNceil(w, STEP_SIZE), DwUtils.logNceil(h, STEP_SIZE)) + 1;
 
     // 2) init/release textures if needed
-    if(tex.length < layers){
+    if(tex.length != layers){
       release();
       tex = new DwGLTexture[layers];
       for(int i = 0; i < layers; i++){
         tex[i] = new DwGLTexture();
       }
-    } else {
-//      return;
-    }
+    } 
 
     // 3) allocate textures
     for(int i = 0; i < layers; i++){
@@ -101,28 +110,37 @@ public class MinMaxGlobal {
         h = 1;
       }
       
-      tex[i].resize(context, src, w, h);
-      tex[i].setParamWrap(GL2.GL_MIRRORED_REPEAT);
-//      System.out.println(i+", "+w+", "+h);
+      tex[i].resize(context, iformat, w, h, format, type, filter, GL2.GL_MIRRORED_REPEAT, num_channel, byte_per_channel);
       w = (int) Math.ceil(w / (float) STEP_SIZE);
       h = (int) Math.ceil(h / (float) STEP_SIZE);
     }
   }
-  
+
+ 
   public void apply(DwGLTexture tex_src){
     apply(tex_src, true, true);
   }
-
+  
+  public void apply(PGraphicsOpenGL pg_src){
+    apply(pg_src, true, true);
+  }
+  
+  public void apply(PGraphicsOpenGL pg_src, boolean MIN, boolean MAX){
+    if(!MIN && !MAX) return;
+    resize(pg_src);
+    DwFilter.get(context).copy.apply(pg_src, tex[0]);
+    apply(MIN, MAX);
+  }
+  
   public void apply(DwGLTexture tex_src, boolean MIN, boolean MAX){
-    
-    if(!MIN && !MAX){
-      return;
-    }
-    
+    if(!MIN && !MAX) return;
     resize(tex_src);
-    
     DwFilter.get(context).copy.apply(tex_src, tex[0]);
-    
+    apply(MIN, MAX);
+  }
+  
+
+  private void apply(boolean MIN, boolean MAX){
     context.begin();
     
     if(MIN){
@@ -172,36 +190,80 @@ public class MinMaxGlobal {
     context.end("MinMaxGlobal.apply");
   }
   
+ 
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
+  public void map(DwGLTexture tex){
+    map(tex, tex, false);
+  }
   
-  
-  
-  
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
   public void map(DwGLTexture tex_src, DwGLTexture tex_dst){
     map(tex_src, tex_dst, false);
   }
-  
+
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
   public void map(DwGLTexture tex_src, DwGLTexture tex_dst, boolean per_channel){
-    
-    int w = tex_src.w;
-    int h = tex_src.h;
-    
-    DwGLSLProgram shader = per_channel ? shader_map_v2 : shader_map_v1;
-    
     context.begin();
-    context.beginDraw(tex_src);
-    shader.begin();
-    shader.uniform2f("wh_rcp", 1f/w, 1f/h);
-    shader.uniformTexture("tex_src", tex_src);
-    shader.uniformTexture("tex_minmax", getVal());
-    shader.drawFullScreenQuad();
-    shader.end();
+    context.beginDraw(tex_dst);
+    map(tex_dst.w, tex_dst.h, tex_src.HANDLE[0], per_channel);
+    context.endDraw();
+    context.end("MinMaxGlobal.map");
+  }
+
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
+  public void map(PGraphicsOpenGL pg){
+    map(pg, pg, false);
+  }
+
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
+  public void map(PGraphicsOpenGL pg_src, PGraphicsOpenGL pg_dst){
+    map(pg_src, pg_dst, false);
+  }
+
+  /**
+   * 
+   * remap pixels [min, max] to [0, 1]
+   * 
+   */
+  public void map(PGraphicsOpenGL pg_src, PGraphicsOpenGL pg_dst, boolean per_channel){
+    Texture tex_src = pg_src.getTexture(); if(!tex_src.available()) return;
+    context.begin();
+    context.beginDraw(pg_dst);
+    map(pg_dst.width, pg_dst.height, tex_src.glName, per_channel);
     context.endDraw();
     context.end("MinMaxGlobal.map");
   }
   
   
-  
-  
+  protected void map(int w, int h, int handle_src, boolean per_channel){
+    DwGLSLProgram shader = per_channel ? shader_map_v2 : shader_map_v1;
+    shader.begin();
+    shader.uniform2f("wh_rcp", 1f/w, 1f/h);
+    shader.uniformTexture("tex_src", handle_src);
+    shader.uniformTexture("tex_minmax", getVal());
+    shader.drawFullScreenQuad();
+    shader.end();
+  }
   
   
   

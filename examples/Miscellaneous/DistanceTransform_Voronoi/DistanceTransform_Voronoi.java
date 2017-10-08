@@ -153,8 +153,12 @@ public class DistanceTransform_Voronoi extends PApplet {
     filter.distancetransform.create(pg_mask);
     
     // create voronoi. just an example, better create your own shader for this.
-    filter.distancetransform.param.voronoi_distance_normalization = 0.006f;
+    filter.distancetransform.param.voronoi_distance_normalization = 0.005f;
     filter.distancetransform.apply(pg_color, pg_voronoi);
+    
+    // re-map luminance from [darkest-brightest] to [0, 255]
+    filter.minmaxglobal.apply(pg_voronoi);
+    filter.minmaxglobal.map(pg_voronoi);
 
     // display voronoi
     background(0);
