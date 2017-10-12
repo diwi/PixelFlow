@@ -11,6 +11,9 @@
 
 #version 150 
 
+#define UPDATE_VEL 0
+#define UPDATE_ACC 0
+
 out vec4 out_frag;
 
 uniform int   spawn_hi;
@@ -23,8 +26,9 @@ uniform vec2  wh_velocity_rcp;
 uniform sampler2D tex_position;
 uniform sampler2D tex_velocity;
 
-#define UPDATE_VEL 0
-#define UPDATE_ACC 0
+//#if UPDATE_ACC
+  uniform sampler2D tex_collision;
+//#endif
 
 
 void limitLength(inout vec2 vel, in vec2 lohi){
@@ -49,10 +53,14 @@ void main(){
   if(particle_idx < spawn_hi){
   
 #if UPDATE_VEL
+    // normalization, kind of removes noise, seems to work
+    // ... stops particles from going crazy when they have no place to move
+    float pressure = texture(tex_collision, pos_cur).r;
+    pressure = 1.0 / ((max(0.0, pressure-1.0)) + 1.0);
     // velocity
     vec2 vel = (pos_cur - pos_old) / wh_velocity_rcp;
     // fix length
-    limitLength(vel, vel_minmax);
+    limitLength(vel, vel_minmax * vec2(1.0, pressure));
     // update position, verlet integration
     pos_old = pos_cur;
     pos_cur += (vel * vel_mult) * wh_velocity_rcp;
@@ -60,12 +68,16 @@ void main(){
   
 
 #if UPDATE_ACC
+    // normalization, kind of removes noise, seems to work
+    // ... stops particles from going crazy when they have no place to move
+    float pressure = texture(tex_collision, pos_cur).r;
+    pressure = 1.0 / (sqrt(max(0.0, pressure-1.0)) + 1.0);
     // acceleration
     vec2 acc = texture(tex_velocity, pos_cur).xy;
     // fix length
-    limitLength(acc, acc_minmax);
+    limitLength(acc, acc_minmax * vec2(1.0, pressure));
     // update position
-    pos_cur += (acc * acc_mult) * wh_velocity_rcp;
+    pos_cur += (acc * acc_mult) * wh_velocity_rcp * pressure;
 #endif
 
   }

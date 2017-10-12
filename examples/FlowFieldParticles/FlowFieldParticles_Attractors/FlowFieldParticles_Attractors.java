@@ -30,7 +30,6 @@ import controlP5.Group;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.PJOGL;
 
 
 public class FlowFieldParticles_Attractors extends PApplet {
@@ -104,7 +103,6 @@ public class FlowFieldParticles_Attractors extends PApplet {
       size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
-    // PJOGL.profile = 3;
   }
   
 
@@ -120,7 +118,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
     
     particles.param.velocity_damping  = 1.00f;
-    particles.param.steps = 2;
+    particles.param.steps = 1;
     particles.param.shader_collision_mult = 0.2f;
     
     particles.param.size_display   = 8;

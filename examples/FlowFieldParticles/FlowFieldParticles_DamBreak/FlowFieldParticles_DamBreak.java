@@ -25,7 +25,6 @@ import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PJOGL;
 
 
 
@@ -80,7 +79,6 @@ public class FlowFieldParticles_DamBreak extends PApplet {
       viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
-    // PJOGL.profile = 3;
     smooth(0);
   }
   
@@ -132,12 +130,13 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles = new DwFlowFieldParticles(context, 1024 * 1024);
     particles.param.col_A = new float[]{0.80f, 0.10f, 0.20f, 5};
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
+    particles.param.shader_type = 1;
     particles.param.shader_collision_mult = 0.20f;
-    particles.param.steps = 2;
-    particles.param.velocity_damping  = 0.9999f;
+    particles.param.steps = 1;
+    particles.param.velocity_damping  = 0.99999f;
     particles.param.size_display   = 6;
     particles.param.size_collision = 6;
-    particles.param.size_cohesion  = 6;
+    particles.param.size_cohesion  = 3;
     particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 4.00f;

@@ -37,7 +37,6 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.PJOGL;
 
 
 public class FlowFieldParticles_DevDemo extends PApplet {
@@ -150,7 +149,6 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
-//    PJOGL.profile = 3;
     smooth(0);
   }
   
@@ -173,6 +171,10 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     liquidfx = new DwLiquidFX(context);
     
     particles = new DwFlowFieldParticles(context, 1024 * 1024 * 4);
+    
+    particles.param.shader_type = 0;
+    particles.param.shader_collision_mult = 0.15f;
+    
     particles.param.size_display   = 10;
     particles.param.size_collision = particles.param.size_display;
     particles.param.size_cohesion  = 5;
@@ -526,6 +528,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     image(pg_aa, 0, 0);
     blendMode(BLEND);
     
+    cp5.draw();
     
     info();
   }
@@ -973,6 +976,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       case 3: pg_checker.beginDraw();  pg_checker.background(  0, 0); pg_checker.endDraw(); break;
       case 4: pg_checker.beginDraw();  pg_checker.background(255, 0); pg_checker.endDraw(); break;
     }
+
   }
   
   float mult_fg = 1f;
@@ -1002,7 +1006,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     theme.setActive(col_active);
 
     cp5 = new ControlP5(this);
-    cp5.setAutoDraw(true);
+    cp5.setAutoDraw(!true);
     
     DwFlowFieldParticles.Param param = particles.param;
     

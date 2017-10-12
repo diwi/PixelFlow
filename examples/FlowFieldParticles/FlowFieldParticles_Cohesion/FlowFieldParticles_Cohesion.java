@@ -23,7 +23,6 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PJOGL;
 
 
 
@@ -42,8 +41,8 @@ public class FlowFieldParticles_Cohesion extends PApplet {
   //
   //
   
-  int viewport_w = 1680;
-  int viewport_h = 1024;
+  int viewport_w = 1280;
+  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -63,7 +62,6 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
     size(viewport_w, viewport_h, P2D);
     smooth(0);
-    // PJOGL.profile = 3;
   }
   
 
@@ -80,7 +78,7 @@ public class FlowFieldParticles_Cohesion extends PApplet {
     particles.param.col_A = new float[]{0.30f, 0.60f, 0.15f, 5};
     particles.param.col_B = new float[]{0.10f, 0.20f, 0.05f, 0};
     particles.param.shader_collision_mult = 0.2f;
-    particles.param.steps = 2;
+    particles.param.steps = 1;
     particles.param.velocity_damping  = 0.995f;
     particles.param.size_display   = 12;
     particles.param.size_collision = 12;

@@ -44,13 +44,26 @@ void main(){
 
 #if SHADER_FRAG
 
+#define POINT_SHADER 0 // 0, 1, 2
+
 out float out_frag;
 in vec4 particle;
 
 void main(){
   vec2 my_PointCoord = ((particle.xy * wh_viewport) - gl_FragCoord.xy) / point_size + 0.5; // [0, 1]
-  out_frag = max(0, 1.0 - length(my_PointCoord * 2.0 - 1.0));
+  //out_frag = max(0, 1.0 - length(my_PointCoord * 2.0 - 1.0));
   // out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
+  
+  vec2 pc = my_PointCoord * 2.0 - 1.0;
+  
+  #if (0 == POINT_SHADER)
+  out_frag = max(0, 1.0 - length(pc));
+#elif (1 == POINT_SHADER)
+  out_frag = max(0, 1.0 - dot(pc,pc));
+#elif (2 == POINT_SHADER)
+  out_frag = max(0, 1.0 - sqrt(length(pc)));
+#endif
+
 }
 
 #endif // #if SHADER_FRAG

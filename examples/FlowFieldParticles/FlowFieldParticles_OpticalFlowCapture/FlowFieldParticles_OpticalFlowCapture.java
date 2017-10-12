@@ -21,7 +21,6 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PJOGL;
 import processing.video.Capture;
 
 
@@ -55,7 +54,6 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   public void settings() {
     size(viewp_w, viewp_h, P2D);
     smooth(0);
-    // PJOGL.profile = 3;
   }
   
   public void setup(){
@@ -112,8 +110,9 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     particles = new DwFlowFieldParticles(context, numx * numy);
     particles.param.col_A = new float[]{0.40f, 0.80f, 0.10f, 5};
     particles.param.col_B = new float[]{0.20f, 0.40f, 0.05f, 0};
-    particles.param.shader_collision_mult = 0.2f;
-    particles.param.steps = 2;
+    particles.param.shader_type = 0;
+    particles.param.shader_collision_mult = 0.3f;
+    particles.param.steps = 1;
     particles.param.velocity_damping  = 0.995f;
     particles.param.size_display   = ceil(particle_size * 1.5f);
     particles.param.size_collision = particle_size;

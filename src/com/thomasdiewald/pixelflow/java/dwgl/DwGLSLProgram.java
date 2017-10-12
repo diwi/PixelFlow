@@ -344,37 +344,37 @@ public class DwGLSLProgram {
   }
   
   
-  @Deprecated
-  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points){
-    drawFullScreenPoints(x,y,w,h,num_points,true);
-  }
-  
-  @Deprecated
-  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points, boolean smooth){
-    gl.glViewport(x, y, w, h);
-    
-    // START ... of the problem, TODO
-    //
-    {
-//       gl.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
-      // gl.glEnable(GL2.GL_POINT_SPRITE); // "gl_pointcoord always zero" ... bug, TODO
-       gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
-  
-      // gl.getGL2().glTexEnvf(GL2.GL_POINT_SPRITE, GL2.GL_COORD_REPLACE, GL2.GL_TRUE);
-  
-//      if(smooth){
-//        gl.glEnable(GL2.GL_POINT_SMOOTH);
-//        gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
-//      } else {
-//        gl.glDisable(GL2.GL_POINT_SMOOTH);
-//      }
-    }
-    //
-    // END ... of the problem, TODO
-    
-    DwGLError.debug(gl, "DwGLSLProgram.drawFullScreenPoints");
-    gl.glDrawArrays(GL2.GL_POINTS, 0, num_points);
-  }
+//  @Deprecated
+//  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points){
+//    drawFullScreenPoints(x,y,w,h,num_points,true);
+//  }
+//  
+//  @Deprecated
+//  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points, boolean smooth){
+//    gl.glViewport(x, y, w, h);
+//    
+//    // START ... of the problem, TODO
+//    //
+//    {
+////       gl.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
+//      // gl.glEnable(GL2.GL_POINT_SPRITE); // "gl_pointcoord always zero" ... bug, TODO
+//       gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
+//  
+//      // gl.getGL2().glTexEnvf(GL2.GL_POINT_SPRITE, GL2.GL_COORD_REPLACE, GL2.GL_TRUE);
+//  
+////      if(smooth){
+////        gl.glEnable(GL2.GL_POINT_SMOOTH);
+////        gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_FASTEST);
+////      } else {
+////        gl.glDisable(GL2.GL_POINT_SMOOTH);
+////      }
+//    }
+//    //
+//    // END ... of the problem, TODO
+//    
+//    DwGLError.debug(gl, "DwGLSLProgram.drawFullScreenPoints");
+//    gl.glDrawArrays(GL2.GL_POINTS, 0, num_points);
+//  }
   
   
 

@@ -132,6 +132,7 @@ public class DwFlowFieldParticles{
   public DwGLTexture tex_col_dist = new DwGLTexture();
   public DwGLTexture tex_obs_dist = new DwGLTexture();
   public DwGLTexture tex_coh_dist = new DwGLTexture();
+  public DwGLTexture tex_tmp_dist = new DwGLTexture();
   
   public DwFlowField ff_col;
   public DwFlowField ff_obs;
@@ -188,7 +189,7 @@ public class DwFlowFieldParticles{
 
     ff_col = new DwFlowField(context);
     ff_col.param.blur_iterations = 1;
-    ff_col.param.blur_radius     = 3;
+    ff_col.param.blur_radius     = 2;
     
     ff_obs = new DwFlowField(context);
     ff_obs.param.blur_iterations = 1;
@@ -306,6 +307,7 @@ public class DwFlowFieldParticles{
     tex_obs_dist.release();
     tex_col_dist.release();
     tex_coh_dist.release();
+    tex_tmp_dist.release();
     
 
   }
@@ -346,6 +348,8 @@ public class DwFlowFieldParticles{
     resized |= tex_obs_dist.resize(context, GL2.GL_R32F, w_obs, h_obs, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     resized |= tex_col_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     resized |= tex_coh_dist.resize(context, GL2.GL_R32F, w_coh, h_coh, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    
+    resized |= tex_tmp_dist.resize(context, GL2.GL_R32F, w_col, h_col, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
 
     return resized;
   }
@@ -539,7 +543,7 @@ public class DwFlowFieldParticles{
     int h_particle = tex_particle.src.h;
     int point_size = param.size_display;
     blendMode();
-    context.gl.getGL3().glPointSize(point_size);
+//    context.gl.getGL3().glPointSize(point_size);
     shader_display_particles.frag.setDefine("SHADING_TYPE", param.shader_type);
     shader_display_particles.begin();
     shader_display_particles.uniform1f     ("shader_collision_mult", param.shader_collision_mult);
@@ -593,7 +597,7 @@ public class DwFlowFieldParticles{
       context.gl.glEnable(GL.GL_BLEND);
       context.gl.glBlendEquation(GL.GL_FUNC_ADD);
       context.gl.glBlendFunc(GL.GL_SRC_COLOR, GL.GL_ONE); // ADD
-      context.gl.getGL3().glPointSize(point_size);
+//      context.gl.getGL3().glPointSize(point_size);
       shader_particles_dist.begin();
       shader_particles_dist.uniform1f     ("point_size"  , point_size);
       shader_particles_dist.uniform2i     ("wh_position" , w_particle, h_particle);
@@ -603,8 +607,14 @@ public class DwFlowFieldParticles{
       shader_particles_dist.end();
       context.endDraw("DwFlowFieldParticles.createCollisionFlowField");
       
+      // .) smooth distance field
+      DwFilter.get(context).gaussblur.apply(tex_col_dist, tex_col_dist, tex_tmp_dist, 1);
+      
       // 2) create flow field
       ff_col.create(tex_col_dist);
+      
+      // .) smooth distance field
+      //  DwFilter.get(context).gaussblur.apply(tex_col_dist, tex_col_dist, tex_tmp_dist, 1);
     }
     context.end();
   }
@@ -628,7 +638,7 @@ public class DwFlowFieldParticles{
       context.gl.glEnable(GL.GL_BLEND);
       context.gl.glBlendEquation(GL.GL_FUNC_ADD);
       context.gl.glBlendFunc(GL.GL_SRC_COLOR, GL.GL_ONE); // ADD
-      context.gl.getGL3().glPointSize(point_size);
+//      context.gl.getGL3().glPointSize(point_size);
       shader_particles_dist.begin();
       shader_particles_dist.uniform1f     ("point_size"  , point_size);
       shader_particles_dist.uniform2i     ("wh_position" , w_particle, h_particle);
@@ -725,6 +735,7 @@ public class DwFlowFieldParticles{
     shader_update_acc.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
     shader_update_acc.uniformTexture("tex_position"   , tex_particle.src);
     shader_update_acc.uniformTexture("tex_velocity"   , tex_velocity);
+    shader_update_acc.uniformTexture("tex_collision"  , tex_col_dist);
     shader_update_acc.drawFullScreenQuad(0, 0, viewport_w, viewport_h);
     shader_update_acc.end();
     context.endDraw("DwFlowFieldParticles.updateAcceleration");
@@ -756,6 +767,7 @@ public class DwFlowFieldParticles{
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
     shader_update_vel.uniformTexture("tex_position"   , tex_particle.src);
+    shader_update_vel.uniformTexture("tex_collision"  , tex_col_dist);
     shader_update_vel.drawFullScreenQuad(0, 0, viewport_w, viewport_h);
     shader_update_vel.end("DwFlowFieldParticles.updateVelocity");
     context.endDraw();
