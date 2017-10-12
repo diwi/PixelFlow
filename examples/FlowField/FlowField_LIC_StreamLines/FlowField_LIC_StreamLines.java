@@ -42,6 +42,8 @@ public class FlowField_LIC_StreamLines extends PApplet {
   
   int viewport_w = 1680;
   int viewport_h = 1024;
+//  int viewport_w = 1280;
+//  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -68,7 +70,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
   float impulse_max = 256;
   float impulse_mul = 10;
   float impulse_tsmooth = 1f;
-  int   impulse_radius = 180;
+  int   impulse_radius = 250;
 
   public void settings() {
     if(START_FULLSCREEN){
@@ -98,14 +100,14 @@ public class FlowField_LIC_StreamLines extends PApplet {
     ff_impulse = new DwFlowField(context);
     
     ff_impulse.param.blur_iterations = 1;
-    ff_impulse.param.blur_radius     = 1;
+    ff_impulse.param.blur_radius     = 3;
     
-    ff_impulse.param_lic.iterations     = 4;
-    ff_impulse.param_lic.num_samples    = 30;
+    ff_impulse.param_lic.iterations     = 2;
+    ff_impulse.param_lic.num_samples    = 25;
     ff_impulse.param_lic.acc_mult       = 1.00f;
-    ff_impulse.param_lic.vel_mult       = 0.8999f;
-    ff_impulse.param_lic.intensity_mult = 1.10f;
-    ff_impulse.param_lic.intensity_exp  = 1.20f;
+    ff_impulse.param_lic.vel_mult       = 1.00f;
+    ff_impulse.param_lic.intensity_mult = 1.00f;
+    ff_impulse.param_lic.intensity_exp  = 1.50f;
     ff_impulse.param_lic.TRACE_BACKWARD = true;
     ff_impulse.param_lic.TRACE_FORWARD  = false;
     
@@ -151,39 +153,37 @@ public class FlowField_LIC_StreamLines extends PApplet {
     pg_impulse.smooth(0);
   
     DwUtils.COL_TL = new float[]{  0,  0,  0, 255};
-    DwUtils.COL_TR = new float[]{255,128,  0, 255};
-    DwUtils.COL_BL = new float[]{  0,128,255, 255};
-    DwUtils.COL_BR = new float[]{255,255,255, 255};
+    DwUtils.COL_TR = new float[]{255, 32,  0, 255};
+    DwUtils.COL_BL = new float[]{  0, 32,255, 255};
+    DwUtils.COL_BR = new float[]{32, 255, 32, 255};
    
     pg_noise = DwUtils.createBackgroundNoiseTexture(this, width/2, height/2);
     
-    pg_noise = (PGraphics2D) createGraphics(width, height, P2D);
-    int dimx = pg_noise.width; 
-    int dimy = pg_noise.height; 
-    pg_noise.beginDraw();
-    pg_noise.clear();
-    pg_noise.blendMode(BLEND);
-    
-    int num_points = dimx * dimy / (3*3);
-    for(int i = 0; i < num_points; i++){
-      float x = random(0, dimx-1);
-      float y = random(0, dimy-1);
-      
-      float r = random(4);
-      r = 1;
-      
-      pg_noise.noStroke();
-      pg_noise.fill(128 * r  , 128 * r, 128 * r);
-      pg_noise.rect(x, y, 2, 2);
-      
-    }
-    pg_noise.endDraw();
+//    pg_noise = (PGraphics2D) createGraphics(width, height, P2D);
+//    int dimx = pg_noise.width; 
+//    int dimy = pg_noise.height; 
+//    pg_noise.beginDraw();
+//    pg_noise.clear();
+//    pg_noise.blendMode(BLEND);
+//    
+//    int num_points = dimx * dimy / (3*3);
+//    for(int i = 0; i < num_points; i++){
+//      float x = random(0, dimx-1);
+//      float y = random(0, dimy-1);
+//      
+//      pg_noise.noStroke();
+//      pg_noise.fill(255);
+//      pg_noise.rect(x, y, 2, 2);
+//      
+//    }
+//    pg_noise.endDraw();
 
     resetScene();
   }
   
   public void resetScene(){
     pg_canvas.beginDraw();
+    pg_canvas.blendMode(REPLACE);
     pg_canvas.image(pg_noise, 0, 0, pg_canvas.width, pg_canvas.height);
     pg_canvas.endDraw();
   }
