@@ -104,7 +104,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
       size(viewport_w, viewport_h, P2D);
     }
     smooth(0);
-    PJOGL.profile = 3;
+    // PJOGL.profile = 3;
   }
   
 

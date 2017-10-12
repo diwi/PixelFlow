@@ -55,7 +55,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   public void settings() {
     size(viewp_w, viewp_h, P2D);
     smooth(0);
-    PJOGL.profile = 3;
+    // PJOGL.profile = 3;
   }
   
   public void setup(){

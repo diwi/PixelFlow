@@ -47,6 +47,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   boolean START_FULLSCREEN = !true;
   int viewport_w = 1680;
   int viewport_h = 1024;
+//  int viewport_w = 1280;
+//  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -78,14 +80,14 @@ public class FlowFieldParticles_DamBreak extends PApplet {
       viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
-    PJOGL.profile = 3;
+    // PJOGL.profile = 3;
     smooth(0);
   }
   
 
   public void setup(){
     surface.setLocation(viewport_x, viewport_y);
-
+    
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
@@ -132,18 +134,25 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
     particles.param.shader_collision_mult = 0.20f;
     particles.param.steps = 2;
-    particles.param.velocity_damping  = 1;
-    particles.param.size_display   = 8;
-    particles.param.size_collision = 8;
-    particles.param.size_cohesion  = 8;
+    particles.param.velocity_damping  = 0.9999f;
+    particles.param.size_display   = 6;
+    particles.param.size_collision = 6;
+    particles.param.size_cohesion  = 6;
     particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
-    particles.param.mul_obs = 3.00f;
+    particles.param.mul_obs = 4.00f;
+    
+    particles.param.wh_scale_col =  0;
+    particles.param.wh_scale_coh =  4;
+    particles.param.wh_scale_obs =  0;
     
     
     particles.resizeWorld(width, height); 
     particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
     
+  //  PFont font = createDefaultFont(12);
+    PFont font = createFont("Arial", 12, false);
+    textFont(font);
     
     reset();
 
@@ -159,7 +168,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   float impulse_mul = 15;
   float impulse_tsmooth = 0.90f;
   int   impulse_blur  = 0;
-  
+  int   impulse_size = 60;
   public void addImpulse(){
     
     int w = width;
@@ -187,7 +196,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     pg_impulse.noStroke();
     if(mousePressed){
       pg_impulse.fill(vx, vy, mid);
-      pg_impulse.ellipse(mx, my, 100, 100);
+      pg_impulse.ellipse(mx, my, impulse_size, impulse_size);
     }
     pg_impulse.endDraw();
     
@@ -219,6 +228,14 @@ public class FlowFieldParticles_DamBreak extends PApplet {
       {  0,  96,196},
       { 96,  96, 96},
   };
+  
+//  float[][] pallette = {
+//      {255,  0, 128},
+//      {255, 128,  0},
+//      {  0, 128,255},
+//      {128,  0,255},
+//  };
+  
   
   public void updateColor(){
 //    float mix = sin(frameCount*0.001f) * 0.5f + 0.5f;
@@ -308,6 +325,9 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     
     String txt_fps = String.format(Locale.ENGLISH, "[%s]   [%7.2f fps]   [particles %,d] ",  getClass().getSimpleName(), frameRate, particles.getCount() );
     surface.setTitle(txt_fps);
+    
+    fill(0);
+    text(txt_fps, 15, 25);
   }
   
 
@@ -339,8 +359,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
 //    particles.spawn(vw, vh, sr);
 
     if(mousePressed && mouseButton == LEFT){     
-      count = ceil(particles.getCount() * 0.001f);
-      count = min(max(count, 1), 1000);
+      count = ceil(particles.getCount() * 0.0025f);
+      count = min(max(count, 1), 5000);
       
       float pr = particles.getCollisionSize() * 0.25f;
       radius = ceil(sqrt(count * pr * pr));

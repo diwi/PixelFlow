@@ -32,7 +32,7 @@ void limitLength(inout vec2 vel, in vec2 lohi){
   if(vel_len <= lohi.x){
     vel *= 0.0;
   } else {
-    vel *= clamp(vel_len - lohi.x, 0, lohi.y) / vel_len;
+    vel *= clamp(vel_len - lohi.x, 0.0, lohi.y) / vel_len;
   }
 }
 

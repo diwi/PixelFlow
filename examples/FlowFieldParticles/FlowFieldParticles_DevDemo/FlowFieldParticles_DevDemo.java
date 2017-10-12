@@ -150,7 +150,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
       size(viewport_w, viewport_h, P2D);
     }
-    PJOGL.profile = 3;
+//    PJOGL.profile = 3;
     smooth(0);
   }
   

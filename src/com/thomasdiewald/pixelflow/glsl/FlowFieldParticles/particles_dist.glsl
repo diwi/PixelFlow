@@ -17,9 +17,12 @@
 
 uniform float     point_size;
 uniform ivec2     wh_position;
+uniform vec2      wh_viewport;
 uniform sampler2D tex_position;
 
 #if SHADER_VERT
+
+out vec4 particle;
 
 void main(){
   // get point index / vertex index
@@ -30,7 +33,7 @@ void main(){
   int col = point_id - wh_position.x * row;
   
   // get particle position, velocity
-  vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
+  particle = texelFetch(tex_position, ivec2(col, row), 0);
 
   gl_Position  = vec4(particle.xy * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
   gl_PointSize = point_size;
@@ -42,9 +45,12 @@ void main(){
 #if SHADER_FRAG
 
 out float out_frag;
+in vec4 particle;
 
 void main(){
-  out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
+  vec2 my_PointCoord = ((particle.xy * wh_viewport) - gl_FragCoord.xy) / point_size + 0.5; // [0, 1]
+  out_frag = max(0, 1.0 - length(my_PointCoord * 2.0 - 1.0));
+  // out_frag = max(0, 1.0 - length(gl_PointCoord * 2.0 - 1.0));
 }
 
 #endif // #if SHADER_FRAG
