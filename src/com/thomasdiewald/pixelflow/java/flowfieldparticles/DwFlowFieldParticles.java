@@ -81,6 +81,10 @@ public class DwFlowFieldParticles{
     public int wh_scale_obs = 0; // 1 << wh_scale_obs ... 1 << 0 ...  2
     public int wh_scale_sum = 0; // auto
     
+    
+    public float[] acc_minmax = {0.01f, 12f};
+    public float[] vel_minmax = {0.00f, 12f};
+    
     // velocity damping
     public float   velocity_damping  = 0.985f;
     
@@ -94,7 +98,7 @@ public class DwFlowFieldParticles{
     
     // display stuff
     public float   shader_collision_mult = 0.1f;
-    public int     shader_type = 0; // 0 ... falloff basedd, 1 ...velocity based
+    public int     shader_type = 0; // 0 ... point based, 1 ...velocity based
     
     public float[] col_A = {1.0f, 1.0f, 1.0f, 10.0f};
     public float[] col_B = {0.0f, 0.0f, 0.0f,  0.0f};
@@ -105,6 +109,7 @@ public class DwFlowFieldParticles{
     public float   display_line_width = 0.5f;
     public boolean display_line_smooth = true;
     
+
     // point sprite texture
     public DwGLTexture tex_sprite = new DwGLTexture();
   }
@@ -145,8 +150,12 @@ public class DwFlowFieldParticles{
   
   public DistanceTransform distancetransform;
   
-  protected int spawn_idx = 0;
+  public int spawn_idx = 0;
   protected int spawn_num = 0;
+  
+  public DwFlowFieldParticles(DwPixelFlow context){
+    this(context, 0);
+  }
   
   public DwFlowFieldParticles(DwPixelFlow context, int num_particles){    
     this.context = context;
@@ -450,7 +459,7 @@ public class DwFlowFieldParticles{
     
     spawn_idx = hi;
     spawn_num += hi - lo;
-    spawn_num = Math.min(spawn_num, spawn_max); 
+    spawn_num = Math.min(spawn_num, spawn_max);
   }
   
   
@@ -492,7 +501,7 @@ public class DwFlowFieldParticles{
     
     spawn_idx = hi;
     spawn_num += hi - lo;
-    spawn_num = Math.min(spawn_num, spawn_max); 
+    spawn_num = Math.min(spawn_num, spawn_max);
   }
   
 
@@ -535,10 +544,8 @@ public class DwFlowFieldParticles{
   }
   
   
-  protected void displayParticles(int w, int h){
+  protected void displayParticles(int w_viewport, int h_viewport){
     if(param.size_display <= 0) return;
-    int w_viewport = w;
-    int h_viewport = h;
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
     int point_size = param.size_display;
@@ -560,7 +567,7 @@ public class DwFlowFieldParticles{
   }
   
   
-  protected void displayTrail(int w, int h){
+  protected void displayTrail(int w_viewport, int h_viewport){
     if(param.display_line_width <= 0) return;
     int w_particle = tex_particle.src.w;
     int h_particle = tex_particle.src.h;
@@ -568,10 +575,11 @@ public class DwFlowFieldParticles{
     shader_display_trails.begin();
     shader_display_trails.uniform1f     ("shader_collision_mult", param.shader_collision_mult);
     shader_display_trails.uniform2i     ("wh_position"  , w_particle, h_particle);
+    shader_display_trails.uniform2f     ("wh_viewport"  , w_viewport, h_viewport);
     shader_display_trails.uniform4fv    ("col_A"        , 1, param.col_A);
     shader_display_trails.uniformTexture("tex_collision", tex_col_dist);
     shader_display_trails.uniformTexture("tex_position" , tex_particle.src);
-    shader_display_trails.drawFullScreenLines(0, 0, w, h, spawn_num, param.display_line_width, param.display_line_smooth);
+    shader_display_trails.drawFullScreenLines(0, 0, w_viewport, h_viewport, spawn_num, param.display_line_width, param.display_line_smooth);
     shader_display_trails.end();
   }
   
@@ -724,12 +732,14 @@ public class DwFlowFieldParticles{
     int viewport_h = (spawn_num + w_particle) / w_particle;
 
     float timestep = getTimestep();
+    float acc_min = param.acc_minmax[0] * timestep;
+    float acc_max = param.acc_minmax[1] * timestep;
     
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_update_acc.begin();
     shader_update_acc.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_acc.uniform2f     ("acc_minmax"     , 0.01f * timestep, 12 * timestep);
+    shader_update_acc.uniform2f     ("acc_minmax"     , acc_min, acc_max);
     shader_update_acc.uniform1f     ("acc_mult"       , acc_mult);
     shader_update_acc.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_acc.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
@@ -743,6 +753,7 @@ public class DwFlowFieldParticles{
     context.end();
   }
   
+  
  
   public void updateVelocity(){
 
@@ -755,14 +766,16 @@ public class DwFlowFieldParticles{
     int viewport_w = w_particle;
     int viewport_h = (spawn_num + w_particle) / w_particle;
 
-    float vel_mult = param.velocity_damping;
     float timestep = getTimestep();
+    float vel_mult = param.velocity_damping;
+    float vel_min = param.vel_minmax[0] * timestep;
+    float vel_max = param.vel_minmax[1] * timestep;
     
     context.begin();
     context.beginDraw(tex_particle.dst);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
-    shader_update_vel.uniform2f     ("vel_minmax"     , 0.000f * timestep, 12 * timestep);
+    shader_update_vel.uniform2f     ("vel_minmax"     , vel_min, vel_max);
     shader_update_vel.uniform1f     ("vel_mult"       , vel_mult);
     shader_update_vel.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);

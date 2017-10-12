@@ -17,6 +17,7 @@
 #define SHADER_FRAG 0
 
 uniform ivec2     wh_position;
+uniform vec2      wh_viewport;
 uniform float     shader_collision_mult = 1.0;
 uniform sampler2D tex_collision;
 uniform sampler2D tex_position;
@@ -25,7 +26,8 @@ uniform vec4      col_B = vec4(0, 0, 0, 0.0);
 
 #if SHADER_VERT
 
-out float pressure;
+out vec4 particle;
+out float domain;
 
 void main(){
 
@@ -39,16 +41,9 @@ void main(){
   
   // get particle position, velocity
   vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
-  vec2 pos_cur = particle.xy;
-  vec2 pos_old = particle.zw;
-  vec2 pos = (vtx_id == 1) ? pos_cur : pos_old;
-
-  // should be stripped away by the compiler for SHADER_FRAG_COLLISION == 1
-  {
-    float vel = length(pos_cur - pos_old) * 2000;
-    pressure = texture(tex_collision, pos_cur).r + vel;
-  }
-
+  
+  domain = float(vtx_id); // 0 ... 1
+  vec2 pos = mix(particle.xy, particle.zw, domain);
   gl_Position  = vec4(pos * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
 }
 
@@ -57,14 +52,21 @@ void main(){
 
 #if SHADER_FRAG
 
+in vec4 particle;
+in float domain;
+
 out vec4 out_frag;
-in float pressure;
 
 void main(){
-  out_frag = col_A;
-  float pf = 1.0 + pressure * shader_collision_mult;
-  out_frag.xyzw *= pf;
-  out_frag = clamp(out_frag, 0.0, 1.0);
+  vec2 pos = mix(particle.xy, particle.zw, domain);
+  float pressure = texture(tex_collision, pos).r;
+  vec2  velocity = (particle.xy - particle.zw) * wh_viewport;
+  float mult = pressure + length(velocity) * 2.0;
+  mult *= shader_collision_mult;
+
+  out_frag  = col_A;
+  out_frag *= 1.0 + mult;
+  out_frag  = clamp(out_frag, 0.0, 1.0);
 }
 
 #endif // #if SHADER_FRAG

@@ -187,7 +187,7 @@ public class DwGLTexture{
     this.gl = context.gl;
     
     if(w <= 0 || h <= 0) return false;
-    
+
     // figure out what needs to be done for this texture
     boolean B_ALLOC=false, B_RESIZE=false, B_FILTER=false, B_WRAP=false, B_BIND=false;
     

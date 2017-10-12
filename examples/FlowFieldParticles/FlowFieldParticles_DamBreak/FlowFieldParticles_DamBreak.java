@@ -131,7 +131,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.col_A = new float[]{0.80f, 0.10f, 0.20f, 5};
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
     particles.param.shader_type = 1;
-    particles.param.shader_collision_mult = 0.20f;
+    particles.param.shader_collision_mult = 0.25f;
     particles.param.steps = 1;
     particles.param.velocity_damping  = 0.99999f;
     particles.param.size_display   = 6;
@@ -142,7 +142,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.mul_obs = 4.00f;
     
     particles.param.wh_scale_col =  0;
-    particles.param.wh_scale_coh =  4;
+    particles.param.wh_scale_coh =  5;
     particles.param.wh_scale_obs =  0;
     
     
@@ -167,8 +167,10 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   float impulse_mul = 15;
   float impulse_tsmooth = 0.90f;
   int   impulse_blur  = 0;
-  int   impulse_size = 60;
+  float impulse_size = 60;
   public void addImpulse(){
+    
+    impulse_size = min(width, height) / 10f;
     
     int w = width;
     int h = height;
@@ -241,8 +243,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     float mix = map(mouseX, 0, width, 0, 1);
     float[] rgb1 = DwUtils.getColor(pallette, mix, null);
     float s1 = 1f/255f;
-    float s2 = s1 * 0.33f;
-    particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 2.0f};
+    float s2 = s1 * 0.50f;
+    particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
     particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
   }
 
