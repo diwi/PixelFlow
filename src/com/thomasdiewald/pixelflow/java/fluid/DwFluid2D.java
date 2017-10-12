@@ -19,7 +19,8 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture.TexturePingPong;
 
 import processing.core.PConstants;
-import processing.opengl.PGraphics2D;;
+import processing.opengl.PGraphics2D;
+import processing.opengl.Texture;;
 
 
 public class DwFluid2D{
@@ -102,8 +103,7 @@ public class DwFluid2D{
   private FluidData CB_fluid_data;
   private Advect    CB_advect;
 
-  
-  public DwFluid2D(DwPixelFlow context, int viewport_width, int viewport_height, int fluidgrid_scale){
+  public DwFluid2D(DwPixelFlow context){
     this.context = context;
     context.papplet.registerMethod("dispose", this);
     
@@ -123,7 +123,10 @@ public class DwFluid2D{
     shader_addTemperatureBlob    = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addTemperatureBlob.frag");
     shader_addDensityTexture     = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addDensityTexture.frag" );
     shader_addObstacleTexture    = context.createShader(DwPixelFlow.SHADER_DIR+"addData/addObstacleTexture.frag");
-    
+  }
+  
+  public DwFluid2D(DwPixelFlow context, int viewport_width, int viewport_height, int fluidgrid_scale){
+    this(context);
     resize(viewport_width, viewport_height, fluidgrid_scale);
   }
  
@@ -162,7 +165,7 @@ public class DwFluid2D{
   
 
 
-  public void resize(int viewport_width, int viewport_height, int fluidgrid_scale) {
+  public boolean resize(int viewport_width, int viewport_height, int fluidgrid_scale) {
     
     grid_scale = Math.max(1, fluidgrid_scale);
     
@@ -189,6 +192,7 @@ public class DwFluid2D{
     }
     
     context.end("Fluid.resize");
+    return resized;
   }
   
   
@@ -739,9 +743,10 @@ public class DwFluid2D{
   
  
   public void addDensity(PGraphics2D pg, float intensity_scale, int blend_mode, float mix){
-    int[] pg_tex_handle = new int[1];
+    Texture tex = pg.getTexture(); if(!tex.available()) return;
+//    int[] pg_tex_handle = new int[1];
     context.begin();
-    context.getGLTextureHandle(pg, pg_tex_handle);
+//    context.getGLTextureHandle(pg, pg_tex_handle);
     context.beginDraw(tex_density.dst);
     DwGLSLProgram shader = shader_addDensityTexture;
     shader.begin();
@@ -750,7 +755,7 @@ public class DwFluid2D{
     shader.uniform1i  ("blend_mode"     , blend_mode); 
     shader.uniform1f  ("mix_value"      , mix); 
     shader.uniformTexture("tex_density_old", tex_density.src);
-    shader.uniformTexture("tex_density_src", pg_tex_handle[0]);
+    shader.uniformTexture("tex_density_src", tex.glName);
     shader.drawFullScreenQuad();
     shader.end();
     context.endDraw();
@@ -760,14 +765,15 @@ public class DwFluid2D{
   
   
   public void addObstacles(PGraphics2D pg){
-    int[] pg_tex_handle = new int[1];
+    Texture tex = pg.getTexture(); if(!tex.available()) return;
+//    int[] pg_tex_handle = new int[1];
     context.begin();   
-    context.getGLTextureHandle(pg, pg_tex_handle);
+//    context.getGLTextureHandle(pg, pg_tex_handle);
     context.beginDraw(tex_obstacleC.dst);
     DwGLSLProgram shader = shader_addObstacleTexture;
     shader.begin();
     shader.uniform2f     ("wh"     , fluid_w, fluid_h); 
-    shader.uniformTexture("tex_src", pg_tex_handle[0]);
+    shader.uniformTexture("tex_src", tex.glName);
     shader.drawFullScreenQuad();
     shader.end();
     context.endDraw();

@@ -155,7 +155,7 @@ public class Fluid_WindTunnel extends PApplet {
 
   public void settings() {
     size(viewport_w, viewport_h, P2D);
-    smooth(4);
+    smooth(8);
   }
   
   
@@ -192,8 +192,7 @@ public class Fluid_WindTunnel extends PApplet {
 
     // main obstacle texture
     pg_obstacles = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
-//    pg_obstacles.noSmooth();
-    pg_obstacles.smooth(4);
+    pg_obstacles.smooth(8);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
     pg_obstacles.endDraw();
@@ -201,8 +200,7 @@ public class Fluid_WindTunnel extends PApplet {
     
     // second obstacle texture, used for interactive mouse-driven painting
     pg_obstacles_drawing = (PGraphics2D) createGraphics(viewport_w, viewport_h, P2D);
-  //  pg_obstacles_drawing.noSmooth();
-    pg_obstacles_drawing.smooth(4);
+    pg_obstacles_drawing.smooth(8);
     pg_obstacles_drawing.beginDraw();
     pg_obstacles_drawing.clear();
     pg_obstacles_drawing.blendMode(REPLACE);
@@ -381,11 +379,11 @@ public class Fluid_WindTunnel extends PApplet {
 
     if(UPDATE_FLUID){
       
-      drawVelocity(pg_velocity, 0);
-      drawVelocity(pg_density , 1);
-      
       drawObstacles();
       
+      drawVelocity(pg_velocity, 0);
+      drawVelocity(pg_density , 1);
+
       fluid.addObstacles(pg_obstacles);
       fluid.update();
     }
@@ -409,13 +407,18 @@ public class Fluid_WindTunnel extends PApplet {
     }
     
     // display
+    blendMode(REPLACE);
     image(pg_fluid    , 0, 0);
+    blendMode(BLEND);
     image(pg_obstacles, 0, 0);
 
-    
     // draw the brush, when obstacles get removed
     obstacle_painter.displayBrush(this.g);
-
+ 
+    // draw gui
+    cp5.draw();
+    
+    
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", fluid.fluid_w, fluid.fluid_h, fluid.simulation_step, frameRate);
     surface.setTitle(txt_fps);
@@ -631,6 +634,7 @@ public class Fluid_WindTunnel extends PApplet {
   public void mousePressed(){
     if(mouseButton == CENTER ) obstacle_painter.beginDraw(1); // add obstacles
     if(mouseButton == RIGHT  ) obstacle_painter.beginDraw(2); // remove obstacles
+    blendMode(BLEND);
   }
   
   public void mouseDragged(){
@@ -687,6 +691,7 @@ public class Fluid_WindTunnel extends PApplet {
   
   public void createGUI(){
     cp5 = new ControlP5(this);
+    cp5.setAutoDraw(false);
     
     int sx, sy, px, py, oy;
     

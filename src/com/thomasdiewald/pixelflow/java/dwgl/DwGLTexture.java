@@ -780,9 +780,11 @@ public class DwGLTexture{
   }
   
   public void clear(float r, float g, float b, float a){
-//    if(framebuffer.isFBO()){
+    if(isTexture()){
+      context.begin();
       context.framebuffer.clearTexture(r,g,b,a, this);
-//    }
+      context.end();
+    }
   }
   
 

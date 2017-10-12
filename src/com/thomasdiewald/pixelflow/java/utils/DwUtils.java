@@ -69,12 +69,39 @@ public class DwUtils {
   }
   
   
+  
+  final static private float[] CL = new float[4];
+  final static private float[] CR = new float[4];
+  
+  final static public float[] mixBilinear(float[] TL, float[] BL, float[] TR, float[] BR, float mix_LR, float mix_TB, float[] CC){
+    if(CC == null || CC.length < 4){
+      CC = new float[4];
+    }
+    DwUtils.mix(TL, BL, mix_TB, CL);
+    DwUtils.mix(TR, BR, mix_TB, CR);
+    DwUtils.mix(CL, CR, mix_LR, CC);
+    return CC;
+  }
+  
+  final static public void mult(float[] argb, float mult){
+    argb[0] *= mult;
+    argb[1] *= mult;
+    argb[2] *= mult;
+    argb[3] *= mult;
+  }
+  
   final static public float clamp(float a, float lo, float hi){
     if(a < lo) return lo;
     if(a > hi) return hi;
     return a;
   }
   
+  final static public void clamp(float[] argb, float lo, float hi){
+    argb[0] = clamp(argb[0], lo, hi);
+    argb[1] = clamp(argb[1], lo, hi);
+    argb[2] = clamp(argb[2], lo, hi);
+    argb[3] = clamp(argb[3], lo, hi);
+  }
   
  
   final static public float[] getColor(float[][] pallette, float val_norm, float[] rgb){
@@ -161,6 +188,46 @@ public class DwUtils {
   
   
   
+  
+  static public float[] COL_TL = { 64,  0,  0, 255};
+  static public float[] COL_TR = {255,128,  0, 255};
+  static public float[] COL_BL = {  0,128,255, 255};
+  static public float[] COL_BR = {255,255,255, 255};
+  static public float[] COL_CC = {  0,  0,  0,   0};
+  
+  
+  static public PGraphics2D createBackgroundNoiseTexture(PApplet papplet, int dimx, int dimy){
+   
+    PGraphics2D pg = (PGraphics2D) papplet.createGraphics(dimx, dimy, PConstants.P2D);
+    pg.smooth(0);
+    
+    pg.beginDraw();
+    pg.noStroke();
+    
+    for(int y = 0; y < dimy; y++){
+      for(int x = 0; x < dimx; x++){
+        float nx = x / (float) pg.width;
+        float ny = y / (float) pg.height;
+        float nval = papplet.noise(x * 0.025f, y * 0.025f) * 1.7f  + 0.3f;
+        DwUtils.mixBilinear(COL_TL, COL_BL, COL_TR, COL_BR, nx, ny, COL_CC);
+        DwUtils.mult(COL_CC, nval);
+        DwUtils.clamp(COL_CC, 0, 255);
+        pg.fill(COL_CC[0], COL_CC[1], COL_CC[2], 255);
+        pg.rect(x, y, 1, 1);
+      }
+    }
+    
+    int num_points = dimx * dimy / 4;
+    for(int i = 0; i < num_points; i++){
+      float x = papplet.random(0, dimx-1);
+      float y = papplet.random(0, dimy-1);
+      pg.fill(0, papplet.random(255));
+      pg.rect(x, y, 1, 1);
+    }
+
+    pg.endDraw();
+    return pg;
+  }
   
   
   

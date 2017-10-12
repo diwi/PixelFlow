@@ -23,8 +23,8 @@ import processing.opengl.PGraphics2D;
 public class MyParticleSystem{
   
   public DwGLSLProgram shader_particleSpawn;
-  public DwGLSLProgram shader_particelUpdate;
-  public DwGLSLProgram shader_particelRender;
+  public DwGLSLProgram shader_particleUpdate;
+  public DwGLSLProgram shader_particleRender;
   
   public DwGLTexture.TexturePingPong tex_particles = new DwGLTexture.TexturePingPong();
   
@@ -86,13 +86,15 @@ public class MyParticleSystem{
     // create shader
     String dir = "data/";
     shader_particleSpawn  = context.createShader(dir + "particleSpawn.frag");
-    shader_particelUpdate = context.createShader(dir + "particleUpdate.frag");
-    shader_particelRender = context.createShader(dir + "particleRender.vert", dir + "particleRender.frag");
+    shader_particleUpdate = context.createShader(dir + "particleUpdate.frag");
+    shader_particleRender = context.createShader(dir + "particleRender.glsl", dir + "particleRender.glsl");
+    shader_particleRender.vert.setDefine("SHADER_VERT", 1);
+    shader_particleRender.frag.setDefine("SHADER_FRAG", 1);
 
     // allocate texture
     tex_particles.resize(context, GL2ES2.GL_RGBA32F, particles_x, particles_y, GL2ES2.GL_RGBA, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 4, 4);
 
-    context.end("ParticelSystem.resize");
+    context.end("ParticleSystem.resize");
  
     reset();  // initialize particles
   }
@@ -152,7 +154,7 @@ public class MyParticleSystem{
     shader_particleSpawn.drawFullScreenQuad();
     shader_particleSpawn.end();
     context.endDraw();
-    context.end("ParticelSystem.spawn");
+    context.end("ParticleSystem.spawn");
     tex_particles.swap();
     
     ALIVE_HI = spawn_hi;
@@ -162,20 +164,20 @@ public class MyParticleSystem{
   public void update(DwFluid2D fluid){
     context.begin();
     context.beginDraw(tex_particles.dst);
-    shader_particelUpdate.begin();
-    shader_particelUpdate.uniform2f     ("wh_fluid"     , fluid.fluid_w, fluid.fluid_h);
-    shader_particelUpdate.uniform2f     ("wh_particles" , particles_x, particles_y);
-    shader_particelUpdate.uniform1f     ("timestep"     , fluid.param.timestep);
-    shader_particelUpdate.uniform1f     ("rdx"          , 1.0f / fluid.param.gridscale);
-    shader_particelUpdate.uniform1f     ("dissipation"  , param.dissipation);
-    shader_particelUpdate.uniform1f     ("inertia"      , param.inertia);
-    shader_particelUpdate.uniformTexture("tex_particles", tex_particles.src);
-    shader_particelUpdate.uniformTexture("tex_velocity" , fluid.tex_velocity.src);
-    shader_particelUpdate.uniformTexture("tex_obstacles", fluid.tex_obstacleC.src);
-    shader_particelUpdate.drawFullScreenQuad();
-    shader_particelUpdate.end();
+    shader_particleUpdate.begin();
+    shader_particleUpdate.uniform2f     ("wh_fluid"     , fluid.fluid_w, fluid.fluid_h);
+    shader_particleUpdate.uniform2f     ("wh_particles" , particles_x, particles_y);
+    shader_particleUpdate.uniform1f     ("timestep"     , fluid.param.timestep);
+    shader_particleUpdate.uniform1f     ("rdx"          , 1.0f / fluid.param.gridscale);
+    shader_particleUpdate.uniform1f     ("dissipation"  , param.dissipation);
+    shader_particleUpdate.uniform1f     ("inertia"      , param.inertia);
+    shader_particleUpdate.uniformTexture("tex_particles", tex_particles.src);
+    shader_particleUpdate.uniformTexture("tex_velocity" , fluid.tex_velocity.src);
+    shader_particleUpdate.uniformTexture("tex_obstacles", fluid.tex_obstacleC.src);
+    shader_particleUpdate.drawFullScreenQuad();
+    shader_particleUpdate.end();
     context.endDraw();
-    context.end("ParticelSystem.update");
+    context.end("ParticleSystem.update");
     tex_particles.swap();
   }
   
@@ -191,14 +193,15 @@ public class MyParticleSystem{
     if(background == 0) dst.blendMode(PConstants.ADD); // works nicely on black background
     
     context.begin();
-    shader_particelRender.begin();
-    shader_particelRender.uniform2i     ("num_particles", particles_x, particles_y);
-    shader_particelRender.uniform1f     ("point_size"   , point_size);
-    shader_particelRender.uniformTexture("tex_particles", tex_particles.src);
-    shader_particelRender.drawFullScreenPoints(0, 0, w, h, num_points_to_render);
-    shader_particelRender.end();
-    context.end("ParticelSystem.render");
-    
+    shader_particleRender.begin();
+    shader_particleRender.uniform2f     ("wh_viewport", w, h);
+    shader_particleRender.uniform2i     ("num_particles", particles_x, particles_y);
+    shader_particleRender.uniform1f     ("point_size"   , point_size);
+    shader_particleRender.uniformTexture("tex_particles", tex_particles.src);
+    shader_particleRender.drawFullScreenPoints(num_points_to_render);
+    shader_particleRender.end();
+    context.end("ParticleSystem.render");
+
     dst.endDraw();
   }
 

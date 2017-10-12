@@ -133,7 +133,7 @@ public class DwGLFrameBuffer {
     if(IS_ACTIVE){
       unbind(); // unbind, in case of bind() is called consecutively
     }
-    System.out.println(max_bind);
+
     int count = tex.length;  
     if(count > max_bind){
       System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);

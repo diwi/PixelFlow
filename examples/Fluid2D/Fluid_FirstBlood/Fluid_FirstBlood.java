@@ -120,6 +120,7 @@ public class Fluid_FirstBlood extends PApplet {
   public void settings() {
     size(viewport_w, viewport_h, P2D);
     smooth(4);
+    // PJOGL.profile = 3;
   }
   
   

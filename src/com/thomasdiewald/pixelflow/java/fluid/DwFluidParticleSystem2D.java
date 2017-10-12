@@ -69,10 +69,14 @@ public class DwFluidParticleSystem2D{
     this.particles_y = num_particels_y;
 //    System.out.println("ParticelSystem: size = "+particles_x+"/"+particles_y +" ("+particles_x*particles_y+" objects)");
     
+    String dir = DwPixelFlow.SHADER_DIR+"ParticleSystem/";
+    
     // create shader
-    shader_particleInit   = context.createShader(DwPixelFlow.SHADER_DIR+"ParticleSystem/particleInit.frag");
-    shader_particleUpdate = context.createShader(DwPixelFlow.SHADER_DIR+"ParticleSystem/particleUpdate.frag");
-    shader_particleRender = context.createShader(DwPixelFlow.SHADER_DIR+"ParticleSystem/particleRender.vert", DwPixelFlow.SHADER_DIR+"ParticleSystem/particleRender.frag");
+    shader_particleInit   = context.createShader(dir+"particleInit.frag");
+    shader_particleUpdate = context.createShader(dir+"particleUpdate.frag");
+    shader_particleRender = context.createShader(dir+"particleRender.glsl", dir+"particleRender.glsl");
+    shader_particleRender.vert.setDefine("SHADER_VERT", 1);
+    shader_particleRender.frag.setDefine("SHADER_FRAG", 1);
     
     // allocate texture
     tex_particles.resize(context, GL2ES2.GL_RGBA32F, particles_x, particles_y, GL2ES2.GL_RGBA, GL2ES2.GL_FLOAT, GL2ES2.GL_NEAREST, 4, 4);
@@ -81,7 +85,7 @@ public class DwFluidParticleSystem2D{
     
     init();
     
-    context.end("ParticelSystem.resize");
+    context.end("ParticleSystem.resize");
   }
   
   public void reset(){
@@ -96,7 +100,7 @@ public class DwFluidParticleSystem2D{
     shader_particleInit.drawFullScreenQuad();
     shader_particleInit.end();
     context.endDraw();
-    context.end("ParticelSystem.init");
+    context.end("ParticleSystem.init");
     tex_particles.swap();
   }
   
@@ -116,7 +120,7 @@ public class DwFluidParticleSystem2D{
     shader_particleUpdate.drawFullScreenQuad();
     shader_particleUpdate.end();
     context.endDraw();
-    context.end("ParticelSystem.update");
+    context.end("ParticleSystem.update");
     tex_particles.swap();
   }
   
@@ -136,13 +140,14 @@ public class DwFluidParticleSystem2D{
 
     context.begin();
     shader_particleRender.begin();
+    shader_particleRender.uniform2f     ("wh_viewport", w, h);
     shader_particleRender.uniform2i     ("num_particles", particles_x, particles_y);
     shader_particleRender.uniformTexture("tex_particles", tex_particles.src);
     shader_particleRender.uniformTexture("tex_sprite"   , sprite_tex_handle[0]);
     shader_particleRender.uniform1i     ("display_mode" , display_mode); // 0 ... 1px points, 1 = sprite texture,  2 ... falloff points
-    shader_particleRender.drawFullScreenPoints(0, 0, w, h, particles_x * particles_y);
+    shader_particleRender.drawFullScreenPoints(particles_x * particles_y);
     shader_particleRender.end();
-    context.end("ParticelSystem.render");
+    context.end("ParticleSystem.render");
     
     dst.endDraw();
   }
