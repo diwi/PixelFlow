@@ -192,7 +192,7 @@ public class Bloom {
     Merge.TexMad[] tm = new Merge.TexMad[num_layers];
     
     for(int i = 0; i < num_layers; i++){
-      tm[0] = new Merge.TexMad(gaussianpyramid.getTexture(i), tex_weights[i*2+0], tex_weights[i*2+1]);
+      tm[i] = new Merge.TexMad(gaussianpyramid.getTexture(i), tex_weights[i*2+0], tex_weights[i*2+1]);
     }
     return tm;
   }
@@ -204,6 +204,8 @@ public class Bloom {
   private void mergeBlurLayers(DwGLTexture dst){
     merge.apply(dst, alloc());
   }
+  
+  
   
   /**
    * applies the bloom directly on dst
