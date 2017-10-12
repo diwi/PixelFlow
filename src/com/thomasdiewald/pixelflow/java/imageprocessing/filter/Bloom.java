@@ -123,7 +123,8 @@ public class Bloom {
 
     // 3a) merge + blend: dst_bloom is not null, therefore the extra pass
     if(dst_bloom != null){
-      merge.apply(dst_bloom, gaussianpyramid.tex_blur, tex_weights);
+      //merge.apply(dst_bloom, gaussianpyramid.tex_blur, tex_weights);
+      mergeBlurLayers(dst_bloom);
       if(dst_composition != null){
         context.pushRenderSettings(additive_blend);
         DwFilter.get(context).copy.apply(dst_bloom, dst_composition);
@@ -134,7 +135,8 @@ public class Bloom {
     
     // 3b) merge + blend:  dst_bloom is null, so we merge + blend into dst_composition
     context.pushRenderSettings(additive_blend);
-    merge.apply(dst_composition, gaussianpyramid.tex_blur, tex_weights);
+    //merge.apply(dst_composition, gaussianpyramid.tex_blur, tex_weights);
+    mergeBlurLayers(dst_composition);
     context.popRenderSettings();
   }
   
@@ -167,7 +169,8 @@ public class Bloom {
 
     // 3a) merge + blend: dst_bloom is not null, therefore the extra pass
     if(dst_bloom != null){
-      merge.apply(dst_bloom, gaussianpyramid.tex_blur, tex_weights);
+      //merge.apply(dst_bloom, gaussianpyramid.tex_blur, tex_weights);
+      mergeBlurLayers(dst_bloom);
       if(dst_composition != null){
         context.pushRenderSettings(additive_blend);
         DwFilter.get(context).copy.apply(dst_bloom, dst_composition);
@@ -178,8 +181,28 @@ public class Bloom {
     
     // 3b) merge + blend:  dst_bloom is null, so we merge + blend into dst_composition
     context.pushRenderSettings(additive_blend);
-    merge.apply(dst_composition, gaussianpyramid.tex_blur, tex_weights);
+    //merge.apply(dst_composition, gaussianpyramid.tex_blur, tex_weights);
+    mergeBlurLayers(dst_composition);
     context.popRenderSettings();
+  }
+  
+  
+  private Merge.TexMad[] alloc(){
+    int num_layers = getNumBlurLayers();
+    Merge.TexMad[] tm = new Merge.TexMad[num_layers];
+    
+    for(int i = 0; i < num_layers; i++){
+      tm[0] = new Merge.TexMad(gaussianpyramid.getTexture(i), tex_weights[i*2+0], tex_weights[i*2+1]);
+    }
+    return tm;
+  }
+  
+  private void mergeBlurLayers(PGraphicsOpenGL dst){
+    merge.apply(dst, alloc());
+  }
+  
+  private void mergeBlurLayers(DwGLTexture dst){
+    merge.apply(dst, alloc());
   }
   
   /**
