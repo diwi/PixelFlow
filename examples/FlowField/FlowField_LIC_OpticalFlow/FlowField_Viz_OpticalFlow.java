@@ -378,7 +378,7 @@ public class FlowField_Viz_OpticalFlow extends PApplet {
     int dy_group = 20;
     int dy_item = 4;
     ////////////////////////////////////////////////////////////////////////////
-    // GUI - FLUID
+    // GUI - LIC
     ////////////////////////////////////////////////////////////////////////////
     Group group_lic = cp5.addGroup("Line Integral Convolution");
     {
@@ -397,7 +397,7 @@ public class FlowField_Viz_OpticalFlow extends PApplet {
         sx = (gui_w-30 - 2 * (count-1)) / count;
         RadioButton rb_type = cp5.addRadio("setDisplayType").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayType")
-          .setNoneSelectedAllowed(false)
+          .setNoneSelectedAllowed(true)
           .addItem("flow field", 0)
           .addItem("LIC"       , 1)
           .activate(DISPLAY_MODE);

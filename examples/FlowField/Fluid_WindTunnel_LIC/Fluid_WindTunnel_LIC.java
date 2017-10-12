@@ -783,6 +783,7 @@ public class Fluid_WindTunnel_LIC extends PApplet {
 
     int dy_group = 20;
     int dy_item = 4;
+    
     ////////////////////////////////////////////////////////////////////////////
     // GUI - LIC
     ////////////////////////////////////////////////////////////////////////////
@@ -799,7 +800,7 @@ public class Fluid_WindTunnel_LIC extends PApplet {
       sx = (gui_w-30 - 2 * (count-1)) / count;
       RadioButton rb_type = cp5.addRadio("setDisplayType").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayType")
-        .setNoneSelectedAllowed(!false)
+        .setNoneSelectedAllowed(true)
         .addItem("LIC", 0)
         .addItem("FF" , 1)
         .activate(LIC_DISPLAY_MODE);

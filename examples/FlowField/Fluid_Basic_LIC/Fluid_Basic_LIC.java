@@ -434,6 +434,9 @@ public class Fluid_Basic_LIC extends PApplet {
     int dy_group = 20;
     int dy_item = 4;
     
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI - LIC
+    ////////////////////////////////////////////////////////////////////////////
     Group group_lic = cp5.addGroup("Line Integral Convolution");
     {
       group_lic.setHeight(20).setSize(gui_w, 260)

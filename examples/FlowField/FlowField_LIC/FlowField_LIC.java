@@ -33,7 +33,8 @@ import processing.opengl.PGraphics2D;
 import processing.opengl.PJOGL;
 
 
-public class FlowField_Viz extends PApplet {
+
+public class FlowField_LIC extends PApplet {
   
   boolean START_FULLSCREEN = !true;
   
@@ -130,6 +131,27 @@ public class FlowField_Viz extends PApplet {
     DwUtils.COL_BR = new float[]{255,255,255, 255};
    
     pg_noise = DwUtils.createBackgroundNoiseTexture(this, width/2, height/2);
+    
+//    pg_noise = (PGraphics2D) createGraphics(width, height, P2D);
+//    int dimx = pg_noise.width; 
+//    int dimy = pg_noise.height; 
+//    pg_noise.beginDraw();
+//    pg_noise.clear();
+//    pg_noise.blendMode(ADD);
+//    
+//    int num_points = dimx * dimy / (3*3);
+//    for(int i = 0; i < num_points; i++){
+//      float x = random(0, dimx-1);
+//      float y = random(0, dimy-1);
+//      
+//      float r = random(10);
+//      
+//      pg_noise.noStroke();
+//      pg_noise.fill(16 * r  , 64 * r  , 255 * r);
+//      pg_noise.rect(x, y, 1, 1);
+//      
+//    }
+//    pg_noise.endDraw();
 
     resetScene();
   }
@@ -216,7 +238,7 @@ public class FlowField_Viz extends PApplet {
     }
     
     if(DISPLAY_MODE == 1){
-      ff_impulse.displayLineIntegralConvolution(pg_canvas, pg_canvas);
+      ff_impulse.displayLineIntegralConvolution(pg_canvas, pg_noise);
     }
     
     blendMode(REPLACE); 
@@ -300,8 +322,10 @@ public class FlowField_Viz extends PApplet {
 
     int dy_group = 20;
     int dy_item = 4;
+    
+    
     ////////////////////////////////////////////////////////////////////////////
-    // GUI - FLUID
+    // GUI - LIC
     ////////////////////////////////////////////////////////////////////////////
     Group group_lic = cp5.addGroup("Line Integral Convolution");
     {
@@ -320,7 +344,7 @@ public class FlowField_Viz extends PApplet {
         sx = (gui_w-30 - 2 * (count-1)) / count;
         RadioButton rb_type = cp5.addRadio("setDisplayType").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayType")
-          .setNoneSelectedAllowed(false)
+          .setNoneSelectedAllowed(true)
           .addItem("flow field", 0)
           .addItem("LIC"       , 1)
           .activate(DISPLAY_MODE);
@@ -357,7 +381,7 @@ public class FlowField_Viz extends PApplet {
       py += sy + dy_item;
       
       cp5.addSlider("intensity_mult").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.5f, 1.5f).setValue(param.intensity_mult).plugTo(param, "intensity_mult");
+      .setRange(0.5f, 2.5f).setValue(param.intensity_mult).plugTo(param, "intensity_mult");
       py += sy + dy_group;
       
       cp5.addCheckBox("setLicStates").setGroup(group_lic).setSize(sy,sy).setPosition(px, py)
@@ -396,7 +420,7 @@ public class FlowField_Viz extends PApplet {
   
  
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowField_Viz.class.getName() });
+    PApplet.main(new String[] { FlowField_LIC.class.getName() });
   }
   
   
