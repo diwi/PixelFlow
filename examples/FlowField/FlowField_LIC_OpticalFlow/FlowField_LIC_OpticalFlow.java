@@ -35,7 +35,20 @@ import processing.opengl.PJOGL;
 import processing.video.Capture;
 
 
-public class FlowField_Viz_OpticalFlow extends PApplet {
+public class FlowField_LIC_OpticalFlow extends PApplet {
+  
+  
+  //
+  // Line Integral Convolution (LIC) Shader
+  //
+  // LIC is a  low-pass filter, for sampling and averaging  samples along the 
+  // streamlines of a flowfield (vector field).
+  //
+  // In this demo the flowfield is created by some simply mouse-drawing.
+  // The background texture the webcam feed.
+  //
+  //
+  
   
   boolean START_FULLSCREEN = !true;
   
@@ -478,7 +491,7 @@ public class FlowField_Viz_OpticalFlow extends PApplet {
   
  
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowField_Viz_OpticalFlow.class.getName() });
+    PApplet.main(new String[] { FlowField_LIC_OpticalFlow.class.getName() });
   }
   
   

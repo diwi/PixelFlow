@@ -36,6 +36,19 @@ import processing.opengl.PJOGL;
 
 public class FlowField_LIC extends PApplet {
   
+  
+  //
+  // Line Integral Convolution (LIC) Shader
+  //
+  // LIC is a  low-pass filter, for sampling and averaging  samples along the 
+  // streamlines of a flowfield (vector field).
+  //
+  // In this demo the flowfield is created by some simply mouse-drawing.
+  // The background texture the sample are taken from should contain 
+  // high-frequency noise for the LIC-Shader to work best.
+  //
+  //
+
   boolean START_FULLSCREEN = !true;
   
   int viewport_w = 1680;

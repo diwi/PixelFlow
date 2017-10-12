@@ -18,7 +18,6 @@ import java.util.Locale;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
-import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles.SpawnRect;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
@@ -37,6 +36,37 @@ import processing.opengl.PJOGL;
 
 
 public class FlowField_LIC_StreamLines extends PApplet {
+  
+  //
+  // Line Integral Convolution (LIC) Shader
+  //
+  // LIC is a  low-pass filter, for sampling and averaging  samples along the 
+  // streamlines of a flowfield (vector field).
+  //
+  //
+  // LIC:
+  //
+  // In this demo the flowfield is created by some simply mouse-drawing.
+  // The background texture the sample are taken from should contain 
+  // high-frequency noise for the LIC-Shader to work best.
+  //
+  //
+  // StreamLines:
+  //
+  // Additionally to the LIC filter, the streamlines are computed and rendered.
+  // This is quite expensive, since a lot of lines are required and each line
+  // needs a reasonable amount of vertices (10-40).
+  // All these vertices need to be generated on the fly by an alternating 
+  // update and render pass.
+  // In the beginning for each line a particle is spawned and during the update
+  // passes the particles positions are updated using verlet integration.
+  // In the successive render pass, the last particle-step is rendered as a line.
+  //
+  //
+  
+  
+  
+  
   
   boolean START_FULLSCREEN = !true;
   
@@ -279,7 +309,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
       int num_x = ceil(dim_x / (iterations * 0.5f));
       int num_y = ceil(dim_y / (iterations * 0.5f));
 
-      SpawnRect sr = new SpawnRect();
+      DwFlowFieldParticles.SpawnRect sr = new DwFlowFieldParticles.SpawnRect();
       sr.num = new int[]{num_x, num_y};
       sr.dim = new float[]{dim_x, dim_y};
       sr.pos = new float[]{0,0};

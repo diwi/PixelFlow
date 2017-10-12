@@ -37,6 +37,7 @@ public class Fluid_Basic_LIC extends PApplet {
   // LMB: add Density + Velocity
   // MMB: draw obstacles
   // RMB: clear obstacles
+  //
   
   private class MyFluidData implements DwFluid2D.FluidData{
     
