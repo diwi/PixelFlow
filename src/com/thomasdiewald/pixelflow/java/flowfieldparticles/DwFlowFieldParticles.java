@@ -125,7 +125,7 @@ public class DwFlowFieldParticles{
   public DwGLSLProgram shader_spawn_rect;
   public DwGLSLProgram shader_update_vel;
   public DwGLSLProgram shader_update_acc;
-  
+
   public DwGLSLProgram shader_display_particles;
   public DwGLSLProgram shader_display_trails;
   
@@ -172,19 +172,18 @@ public class DwFlowFieldParticles{
     shader_spawn_rect   = context.createShader((Object) (this+"rect"  ), data_path + "particles_spawn.frag");
     shader_spawn_rect  .frag.setDefine("SPAWN_RECT"  , 1);
     
-    shader_update_vel  = context.createShader((Object) (this+"update"), data_path + "particles_update.frag");
+    shader_update_vel = context.createShader((Object) (this+"update_vel"), data_path + "particles_update.frag");
     shader_update_vel.frag.setDefine("UPDATE_VEL", 1);
-    shader_update_acc  = context.createShader((Object) (this+"collision"), data_path + "particles_update.frag");
+    shader_update_acc = context.createShader((Object) (this+"update_acc"), data_path + "particles_update.frag");
     shader_update_acc.frag.setDefine("UPDATE_ACC", 1);
-    
+
     filename = data_path + "particles_display_points.glsl"; // "particles_display_quads.glsl"
     shader_display_particles = context.createShader((Object) (this+"SPRITE"), filename, filename);
     shader_display_particles.vert.setDefine("SHADER_VERT", 1);
     shader_display_particles.frag.setDefine("SHADER_FRAG", 1);
 
-    
     filename = data_path + "particles_display_lines.glsl";
-    shader_display_trails     = context.createShader((Object) (this+"LINES"), filename, filename);
+    shader_display_trails = context.createShader((Object) (this+"LINES"), filename, filename);
     shader_display_trails.vert.setDefine("SHADER_VERT", 1);
     shader_display_trails.frag.setDefine("SHADER_FRAG", 1);
 
@@ -785,9 +784,8 @@ public class DwFlowFieldParticles{
     shader_update_vel.end("DwFlowFieldParticles.updateVelocity");
     context.endDraw();
     tex_particle.swap();
-    context.end("DwFlowFieldParticles.update");
+    context.end();
   }
-  
   
 
   public final TexMad tm_acc = new TexMad();
@@ -804,8 +802,6 @@ public class DwFlowFieldParticles{
     
     float timestep = getTimestep() / param.steps;
 
-    updateVelocity();
-
     for(int i = 0; i < param.steps; i++){
       
       createCollisionFlowField();
@@ -821,9 +817,7 @@ public class DwFlowFieldParticles{
       
       updateAcceleration(ff_sum.tex_vel, 1.0f);
     }
-    
-//    updateVelocity();
-
+    updateVelocity();
   }
   
   
