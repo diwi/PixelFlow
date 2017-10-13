@@ -133,11 +133,11 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.shader_type = 1;
     particles.param.shader_collision_mult = 0.25f;
     particles.param.steps = 1;
-    particles.param.velocity_damping  = 1f;
+    particles.param.velocity_damping  = 1;
     particles.param.size_display   = 6;
     particles.param.size_collision = 6;
     particles.param.size_cohesion  = 0;
-    particles.param.mul_coh = 0.00f;
+    particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 4.00f;
     
