@@ -201,7 +201,6 @@ public class DistanceTransform {
     
     int w_dtnn = tex_dtnn.src.w;
     int h_dtnn = tex_dtnn.src.h;
-    
 
     context.begin();
     context.beginDraw(dst);

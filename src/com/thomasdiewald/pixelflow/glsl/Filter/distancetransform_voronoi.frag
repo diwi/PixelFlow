@@ -22,6 +22,10 @@ uniform float dist_norm;
 
 void main(){
 
+  // ivec2 posi_dtnn = ivec2(gl_FragCoord.xy);
+  // ivec2 dtnn = texelFetch(tex_dtnn, posi_dtnn, 0).xy;
+  // vec4 data = texelFetch(tex_src, dtnn, 0);
+ 
   // normalized fraglocation
   vec2 posn = (gl_FragCoord.xy) * wh_rcp;
    
@@ -30,7 +34,8 @@ void main(){
   ivec2 dtnn = texelFetch(tex_dtnn, posi_dtnn, 0).xy;
   
   // un-normalized fraglocation in src texture space
-  ivec2 posi_src = ivec2(dtnn * wh_dtnn_rcp / wh_src_rcp);
+  //ivec2 posi_src = ivec2(dtnn * wh_dtnn_rcp / wh_src_rcp);
+  ivec2 posi_src = ivec2((dtnn+0.5) * wh_dtnn_rcp / wh_src_rcp);
   vec4 data = texelFetch(tex_src, posi_src, 0);
   
   // shade by distance

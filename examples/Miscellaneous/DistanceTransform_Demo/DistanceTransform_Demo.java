@@ -52,7 +52,7 @@ public class DistanceTransform_Demo extends PApplet {
   
   boolean START_FULLSCREEN = !true;
 
-  int viewport_w = 1280;
+  int viewport_w = 1285;
   int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
@@ -159,7 +159,7 @@ public class DistanceTransform_Demo extends PApplet {
     // display voronoi
     background(0);
     image(pg_b, 0, 0);
-//    image(pg_a, 0, 0);
+    // image(pg_a, 0, 0);
     
     // info
     String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", pg_a.width, pg_a.height, frameCount, frameRate);

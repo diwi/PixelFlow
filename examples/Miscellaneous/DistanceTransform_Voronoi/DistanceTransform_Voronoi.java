@@ -83,7 +83,7 @@ public class DistanceTransform_Voronoi extends PApplet {
     pg_mask = (PGraphics2D) createGraphics(width, height, P2D);
     pg_mask.smooth(0);
     
-    int w = width/4;
+    int w = width /4;
     int h = height/4;
     
     pg_color = (PGraphics2D) createGraphics(w, h, P2D);
