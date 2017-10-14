@@ -42,8 +42,9 @@ void main(){
   // get particle position, velocity
   vec4 particle = texelFetch(tex_position, ivec2(col, row), 0);
   
-  domain = float(vtx_id); // 0 ... 1
+  domain = 1.0 - float(vtx_id); // 0 ... 1
   vec2 pos = mix(particle.xy, particle.zw, domain);
+
   gl_Position  = vec4(pos * 2.0 - 1.0, 0, 1); // ndc: [-1, +1]
 }
 

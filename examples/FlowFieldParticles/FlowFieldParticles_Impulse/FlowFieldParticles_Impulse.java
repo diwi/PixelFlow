@@ -147,8 +147,8 @@ public class FlowFieldParticles_Impulse extends PApplet {
   
   
   float impulse_max = 256;
-  float impulse_mul = 15;
-  float impulse_tsmooth = 0.50f;
+  float impulse_mul = 25;
+  float impulse_tsmooth = 0.80f;
   int   impulse_blur  = 0;
   
   public void addImpulse(){
@@ -231,7 +231,7 @@ public class FlowFieldParticles_Impulse extends PApplet {
     // create acceleration texture
     ff_acc.resize(w, h);
     {
-      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, 1, 0);
+      Merge.TexMad ta = new Merge.TexMad(ff_impulse.tex_vel, 3, 0);
       Merge.TexMad tb = new Merge.TexMad(pg_gravity, -0.035f, 0);
       DwFilter.get(context).merge.apply(ff_acc.tex_vel, ta, tb);
     }
@@ -283,8 +283,8 @@ public class FlowFieldParticles_Impulse extends PApplet {
     radius = 10;
     px = 50;
     py = vh-50;
-    vx = 2;
-    vy = 10;
+    vx = 5;
+    vy = 20;
     
     DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
     sr.num(count);

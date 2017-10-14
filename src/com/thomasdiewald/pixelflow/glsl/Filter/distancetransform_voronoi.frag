@@ -34,7 +34,6 @@ void main(){
   ivec2 dtnn = texelFetch(tex_dtnn, posi_dtnn, 0).xy;
   
   // un-normalized fraglocation in src texture space
-  //ivec2 posi_src = ivec2(dtnn * wh_dtnn_rcp / wh_src_rcp);
   ivec2 posi_src = ivec2((dtnn+0.5) * wh_dtnn_rcp / wh_src_rcp);
   vec4 data = texelFetch(tex_src, posi_src, 0);
   

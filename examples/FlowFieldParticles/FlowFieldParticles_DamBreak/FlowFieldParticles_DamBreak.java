@@ -44,10 +44,10 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   //
   
   boolean START_FULLSCREEN = !true;
-//  int viewport_w = 1680;
-//  int viewport_h = 1024;
-  int viewport_w = 1280;
-  int viewport_h = 720;
+  int viewport_w = 1680;
+  int viewport_h = 1024;
+//  int viewport_w = 1280;
+//  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -131,18 +131,18 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.col_A = new float[]{0.80f, 0.10f, 0.20f, 5};
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
     particles.param.shader_type = 1;
-    particles.param.shader_collision_mult = 0.25f;
+    particles.param.shader_collision_mult = 0.30f;
     particles.param.steps = 1;
     particles.param.velocity_damping  = 1;
-    particles.param.size_display   = 6;
-    particles.param.size_collision = 6;
-    particles.param.size_cohesion  = 0;
+    particles.param.size_display   = 8;
+    particles.param.size_collision = 8;
+    particles.param.size_cohesion  = 4;
     particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
-    particles.param.mul_obs = 4.00f;
+    particles.param.mul_obs = 3.00f;
     
     particles.param.wh_scale_col =  0;
-    particles.param.wh_scale_coh =  5;
+    particles.param.wh_scale_coh =  4;
     particles.param.wh_scale_obs =  0;
     
     
@@ -156,9 +156,14 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     reset();
 
     frameRate(1000);
+//    frameRate(120);
   }
   
   
+  public void setTimestep(){
+    particles.param.timestep = 1f/(frameRate);
+//    particles.param.timestep = 1f/120;
+  }
 
   
   
@@ -243,7 +248,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     float mix = map(mouseX, 0, width, 0, 1);
     float[] rgb1 = DwUtils.getColor(pallette, mix, null);
     float s1 = 1f/255f;
-    float s2 = s1 * 0.50f;
+    float s2 = s1 * 0.25f;
     particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
     particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
   }
@@ -254,7 +259,7 @@ public class FlowFieldParticles_DamBreak extends PApplet {
 
     
     if(UPDATE_PHYSICS){
-      particles.param.timestep = 1f/frameRate;
+      setTimestep();
       
       spawnParticles();
   

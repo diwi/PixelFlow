@@ -94,8 +94,10 @@ public class FlowField_LIC_StreamLines extends PApplet {
   
   int     STREAMLINE_SAMPLES = 15;
   int     DISPLAY_MODE  = 1;
+  
   boolean APPLY_IMPULSE = false;
-  boolean DISPLAY_FLOWFIELD_STREAM = true;
+  boolean DISPLAY_STREAMLINES = true;
+  boolean DISPLAY_PARTICLES   = !true;
   
   float impulse_max = 256;
   float impulse_mul = 10;
@@ -144,14 +146,14 @@ public class FlowField_LIC_StreamLines extends PApplet {
     particles_stream = new DwFlowFieldParticles(context);
     
     particles_stream.param.blend_mode = 1;
-    particles_stream.param.shader_collision_mult = 0.0f;
-    particles_stream.param.display_line_width  = 0.5f;
-    particles_stream.param.display_line_smooth = !true;
+    particles_stream.param.shader_collision_mult = 0.00f;
+    particles_stream.param.display_line_width  = 1f;
+    particles_stream.param.display_line_smooth = false;
     particles_stream.param.steps = 1;
     particles_stream.param.mul_obs =  0.0f;
     particles_stream.param.mul_col =  0.0f;
     particles_stream.param.mul_coh =  0.0f;
-    particles_stream.param.mul_acc = -10.0f;
+    particles_stream.param.mul_acc = -15.0f;
     particles_stream.param.velocity_damping = 0.10f;
     particles_stream.param.acc_minmax[1] = 120;
     particles_stream.param.vel_minmax[1] = 120;
@@ -182,10 +184,21 @@ public class FlowField_LIC_StreamLines extends PApplet {
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
   
-    DwUtils.COL_TL = new float[]{  0,  0,  0, 255};
-    DwUtils.COL_TR = new float[]{255, 32,  0, 255};
-    DwUtils.COL_BL = new float[]{  0, 32,255, 255};
-    DwUtils.COL_BR = new float[]{32, 255, 32, 255};
+//    DwUtils.COL_TL = new float[]{  0,  0,  0, 255};
+//    DwUtils.COL_TR = new float[]{255, 32,  0, 255};
+//    DwUtils.COL_BL = new float[]{  0, 32,255, 255};
+//    DwUtils.COL_BR = new float[]{32, 255, 32, 255};
+//    
+//    DwUtils.COL_TL = new float[]{  0,  0,  0, 255};
+//    DwUtils.COL_TR = new float[]{255, 96,  0, 255};
+//    DwUtils.COL_BL = new float[]{  0, 96,255, 255};
+//    DwUtils.COL_BR = new float[]{ 32, 32, 32, 255};
+//    
+//    
+    DwUtils.COL_TL = new float[]{   0,  0,   0, 255};
+    DwUtils.COL_TR = new float[]{  32, 64, 128, 255};
+    DwUtils.COL_BL = new float[]{ 128, 64,  32, 255};
+    DwUtils.COL_BR = new float[]{  0,   0,   0, 255};
    
     pg_noise = DwUtils.createBackgroundNoiseTexture(this, width/2, height/2);
     
@@ -299,7 +312,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
     
 
     
-    if(DISPLAY_FLOWFIELD_STREAM){ 
+    if(DISPLAY_STREAMLINES || DISPLAY_PARTICLES){ 
 
       int iterations = STREAMLINE_SAMPLES;
       
@@ -317,8 +330,14 @@ public class FlowField_LIC_StreamLines extends PApplet {
       
       particles_stream.resizeParticlesCount(num_x, num_y);
       particles_stream.resizeWorld(dim_x, dim_y);
+//      particles_stream.reset();
       particles_stream.spawn(dim_x, dim_y, sr);
       
+      particles_stream.param.shader_type = 0;
+      particles_stream.param.size_display = (int) max(2, (0.25f * min(dim_x/(float)num_x, dim_y/(float)num_y)));
+      particles_stream.param.display_line_width = 1f;
+      particles_stream.param.display_line_smooth = !true;
+
       float mul_vec = particles_stream.param.velocity_damping;
       float mul_acc = particles_stream.param.mul_acc;
     
@@ -330,19 +349,33 @@ public class FlowField_LIC_StreamLines extends PApplet {
       }
       particles_stream.param.velocity_damping = mul_vec;
       particles_stream.param.mul_acc = -mul_acc;
-        
-      float s = 0.05f;
-      float[] col_A = {0.25f  , 0.50f  , 1.00f  , 0.00f};
-      float[] col_B = {1.00f*s, 0.30f*s, 0.10f*s, 1.00f};
+      
+      float s1 = 0.20f;
+      float s2 = 0.10f;
+      float[] col_A = {0.25f*s1, 0.50f*s1, 1.00f*s1, 1.00f};
+      float[] col_B = {1.00f*s2, 0.30f*s2, 0.10f*s2, 1.00f};
+      
 
       float step = 1f / iterations;
       for(int i = 0; i < iterations; i++){
+        particles_stream.update(ff_impulse);
+        
         float line_uv = i * step;
         line_uv = (float) Math.pow(line_uv, 2);
         DwUtils.mix(col_A, col_B, line_uv, particles_stream.param.col_A);
-
-        particles_stream.update(ff_impulse);
-        particles_stream.displayTrail(pg_canvas);
+               
+        if(DISPLAY_STREAMLINES){
+          particles_stream.displayTrail(pg_canvas);
+        }
+        
+        if(DISPLAY_PARTICLES){
+//          particles_stream.displayParticles(pg_canvas);
+          float p1 = 1f;
+          float p2 = 1f;
+          particles_stream.param.col_A = new float[]{0.20f*p1,0.02f*p1,0.00f*p1,0.50f};
+          particles_stream.param.col_B = new float[]{0.00f*p2,0.00f*p2,0.00f*p2,0.00f};
+          particles_stream.displayParticles(pg_canvas);
+        }
       }
       
       
@@ -350,7 +383,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
       particles_stream.param.velocity_damping = mul_vec;
     }
     
-    DwFilter.get(context).gaussblur.apply(pg_canvas, pg_canvas, pg_tmp, 1);
+//    DwFilter.get(context).gaussblur.apply(pg_canvas, pg_canvas, pg_tmp, 1);
     
     
     
@@ -401,8 +434,9 @@ public class FlowField_LIC_StreamLines extends PApplet {
     ff_impulse.param_lic.TRACE_FORWARD     = val[1] > 0;
   }
   
-  public void setDisplayStreamLine(int val){
-    DISPLAY_FLOWFIELD_STREAM = val != -1;
+  public void setDisplayStreamLine(float[] val){
+    DISPLAY_STREAMLINES = val[0] > 0;
+    DISPLAY_PARTICLES   = val[1] > 0;
   }
   
   public void toggleGUI(){
@@ -501,7 +535,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
       py += sy + dy_item;
       
       cp5.addSlider("intensity_mult").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
-      .setRange(0.5f, 2.5f).setValue(param.intensity_mult).plugTo(param, "intensity_mult");
+      .setRange(0.0f, 2.5f).setValue(param.intensity_mult).plugTo(param, "intensity_mult");
       py += sy + dy_group;
       
       cp5.addCheckBox("setLicStates").setGroup(group_lic).setSize(sy,sy).setPosition(px, py)
@@ -531,13 +565,13 @@ public class FlowField_LIC_StreamLines extends PApplet {
       px = 15; py = 15;
       
       int count = 1;
-      cp5.addRadio("setDisplayStreamLine").setGroup(group_streamlines).setSize(sy, sy).setPosition(px, py)
+      cp5.addCheckBox("setDisplayStreamLine").setGroup(group_streamlines).setSize(sy, sy).setPosition(px, py)
         .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(count).plugTo(this, "setDisplayStreamLine")
-        .setNoneSelectedAllowed(true)
-        .addItem("STREAMLINE", 1)
-        .activate(DISPLAY_FLOWFIELD_STREAM ? 0 : 1);
+        .addItem("STREAMLINE", 0).activate(DISPLAY_STREAMLINES ? 0 : 2)
+        .addItem("PARTICLES" , 1).activate(DISPLAY_PARTICLES   ? 1 : 2)
+        ;
       
-      py += 1 * sy + dy_group;
+      py += 2 * sy + dy_group;
   
       DwFlowFieldParticles.Param param = particles_stream.param;
       

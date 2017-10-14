@@ -705,8 +705,11 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(!IS_GUI && mousePressed){     
       if(mouseButton == LEFT){
         int count = ceil(particles.getCount() * 0.01f);
-        count = min(max(count, 1), 50000);  
-        int radius = ceil(sqrt(count));
+        count = min(max(count, 1), 10000);  
+//        int radius = ceil(sqrt(count));
+        
+        float pr = particles.getCollisionSize() * 0.25f;
+        int radius = ceil(sqrt(count * pr * pr));
         spawn(radius, count);
       }
     }

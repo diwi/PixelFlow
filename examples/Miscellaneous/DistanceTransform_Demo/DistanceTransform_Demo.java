@@ -52,7 +52,7 @@ public class DistanceTransform_Demo extends PApplet {
   
   boolean START_FULLSCREEN = !true;
 
-  int viewport_w = 1285;
+  int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;

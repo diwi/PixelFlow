@@ -82,8 +82,8 @@ public class DwFlowFieldParticles{
     public int wh_scale_sum = 0; // auto
     
     
-    public float[] acc_minmax = {0.01f, 12f};
-    public float[] vel_minmax = {0.00f, 12f};
+    public float[] acc_minmax = {0.01f, 24f};
+    public float[] vel_minmax = {0.00f, 24f};
     
     // velocity damping
     public float   velocity_damping  = 0.985f;
@@ -240,14 +240,10 @@ public class DwFlowFieldParticles{
   public int getCount(){
     return spawn_num;
   }
-  
+
+
   public float getTimestep(){
-    return Math.min(1, 120 * param.timestep);
-  }
-  
-  public float getTimestepSq(){
-    float timestep = getTimestep();
-    return timestep * timestep;
+    return Math.min(1, 120 * param.timestep) * 0.5f;
   }
 
   
@@ -362,6 +358,13 @@ public class DwFlowFieldParticles{
     resized |= tex_col_dist.resize(context, iformat, w_col, h_col, format, type, filter, wrap, 1, bpc);
     resized |= tex_coh_dist.resize(context, iformat, w_coh, h_coh, format, type, filter, wrap, 1, bpc);
     resized |= tex_tmp_dist.resize(context, iformat, w_col, h_col, format, type, filter, wrap, 1, bpc);
+    
+    if(resized){
+      tex_obs_dist.clear(0);
+      tex_col_dist.clear(0);
+      tex_coh_dist.clear(0);
+      tex_tmp_dist.clear(0);
+    }
 
     return resized;
   }
@@ -802,6 +805,8 @@ public class DwFlowFieldParticles{
   public void update(DwGLTexture tex_acc){
     
     float timestep = getTimestep() / param.steps;
+    
+    updateVelocity();
 
     for(int i = 0; i < param.steps; i++){
       
@@ -818,7 +823,7 @@ public class DwFlowFieldParticles{
       
       updateAcceleration(ff_sum.tex_vel, 1.0f);
     }
-    updateVelocity();
+  
   }
   
   
