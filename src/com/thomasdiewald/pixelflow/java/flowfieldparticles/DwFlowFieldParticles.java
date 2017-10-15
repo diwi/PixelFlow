@@ -463,8 +463,6 @@ public class DwFlowFieldParticles{
     
     context.begin();
     context.beginDraw(tex_particle.dst);
-    context.gl.glEnable(GL2.GL_SCISSOR_TEST);
-    context.gl.glScissor(scx, scy, scw, sch);
     shader_spawn_radial.begin();
     shader_spawn_radial.uniform1i     ("spawn.num"      , type.num);
     shader_spawn_radial.uniform2f     ("spawn.pos"      , type.pos[0], type.pos[1]);
@@ -475,6 +473,7 @@ public class DwFlowFieldParticles{
     shader_spawn_radial.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
     shader_spawn_radial.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_spawn_radial.uniformTexture("tex_position"   , tex_particle.src);
+    shader_spawn_radial.scissors(scx, scy, scw, sch);
     shader_spawn_radial.drawFullScreenQuad();
     shader_spawn_radial.end();
     context.endDraw();
@@ -513,8 +512,6 @@ public class DwFlowFieldParticles{
     
     context.begin();
     context.beginDraw(tex_particle.dst);
-    context.gl.glEnable(GL2.GL_SCISSOR_TEST);
-    context.gl.glScissor(scx, scy, scw, sch);
     shader_spawn_rect.begin();
     shader_spawn_rect.uniform2i     ("spawn.num"      , type.num[0], type.num[1]);
     shader_spawn_rect.uniform2f     ("spawn.pos"      , type.pos[0], type.pos[1]);
@@ -524,6 +521,7 @@ public class DwFlowFieldParticles{
     shader_spawn_rect.uniform2f     ("wh_viewport_rcp", 1f/w_viewport, 1f/h_viewport);
     shader_spawn_rect.uniform2i     ("wh_position"    ,    w_particle,    h_particle);
     shader_spawn_rect.uniformTexture("tex_position"   , tex_particle.src);
+    shader_spawn_rect.scissors(scx, scy, scw, sch);
     shader_spawn_rect.drawFullScreenQuad();
     shader_spawn_rect.end();
     context.endDraw();
@@ -765,8 +763,6 @@ public class DwFlowFieldParticles{
     
     context.begin();
     context.beginDraw(tex_particle.dst);
-    context.gl.glEnable(GL2.GL_SCISSOR_TEST);
-    context.gl.glScissor(0, 0, scw, sch);
     shader_update_acc.begin();
     shader_update_acc.uniform1i     ("spawn_hi"       , spawn_num);
     shader_update_acc.uniform2f     ("acc_minmax"     , acc_min, acc_max);
@@ -776,6 +772,7 @@ public class DwFlowFieldParticles{
     shader_update_acc.uniformTexture("tex_position"   , tex_particle.src);
     shader_update_acc.uniformTexture("tex_velocity"   , tex_velocity);
     shader_update_acc.uniformTexture("tex_collision"  , tex_col_dist);
+    shader_update_acc.scissors(0, 0, scw, sch);
     shader_update_acc.drawFullScreenQuad();
     shader_update_acc.end();
     context.endDraw("DwFlowFieldParticles.updateAcceleration");
@@ -803,8 +800,6 @@ public class DwFlowFieldParticles{
     
     context.begin();
     context.beginDraw(tex_particle.dst);
-    context.gl.glEnable(GL2.GL_SCISSOR_TEST);
-    context.gl.glScissor(0, 0, scw, sch);
     shader_update_vel.begin();
     shader_update_vel.uniform1i     ("spawn_hi"       , spawn_num);
     shader_update_vel.uniform2f     ("vel_minmax"     , vel_min, vel_max);
@@ -813,6 +808,7 @@ public class DwFlowFieldParticles{
     shader_update_vel.uniform2f     ("wh_velocity_rcp", 1f/w_velocity, 1f/h_velocity);
     shader_update_vel.uniformTexture("tex_position"   , tex_particle.src);
     shader_update_vel.uniformTexture("tex_collision"  , tex_col_dist);
+    shader_update_vel.scissors(0, 0, scw, sch);
     shader_update_vel.drawFullScreenQuad();
     shader_update_vel.end("DwFlowFieldParticles.updateVelocity");
     context.endDraw();

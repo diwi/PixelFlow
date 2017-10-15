@@ -350,6 +350,12 @@ public class DwGLSLProgram {
     gl.glScissor(x,y,w,h);
   }
   
+  public void viewport(int x, int y, int w, int h){
+    gl.glViewport(x,y,w,h);
+  }
+  
+  
+  
   public void drawFullScreenQuad(){
     gl.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, 0, 4);
   }
