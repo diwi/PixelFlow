@@ -13,11 +13,11 @@
 #version 150
 
 // STEP_SIZE can be 2, 3 or 4, ... 3 and 4 are the fastest
-#define STEP_SIZE 2
+#define STEP_SIZE 4
 
 // #define TEX(x, y) texelFetchOffset(tex, pos, 0, ivec2(x,y))
 // #define TEX(x, y) texelFetch(tex, pos + ivec2(x,y), 0)
-#define TEX(x, y) texture(tex, (pos + ivec2(x,y) + 0.5)*wh_rcp, 0)
+ #define TEX(x, y) texture(tex, (pos + ivec2(x,y) + 0.5)*wh_rcp, 0)
 
 
 #define MODE_MIN 0 // set by app before compiling
