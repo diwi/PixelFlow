@@ -21,6 +21,7 @@
     - Cohesion
     - Verlet Integration
     - FlowField/SDF(Signed Distance Field) based
+    - Streamlines
     - ...
 + Softbody Dynamics (CPU, GLSL is coming)
     - 2D and 3D
@@ -57,10 +58,11 @@
     - Liquid FX Filter
     - Summed Area Table (SAT)
     - Distance Transform (Jumpflood), Voronoi, Distance Map
-    - Global Min Max
-    - Local Min Max
+    - Min/Max (global)
+    - Min/Max (local)
     - Merge Shader
     - FlowField
+    - Line Integral Convolution (LIC) / Streamlines
     - ...
 + AntiAliasing (GLSL)
     - MSAA (Processing Default)
