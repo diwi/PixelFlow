@@ -23,12 +23,6 @@ import processing.opengl.PGraphics2D;
 
 
 
-/**
- * 
- * @Deprecated use "DwFlowFieldStream" instead
- *
- */
-@Deprecated
 public class DwFluidStreamLines2D{
   
   public Param param = new Param();
@@ -139,10 +133,7 @@ public class DwFluidStreamLines2D{
 //      float space_y    = h / (float) lines_y;
       resize(lines_x, lines_y);
     }
-    
-//    dst.blendMode(PConstants.BLEND);
-//    dst.blendMode(PConstants.ADD);
-    
+     
     context.begin();
     
     init();
@@ -150,33 +141,22 @@ public class DwFluidStreamLines2D{
     for(int segment_idx = 0; segment_idx < param.line_length; segment_idx++){
       update(fluid);
       
-//      dst.beginDraw();
-//      dst.blendMode(PConstants.BLEND);
-//      dst.blendMode(PConstants.ADD);
-
       context.begin();
       context.beginDraw(dst);
       context.gl.glEnable(GL.GL_BLEND);
       context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // BLEND
       context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);                 // ADD
-      
       shader_streamlineRender.begin();
       shader_streamlineRender.uniform2i     ("num_lines"      , lines_x, lines_y);
       shader_streamlineRender.uniform1f     ("line_uv"        , segment_idx/(float)(param.line_length-1));
       shader_streamlineRender.uniformTexture("tex_vertices_V0", tex_vertices.src);
       shader_streamlineRender.uniformTexture("tex_vertices_V1", tex_vertices.dst);
-      shader_streamlineRender.drawFullScreenLines(0, 0, w, h, lines_x * lines_y, 1f);
+      shader_streamlineRender.drawFullScreenLines(lines_x * lines_y, 1f);
       shader_streamlineRender.end();
-      
       context.endDraw();
       context.end("Streamlines.render");
-      
-//      dst.endDraw();
     }
-    
     context.end("Streamlines.update");
-
-//    dst.loadTexture();
   }
     
 

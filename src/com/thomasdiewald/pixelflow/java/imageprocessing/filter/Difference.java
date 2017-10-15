@@ -39,14 +39,12 @@ public class Difference {
     Texture tex_dst  = dst .getTexture(); if(!tex_dst .available())  return;
     Texture tex_texA = texA.getTexture(); if(!tex_texA.available())  return;
     Texture tex_texB = texB.getTexture(); if(!tex_texB.available())  return; 
-    
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     apply(tex_texA.glName, tex_texB.glName, dst.width, dst.height);
     context.endDraw();
     context.end("Difference.apply");
-//    dst.endDraw();
   }
   
 
@@ -65,7 +63,7 @@ public class Difference {
     shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniformTexture("texA", texA_handle);
     shader.uniformTexture("texB", texB_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
 

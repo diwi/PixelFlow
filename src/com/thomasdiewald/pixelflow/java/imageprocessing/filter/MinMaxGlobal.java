@@ -153,13 +153,12 @@ public class MinMaxGlobal {
         shader_min.begin();
         shader_min.uniform2f("wh_rcp", 1f/src.w, 1f/src.h);
         shader_min.uniformTexture("tex", src);
+        shader_min.uniform2i("off", 0, 0);
         if(i == layers-1){
           shader_min.uniform2i("off", 1, 0);
-          shader_min.drawFullScreenQuad(0,0,1,1); // pixel[0,0] == min
-        } else {
-          shader_min.uniform2i("off", 0, 0);
-          shader_min.drawFullScreenQuad();
-        }
+          shader_min.scissors(0,0,1,1); // pixel[0,0] == min
+        } 
+        shader_min.drawFullScreenQuad();
         shader_min.end();
         context.endDraw();
       }
@@ -175,13 +174,13 @@ public class MinMaxGlobal {
         shader_max.begin();
         shader_max.uniform2f("wh_rcp", 1f/src.w, 1f/src.h);
         shader_max.uniformTexture("tex", src);
+        shader_max.uniform2i("off", 0, 0);
         if(i == layers-1){
           shader_max.uniform2i("off", 1, 0);
-          shader_max.drawFullScreenQuad(1,0,1,1); // pixel[1,0] == max
-        } else {
-          shader_max.uniform2i("off", 0, 0);
+          shader_max.scissors(1,0,1,1); // pixel[1,0] == max
           shader_max.drawFullScreenQuad();
-        }
+        } 
+        shader_max.drawFullScreenQuad();
         shader_max.end();
         context.endDraw();
       }

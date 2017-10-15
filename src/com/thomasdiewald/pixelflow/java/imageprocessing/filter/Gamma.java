@@ -32,14 +32,12 @@ public class Gamma {
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float gamma) {
     Texture tex_src = src.getTexture(); if(!tex_src.available()) return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available()) return;
-    
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName,dst.width, dst.height, gamma);
     context.endDraw();
     context.end("GammaCorrection.apply");
-//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src_dst) {
@@ -73,9 +71,8 @@ public class Gamma {
     shader.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader.uniform1f     ("GAMMA_CORRECTION", gamma);
     shader.uniformTexture("tex", tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
-//    System.out.println("H");
   }
   
 }

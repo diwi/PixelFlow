@@ -18,7 +18,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture.TexturePingPong;
 
-import processing.core.PConstants;
 import processing.opengl.PGraphics2D;
 import processing.opengl.Texture;;
 
@@ -498,9 +497,9 @@ public class DwFluid2D{
     int w = dst.width;
     int h = dst.height;
     
-    dst.beginDraw();
-    dst.blendMode(PConstants.BLEND);
     context.begin();
+    context.beginDraw(dst);
+    blendMode();
     shader_renderFluid.begin();
     shader_renderFluid.uniform2f     ("wh"             , w, h); 
     shader_renderFluid.uniform1i     ("display_mode"   , display_mode);
@@ -510,11 +509,10 @@ public class DwFluid2D{
     shader_renderFluid.uniformTexture("tex_pressure"   , tex_pressure   .src);
     shader_renderFluid.uniformTexture("tex_obstacleC"  , tex_obstacleC  .src);
     shader_renderFluid.uniformTexture("tex_obstacleN"  , tex_obstacleN  .src);
-    shader_renderFluid.drawFullScreenQuad(0, 0, w, h);
+    shader_renderFluid.drawFullScreenQuad();
     shader_renderFluid.end();
+    context.endDraw();
     context.end("Fluid.renderFluidTextures");
-    
-    dst.endDraw();
   }
   
   
@@ -532,13 +530,9 @@ public class DwFluid2D{
     float scale      = (space_x + space_y) * 0.35f;
     float line_width = 1.0f;
     
-    dst.beginDraw();
-    dst.blendMode(PConstants.BLEND);
-    
     context.begin();
-//    context.beginDraw(dst, true);
-//    context.gl.glEnable(GL.GL_BLEND);
-//    context.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // BLEND
+    context.beginDraw(dst);
+    blendMode();
     shader_renderVelocityStreams.begin();
     shader_renderVelocityStreams.uniform2f     ("wh"            , w, h);
     shader_renderVelocityStreams.uniform1i     ("display_mode"  , 0); // 0 or 1
@@ -546,17 +540,18 @@ public class DwFluid2D{
     shader_renderVelocityStreams.uniform2f     ("spacing"       , space_x, space_y);
     shader_renderVelocityStreams.uniform1f     ("velocity_scale", scale);
     shader_renderVelocityStreams.uniformTexture("tex_velocity"  , tex_velocity.src);
-    shader_renderVelocityStreams.drawFullScreenLines(0, 0, w, h, num_lines, line_width);
+    shader_renderVelocityStreams.drawFullScreenLines(num_lines, line_width);
     shader_renderVelocityStreams.end();
-//    context.endDraw();
+    context.endDraw();
     context.end("Fluid.renderFluidVectors");
-    
-    dst.endDraw();
-//    dst.loadTexture();
   }
   
   
-  
+  public void blendMode(){
+    context.gl.glEnable(GL2.GL_BLEND);
+    context.gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+    context.gl.glBlendFuncSeparate(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA, GL2.GL_ONE, GL2.GL_ONE);
+  }
   
   
   

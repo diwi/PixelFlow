@@ -71,7 +71,7 @@ public class RGBL {
     shader.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader.uniformTexture("tex", tex_handle);
     shader.uniform3fv("luminance", 1, luminance);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

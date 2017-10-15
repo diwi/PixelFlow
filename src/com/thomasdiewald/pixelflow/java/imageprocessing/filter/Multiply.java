@@ -30,14 +30,12 @@ public class Multiply {
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float[] multiplier) {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
-       
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, multiplier);
     context.endDraw();
     context.end("Multiply.apply");
-//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst, float[] multiplier) {
@@ -68,7 +66,7 @@ public class Multiply {
     shader_vec.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader_vec.uniformTexture("tex", tex_handle);
     shader_vec.uniform4fv    ("multiplier", 1, multiplier);
-    shader_vec.drawFullScreenQuad(0, 0, w, h);
+    shader_vec.drawFullScreenQuad();
     shader_vec.end();
   }
   
@@ -94,13 +92,11 @@ public class Multiply {
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     Texture tex_mul = mul.getTexture(); if(!tex_mul.available())  return; 
     
-//    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, tex_mul.glName);
     context.endDraw();
     context.end("Multiply.apply");
-//    dst.endDraw();
   }
   
   
@@ -111,7 +107,7 @@ public class Multiply {
     shader_tex.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader_tex.uniformTexture("tex_src", tex_handle_src);
     shader_tex.uniformTexture("tex_mul", tex_handle_mul);
-    shader_tex.drawFullScreenQuad(0, 0, w, h);
+    shader_tex.drawFullScreenQuad();
     shader_tex.end();
   }
   

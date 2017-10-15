@@ -123,7 +123,7 @@ public class Merge {
             shader_mergeN.uniform2f     ("mN["+i+"]", tex[i].mul, tex[i].add);
             shader_mergeN.uniformTexture("tN["+i+"]", tex[i].tex);
           }
-          shader_mergeN.drawFullScreenQuad(0,0,w,h);
+          shader_mergeN.drawFullScreenQuad();
           shader_mergeN.end();
         }
         break;
@@ -141,7 +141,7 @@ public class Merge {
     shader_merge1.uniform2f     ("wh_rcp" , 1f/w,  1f/h);
     shader_merge1.uniform2f     ("m0", t0.mul, t0.add);
     shader_merge1.uniformTexture("t0", t0.tex);
-    shader_merge1.drawFullScreenQuad(0,0,w,h);
+    shader_merge1.drawFullScreenQuad();
     shader_merge1.end();
   }
   
@@ -157,7 +157,7 @@ public class Merge {
     shader_merge2.uniform2f     ("m1", t1.mul, t1.add);
     shader_merge2.uniformTexture("t0", t0.tex);
     shader_merge2.uniformTexture("t1", t1.tex);
-    shader_merge2.drawFullScreenQuad(0,0,w,h);
+    shader_merge2.drawFullScreenQuad();
     shader_merge2.end();
   }
   
@@ -174,7 +174,7 @@ public class Merge {
     shader_merge3.uniformTexture("t0", t0.tex);
     shader_merge3.uniformTexture("t1", t1.tex);
     shader_merge3.uniformTexture("t2", t2.tex);
-    shader_merge3.drawFullScreenQuad(0,0,w,h);
+    shader_merge3.drawFullScreenQuad();
     shader_merge3.end();
   }
   
@@ -193,7 +193,7 @@ public class Merge {
     shader_merge4.uniformTexture("t1", t1.tex);
     shader_merge4.uniformTexture("t2", t2.tex);
     shader_merge4.uniformTexture("t3", t3.tex);
-    shader_merge4.drawFullScreenQuad(0,0,w,h);
+    shader_merge4.drawFullScreenQuad();
     shader_merge4.end();
   }
   
@@ -214,7 +214,7 @@ public class Merge {
     shader_merge5.uniformTexture("t2", t2.tex);
     shader_merge5.uniformTexture("t3", t3.tex);
     shader_merge5.uniformTexture("t4", t4.tex);
-    shader_merge5.drawFullScreenQuad(0,0,w,h);
+    shader_merge5.drawFullScreenQuad();
     shader_merge5.end();
   }
   

@@ -41,14 +41,12 @@ public class LuminanceThreshold {
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst) {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
-       
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height);
     context.endDraw();
     context.end("LuminanceThreshold.apply");
-//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
@@ -81,7 +79,7 @@ public class LuminanceThreshold {
     shader.uniform3fv    ("luminance", 1, luminance);
     shader.uniform1f     ("threshold", param.threshold);
     shader.uniform1i     ("exponent", param.exponent);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

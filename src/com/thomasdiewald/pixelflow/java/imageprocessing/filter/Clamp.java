@@ -85,7 +85,7 @@ public class Clamp {
     shader.uniform4fv    ("lo", 1, lo);
     shader.uniform4fv    ("hi", 1, hi);
     shader.uniformTexture("tex", tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

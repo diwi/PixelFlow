@@ -15,7 +15,6 @@ package com.thomasdiewald.pixelflow.java.imageprocessing;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLRenderSettingsCallback;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -210,37 +209,21 @@ public class DwOpticalFlow {
   
   
 
-  public DwGLRenderSettingsCallback rcb = new DwGLRenderSettingsCallback() {
-    @Override
-    public void set(DwPixelFlow context, int x, int y, int w, int h) {
-      context.gl.glEnable(GL2.GL_BLEND);
-      context.gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
-      context.gl.glBlendFuncSeparate(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA, GL2.GL_ONE, GL2.GL_ONE);
-    }
-  };
-
   public void renderVelocityShading(PGraphics2D dst){
     
     int w = dst.width;
     int h = dst.height;
     
-//    dst.beginDraw();
-//    dst.blendMode(PConstants.BLEND);
-    
-    context.pushRenderSettings(rcb);
-    
     context.begin();
     context.beginDraw(dst);
+    blendMode();
     shader_OF_renderVelocity.begin();
     shader_OF_renderVelocity.uniform2f     ("wh_rcp"       , 1f/w, 1f/h);
     shader_OF_renderVelocity.uniformTexture("tex_velocity" , frameCurr.velocity);
-    shader_OF_renderVelocity.drawFullScreenQuad(0, 0, w, h);
+    shader_OF_renderVelocity.drawFullScreenQuad();
     shader_OF_renderVelocity.end();
     context.endDraw();
     context.end("OpticalFlow.renderFluidVectors");
-
-    context.popRenderSettings();
-//    dst.endDraw();
   }
   
   
@@ -261,12 +244,9 @@ public class DwOpticalFlow {
     float scale      = (space_x + space_y) * 1;
     float line_width = 1.0f;
     
-//    dst.beginDraw();
-//    dst.blendMode(PConstants.BLEND);
-    context.pushRenderSettings(rcb);
-    
     context.begin();
     context.beginDraw(dst);
+    blendMode();
     shader_OF_renderVelocityStreams.begin();
     shader_OF_renderVelocityStreams.uniform2f     ("wh_rcp"        , 1f/frameCurr.w, 1f/frameCurr.h);
     shader_OF_renderVelocityStreams.uniform1i     ("display_mode"  , param.display_mode);
@@ -274,13 +254,18 @@ public class DwOpticalFlow {
     shader_OF_renderVelocityStreams.uniform2f     ("spacing"       , space_x, space_y);
     shader_OF_renderVelocityStreams.uniform1f     ("velocity_scale", scale);
     shader_OF_renderVelocityStreams.uniformTexture("tex_velocity"  , frameCurr.velocity);
-    shader_OF_renderVelocityStreams.drawFullScreenLines(0, 0, w, h, num_lines, line_width);
+    shader_OF_renderVelocityStreams.drawFullScreenLines(num_lines, line_width);
     shader_OF_renderVelocityStreams.end();
     context.endDraw();
     context.end("OpticalFlow.renderVelocityStreams");
-    
-    context.popRenderSettings();
-//    dst.endDraw();
+
+  }
+  
+  
+  public void blendMode(){
+    context.gl.glEnable(GL2.GL_BLEND);
+    context.gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+    context.gl.glBlendFuncSeparate(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA, GL2.GL_ONE, GL2.GL_ONE);
   }
   
 

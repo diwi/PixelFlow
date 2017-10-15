@@ -182,6 +182,7 @@ public class ImageProcessing_Filter extends PApplet {
     
     view_w = img.width;
     view_h = img.height;
+    
     size(view_w+gui_w, view_h, P2D);
     smooth(8);
   }

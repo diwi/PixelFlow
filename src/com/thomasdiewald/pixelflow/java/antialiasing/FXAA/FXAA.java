@@ -117,7 +117,7 @@ public class FXAA {
     shader.uniform1f     ("QualitySubpix"          , param.QualitySubpix          );
     shader.uniform1f     ("QualityEdgeThreshold"   , param.QualityEdgeThreshold   );
     shader.uniform1f     ("QualityEdgeThresholdMin", param.QualityEdgeThresholdMin);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

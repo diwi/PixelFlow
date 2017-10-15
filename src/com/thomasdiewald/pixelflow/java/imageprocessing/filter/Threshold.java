@@ -41,13 +41,11 @@ public class Threshold {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-//    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height);
     context.endDraw();
     context.end("Threshold.apply");
-//    dst.endDraw();
   }
   
   public void apply(PGraphicsOpenGL src, DwGLTexture dst) {
@@ -71,7 +69,7 @@ public class Threshold {
     context.end("Threshold.apply");
   }
   
-  DwGLSLProgram shader;
+  public DwGLSLProgram shader;
   public void apply(int tex_handle, int w, int h){    
     if(shader == null) shader = context.createShader(DwPixelFlow.SHADER_DIR+"Filter/threshold.frag");
     shader.begin();
@@ -80,7 +78,7 @@ public class Threshold {
     shader.uniform4fv    ("threshold_pow", 1, param.threshold_pow);
     shader.uniform4fv    ("threshold_mul", 1, param.threshold_mul);
     shader.uniformTexture("tex"      , tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

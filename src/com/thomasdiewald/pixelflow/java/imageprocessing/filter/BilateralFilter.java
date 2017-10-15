@@ -42,14 +42,12 @@ public class BilateralFilter {
     }
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
-       
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, radius, sigma_color, sigma_space);
     context.endDraw();
     context.end("BilateralFilter.apply");
-//    dst.endDraw();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, int radius, float sigma_color, float sigma_space) {
@@ -73,7 +71,7 @@ public class BilateralFilter {
     shader.uniform1f     ("sigma_color", sigma_color);
     shader.uniform1f     ("sigma_space", sigma_space);
     shader.uniformTexture("tex"        , tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

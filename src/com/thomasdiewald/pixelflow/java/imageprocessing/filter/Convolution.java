@@ -42,13 +42,11 @@ public class Convolution {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
        
-//    dst.beginDraw();
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName, dst.width, dst.height, kernel);
     context.endDraw();
     context.end("Convolution.apply");
-//    dst.endDraw();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, float[] kernel) {
@@ -71,7 +69,7 @@ public class Convolution {
     shader.uniform2f     ("wh_rcp", 1f/w, 1f/h);
     shader.uniform1fv    ("kernel", 9, kernel);
     shader.uniformTexture("tex"   , tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
   

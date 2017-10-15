@@ -144,7 +144,7 @@ public class GaussianBlur {
     shader.uniform1f     ("sigma" , sigma);
     shader.uniform2f     ("dir"   , dir[0] * tex_offset_scale, dir[1] * tex_offset_scale);
     shader.uniformTexture("tex"   , tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
 

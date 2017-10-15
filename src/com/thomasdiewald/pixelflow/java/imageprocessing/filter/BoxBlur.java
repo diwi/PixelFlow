@@ -94,7 +94,7 @@ public class BoxBlur {
     shader.uniform1i     ("radius", radius);
     shader.uniform2i     ("dir"   , dir[0], dir[1]);
     shader.uniformTexture("tex"   , tex_handle);
-    shader.drawFullScreenQuad(0, 0, w, h);
+    shader.drawFullScreenQuad();
     shader.end();
   }
 

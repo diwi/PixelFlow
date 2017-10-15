@@ -21,7 +21,6 @@ import java.util.Stack;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
@@ -96,6 +95,13 @@ public class DwGLSLProgram {
   }
 
 
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // ERROR CHECKING
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  
+  
   // Query information
   public static void getProgramInfoLog(GL2ES2 gl, int program_id, String info) {
     if(program_id==-1) return;
@@ -136,10 +142,15 @@ public class DwGLSLProgram {
   
   
   
-
-
   
-  // Comfort Methods
+  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // BEGIN / END
+  //
+  //////////////////////////////////////////////////////////////////////////////
+
   public void begin(){
     build();
     gl.glUseProgram(HANDLE);
@@ -155,6 +166,20 @@ public class DwGLSLProgram {
     DwGLError.debug(gl, error_msg);
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // UNIFORMS
+  //
+  //////////////////////////////////////////////////////////////////////////////
   
   HashMap<String, Integer> uniform_loc = new HashMap<String, Integer>();
 
@@ -183,8 +208,7 @@ public class DwGLSLProgram {
   }
   
  
-  
-  
+
   public static class UniformTexture{
     String name = null;;
     int loc = -1;
@@ -304,33 +328,37 @@ public class DwGLSLProgram {
   }
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // DRAWING
+  //
+  //////////////////////////////////////////////////////////////////////////////
   
-  public void drawFullScreenQuad(int[] viewport){
-    if(viewport != null){
-      drawFullScreenQuad(viewport[0], viewport[1], viewport[2], viewport[3]);
-    } else {
-      drawFullScreenQuad();
-    }
+  public void scissors(int x, int y, int w, int h){
+    gl.glEnable(GL2.GL_SCISSOR_TEST);
+    gl.glScissor(x,y,w,h);
   }
   
-  
-  public void drawFullScreenQuad(int x, int y, int w, int h){
-    gl.glViewport(x, y, w, h);
-    drawFullScreenQuad();
-  }
   public void drawFullScreenQuad(){
     gl.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, 0, 4);
   }
   
-  
-  public void drawFullScreenLines(int x, int y, int w, int h, int num_lines, float line_width){
-    drawFullScreenLines(x,y,w,h,num_lines,line_width, true);
+  public void drawFullScreenLines(int num_lines, float line_width){
+    drawFullScreenLines(num_lines, line_width, true);
   }
   
-  public void drawFullScreenLines(int x, int y, int w, int h, int num_lines, float line_width, boolean smooth){
-    gl.glViewport(x, y, w, h);
-    
+  public void drawFullScreenLines(int num_lines, float line_width, boolean smooth){
     if(smooth){
       gl.glEnable(GL2.GL_LINE_SMOOTH);
       gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_FASTEST);
@@ -339,20 +367,39 @@ public class DwGLSLProgram {
       gl.glDisable(GL2.GL_LINE_SMOOTH);
     }
     gl.glLineWidth(line_width);
-    
     gl.glDrawArrays(GL2.GL_LINES, 0, num_lines * 2);
   }
   
   
+  public void drawFullScreenPoints(int num_points){
+    gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
+    gl.glDrawArrays(GL2.GL_POINTS, 0, num_points);
+  }
+  
+  
+//  public void drawFullScreenQuads(int num_quads){
+////    gl.glDrawArrays(GL2.GL_QUADS, 0, num_quads * 1);
+//    GL2ES3 gl2es3 = gl.getGL2ES3();
+//    gl2es3.glDrawArraysInstanced(GL2.GL_TRIANGLE_STRIP, 0, 4, num_quads);  //draw #count quads
+//  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 //  @Deprecated
-//  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points){
-//    drawFullScreenPoints(x,y,w,h,num_points,true);
+//  public void drawFullScreenPoints(int num_points){
+//    drawFullScreenPoints(num_points,true);
 //  }
 //  
 //  @Deprecated
-//  public void drawFullScreenPoints(int x, int y, int w, int h, int num_points, boolean smooth){
-//    gl.glViewport(x, y, w, h);
-//    
+//  public void drawFullScreenPoints(int num_points, boolean smooth){
 //    // START ... of the problem, TODO
 //    //
 //    {
@@ -378,20 +425,7 @@ public class DwGLSLProgram {
   
   
 
-  public void drawFullScreenPoints(int num_points){
-    gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE);
-    gl.glDrawArrays(GL2.GL_POINTS, 0, num_points);
-  }
-  
-  
-  
-  public void drawFullScreenQuads(int x, int y, int w, int h, int num_quads){
-    gl.glViewport(x, y, w, h);
-//    gl.glDrawArrays(GL2.GL_QUADS, 0, num_quads * 1);
-    GL2ES3 gl2es3 = gl.getGL2ES3();
-    gl2es3.glDrawArraysInstanced(GL2.GL_TRIANGLE_STRIP, 0, 4, num_quads);  //draw #count quads
-  }
-  
+
   
   
   

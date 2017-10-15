@@ -104,20 +104,18 @@ public class GBAA {
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     Texture tex_edges = pg_edges.getTexture(); if(!tex_edges.available())  return;
 
-//    dst.beginDraw();
+
     context.begin();
     context.beginDraw(dst);
     shader_gbaa.begin();
     shader_gbaa.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
     shader_gbaa.uniformTexture("tex_src", tex_src.glName);
     shader_gbaa.uniformTexture("tex_edges", tex_edges.glName);
-    shader_gbaa.drawFullScreenQuad(0, 0, w, h);
+    shader_gbaa.drawFullScreenQuad();
     shader_gbaa.end();
     context.endDraw();
     context.end("GBAA.apply");
-//    dst.endDraw();
-    
-      
+  
   }
   
 }

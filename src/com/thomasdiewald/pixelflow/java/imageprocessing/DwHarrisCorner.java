@@ -19,7 +19,6 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Sobel;
-import processing.core.PConstants;
 import processing.opengl.PGraphics2D;;
 
 public class DwHarrisCorner {
@@ -146,21 +145,22 @@ public class DwHarrisCorner {
   
   
   public void render(PGraphics2D dst){
-    
+
     int w = dst.width;
     int h = dst.height;
     
-    dst.beginDraw();
-    dst.blendMode(PConstants.BLEND);
-    
     context.begin();
+    context.beginDraw(dst);
+    context.gl.glEnable(GL2.GL_BLEND);
+    context.gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+    context.gl.glBlendFuncSeparate(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA, GL2.GL_ONE, GL2.GL_ONE);
     shader_render.begin();
     shader_render.uniform2f     ("wh"              , w, h);
     shader_render.uniformTexture("tex_harrisCorner", frameCurr.harrisCorner);
-    shader_render.drawFullScreenQuad(0, 0, w, h);
+    shader_render.drawFullScreenQuad();
     shader_render.end();
+    context.endDraw();
     context.end("HarrisCorner.render");
-    dst.endDraw();
   }
 
   

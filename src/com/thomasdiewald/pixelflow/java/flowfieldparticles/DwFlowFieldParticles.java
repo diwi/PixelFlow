@@ -609,7 +609,7 @@ public class DwFlowFieldParticles{
     shader_display_trails.uniform4fv    ("col_A"        , 1, param.col_A);
     shader_display_trails.uniformTexture("tex_collision", tex_col_dist);
     shader_display_trails.uniformTexture("tex_position" , tex_particle.src);
-    shader_display_trails.drawFullScreenLines(0, 0, w_viewport, h_viewport, spawn_num, param.display_line_width, param.display_line_smooth);
+    shader_display_trails.drawFullScreenLines(spawn_num, param.display_line_width, param.display_line_smooth);
     shader_display_trails.end();
   }
   

@@ -197,7 +197,7 @@ public class DwFlowField {
     shader_display_lines.uniform2f     ("wh_lines_rcp"  , 1f/lines_x, 1f/lines_y);
     shader_display_lines.uniform1f     ("vel_scale"     , scale);
     shader_display_lines.uniformTexture("tex_velocity"  , tex_vel);
-    shader_display_lines.drawFullScreenLines(0, 0, w, h, num_lines, param.line_width, param.line_smooth);
+    shader_display_lines.drawFullScreenLines(num_lines, param.line_width, param.line_smooth);
     shader_display_lines.end();
     context.endDraw("FlowField.displayLines");
     context.end();
