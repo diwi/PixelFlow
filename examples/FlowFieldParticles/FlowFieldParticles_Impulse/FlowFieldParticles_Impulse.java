@@ -135,8 +135,8 @@ public class FlowFieldParticles_Impulse extends PApplet {
     particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
     
-    particles.resizeWorld(width, height); 
-    particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
+    
+    resetParticles();
 
     frameRate(1000);
   }
@@ -313,7 +313,13 @@ public class FlowFieldParticles_Impulse extends PApplet {
   
   
   public void keyReleased(){
-    if(key == 'r') particles.reset();
+    if(key == 'r') resetParticles();
+  }
+  
+  public void resetParticles(){
+    particles.resizeWorld(width, height); 
+    particles.reset();
+    particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
   }
   
   

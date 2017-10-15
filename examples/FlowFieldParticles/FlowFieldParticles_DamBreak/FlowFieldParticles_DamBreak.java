@@ -145,9 +145,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.wh_scale_coh =  4;
     particles.param.wh_scale_obs =  0;
     
-    
-    particles.resizeWorld(width, height); 
-    particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
+ 
+
     
   //  PFont font = createDefaultFont(12);
     PFont font = createFont("Arial", 12, false);
@@ -385,6 +384,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   
   public void reset(){
     particles.reset();
+    particles.resizeWorld(width, height);
+    particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
     
     float dimx = width-40;
     float dimy = height-40;
@@ -398,13 +399,9 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     spawn.pos(width/2-dimx/2, height-dimy-20);
     spawn.vel(0, 0);
     
-    
-    
     spawn.num(numx, numy);
     
- 
     particles.spawn(width, height, spawn);
-    
   }
   
 

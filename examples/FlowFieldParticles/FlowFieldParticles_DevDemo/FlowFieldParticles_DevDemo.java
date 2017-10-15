@@ -693,7 +693,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
       
       sr.num(1);
       sr.dim(30, 30);
-      sr.pos(width-px, height-1 - py);
+      sr.pos(width-px-120, height-1 - py);
       sr.vel(-6, 2);
       particles.spawn(width, height, sr);
 
