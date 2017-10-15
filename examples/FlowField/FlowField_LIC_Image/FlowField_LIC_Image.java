@@ -62,8 +62,9 @@ public class FlowField_LIC_Image extends PApplet {
   PGraphics2D pg_source;
   PGraphics2D pg_impulse;
   PGraphics2D pg_noise;
-  PGraphics2D pg_tmp;
+
   DwPixelFlow context;
+  
   DwFlowField ff_impulse;
   
   PImage img;
@@ -194,9 +195,9 @@ public class FlowField_LIC_Image extends PApplet {
   float impulse_mul = 10;
   float impulse_tsmooth = 1f;
   int   impulse_radius = 200;
+  
   public void addImpulse(){
-    
-    
+
     APPLY_IMPULSE = mousePressed && !cp5.isMouseOver();
     
     final int MID = 127;

@@ -20,6 +20,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
@@ -33,10 +34,11 @@ import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PJOGL;
+import processing.video.Capture;
 
 
 
-public class FlowField_LIC_StreamLines extends PApplet {
+public class FlowField_LIC_StreamLines2 extends PApplet {
   
   //
   // Line Integral Convolution (LIC) Shader
@@ -71,12 +73,14 @@ public class FlowField_LIC_StreamLines extends PApplet {
   
   boolean START_FULLSCREEN = !true;
   
-//  int viewport_w = 1680;
-//  int viewport_h = 1024;
-  int viewport_w = 1280;
-  int viewport_h = 720;
-  int viewport_x = 230;
-  int viewport_y = 0;
+  int cam_w = 640;
+  int cam_h = 480;
+  
+  int view_w = 1200;
+  int view_h = (int)(view_w * cam_h/(float)cam_w);
+  int view_x = 230;
+  int view_y = 0;
+  
   
   int gui_w = 200;
   int gui_x = 10;
@@ -86,10 +90,18 @@ public class FlowField_LIC_StreamLines extends PApplet {
   PGraphics2D pg_impulse;
   PGraphics2D pg_noise;
   PGraphics2D pg_tmp;
+  PGraphics2D pg_cam;
 
   DwPixelFlow context;
   
+  // optical flow
+  DwOpticalFlow opticalflow;
+  
+  // camera capture (video library)
+  Capture cam;
+  
   DwFlowField ff_impulse;
+  DwFlowField ff_impulse_old;
   
   DwFlowFieldParticles particles_stream;
   
@@ -97,10 +109,10 @@ public class FlowField_LIC_StreamLines extends PApplet {
   int     STREAMLINE_RES = 10;
   int     DISPLAY_MODE  = 1;
   
-  boolean APPLY_IMPULSE       = false;
+  boolean APPLY_IMPULSE = false;
   boolean DISPLAY_STREAMLINES = true;
   boolean DISPLAY_PARTICLES   = !true;
-  boolean BLUR_ITERATIONS     = true;
+  boolean BLUR_ITERATIONS = true;
   
   
   float impulse_max = 256;
@@ -109,34 +121,29 @@ public class FlowField_LIC_StreamLines extends PApplet {
   int   impulse_radius = 250;
 
   public void settings() {
-    if(START_FULLSCREEN){
-      viewport_w = displayWidth;
-      viewport_h = displayHeight;
-      viewport_x = 0;
-      viewport_y = 0;
-      fullScreen(P2D);
-    } else {
-      viewport_w = (int) min(viewport_w, displayWidth  * 0.9f);
-      viewport_h = (int) min(viewport_h, displayHeight * 0.9f);
-      size(viewport_w, viewport_h, P2D);
-    }
-    PJOGL.profile = 3;
-    smooth(8);
+    size(view_w, view_h, P2D);
+    smooth(0);
   }
   
 
   public void setup(){
-    surface.setLocation(viewport_x, viewport_y);
-    surface.setResizable(true);
+    cam = new Capture(this, cam_w, cam_h, 30);
+    cam.start();
+    
+    // renderbuffers
+    pg_cam = (PGraphics2D) createGraphics(cam_w, cam_h, P2D);
+    pg_cam.smooth(0);
 
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+    
+    opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
 
     ff_impulse = new DwFlowField(context);
     
     ff_impulse.param.blur_iterations = 1;
-    ff_impulse.param.blur_radius     = 1;
+    ff_impulse.param.blur_radius     = 3;
     
     ff_impulse.param_lic.iterations     = 2;
     ff_impulse.param_lic.num_samples    = 25;
@@ -146,6 +153,11 @@ public class FlowField_LIC_StreamLines extends PApplet {
     ff_impulse.param_lic.intensity_exp  = 1.50f;
     ff_impulse.param_lic.TRACE_BACKWARD = true;
     ff_impulse.param_lic.TRACE_FORWARD  = false;
+    
+    
+    ff_impulse_old = new DwFlowField(context);
+    ff_impulse_old.param.blur_iterations = 1;
+    ff_impulse_old.param.blur_radius     = 3;
     
     particles_stream = new DwFlowFieldParticles(context);
     
@@ -157,7 +169,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
     particles_stream.param.mul_obs =  0.0f;
     particles_stream.param.mul_col =  0.0f;
     particles_stream.param.mul_coh =  0.0f;
-    particles_stream.param.mul_acc = +5.0f;
+    particles_stream.param.mul_acc = -5.0f;
     particles_stream.param.velocity_damping = 0.30f;
     
     particles_stream.param.acc_minmax[1] = 120;
@@ -192,7 +204,6 @@ public class FlowField_LIC_StreamLines extends PApplet {
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
-    
     pg_tmp = (PGraphics2D) createGraphics(width, height, P2D);
     pg_tmp.smooth(0);
     
@@ -204,7 +215,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
 
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
-  
+   
     DwUtils.COL_TL = new float[]{   0,  0,   0, 255};
     DwUtils.COL_TR = new float[]{  32, 64, 128, 255};
     DwUtils.COL_BL = new float[]{ 128, 64,  32, 255};
@@ -212,15 +223,19 @@ public class FlowField_LIC_StreamLines extends PApplet {
    
     pg_noise = DwUtils.createBackgroundNoiseTexture(this, width/2, height/2);
     
+
     resetScene();
   }
   
   public void resetScene(){
     pg_canvas.beginDraw();
     pg_canvas.clear();
+    pg_canvas.blendMode(REPLACE);
+//    pg_canvas.image(pg_noise, 0, 0, pg_canvas.width, pg_canvas.height);
     pg_canvas.endDraw();
   }
   
+
 
   
   //////////////////////////////////////////////////////////////////////////////
@@ -285,11 +300,52 @@ public class FlowField_LIC_StreamLines extends PApplet {
 
  
 
+  int counter = 0;
   public void draw(){
     
-    resizeScene();
     
-    addImpulse();
+    if( cam.available() ){
+      cam.read();
+      
+      // render to offscreenbuffer
+      pg_cam.beginDraw();
+      pg_cam.image(cam, 0, 0);
+      pg_cam.endDraw();
+      
+      DwFilter.get(context).luminance.apply(pg_cam, pg_cam);
+      DwFilter.get(context).gaussblur.apply(pg_cam, pg_cam, pg_tmp, 5);
+      
+      // update Optical Flow
+      opticalflow.update(pg_cam);
+      
+//      Merge.TexMad tc = new Merge.TexMad(opticalflow.frameCurr.velocity, 0.0545f,0);
+      counter++;
+    }
+    
+    ff_impulse_old.resize(width, height);
+    ff_impulse    .resize(width, height);
+    
+    ff_impulse_old.create(pg_cam);
+    
+
+
+    
+    float mix = 0.02f;
+    if(counter == 1){
+      mix = 1;
+    }
+//    Merge.TexMad ta = new Merge.TexMad(ff_impulse_old.tex_vel,   mix, 0);
+    Merge.TexMad ta = new Merge.TexMad(opticalflow.frameCurr.velocity,   mix * 10, 0);
+    Merge.TexMad tb = new Merge.TexMad(ff_impulse    .tex_vel, 0.99f, 0);
+    DwFilter.get(context).merge.apply(ff_impulse.tex_vel, ta, tb);
+    
+    ff_impulse.blur();
+    
+    
+    
+//    resizeScene();
+    
+//    addImpulse();
     
     resetScene();
 
@@ -302,6 +358,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
       ff_impulse.displayLineIntegralConvolution(pg_canvas, pg_noise);
     }
     
+
     
     if(DISPLAY_STREAMLINES || DISPLAY_PARTICLES){ 
 
@@ -327,30 +384,32 @@ public class FlowField_LIC_StreamLines extends PApplet {
       particles_stream.param.shader_type = 0;
       particles_stream.param.size_display = (int) max(2, (0.55f * min(dim_x/(float)num_x, dim_y/(float)num_y)));
 
-//      float mul_vec = particles_stream.param.velocity_damping;
-//      float mul_acc = particles_stream.param.mul_acc;
-//      float mul_coh = particles_stream.param.mul_coh;
-//      float mul_col = particles_stream.param.mul_col;
-//      float mul_obs = particles_stream.param.mul_obs;
-//
-//      particles_stream.param.mul_coh = 0;
-//      particles_stream.param.mul_col = 0;
-//      particles_stream.param.mul_obs = 0;
-//      
-//      if(keyPressed && key =='w')
-//      {
-//        int warmup = min(5, iterations / 5);
-//        for(int i = 0; i < warmup; i++){
-//          particles_stream.param.velocity_damping = (1.0f - i / (float)(warmup-1)) * 2.0f;
-//          particles_stream.update(ff_impulse);
-//        }
+      particles_stream.param.display_line_width = 1;
+
+
+
+      float mul_vec = particles_stream.param.velocity_damping;
+      float mul_acc = particles_stream.param.mul_acc;
+      float mul_coh = particles_stream.param.mul_coh;
+      float mul_col = particles_stream.param.mul_col;
+      float mul_obs = particles_stream.param.mul_obs;
+
+      particles_stream.param.mul_coh = 0;
+      particles_stream.param.mul_col = 0;
+      particles_stream.param.mul_obs = 0;
+      
+      
+//      int warmup = min(5, iterations / 5);
+//      for(int i = 0; i < warmup; i++){
+//        particles_stream.param.velocity_damping = 1.0f - i / (float)(warmup);
+//        particles_stream.update(ff_impulse);
 //      }
-//      
-//      particles_stream.param.velocity_damping =  mul_vec;
-//      particles_stream.param.mul_acc          = -mul_acc;
-//      particles_stream.param.mul_coh          = mul_coh;      
-//      particles_stream.param.mul_col          = mul_col;      
-//      particles_stream.param.mul_obs          = mul_obs;      
+      
+      particles_stream.param.velocity_damping =  mul_vec;
+      particles_stream.param.mul_acc          = -mul_acc;
+      particles_stream.param.mul_coh          = mul_coh;      
+      particles_stream.param.mul_col          = mul_col;      
+      particles_stream.param.mul_obs          = mul_obs;      
       
       
       float s1 = 0.40f;
@@ -393,8 +452,8 @@ public class FlowField_LIC_StreamLines extends PApplet {
       
       
       
-//      particles_stream.param.mul_acc          = mul_acc;
-//      particles_stream.param.velocity_damping = mul_vec;
+      particles_stream.param.mul_acc          = mul_acc;
+      particles_stream.param.velocity_damping = mul_vec;
     }
     
 
@@ -407,6 +466,10 @@ public class FlowField_LIC_StreamLines extends PApplet {
     blendMode(REPLACE); 
     image(pg_canvas, 0, 0);
     blendMode(BLEND);
+    
+    if(keyPressed && key =='c'){
+      image(pg_cam, 0, 0);
+    }
     
     if(APPLY_IMPULSE){
       strokeWeight(3);
@@ -669,7 +732,7 @@ public class FlowField_LIC_StreamLines extends PApplet {
   
  
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowField_LIC_StreamLines.class.getName() });
+    PApplet.main(new String[] { FlowField_LIC_StreamLines2.class.getName() });
   }
   
   

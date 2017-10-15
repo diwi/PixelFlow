@@ -31,7 +31,6 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PJOGL;
 import processing.video.Capture;
 
 
@@ -120,8 +119,8 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
     
     ff_impulse.param_lic.iterations = 2;
     ff_impulse.param_lic.num_samples = 30;
-    ff_impulse.param_lic.acc_mult = 1.9999f;
-    ff_impulse.param_lic.vel_mult = 0.8999f;
+    ff_impulse.param_lic.acc_mult = 1.50f;
+    ff_impulse.param_lic.vel_mult = 1.0f;
     ff_impulse.param_lic.TRACE_BACKWARD = true;
     ff_impulse.param_lic.TRACE_FORWARD  = !true;
     
@@ -149,17 +148,15 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
 
- 
-    
     DwUtils.COL_TL = new float[]{ 64,255,  0, 255};
     DwUtils.COL_TR = new float[]{255,  0,  0, 255};
     DwUtils.COL_BL = new float[]{  0, 64,255, 255};
     DwUtils.COL_BR = new float[]{255,196,  0, 255};
     
 //    DwUtils.COL_TL = new float[]{ 255,255,255, 255};
-//    DwUtils.COL_TR = new float[]{ 0,64,255, 255};
-//    DwUtils.COL_BL = new float[]{  0, 0,0, 255};
-//    DwUtils.COL_BR = new float[]{ 255,224,64, 255};
+//    DwUtils.COL_TR = new float[]{   0 ,64,255, 255};
+//    DwUtils.COL_BL = new float[]{   0,  0,  0, 255};
+//    DwUtils.COL_BR = new float[]{ 255,224, 64, 255};
 
 //    DwUtils.COL_TL = new float[]{255,192,  0, 255};
 //    DwUtils.COL_TR = new float[]{  0, 64,255, 255};
@@ -175,16 +172,11 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
 //    DwUtils.COL_TR = new float[]{255,255,255, 255};
 //    DwUtils.COL_BL = new float[]{255,255,255, 255};
 //    DwUtils.COL_BR = new float[]{255,128,  0, 255};
-
-
     
     pg_noise = DwUtils.createBackgroundNoiseTexture(this, width/2, height/2);
 
-    
     resetScene();
   }
-  
-
   
   
   public void resetScene(){
@@ -195,7 +187,6 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
   }
   
 
-
   
   //////////////////////////////////////////////////////////////////////////////
   //
@@ -205,11 +196,11 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
   boolean APPLY_IMPULSE = false;
   float impulse_max = 256;
   float impulse_mul = 10;
-  float impulse_tsmooth = 0.99f;
+  float impulse_tsmooth = 0.997f;
   int   impulse_radius = 130;
   public void addImpulse(){
     
-    
+
     APPLY_IMPULSE = mousePressed && !cp5.isMouseOver();
     
     final int MID = 127;
@@ -278,7 +269,6 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
       
       DwFilter.get(context).luminance.apply(pg_cam, pg_cam);
      
-
       // update Optical Flow
       opticalflow.update(pg_cam);
     }

@@ -35,7 +35,6 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
   int cam_w = 640;
   int cam_h = 480;
   
-
   int viewp_w = 1280;
   int viewp_h = (int) (viewp_w * cam_h/(float)cam_w);
 
@@ -72,7 +71,7 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
     
-    int border = 10;
+    int border = 20;
     pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
@@ -96,32 +95,41 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
     opticalflow = new DwOpticalFlow(context, cam_w, cam_h);
     opticalflow.param.grayscale = true;
     
-    int particle_size = 3;
-    int numx = (int) ((width  - border) / (particle_size+1.5f));
-    int numy = (int) ((height - border) / (particle_size+1.5f));
+//    border = 120;
+    float dimx = width  - border;
+    float dimy = height - border;
     
+    int particle_size = 6;
+    int numx = (int) (dimx / (0.9f*particle_size));
+    int numy = (int) (dimy / (0.9f*particle_size));
+
     // particle spawn-def, rectangular shape
     spawn.num(numx, numy);
-    spawn.dim(width-border, height-border);
-    spawn.pos(border/2,border/2);
+    spawn.dim(dimx, dimy);
+    spawn.pos(width/2-dimx/2, height/2-dimy/2);
     spawn.vel(0, 0);
     
     // partcle simulation
     particles = new DwFlowFieldParticles(context, numx * numy);
-    particles.param.col_A = new float[]{0.40f, 0.80f, 0.10f, 5};
-    particles.param.col_B = new float[]{0.20f, 0.40f, 0.05f, 0};
-    particles.param.shader_type = 0;
-    particles.param.shader_collision_mult = 0.3f;
+    // particles.param.col_A = new float[]{0.40f, 0.80f, 0.10f, 3};
+    // particles.param.col_B = new float[]{0.20f, 0.40f, 0.05f, 0};
+    // particles.param.col_B = new float[]{0.80f, 0.40f, 0.80f, 0};
+    particles.param.col_A = new float[]{0.25f, 0.50f, 1.00f, 3};
+    particles.param.col_B = new float[]{0.25f, 0.10f, 0.00f, 0};
+    particles.param.shader_type = 1;
+    particles.param.shader_collision_mult = 0.4f;
     particles.param.steps = 1;
-    particles.param.velocity_damping  = 0.995f;
+    particles.param.velocity_damping  = 0.999f;
     particles.param.size_display   = ceil(particle_size * 1.5f);
     particles.param.size_collision = particle_size;
     particles.param.size_cohesion  = particle_size;
-    particles.param.mul_coh = 0.50f;
+    particles.param.mul_coh = 0.20f;
     particles.param.mul_col = 1.00f;
     particles.param.mul_obs = 2.00f;
     particles.param.mul_acc = 0.10f; // optical flow multiplier
-    particles.param.wh_scale_obs = 1;
+    particles.param.wh_scale_obs = 0;
+    particles.param.wh_scale_coh = 5;
+    particles.param.wh_scale_col = 0;
     
     // init stuff that doesn't change
     particles.resizeWorld(width, height); 
@@ -149,7 +157,9 @@ public class FlowFieldParticles_OpticalFlowCapture extends PApplet {
       // compute Optical Flow
       opticalflow.update(pg_cam);
     }
+    
     particles.param.timestep = 1f/frameRate;
+    
     // update particles, using the opticalflow for acceleration
     particles.update(opticalflow.frameCurr.velocity);
     

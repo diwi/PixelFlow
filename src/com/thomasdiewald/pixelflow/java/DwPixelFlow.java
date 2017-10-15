@@ -38,14 +38,14 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "1.15";
+    static public final String version = "1.16";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
-    static public final String web     = "http://www.thomasdiewald.com";
-    static public final String git     = "https://github.com/diwi/PixelFlow.git";
+    static public final String web     = "www.thomasdiewald.com";
+    static public final String git     = "github.com/diwi/PixelFlow.git";
     
     public String toString(){
-      return name+" v"+version +"  -  "+web;
+      return "[-] "+name+" v"+version +" - "+web+"";
     }
   }
 
@@ -356,29 +356,34 @@ public class DwPixelFlow{
   
   public void printGL(){
 
-    System.out.println("-------------------------------------------------------------------");
+
     GLContext glcontext = gl.getContext();
     
-    String opengl_version    = gl.glGetString(GL2ES2.GL_VERSION).trim();
-    String opengl_vendor     = gl.glGetString(GL2ES2.GL_VENDOR).trim();
+//    String opengl_version    = gl.glGetString(GL2ES2.GL_VERSION).trim();
+//    String opengl_vendor     = gl.glGetString(GL2ES2.GL_VENDOR).trim();
     String opengl_renderer   = gl.glGetString(GL2ES2.GL_RENDERER).trim();
-  //  String opengl_extensions = gl.glGetString(GL2ES2.GL_EXTENSIONS).trim();
+//    String opengl_extensions = gl.glGetString(GL2ES2.GL_EXTENSIONS).trim();
 //    String glsl_version      = gl.glGetString(GL2ES2.GL_SHADING_LANGUAGE_VERSION).trim();
-  
-    System.out.println("    OPENGL_VENDOR:         "+opengl_vendor);
-    System.out.println("    OPENGL_RENDERER:       "+opengl_renderer);
-    System.out.println("    OPENGL_VERSION:        "+opengl_version);
+    
+    String GLSLVersionString = glcontext.getGLSLVersionString().trim();
+    String GLSLVersionNumber = glcontext.getGLSLVersionNumber()+"";
+    String GLVersion         = glcontext.getGLVersion().trim();
+//    System.out.println("    OPENGL_VENDOR:         "+opengl_vendor);
+//    System.out.println("    OPENGL_RENDERER:       "+opengl_renderer);
+//    System.out.println("    OPENGL_VERSION:        "+opengl_version);
 //    System.out.println("    OPENGL_EXTENSIONS:     "+opengl_extensions);
 //    System.out.println("    GLSL_VERSION:          "+glsl_version);
-    
-    System.out.println("    GLSLVersionString:     "+ glcontext.getGLSLVersionString().trim());
-    System.out.println("    GLSLVersionNumber:     "+ glcontext.getGLSLVersionNumber());
-    System.out.println("    GLVersion:             "+ glcontext.getGLVersion().trim());
-    System.out.println("    GLVendorVersionNumber: "+ glcontext.getGLVendorVersionNumber());
+//    System.out.println("    GLSLVersionString:     "+ GLSLVersionString);
+//    System.out.println("    GLSLVersionNumber:     "+ GLSLVersionNumber);
+//    System.out.println("    GLVersion:             "+ glcontext.getGLVersion().trim());
+//    System.out.println("    GLVendorVersionNumber: "+ glcontext.getGLVendorVersionNumber());
 //    System.out.println("    GLVersionNumber:       "+ glcontext.getGLVersionNumber());
     
-    System.out.println("-------------------------------------------------------------------");
-    
+    System.out.println();
+    System.out.println("[-] DEVICE ... " + opengl_renderer);
+    System.out.println("[-] GLSL ..... " + GLSLVersionString + " / "+ GLSLVersionNumber);
+    System.out.println("[-] GL ....... " + GLVersion);
+    System.out.println();
   }
 
   
@@ -389,10 +394,6 @@ public class DwPixelFlow{
   
 
 
-  
-
-
-  
   
   
 }

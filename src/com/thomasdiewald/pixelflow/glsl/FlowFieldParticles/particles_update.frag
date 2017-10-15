@@ -52,7 +52,7 @@ void main(){
   
     // normalization, kind of removes noise, seems to work
     // ... stops particles from going crazy when they have no place to move
-    float pressure = texture(tex_collision, pos_cur).r - 1.0;
+    float pressure = texture(tex_collision, pos_cur).r - 1.0; // TODO
     pressure = 1.0 / max(1.0, pressure);
     // pressure = sqrt(pressure);
     
