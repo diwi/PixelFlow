@@ -78,15 +78,12 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
   
   // camera capture (video library)
   Capture cam;
-  
-  boolean LOOPING = false;
+
 
   public void settings() {
 
     size(view_w, view_h, P2D);
-    
-    PJOGL.profile = 3;
-    smooth(8);
+    smooth(0);
   }
   
 
@@ -286,16 +283,13 @@ public class FlowField_LIC_OpticalFlow extends PApplet {
       opticalflow.update(pg_cam);
     }
 
-    
-    
-    
+
     resizeScene();
     
     addImpulse();
     
-    if(!LOOPING){
-      resetScene();
-    }
+    resetScene();
+
     
     if(DISPLAY_MODE == 0){
       ff_impulse.displayPixel(pg_canvas);

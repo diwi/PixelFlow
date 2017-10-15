@@ -59,16 +59,15 @@ public class FlowField_LIC_Image extends PApplet {
   int gui_y = 10;
   
   PGraphics2D pg_canvas;
+  PGraphics2D pg_source;
   PGraphics2D pg_impulse;
   PGraphics2D pg_noise;
-
+  PGraphics2D pg_tmp;
   DwPixelFlow context;
   DwFlowField ff_impulse;
   
   PImage img;
   
-  boolean LOOPING = false;
-
   public void settings() {
     if(START_FULLSCREEN){
       viewport_w = displayWidth;
@@ -125,10 +124,14 @@ public class FlowField_LIC_Image extends PApplet {
 
     pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
     pg_canvas.smooth(0);
-
     pg_canvas.beginDraw();
     pg_canvas.endDraw();
-
+    
+    pg_source = (PGraphics2D) createGraphics(width, height, P2D);
+    pg_source.smooth(0);
+    pg_source.beginDraw();
+    pg_source.endDraw();
+    
     pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
     pg_impulse.smooth(0);
     
@@ -148,27 +151,34 @@ public class FlowField_LIC_Image extends PApplet {
   
   public void resetScene(){
     
-    float ratiox = pg_canvas.width  / (float) img.width;
-    float ratioy = pg_canvas.height / (float) img.height;
+    int dimx = pg_source.width;
+    int dimy = pg_source.height;
+    
+    float ratiox = dimx  / (float) img.width;
+    float ratioy = dimy / (float) img.height;
     
     float ratio = min(ratiox, ratioy);
     
-    pg_canvas.beginDraw();
-    pg_canvas.image(pg_noise, 0, 0, pg_canvas.width, pg_canvas.height);
+    pg_source.beginDraw();
+    pg_source.image(pg_noise, 0, 0, dimx, dimy);
     
-    pg_canvas.pushMatrix();
-    pg_canvas.translate(pg_canvas.width/2, pg_canvas.height/2);
-    pg_canvas.scale(ratio);
-    pg_canvas.translate(-img.width/2, -img.height/2);
+    pg_source.pushMatrix();
+    pg_source.translate(dimx/2, dimy/2);
+    pg_source.scale(ratio);
+    pg_source.translate(-img.width/2, -img.height/2);
+    pg_source.image(img, 0, 0);
+    pg_source.popMatrix();
+    
 
-    pg_canvas.image(img, 0, 0);
+//    int num_points = dimx * dimy / 40;
+//    for(int i = 0; i < num_points; i++){
+//      float x = random(0, dimx-1);
+//      float y = random(0, dimy-1);
+//      pg_source.fill(0, random(255));
+//      pg_source.rect(x, y, 1, 1);
+//    }
     
-    pg_canvas.popMatrix();
-    
-    pg_canvas.endDraw();
-    
-    
-    
+    pg_source.endDraw();
   }
   
 
@@ -183,7 +193,7 @@ public class FlowField_LIC_Image extends PApplet {
   float impulse_max = 256;
   float impulse_mul = 10;
   float impulse_tsmooth = 1f;
-  int   impulse_radius = 130;
+  int   impulse_radius = 200;
   public void addImpulse(){
     
     
@@ -247,9 +257,9 @@ public class FlowField_LIC_Image extends PApplet {
     
     addImpulse();
     
-    if(!LOOPING){
-      resetScene();
-    }
+    pg_canvas.beginDraw();
+    pg_canvas.image(pg_source, 0, 0);
+    pg_canvas.endDraw();
     
     if(DISPLAY_MODE == 0){
       ff_impulse.displayPixel(pg_canvas);
@@ -257,7 +267,7 @@ public class FlowField_LIC_Image extends PApplet {
     }
     
     if(DISPLAY_MODE == 1){
-      ff_impulse.displayLineIntegralConvolution(pg_canvas, pg_canvas);
+      ff_impulse.displayLineIntegralConvolution(pg_canvas, pg_source);
     }
     
     blendMode(REPLACE); 
@@ -409,7 +419,7 @@ public class FlowField_LIC_Image extends PApplet {
       .addItem("TRACE FORWARD" , 1).activate(param.TRACE_FORWARD  ? 1 : 2)
       ; 
       
-      int count = 4;
+      int count = 2;
       py += sy * count + 2 * (count-1) + dy_group;
       cp5.addSlider("brush").setGroup(group_lic).setSize(sx, sy).setPosition(px, py)
       .setRange(0, 500).setValue(this.impulse_radius).plugTo(this, "impulse_radius");
