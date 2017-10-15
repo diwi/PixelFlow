@@ -78,7 +78,6 @@ void main(){
   out_frag = M4(mA, mB, mC, mD);
 #endif
  
-
 }
 
 

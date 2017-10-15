@@ -66,17 +66,50 @@ public class MinMax_Demo extends PApplet {
       pg.rect(mouseX, mouseY, 1, 1);
       pg.endDraw();
     }
-   
     
-    // run parallel reduction Min/Max filter
-    MinMaxGlobal minmax = DwFilter.get(context).minmaxglobal;
-    minmax.apply(pg);
+    // [minR, minG, minB, minA,  maxR, maxG, maxB, maxA]
+    byte[] result = new byte[8];
     
-    // read min/max-result
-    byte[] result = minmax.getVal().getByteTextureData(null);
+    boolean GPU = !mousePressed;
+    
+    
+    // GPU Version, parallel reduction Min/Max filter
+    if(GPU)
+    {
+      MinMaxGlobal minmax = DwFilter.get(context).minmaxglobal;
+      minmax.apply(pg);
+      
+      // read min/max-result from GPU memory
+      minmax.getVal().getByteTextureData(result);
+    }
+    else
+    // CPU Version, a lot slower
+    {
+      pg.loadPixels();
+      int[] min = {Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE};
+      int[] max = {Integer.MIN_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE};
+      for(int i = 0; i < pg.pixels.length; i++){
+        int px =  pg.pixels[i];
+        int a = (px >> 24) & 0xFF;
+        int r = (px >> 16) & 0xFF;
+        int g = (px >>  8) & 0xFF;
+        int b = (px >>  0) & 0xFF;
+        
+        min[0] = min(r, min[0]);   max[0] = max(r, max[0]);
+        min[1] = min(g, min[1]);   max[1] = max(g, max[1]);
+        min[2] = min(b, min[2]);   max[2] = max(b, max[2]);
+        min[3] = min(a, min[3]);   max[3] = max(a, max[3]);
+      }
+      result[0] = (byte) min[0];   result[4] = (byte) max[0];
+      result[1] = (byte) min[1];   result[5] = (byte) max[1];
+      result[2] = (byte) min[2];   result[6] = (byte) max[2];
+      result[3] = (byte) min[3];   result[7] = (byte) max[3];
+    }
+    
+    
 
     // draw rendering
-    clear();
+    blendMode(REPLACE);
     image(pg, 0, 0);
     
     // info

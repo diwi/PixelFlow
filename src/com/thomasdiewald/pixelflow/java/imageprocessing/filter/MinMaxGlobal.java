@@ -143,51 +143,45 @@ public class MinMaxGlobal {
   private void apply(boolean MIN, boolean MAX){
     context.begin();
     
-    if(MIN){
-      for(int i = 1; i < layers; i++){
-        
-        DwGLTexture dst = tex[i];
-        DwGLTexture src = tex[i-1];
-
-        context.beginDraw(dst);
-        shader_min.begin();
-        shader_min.uniform2f("wh_rcp", 1f/src.w, 1f/src.h);
-        shader_min.uniformTexture("tex", src);
-        shader_min.uniform2i("off", 0, 0);
-        if(i == layers-1){
-          shader_min.uniform2i("off", 1, 0);
-          shader_min.scissors(0,0,1,1); // pixel[0,0] == min
-        } 
-        shader_min.drawFullScreenQuad();
-        shader_min.end();
-        context.endDraw();
-      }
-    }
-    
-    if(MAX){
-      for(int i = 1; i < layers; i++){
-        
-        DwGLTexture dst = tex[i];
-        DwGLTexture src = tex[i-1];
-
-        context.beginDraw(dst);
-        shader_max.begin();
-        shader_max.uniform2f("wh_rcp", 1f/src.w, 1f/src.h);
-        shader_max.uniformTexture("tex", src);
-        shader_max.uniform2i("off", 0, 0);
-        if(i == layers-1){
-          shader_max.uniform2i("off", 1, 0);
-          shader_max.scissors(1,0,1,1); // pixel[1,0] == max
-          shader_max.drawFullScreenQuad();
-        } 
-        shader_max.drawFullScreenQuad();
-        shader_max.end();
-        context.endDraw();
-      }
-    }
+    if(MIN)  run(shader_min, 0, 0);
+    if(MAX)  run(shader_max, 1, 0);
     
     context.end("MinMaxGlobal.apply");
   }
+  
+  /**
+   * <pre>
+   *  min ... frag[0,0] 
+   *  max ... frag[1,0] 
+   * </pre>
+   * @param shader
+   * @param ox frag offset x
+   * @param oy frag offset y
+   */
+  private void run(DwGLSLProgram shader, int ox, int oy){
+    for(int i = 1; i < layers; i++){
+      
+      DwGLTexture dst = tex[i];
+      DwGLTexture src = tex[i-1];
+
+      context.beginDraw(dst);
+      shader.begin();
+      if(i == layers-1){
+        shader.scissors(ox, oy, 1, 1); 
+        shader.uniform2i("off", ox, oy);
+      } else {
+        shader.uniform2i("off", 0, 0);
+      }
+      shader.uniform2f("wh_rcp", 1f/src.w, 1f/src.h);
+      shader.uniformTexture("tex", src);
+      shader.drawFullScreenQuad();
+      shader.end();
+      context.endDraw();
+    }
+  }
+  
+  
+  
   
  
   /**
