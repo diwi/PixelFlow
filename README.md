@@ -21,6 +21,7 @@
     - Cohesion
     - Verlet Integration
     - FlowField/SDF(Signed Distance Field) based
+    - Streamlines
     - ...
 + Softbody Dynamics (CPU, GLSL is coming)
     - 2D and 3D
@@ -57,10 +58,11 @@
     - Liquid FX Filter
     - Summed Area Table (SAT)
     - Distance Transform (Jumpflood), Voronoi, Distance Map
-    - Global Min Max
-    - Local Min Max
+    - Min/Max (global)
+    - Min/Max (local)
     - Merge Shader
     - FlowField
+    - Line Integral Convolution (LIC) / Streamlines
     - ...
 + AntiAliasing (GLSL)
     - MSAA (Processing Default)
@@ -123,6 +125,10 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://i.vimeocdn.com/video/659213047.jpg" alt="alt text" width="30%">](https://vimeo.com/236955859 "Flow Field Particles - Trails HD")
 [<img src="https://i.vimeocdn.com/video/659220662.jpg" alt="alt text" width="30%">](https://vimeo.com/236964112 "Flow Field Particles - Trails HD - 100K Particles")
 [<img src="https://i.vimeocdn.com/video/659039289.jpg" alt="alt text" width="30%">](https://vimeo.com/236821149 "Flow Field Particles - DevDemo [R&D]")
+
+#### Flow Field - LIC
+[<img src="https://i.vimeocdn.com/video/660270815.jpg" alt="alt text" width="30%">](https://vimeo.com/237766186 "LIC - WindTunnel")
+[<img src="https://i.vimeocdn.com/video/659919142.jpg" alt="alt text" width="30%">](https://vimeo.com/237491566 "LIC - First Results")
 
 <br>
 
