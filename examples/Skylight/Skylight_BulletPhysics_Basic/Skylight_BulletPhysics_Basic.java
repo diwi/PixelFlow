@@ -215,7 +215,7 @@ public class Skylight_BulletPhysics_Basic extends PApplet {
     dof = new DepthOfField(context);
     geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
     
-        pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
     
     DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);

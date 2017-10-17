@@ -171,7 +171,7 @@ public class DepthOfField_Demo extends PApplet {
 //      dof.param.focus_pos[0] =   map(mouseX, 0, width , 0, 1);
 //      dof.param.focus_pos[1] = 1-map(mouseY, 0, height, 0, 1);
       dof.param.mult_blur = mult_blur;
-      dof.apply(pg_render, pg_dof, sat, geombuffer);
+      dof.apply(pg_render, pg_dof,geombuffer);
     }
     
     magnifier.apply(pg_dof, mouseX, mouseY);
