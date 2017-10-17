@@ -30,8 +30,6 @@ import processing.core.PMatrix3D;
  */
 public class DwBoundingSphere {
 
-  
-  
   public final float MOVE_FAC = 0.95f;
   public final float SCALE_FAC = 1.005f;
   public int DEB_COUNTER_ITERATIONS;
@@ -81,26 +79,36 @@ public class DwBoundingSphere {
       return;
     }
 
+    float sphere_x;
+    float sphere_y;
+    float sphere_z;
+    float sphere_r, sphere_r_sq;
+
+    float dx, dy, dz, dr;
+    
     // init: 
     // place sphere in the middle of the first two points
-    float[] pnt_0 = p[0];
-    float[] pnt_1 = p[1];
     
-    float dx = (pnt_1[0]-pnt_0[0]) * 0.5f;
-    float dy = (pnt_1[1]-pnt_0[1]) * 0.5f;
-    float dz = (pnt_1[2]-pnt_0[2]) * 0.5f;
-    float dr = 0;
+    float[] p0 = p[0];
+    float[] p1 = p[1];
+    
+    dx = (p1[0] - p0[0]) * 0.5f;
+    dy = (p1[1] - p0[1]) * 0.5f;
+    dz = (p1[2] - p0[2]) * 0.5f;
+    dr = 0;
 
-    float sphere_x    = pnt_0[0] + dx;
-    float sphere_y    = pnt_0[1] + dy;
-    float sphere_z    = pnt_0[2] + dz;
-    float sphere_r_sq = dx*dx + dy*dy + dz*dz;
-    float sphere_r    = (float)Math.sqrt(sphere_r_sq);
+    sphere_x    = p0[0] + dx;
+    sphere_y    = p0[1] + dy;
+    sphere_z    = p0[2] + dz;
+    sphere_r_sq = dx*dx + dy*dy + dz*dz;
+    sphere_r    = (float) Math.sqrt(sphere_r_sq);
     
-    if( sphere_r_sq == 0){
-      System.out.println("error computing boundingsphere. first two points have same coordinates.");
-      return;
+    // TODO
+    if(sphere_r_sq == 0){
+      System.out.println("DwBoundingSphere.compute: Warning - first two points have same coordinates.");
+//      return;
     }
+    
     
     
     final float rscale = (1f - MOVE_FAC); // scale for new radius, constant
@@ -116,13 +124,13 @@ public class DwBoundingSphere {
       DEB_COUNTER_ITERATIONS++;
 
       // check if current point is outside current sphere
-      dx = p[idx][0]-sphere_x;
-      dy = p[idx][1]-sphere_y;
-      dz = p[idx][2]-sphere_z;
+      dx = p[idx][0] - sphere_x;
+      dy = p[idx][1] - sphere_y;
+      dz = p[idx][2] - sphere_z;
       
       float r_tmp = dx*dx + dy*dy + dz*dz; // keep it squared for comparing
       
-      if( r_tmp > sphere_r_sq ){
+      if(r_tmp > sphere_r_sq){
 
         r_tmp = (float)Math.sqrt(r_tmp);
         dr = r_tmp - sphere_r;

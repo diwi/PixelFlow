@@ -15,9 +15,16 @@
 
 package Skylight.Skylight_BasicGUI;
 
+import java.util.Locale;
+
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuffer;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightShader;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
@@ -37,7 +44,9 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PMatrix3D;
 import processing.core.PShape;
+import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
+import processing.opengl.PGraphicsOpenGL;
 
 
 public class Skylight_BasicGUI extends PApplet {
@@ -63,10 +72,8 @@ public class Skylight_BasicGUI extends PApplet {
 
   // camera control
   PeasyCam peasycam;
+  DwPixelFlow context;
   
-  // scene to render
-  PShape shape;
-
   // renderer
   DwSkyLight skylight;
   
@@ -76,14 +83,27 @@ public class Skylight_BasicGUI extends PApplet {
   boolean DISPLAY_SAMPLES_SUN = false;
   boolean DISPLAY_SAMPLES_SKY = false;
   boolean DISPLAY_TEXTURES    = false;
+  boolean APPLY_DOF           = false;
+  
+  DepthOfField dof;
+  DwScreenSpaceGeometryBuffer geombuffer;
+  PGraphics3D pg_tmp;
   
   SMAA smaa;
   PGraphics3D pg_aa;
+  PGraphics3D pg_render;
+  
+  
+  // scene to render
+  PShape shp_group;
+
   
   public void settings() {
     size(viewport_w, viewport_h, P3D);
     smooth(0);
   }
+  
+  public float clip_z_far;
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
@@ -91,20 +111,59 @@ public class Skylight_BasicGUI extends PApplet {
     float SCENE_SCALE = 500;
     
     // camera
-    peasycam = new PeasyCam(this, SCENE_SCALE*1.5f);
-    peasycam.setRotations(  1.085,  -0.477,   2.910);
+    peasycam = new PeasyCam(this, SCENE_SCALE * 1.5f);
+//    peasycam.setRotations(  0.422,   1.075,  -2.085);
+//    peasycam.setDistance(475.257);
+//    peasycam.lookAt(-33.842, -38.242,  64.793);
 
-    perspective(60 * DEG_TO_RAD, width/(float)height, 2, SCENE_SCALE * 250);
 
+    clip_z_far =  SCENE_SCALE * 5;
+    perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
 
-    // load obj file into shape-object
-    shape = loadShape("examples/data/skylight_demo_scene.obj");
     
-    // grayscale model
-    shape.setFill(color(255));
+    
+
+    // create scene
+    {
+      // load obj file into shape-object
+      PShape shp_obj = loadShape("examples/data/skylight_demo_scene.obj");
+      shp_obj.setFill(color(255));
+  //    shp_obj.setFill(false);
+  //    shp_obj.setStroke(true);
+  //    shp_obj.setStroke(color(16));
+  //    shp_obj.setStrokeWeight(1.1f);
+  
+      
+      // create another shape
+  //    sphereDetail(10);
+      PShape shp_box = createShape(BOX, 5, 5, 80);
+      shp_box.setFill(true);
+      shp_box.setFill(color(64));
+      shp_box.setStroke(false);
+      shp_box.rotateX(0.2f);
+      shp_box.rotateZ(0.5f);
+      shp_box.translate(+20, +25, 5);
+          
+      PShape shp_sphere = createShape(SPHERE, 7);
+      shp_sphere.setFill(true);
+      shp_sphere.setFill(color(64));
+      shp_sphere.setStroke(false);
+      shp_sphere.translate(+10, -30, 7);
+      
+  //    PShape shp_ground = createShape(BOX, 100,100, 2);
+  //    shp_ground.setFill(true);
+  //    shp_ground.setFill(color(255));
+  //    shp_ground.translate(0, 0, -1); 
+      
+      shp_group = createShape(GROUP);
+      shp_group.addChild(shp_obj);
+      shp_group.addChild(shp_box);
+      shp_group.addChild(shp_sphere);
+  //    shp_group.addChild(shp_ground);
+    }
     
     // record list of vertices of the given shape
-    DwVertexRecorder vertex_recorder = new DwVertexRecorder(this, shape);
+    DwVertexRecorder vertex_recorder = new DwVertexRecorder(this, shp_group);
    
     // compute scene bounding-sphere
     DwBoundingSphere scene_bs = new DwBoundingSphere();
@@ -135,9 +194,21 @@ public class Skylight_BasicGUI extends PApplet {
     };
     
     // library context
-    DwPixelFlow context = new DwPixelFlow(this);
+    context = new DwPixelFlow(this);
     context.print();
     context.printGL();
+    
+    dof = new DepthOfField(context);
+    geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
+    
+    
+    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_tmp.smooth(0);
+    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+    pg_tmp.beginDraw();
+    pg_tmp.endDraw();
+    
+    
     
     // init skylight renderer
     skylight = new DwSkyLight(context, scene_display, mat_scene_bounds);
@@ -148,16 +219,16 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sky.param.solar_zenith   = 0;
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
     skylight.sky.param.intensity      = 3.0f;
-    skylight.sky.param.rgb            = new float[]{0.25f,0.50f,1.00f};
+    skylight.sky.param.rgb            = new float[]{0.10f,0.40f,1.00f};
     skylight.sky.param.shadowmap_size = 512; // quality vs. performance
     
     // parameters for sun-light
     skylight.sun.param.iterations     = 50;
     skylight.sun.param.solar_azimuth  = 45;
     skylight.sun.param.solar_zenith   = 75;
-    skylight.sun.param.sample_focus   = 0.02f;
-    skylight.sun.param.intensity      = 2.0f;
-    skylight.sun.param.rgb            = new float[]{1.00f,0.20f,0.00f};
+    skylight.sun.param.sample_focus   = 0.1f;
+    skylight.sun.param.intensity      = 1.2f;
+    skylight.sun.param.rgb            = new float[]{1.00f,0.50f,0.00f};
     skylight.sun.param.shadowmap_size = 512;
     
     // postprocessing AA
@@ -165,6 +236,10 @@ public class Skylight_BasicGUI extends PApplet {
     pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
     pg_aa.smooth(0);
     
+    pg_render = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_render.smooth(0);
+    pg_render.beginDraw();
+    pg_render.endDraw();
     
     // cp5 gui
     createGUI();
@@ -187,8 +262,27 @@ public class Skylight_BasicGUI extends PApplet {
     // update renderer
     skylight.update();
     
+    
     // apply AntiAliasing
     smaa.apply(skylight.renderer.pg_render, pg_aa);
+    
+    
+    // apply DoF
+    if(APPLY_DOF){
+      int mult_blur = 15;
+      
+      geombuffer.update(skylight.renderer.pg_render);
+      DwFilter filter = DwFilter.get(context);
+      filter.gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, 3);
+
+      dof.param.focus_pos = new float[]{0.5f, 0.5f};
+//      dof.param.focus_pos[0] = map(mouseX, 0, width , 0, 1);
+//      dof.param.focus_pos[1] = map(mouseY, 0, height, 1, 0);
+      dof.param.mult_blur = mult_blur;
+      dof.param.clip_z_far = clip_z_far;
+      dof.apply(pg_aa, pg_render, geombuffer);
+      filter.copy.apply(pg_render, pg_aa);
+    }
 
 
     peasycam.beginHUD();
@@ -217,8 +311,11 @@ public class Skylight_BasicGUI extends PApplet {
       image(skylight.sky.shadowmap.pg_shadowmap, px, py+=sy_shadow+dy, sx, sy_shadow);
       image(skylight.geom.pg_geom,               px, py+=sy_shadow+dy, sx, sy_geom);
       image(skylight.sun.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom);
-      image(skylight.sky.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom); 
+      image(skylight.sky.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom);
     }
+    
+    displayCross();
+    
     peasycam.endHUD();
     
     
@@ -231,15 +328,39 @@ public class Skylight_BasicGUI extends PApplet {
     surface.setTitle(txt_fps);
   }
 
+  public void displayCross(){
+    pushMatrix();
+    float cursor_s = 10;
+    float fpx = (       dof.param.focus_pos[0]) * width;
+    float fpy = (1.0f - dof.param.focus_pos[1]) * height;
+    blendMode(EXCLUSION);
+    translate(fpx, fpy);
+    strokeWeight(1);
+    stroke(255,200);
+    line(-cursor_s, 0, +cursor_s, 0);
+    line(0, -cursor_s, 0, +cursor_s);
+    blendMode(BLEND);
+    popMatrix();
+  }
+  
+  
 
-  public void displayScene(PGraphics canvas){
+  public void displayScene(PGraphicsOpenGL canvas){
     if(canvas == skylight.renderer.pg_render){
       canvas.background(32);
       displaySamples(canvas);
     }
+    
+    if(canvas == geombuffer.pg_geom){
+      canvas.background(255, 255);
+      canvas.pgl.clearColor(1, 1, 1, clip_z_far);
+      canvas.pgl.clear(PGL.COLOR_BUFFER_BIT);
+    }
+    
+    
     canvas.pushMatrix();
     canvas.applyMatrix(mat_scene_view);
-    canvas.shape(shape);
+    canvas.shape(shp_group);
     canvas.popMatrix();
   }
   
@@ -282,7 +403,9 @@ public class Skylight_BasicGUI extends PApplet {
   
   
   
-  
+  public void keyReleased(){
+    if(key == 'c') printCam();
+  }
   
   
   
@@ -297,6 +420,19 @@ public class Skylight_BasicGUI extends PApplet {
     CAM_ACTIVE |= cam_pos_curr[1] != cam_pos[1];
     CAM_ACTIVE |= cam_pos_curr[2] != cam_pos[2];
     cam_pos = cam_pos_curr;
+  }
+  
+  
+  public void printCam(){
+    float[] pos = peasycam.getPosition();
+    float[] rot = peasycam.getRotations();
+    float[] lat = peasycam.getLookAt();
+    float   dis = (float) peasycam.getDistance();
+    
+    System.out.printf(Locale.ENGLISH, "position: (%7.3f, %7.3f, %7.3f)\n", pos[0], pos[1], pos[2]);
+    System.out.printf(Locale.ENGLISH, "rotation: (%7.3f, %7.3f, %7.3f)\n", rot[0], rot[1], rot[2]);
+    System.out.printf(Locale.ENGLISH, "look-at:  (%7.3f, %7.3f, %7.3f)\n", lat[0], lat[1], lat[2]);
+    System.out.printf(Locale.ENGLISH, "distance: (%7.3f)\n", dis);
   }
  
 
@@ -325,6 +461,7 @@ public class Skylight_BasicGUI extends PApplet {
     DISPLAY_SAMPLES_SKY = (val[0] > 0);
     DISPLAY_SAMPLES_SUN = (val[1] > 0);
     DISPLAY_TEXTURES    = (val[2] > 0);
+    APPLY_DOF           = (val[3] > 0);
   }
   
   float mult_fg = 1f;
@@ -368,13 +505,18 @@ public class Skylight_BasicGUI extends PApplet {
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
           .addItem("SKY.samples", 0).activate(DISPLAY_SAMPLES_SKY ? 0 : 5)
           .addItem("SUN.samples", 1).activate(DISPLAY_SAMPLES_SUN ? 1 : 5)
-          .addItem("textures"   , 2).activate(DISPLAY_TEXTURES    ? 2 : 5)
+          .addItem("textures"   , 2).activate(DISPLAY_TEXTURES    ? 2 : 5)         
+          .addItem("DoF"        , 3).activate(APPLY_DOF           ? 3 : 5)
       ;
+      
+      cp5.addSlider("gamma").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*5.4f))
+      .setRange(1, 2.2f).setValue(skylight.renderer.param.gamma).plugTo(skylight.renderer.param, "gamma");
+      
   
       DwSkyLightShader.Param param_sky = skylight.sky.param;
       DwSkyLightShader.Param param_sun = skylight.sun.param;
 
-      cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*5.4f))
+      cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*2.5f))
           .setRange(0, 200).setValue(param_sky.iterations).plugTo(param_sky, "iterations");
       cp5.addSlider("sky.quality").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(32, 2048).setValue(param_sky.shadowmap_size).plugTo(param_sky, "shadowmap_size");
@@ -399,7 +541,7 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addSlider("sun.solar_zenith").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 90).setValue(param_sun.solar_zenith).plugTo(param_sun, "solar_zenith");
       cp5.addSlider("sun.sample_focus").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0.001f, 1).setValue(param_sun.sample_focus).plugTo(param_sun, "sample_focus");
+          .setRange(0.02f, 0.50f).setValue(param_sun.sample_focus).plugTo(param_sun, "sample_focus");
       cp5.addSlider("sun.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
           .setRange(0, 7).setValue(param_sun.intensity).plugTo(param_sun, "intensity");
       new ColorPicker(cp5, "sun.colorpicker", gui_w-20, 40, 100, param_sun.rgb).setGroup(group_skylight).setPosition(px, py+=(oy*1.5f));

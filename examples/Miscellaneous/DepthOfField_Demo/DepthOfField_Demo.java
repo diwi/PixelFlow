@@ -162,14 +162,14 @@ public class DepthOfField_Demo extends PApplet {
     if(APPLY_DOF){
       geombuffer.update(pg_render);
 
-      DwFilter.get(context).gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, mult_blur);
+      DwFilter.get(context).gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, 5);
 
   //    sat.create(pg_render);
   
 //      dof.param.focus     = map(mouseX, 0, width, 0, 1);
       dof.param.focus_pos = new float[]{0.5f, 0.5f};
-//      dof.param.focus_pos[0] =   map(mouseX, 0, width , 0, 1);
-//      dof.param.focus_pos[1] = 1-map(mouseY, 0, height, 0, 1);
+      dof.param.focus_pos[0] = map(mouseX+0.5f, 0, width , 0, 1);
+      dof.param.focus_pos[1] = map(mouseY+0.5f, 0, height, 1, 0);
       dof.param.mult_blur = mult_blur;
       dof.apply(pg_render, pg_dof,geombuffer);
     }
@@ -318,7 +318,7 @@ public class DepthOfField_Demo extends PApplet {
         DwMeshUtils.createPolyhedronShape(shp_sphere, cube_smooth, 1, 4, true);
       }
 
-      shp_sphere.setStroke(true);
+      shp_sphere.setStroke(!true);
       shp_sphere.setStroke(color(0));
       shp_sphere.setStrokeWeight(0.01f / rr);
       shp_sphere.setFill(true);

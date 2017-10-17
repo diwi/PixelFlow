@@ -128,16 +128,15 @@ public class DwSkyLightShader {
     // create shadowmap direction
     float[] center = {0,0,0};
     
-
     float[] up = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
     
-    // create new sample direction
-//    float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+2);
+    float focus = param.sample_focus * param.sample_focus;
     float[] sample = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+2);
     float[] eye = new float[3];
-    eye[0] = sample[0] * param.sample_focus;
-    eye[1] = sample[1] * param.sample_focus;
-    eye[2] = sample[2] + (1.0f-param.sample_focus);
+    eye[0] = sample[0] * focus;
+    eye[1] = sample[1] * focus;
+    eye[2] = sample[2] + (1.05f-focus);
+    
     
     // project to bounding-sphere
     float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
