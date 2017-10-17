@@ -44,10 +44,10 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   //
   
   boolean START_FULLSCREEN = !true;
-  int viewport_w = 1680;
-  int viewport_h = 1024;
-//  int viewport_w = 1280;
-//  int viewport_h = 720;
+//  int viewport_w = 1680;
+//  int viewport_h = 1024;
+  int viewport_w = 1280;
+  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -134,9 +134,9 @@ public class FlowFieldParticles_DamBreak extends PApplet {
     particles.param.shader_collision_mult = 0.30f;
     particles.param.steps = 1;
     particles.param.velocity_damping  = 1;
-    particles.param.size_display   = 8;
-    particles.param.size_collision = 8;
-    particles.param.size_cohesion  = 4;
+    particles.param.size_display   = 5;
+    particles.param.size_collision = 5;
+    particles.param.size_cohesion  = 5;
     particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 3.00f;
@@ -227,8 +227,8 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   float[][] pallette = {
       { 32,  32, 32},
       {196,  96,  0},
-      {128, 128,  0},
-      {  0,  96,196},
+      { 96,  96, 96},
+      {  0,  96,164},
       { 96,  96, 96},
   };
   

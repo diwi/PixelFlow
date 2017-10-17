@@ -202,6 +202,10 @@ public class DwSkyLightShader {
 
   public void updateStep(){
     
+    if(param.intensity <= 0){
+      return;
+    }
+    
     if( shadowmap.pg_shadowmap.width != param.shadowmap_size){
       shadowmap.resize(param.shadowmap_size);
     }

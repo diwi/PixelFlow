@@ -96,6 +96,12 @@ public class DwUtils {
     return a;
   }
   
+  final static public int clamp(int a, int lo, int hi){
+    if(a < lo) return lo;
+    if(a > hi) return hi;
+    return a;
+  }
+  
   final static public void clamp(float[] argb, float lo, float hi){
     argb[0] = clamp(argb[0], lo, hi);
     argb[1] = clamp(argb[1], lo, hi);

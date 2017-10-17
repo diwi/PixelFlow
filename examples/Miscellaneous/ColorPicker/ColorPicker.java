@@ -33,17 +33,21 @@ public class ColorPicker extends PApplet {
   PFont font;
   
   public void settings(){
-    size(800, 500, P2D);
+    size(1200, 900, P2D);
   }
   
   public void setup(){
     surface.setLocation(210, 0);
     
-    cp1 = new DwColorPicker(this, 10, 10, width-20, 150, 5);
-    cp2 = new DwColorPicker(this, 10, height/2+10, 180, 80, 100);
-    cp3 = new DwColorPicker(this, width/2, height/2+10, 180, 80, 2);
+    cp1 = new DwColorPicker(this, 10, 10, width-20, 150);
+    cp2 = new DwColorPicker(this, 10, 220, 180, 600, 51);
+    cp3 = new DwColorPicker(this, width/2, height/2+10, 180, 80, 20);
     
-    cp1.selectColorByCoords(cp1.getNumColorsX()/2, cp1.getNumColorsY()/2);
+    cp3.createPallette(8);
+    
+    cp1.createPallette(361, 5);
+    
+    cp1.selectColorByGrid(cp1.getNumColorsX()/2, cp1.getNumColorsY()/2);
     cp2.selectColorByRGB(255, 255, 125);
     cp3.selectColorByNormalizedCoords(0.5f, 0.5f);
     
@@ -57,9 +61,11 @@ public class ColorPicker extends PApplet {
     
     background(0);
     
-    noStroke();
-    fill(DwColorPicker.LAST_USED.getSelectedColor());
-    rect(0, height, width, -10);
+    if(DwColorPicker.LAST_USED != null){
+      noStroke();
+      fill(DwColorPicker.LAST_USED.getSelectedColor());
+      rect(0, height, width, -10);
+    }
 
     // info
     String txt_fps = String.format(getClass().getName()+ "  [fps %6.2f]", frameRate);

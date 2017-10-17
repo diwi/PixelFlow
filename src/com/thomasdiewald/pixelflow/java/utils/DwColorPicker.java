@@ -50,43 +50,77 @@ public class DwColorPicker {
   protected boolean SELECTION_ACTIVE = false;
   protected int     selected_color_idx = 0;
   protected int     selected_color     = 0;
-  
-  
+
   protected PGraphics pg_draw;
 
+  public DwColorPicker(PApplet papplet, int cp_x, int cp_y, int cp_w, int cp_h){
+    this(papplet, cp_x, cp_y, cp_w, cp_h, 5);
+  }
 
-  public DwColorPicker(PApplet papplet, int cp_x, int cp_y, int cp_w, int cp_h, int shades){
+  public DwColorPicker(PApplet papplet, int cp_x, int cp_y, int cp_w, int cp_h, int shades_y){
     this.papplet = papplet;
-    this.pg_draw = papplet.g;
-    
-    
+    papplet.registerMethod("pre", this);
+    setAutoDraw(true);
+    setAutoMouse(true);
+    setDrawCanvas(papplet.g); 
+    setPosition(cp_x, cp_y);
+    setSize(cp_w, cp_h);
+    createPallette(shades_y);
     LAST_USED = this;
+  }
+  
+  public void setPosition(int x, int y){
+    this.cp_x = x;
+    this.cp_y = y;
+  }
+  public void setSize(int w, int h){
+    this.cp_w = w;
+    this.cp_h = h;
+  }
+
+  
+  /**
+   * Automatically compute the number of shades in X-direction
+   * 
+   * @param shades_y
+   */
+  public void createPallette(int shades_y){
+    int ny, nx;
+    float ry;
     
-    this.cp_x = cp_x;
-    this.cp_y = cp_y;
-    this.cp_w = cp_w;
-    this.cp_h = cp_h;
+    ny = shades_y + 1 - (shades_y & 1); // odd number
+    ny = Math.min(Math.max(ny, 1), cp_h);
+  
+    ry = cp_h / (float) ny;
+    nx = (int) (12 * Math.round(Math.ceil(cp_w/ry)/12f));
+    nx = Math.min(Math.max(nx, 12) + 1, 361);
 
-    shades = Math.max(Math.min(shades, cp_h/2), 1);
+    createPallette(nx, ny);
+  }
+  
+  public void createPallette(int shades_x, int shades_y){
 
-    num_y = 1 + shades * 2;
-    res_y = cp_h/(float)num_y;
-    num_x = (int) (12 * Math.round(Math.ceil(cp_w/res_y)/12f));
-    num_x = Math.min(Math.max(num_x, 12) + 1, 361);
-    res_x = cp_w/(float)num_x;
+    if(num_x == shades_x && num_y == shades_y){
+      return;
+    }
+    
+    num_x = shades_x;
+    num_y = shades_y;
+    
+    res_y = cp_h / (float) num_y;
+    res_x = cp_w / (float) num_x;
     
     colors     = new int[num_x * num_y];
     colors_hsb = new int[num_x * num_y][3];
     colors_rgb = new int[num_x * num_y][3];
-
-    papplet.colorMode(PConstants.HSB, 1, 1, 1);
     
+    papplet.colorMode(PConstants.HSB, 1, 1, 1);
     
     float hsb_h, hsb_s, hsb_b;
     int rgb;
     // HSB color layout
     // left -> right: hue 0-360
-    // top -> bottom: saturation 0-100, brigthness 100-0
+    // top -> bottom: saturation 0-100, brightness 100-0
     for(int y = 0; y < num_y; y++){
       for(int x = 0; x < num_x; x++){
         int idx = y * num_x + x;
@@ -95,17 +129,18 @@ public class DwColorPicker {
         hsb_s =     2 * (y+1)/(float)(num_y+1);
         hsb_b = 2 - 2 * (y+1)/(float)(num_y+1);
         
+        // grayscale, left
         if(x == 0){
           hsb_h = 0;
           hsb_s = 0;
           hsb_b = 1 - (y)/(float)(num_y-1);
+        } else {
+          hsb_h =  Math.min(Math.max(hsb_h, 0), 1);
+          hsb_s =  Math.min(Math.max(hsb_s, 0), 1);
+          hsb_b =  Math.min(Math.max(hsb_b, 0), 1);
         }
-        
-        hsb_h =  Math.min(Math.max(hsb_h, 0), 1);
-        hsb_s =  Math.min(Math.max(hsb_s, 0), 1);
-        hsb_b =  Math.min(Math.max(hsb_b, 0), 1);
 
-        rgb   = papplet.color(hsb_h, hsb_s, hsb_b);
+        rgb = papplet.color(hsb_h, hsb_s, hsb_b);
         
         colors    [idx] = rgb;
                
@@ -114,35 +149,84 @@ public class DwColorPicker {
         colors_hsb[idx][2] = (int)(hsb_b * 100);
         
         colors_rgb[idx][0] = (rgb >> 16) & 0xFF;
-        colors_rgb[idx][1] = (rgb >>  8) & 0xFF;;
-        colors_rgb[idx][2] = (rgb >>  0) & 0xFF;;
+        colors_rgb[idx][1] = (rgb >>  8) & 0xFF;
+        colors_rgb[idx][2] = (rgb >>  0) & 0xFF;
       }
     }
     papplet.colorMode(PConstants.RGB, 255,255,255);
-
-    canvas = (PGraphics2D) papplet.createGraphics(cp_w, cp_h, PConstants.P2D);
-    canvas.smooth(0);
+    
+    
+    if(canvas == null || canvas.width != cp_w || canvas.height != cp_h){
+      if(canvas == null){
+        papplet.g.removeCache(canvas);
+      }
+      canvas = (PGraphics2D) papplet.createGraphics(cp_w, cp_h, PConstants.P2D);
+      canvas.smooth(0);
+    }
     canvas.beginDraw();
     canvas.background(0);
     canvas.noStroke();
-    for(int y = 0; y < num_y; y++){
-      for(int x = 0; x < num_x; x++){
-        canvas.fill(colors[y * num_x + x]);
-        canvas.rect(x * res_x, y * res_y, res_x, res_y);
+    // pick the faster drawing method -> TOW the least amount of rectangles
+    if((num_y * num_x) < (cp_h * cp_w))
+    {
+      int sx = (int) Math.ceil(res_x + 0.0);
+      int sy = (int) Math.ceil(res_y + 0.0);
+      for(int y = 0; y < num_y; y++){
+        for(int x = 0; x < num_x; x++){
+          canvas.fill(colors[y * num_x + x]);
+          int px = (int) Math.ceil(x * res_x);
+          int py = (int) Math.ceil(y * res_y);
+          canvas.rect(px, py, sx, sy);
+        }
+      }
+    } 
+    else 
+    {
+      for(int y = 0; y < cp_h; y++){
+        for(int x = 0; x < cp_w; x++){
+          canvas.fill(selectColorByCoords(x, y));
+          canvas.rect(x, y, 1, 1);
+        }
       }
     }
     canvas.endDraw();
     
     canvas_img = canvas.get();
     
-    selectColorByCoords(0, num_y-1);
-    
-    papplet.registerMethod("mouseEvent", this);
-    papplet.registerMethod("pre", this);
-    setAutoDraw(true);
+    // finally, select default ... black
+    selectColorByGrid(0, num_y-1);
+  }
+
+  
+  
+
+  
+  
+  
+  private boolean update_canvas = false;
+  
+  public void updateCanvas(){
+    canvas.beginDraw();
+    canvas.clear();
+    canvas.blendMode(PConstants.REPLACE);
+    canvas.image(canvas_img,0,0);
+    // draw cursor over selected bin
+    if(selected_color_idx != -1){
+      int x = selected_color_idx % num_x;
+      int y = selected_color_idx / num_x;
+      int px = (int) ((x + 0.5f) * res_x);
+      int py = (int) ((y + 0.5f) * res_y);
+      canvas.blendMode(PConstants.EXCLUSION);
+      canvas.strokeCap(PConstants.SQUARE);
+      canvas.strokeWeight(1);
+      canvas.stroke(255, 100);
+      canvas.line(px   , py-10, px   , py+10);
+      canvas.line(px-10, py   , px+10, py   );
+    }
+    canvas.endDraw();
   }
   
-  
+
   public void pre(){
     if(update_canvas){
       update_canvas = false;
@@ -155,6 +239,8 @@ public class DwColorPicker {
     papplet.unregisterMethod("mouseEvent", this);
     papplet.unregisterMethod("draw"      , this);
     papplet.unregisterMethod("pre"       , this);
+    auto_draw = false;
+    auto_mouse = false;
   }
   
   boolean auto_draw = false;
@@ -169,12 +255,24 @@ public class DwColorPicker {
     this.auto_draw = auto_draw;
     return this;
   }
+  
+  boolean auto_mouse = false;
+  public DwColorPicker setAutoMouse(boolean auto_mouse){
+    if(this.auto_mouse != auto_mouse){
+      if(auto_mouse){
+        papplet.registerMethod("mouseEvent", this);
+      } else {
+        papplet.unregisterMethod("mouseEvent", this);
+      }
+    }
+    this.auto_mouse = auto_mouse;
+    return this;
+  }
+  
 
   
-  public void setPosition(int x, int y){
-    this.cp_x = x;
-    this.cp_y = y;
-  }
+  
+
   
 
   public void mouseEvent(MouseEvent me) {
@@ -184,7 +282,7 @@ public class DwColorPicker {
     int my = my_global - cp_y;
     
     if(me.getAction() == MouseEvent.PRESS){
-      SELECTION_ACTIVE = inside(mx_global, my_global);
+      SELECTION_ACTIVE = inside(mx, my);
       cb_mouseEvent(me);
     }
     if(me.getAction() == MouseEvent.RELEASE){
@@ -193,87 +291,54 @@ public class DwColorPicker {
     }
     
     if(SELECTION_ACTIVE){
-      selectColor(mx, my);
+      selectColorByCoords(mx, my);
       LAST_USED = this;
       cb_mouseEvent(me);
     }
   
   }
   
+  /**
+   * In case someone overrides/extends this class. TODO
+   * @param me
+   */
   public void cb_mouseEvent(MouseEvent me) {
   }
   
+  
+  /**
+   * In case someone overrides/extends this class. TODO
+   * @param me
+   */
   public void cb_selectedColor(){
-    
   }
   
 
-  private boolean update_canvas = false;
-  
-  private void updateCanvas(){
-    canvas.beginDraw();
-    canvas.blendMode(PConstants.REPLACE);
-    canvas.image(canvas_img,0,0);
-    canvas.blendMode(PConstants.EXCLUSION);
-    if(selected_color_idx != -1){
-      int x = selected_color_idx % num_x;
-      int y = selected_color_idx / num_x;
-      
-//      float sx = Math.max(20, res_x);
-//      float sy = Math.max(20, res_y);
 
-      float px = x * res_x + res_x/2 - 0.5f;
-      float py = y * res_y + res_y/2 - 0.5f;
-    
-      canvas.strokeCap(PConstants.SQUARE);
-      canvas.strokeWeight(1);
-      canvas.stroke(255, 100);
-      
-//      canvas.rectMode(PConstants.CENTER);
-//      canvas.noFill();
-//      canvas.rect(px, py, sx, sy);    
-      
-      canvas.line(px, py-10, px, py+10);
-      canvas.line(px-10, py, px+10, py);
-      
-    }
 
-    canvas.endDraw();
-  }
-  
   public boolean inside(int x, int y){
-    return (x >= cp_x) && (x <= cp_x + cp_w) && (y >= cp_y) && (y <= cp_y + cp_h);
+    return (x >= 0) && (x <= cp_w) && (y >= 0) && (y <= cp_h);
   }
   
-  public int selectColor(int canvas_x, int canvas_y){
-    int cx = (int) (canvas_x / res_x);
-    int cy = (int) (canvas_y / res_y);
-    return selectColorByCoords(cx, cy);
-  }
-  
-  public int selectColorByCoords(int cx, int cy){
-    if(cx <= 0) cx = 0; else if(cx >= num_x) cx = num_x-1;
-    if(cy <= 0) cy = 0; else if(cy >= num_y) cy = num_y-1;
-    return selectColorByIndex(cy * num_x + cx);
-  }
-  
-  public int selectColorByNormalizedCoords(float cx_norm, float cy_norm){
-    int cx = (int) Math.round(Math.max(Math.min(cx_norm, 1), 0) * num_x-1);
-    int cy = (int) Math.round(Math.max(Math.min(cy_norm, 1), 0) * num_y-1);
-    return selectColorByIndex(cy * num_x + cx);
-  }
-  
-  public int selectColorByIndex(int idx){
-    int idx_min = 0;
-    int idx_max = num_x * num_y - 1;
-    if(idx < idx_min) idx = idx_min; else if(idx > idx_max) idx = idx_max;
-    selected_color_idx = idx;
-    selected_color     = colors[selected_color_idx];
-    update_canvas = true;
-//    updateCanvas();
-    return selected_color;
+
+  public int selectColorByNormalizedCoords(float cxn, float cyn){
+    int cx = (int) (DwUtils.clamp(cxn, 0, 1) * cp_w / res_x);
+    int cy = (int) (DwUtils.clamp(cyn, 0, 1) * cp_h / res_y);
+    return selectColorByGrid(cx, cy);
   }
 
+  public int selectColorByCoords(int cx, int cy){
+    cx = (int) (DwUtils.clamp(cx, 0, cp_w) / res_x);
+    cy = (int) (DwUtils.clamp(cy, 0, cp_h) / res_y);
+    return selectColorByGrid(cx, cy);
+  }
+
+  public int selectColorByGrid(int cx, int cy){
+    cx = DwUtils.clamp(cx, 0, num_x-1);
+    cy = DwUtils.clamp(cy, 0, num_y-1);
+    return selectColorByIndex(cy * num_x + cx);
+  }
+  
   
   // find the "closest" color
   public int selectColorByRGB(int r, int g, int b){
@@ -293,9 +358,16 @@ public class DwColorPicker {
     return selectColorByIndex(idx);
   }
   
- 
+  public int selectColorByIndex(int idx){
+    selected_color_idx = DwUtils.clamp(idx, 0,  num_x * num_y - 1);
+    selected_color     = colors[selected_color_idx];
+    update_canvas = true;
+    return selected_color;
+  }
 
   
+
+
   
   
   public int getSelectedColorIdx(){
@@ -326,10 +398,7 @@ public class DwColorPicker {
   }
   
   private int assureIndex(int idx){
-    int idx_min = 0;
-    int idx_max = num_x * num_y - 1;
-    if(idx < idx_min) idx = idx_min; else if(idx > idx_max) idx = idx_max;
-    return idx;
+    return DwUtils.clamp(idx, 0,  num_x * num_y - 1);
   }
   
   public int x(){ return cp_x; }
@@ -348,6 +417,11 @@ public class DwColorPicker {
     int[] hsb = getSelectedHSBColor();
     return String.format(Locale.ENGLISH, "HSB: %3d,%3d,%3d", hsb[0], hsb[1], hsb[2]);
   }
+  
+  
+  
+  
+  
   
   
   
