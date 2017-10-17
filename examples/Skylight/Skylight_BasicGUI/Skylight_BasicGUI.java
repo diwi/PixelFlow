@@ -21,13 +21,17 @@ import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightShader;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
+import com.thomasdiewald.pixelflow.java.utils.DwColorPicker;
 import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
 import controlP5.Accordion;
-import controlP5.ColorWheel;
+import controlP5.CColor;
 import controlP5.ControlEvent;
 import controlP5.ControlP5;
+import controlP5.Controller;
+import controlP5.ControllerView;
 import controlP5.Group;
+import controlP5.Pointer;
 import peasy.*;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -47,8 +51,7 @@ public class Skylight_BasicGUI extends PApplet {
   // AntiAliasing: SMAA
   //
   
-  
-  
+
   int viewport_w = 1280;
   int viewport_h = 720;
   int viewport_x = 230;
@@ -72,7 +75,7 @@ public class Skylight_BasicGUI extends PApplet {
   
   boolean DISPLAY_SAMPLES_SUN = false;
   boolean DISPLAY_SAMPLES_SKY = false;
-  boolean DISPLAY_TEXTURES    = true;
+  boolean DISPLAY_TEXTURES    = false;
   
   SMAA smaa;
   PGraphics3D pg_aa;
@@ -96,6 +99,9 @@ public class Skylight_BasicGUI extends PApplet {
 
     // load obj file into shape-object
     shape = loadShape("examples/data/skylight_demo_scene.obj");
+    
+    // grayscale model
+    shape.setFill(color(255));
     
     // record list of vertices of the given shape
     DwVertexRecorder vertex_recorder = new DwVertexRecorder(this, shape);
@@ -141,24 +147,23 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.sky.param.solar_azimuth  = 0;
     skylight.sky.param.solar_zenith   = 0;
     skylight.sky.param.sample_focus   = 1; // full sphere sampling
-    skylight.sky.param.intensity      = 1.0f;
-    skylight.sky.param.rgb            = new float[]{1,1,1};
-    skylight.sky.param.shadowmap_size = 256; // quality vs. performance
+    skylight.sky.param.intensity      = 3.0f;
+    skylight.sky.param.rgb            = new float[]{0.25f,0.50f,1.00f};
+    skylight.sky.param.shadowmap_size = 512; // quality vs. performance
     
     // parameters for sun-light
     skylight.sun.param.iterations     = 50;
     skylight.sun.param.solar_azimuth  = 45;
-    skylight.sun.param.solar_zenith   = 55;
-    skylight.sun.param.sample_focus   = 0.01f;
-    skylight.sun.param.intensity      = 1.0f;
-    skylight.sun.param.rgb            = new float[]{1,1,1};
+    skylight.sun.param.solar_zenith   = 75;
+    skylight.sun.param.sample_focus   = 0.02f;
+    skylight.sun.param.intensity      = 2.0f;
+    skylight.sun.param.rgb            = new float[]{1.00f,0.20f,0.00f};
     skylight.sun.param.shadowmap_size = 512;
     
     // postprocessing AA
     smaa = new SMAA(context);
     pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
     pg_aa.smooth(0);
-    pg_aa.textureSampling(5);
     
     
     // cp5 gui
@@ -191,7 +196,6 @@ public class Skylight_BasicGUI extends PApplet {
     image(pg_aa, 0, 0);
     // display textures
     if(DISPLAY_TEXTURES){
-      
       int dy = 10;
       int px = dy;
       int py = dy;
@@ -214,7 +218,6 @@ public class Skylight_BasicGUI extends PApplet {
       image(skylight.geom.pg_geom,               px, py+=sy_shadow+dy, sx, sy_geom);
       image(skylight.sun.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom);
       image(skylight.sky.getSrc(),               px, py+=sy_geom  +dy, sx, sy_geom); 
-      
     }
     peasycam.endHUD();
     
@@ -234,7 +237,6 @@ public class Skylight_BasicGUI extends PApplet {
       canvas.background(32);
       displaySamples(canvas);
     }
-    
     canvas.pushMatrix();
     canvas.applyMatrix(mat_scene_view);
     canvas.shape(shape);
@@ -296,10 +298,8 @@ public class Skylight_BasicGUI extends PApplet {
     CAM_ACTIVE |= cam_pos_curr[2] != cam_pos[2];
     cam_pos = cam_pos_curr;
   }
-  
+ 
 
-
-  
   ControlP5 cp5;
   
   public void displayGUI(){
@@ -309,75 +309,72 @@ public class Skylight_BasicGUI extends PApplet {
     peasycam.endHUD();
   }
   
-  
- 
   public void controlEvent(ControlEvent ce) {
-//    System.out.println(ce);
-    if(ce.getName().equals("sky.color")){
-      ColorWheel cw  = (ColorWheel) ce.getController();
-      int rgb = cw.getRGB();
-      int r = (rgb >> 16 ) & 0xFF;
-      int g = (rgb >>  8 ) & 0xFF;
-      int b = (rgb >>  0 ) & 0xFF;
-      skylight.sky.param.rgb = new float[]{r/255f, g/255f, b/255f};
+    String cname = ce.getName();
+    boolean reset = false;
+    reset |= cname.contains("solar_azimuth");
+    reset |= cname.contains("solar_zenith");
+    reset |= cname.contains("sample_focus");
+    reset |= cname.contains("quality");
+    if(reset){
+      skylight.reset();
     }
-    
-    if(ce.getName().equals("sun.color")){
-      ColorWheel cw  = (ColorWheel) ce.getController();
-      int rgb = cw.getRGB();
-      int r = (rgb >> 16 ) & 0xFF;
-      int g = (rgb >>  8 ) & 0xFF;
-      int b = (rgb >>  0 ) & 0xFF;
-      skylight.sun.param.rgb = new float[]{r/255f, g/255f, b/255f};
-    }
-    
-    skylight.reset();
   }
 
-  
   public void displaySamples(float[] val){
     DISPLAY_SAMPLES_SKY = (val[0] > 0);
     DISPLAY_SAMPLES_SUN = (val[1] > 0);
     DISPLAY_TEXTURES    = (val[2] > 0);
   }
   
- 
+  float mult_fg = 1f;
+  float mult_active = 2f;
+  float CR = 32;
+  float CG = 64;
+  float CB = 128;
+  int col_bg, col_fg, col_active;
+
   public void createGUI(){
+    
+    col_bg     = color(4, 220);
+    col_fg     = color(CR*mult_fg, CG*mult_fg, CB*mult_fg);
+    col_active = color(CR*mult_active, CG*mult_active, CB*mult_active);
+    
+    CColor theme = ControlP5.getColor();
+    theme.setForeground(col_fg);
+    theme.setBackground(col_bg);
+    theme.setActive(col_active);
+    
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(false);
 
     int sx, sy, px, py, oy;
     sx = 100; sy = 14; oy = (int)(sy*1.4f);
     
+    int col_group = color(8,220);
+    
     ////////////////////////////////////////////////////////////////////////////
-    // GUI - CLOTH
+    // GUI - SKYLIGHT
     ////////////////////////////////////////////////////////////////////////////
     Group group_skylight = cp5.addGroup("skylight");
     {
       group_skylight.setHeight(20).setSize(gui_w, height)
-      .setBackgroundColor(color(0, 204)).setColorBackground(color(0, 204));
+      .setBackgroundColor(col_group).setColorBackground(col_group);
       group_skylight.getCaptionLabel().align(CENTER, CENTER);
       
       px = 10; py = 15;
-      
-      int bsx = (gui_w-40)/3;
-      cp5.addButton("reset").setGroup(group_skylight).plugTo(skylight, "reset").setSize(bsx, 18).setPosition(px, py);
 
-      px = 10;
-      
-      cp5.addCheckBox("displaySamples").setGroup(group_skylight).setSize(sy,sy).setPosition(px, py+=(int)(oy*2.4f))
+      cp5.addCheckBox("displaySamples").setGroup(group_skylight).setSize(sy,sy).setPosition(px, py+=(int)(oy*1.4f))
           .setSpacingColumn(2).setSpacingRow(2).setItemsPerRow(1)
           .addItem("SKY.samples", 0).activate(DISPLAY_SAMPLES_SKY ? 0 : 5)
           .addItem("SUN.samples", 1).activate(DISPLAY_SAMPLES_SUN ? 1 : 5)
           .addItem("textures"   , 2).activate(DISPLAY_TEXTURES    ? 2 : 5)
       ;
   
-   
       DwSkyLightShader.Param param_sky = skylight.sky.param;
       DwSkyLightShader.Param param_sun = skylight.sun.param;
-      
 
-      cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*3.4f))
+      cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*5.4f))
           .setRange(0, 200).setValue(param_sky.iterations).plugTo(param_sky, "iterations");
       cp5.addSlider("sky.quality").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(32, 2048).setValue(param_sky.shadowmap_size).plugTo(param_sky, "shadowmap_size");
@@ -386,13 +383,12 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addSlider("sky.solar_zenith").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 90).setValue(param_sky.solar_zenith).plugTo(param_sky, "solar_zenith");
       cp5.addSlider("sky.sample_focus").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_sky.sample_focus).plugTo(param_sky, "sample_focus");
+          .setRange(0.001f, 1).setValue(param_sky.sample_focus).plugTo(param_sky, "sample_focus");
       cp5.addSlider("sky.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 5).setValue(param_sky.intensity).plugTo(param_sky, "intensity");
-      cp5.addColorWheel("sky.color", px, py+=oy, gui_w/2).setGroup(group_skylight)
-          .setRGB(color(param_sky.rgb[0]*255, param_sky.rgb[1]*255, param_sky.rgb[2]*255));
-      
-      py += gui_w/2+40;
+          .setRange(0, 7).setValue(param_sky.intensity).plugTo(param_sky, "intensity");
+      new ColorPicker(cp5, "sky.colorpicker", gui_w-20, 40, 100, param_sky.rgb).setGroup(group_skylight).setPosition(px, py+=(oy*1.5f));
+
+      py += 80;
       
       cp5.addSlider("sun.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
           .setRange(0, 200).setValue(param_sun.iterations).plugTo(param_sun, "iterations");
@@ -403,15 +399,12 @@ public class Skylight_BasicGUI extends PApplet {
       cp5.addSlider("sun.solar_zenith").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
           .setRange(0, 90).setValue(param_sun.solar_zenith).plugTo(param_sun, "solar_zenith");
       cp5.addSlider("sun.sample_focus").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 1).setValue(param_sun.sample_focus).plugTo(param_sun, "sample_focus");
+          .setRange(0.001f, 1).setValue(param_sun.sample_focus).plugTo(param_sun, "sample_focus");
       cp5.addSlider("sun.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 5).setValue(param_sun.intensity).plugTo(param_sun, "intensity");
-      cp5.addColorWheel("sun.color", px, py+=oy, gui_w/2).setGroup(group_skylight)
-          .setRGB(color(param_sun.rgb[0]*255, param_sun.rgb[1]*255, param_sun.rgb[2]*255));
-
+          .setRange(0, 7).setValue(param_sun.intensity).plugTo(param_sun, "intensity");
+      new ColorPicker(cp5, "sun.colorpicker", gui_w-20, 40, 100, param_sun.rgb).setGroup(group_skylight).setPosition(px, py+=(oy*1.5f));
     }
     
-
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
@@ -422,7 +415,63 @@ public class Skylight_BasicGUI extends PApplet {
    
   }
   
+
+
   
+  /**
+   * Creating a new cp5-controller for PixelFlows colorpicker.
+   */
+  static class ColorPicker extends Controller<ColorPicker> {
+    ControlP5 cp5;
+    DwColorPicker colorpicker;
+    Pointer mouse = getPointer();
+    float[] rgb;
+
+    ColorPicker(ControlP5 cp5, String theName, int dim_x, int dim_y, int ny, float[] rgb) {
+      super(cp5, theName);
+
+      setSize(dim_x, dim_y);
+      this.cp5 = cp5;
+      this.rgb = rgb;
+      this.colorpicker = new DwColorPicker(cp5.papplet, 0, 0, dim_x, dim_y);
+      this.colorpicker.setAutoDraw(false);
+      this.colorpicker.setAutoMouse(false);
+      createPallette(ny);
+      
+      setView(new ControllerView<ColorPicker>() {
+        public void display(PGraphics p, ColorPicker b) {
+          colorpicker.display();
+        }
+      });
+    }
+    
+    public ColorPicker createPallette(int shadesY){
+      colorpicker.createPallette(shadesY);
+      colorpicker.selectColorByRGB((int)(rgb[0]*255f), (int)(rgb[1]*255f), (int)(rgb[2]*255f));
+      return this;
+    }
+    
+    public ColorPicker createPallette(int shadesX, int shadesY){
+      colorpicker.createPallette(shadesX, shadesY);
+      colorpicker.selectColorByRGB((int)(rgb[0]*255f), (int)(rgb[1]*255f), (int)(rgb[2]*255f));
+      return this;
+    }
+
+    public void selectColor(){
+      colorpicker.selectColorByCoords(mouse.x(), mouse.y());
+      int[] selected = colorpicker.getSelectedRGBColor();
+      rgb[0] = selected[0] / 255f;
+      rgb[1] = selected[1] / 255f;
+      rgb[2] = selected[2] / 255f;
+    }
+
+    protected void onPress() {
+      selectColor();
+    }
+    protected void onDrag() {
+      selectColor();
+    }
+  }
   
   
   
