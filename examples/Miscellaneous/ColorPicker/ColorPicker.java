@@ -30,26 +30,33 @@ public class ColorPicker extends PApplet {
   public DwColorPicker cp1;
   public DwColorPicker cp2;
   public DwColorPicker cp3;
+  public DwColorPicker cp4;
+  public DwColorPicker cp5;
+  
   PFont font;
   
   public void settings(){
-    size(1200, 900, P2D);
+    size(1000, 700, P2D);
   }
   
   public void setup(){
     surface.setLocation(210, 0);
     
     cp1 = new DwColorPicker(this, 10, 10, width-20, 150);
-    cp2 = new DwColorPicker(this, 10, 220, 180, 600, 51);
-    cp3 = new DwColorPicker(this, width/2, height/2+10, 180, 80, 20);
-    
-    cp3.createPallette(8);
+    cp2 = new DwColorPicker(this, 10, 220, 180, 400);
+    cp3 = new DwColorPicker(this, 240, 240, 600, 80, 20);
+    cp4 = new DwColorPicker(this, 240, 400, 240, 240, 20);
+    cp5 = new DwColorPicker(this, 540, 500, 400, 20, 20);
     
     cp1.createPallette(361, 5);
+    cp2.createPallette(13, 200);
+    cp3.createPallette(8); 
+    cp4.createPallette(361,240);
     
-    cp1.selectColorByGrid(cp1.getNumColorsX()/2, cp1.getNumColorsY()/2);
+    cp1.selectColorByGrid(cp1.getNX()/2, cp1.getNY()/2);
     cp2.selectColorByRGB(255, 255, 125);
     cp3.selectColorByNormalizedCoords(0.5f, 0.5f);
+    cp4.selectColorByRGB(128,128,128);
     
     font = createFont("../data/SourceCodePro-Regular.ttf", 12);
     textFont(font);

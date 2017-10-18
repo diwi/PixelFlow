@@ -18,7 +18,6 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.event.MouseEvent;
-import processing.opengl.PGraphics2D;
 
 /**
  * @author Thomas Diewald
@@ -34,7 +33,7 @@ public class DwColorPicker {
   public static DwColorPicker LAST_USED;
  
   protected PApplet papplet;
-  protected PGraphics2D canvas;
+  protected PGraphics canvas;
   protected PImage canvas_img;
   
   protected int cp_x, cp_y;
@@ -160,7 +159,7 @@ public class DwColorPicker {
       if(canvas == null){
         papplet.g.removeCache(canvas);
       }
-      canvas = (PGraphics2D) papplet.createGraphics(cp_w, cp_h, PConstants.P2D);
+      canvas = papplet.createGraphics(cp_w, cp_h);
       canvas.smooth(0);
     }
     canvas.beginDraw();
@@ -406,8 +405,8 @@ public class DwColorPicker {
   public int w(){ return cp_w; }
   public int h(){ return cp_h; }
   
-  public int getNumColorsX(){ return num_x; }
-  public int getNumColorsY(){ return num_y; }
+  public int getNX(){ return num_x; }
+  public int getNY(){ return num_y; }
   
   public String getSelectedRGBasString(){
     int[] rgb = getSelectedRGBColor();
