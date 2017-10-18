@@ -38,7 +38,7 @@ public class DwPixelFlow{
                                      
   static public class PixelFlowInfo{
     
-    static public final String version = "1.16";
+    static public final String version = "1.17";
     static public final String name    = "PixelFlow";
     static public final String author  = "Thomas Diewald";
     static public final String web     = "www.thomasdiewald.com";
@@ -56,8 +56,8 @@ public class DwPixelFlow{
   }
   
   
-//  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
-  public static final String SHADER_DIR = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/";
+  public static final String SHADER_DIR = "/com/thomasdiewald/pixelflow/glsl/";
+//  public static final String SHADER_DIR = "D:/data/__Eclipse/workspace/WORKSPACE_FLUID/PixelFlow/src/com/thomasdiewald/pixelflow/glsl/";
   
   public PApplet papplet;
   public PJOGL   pjogl;

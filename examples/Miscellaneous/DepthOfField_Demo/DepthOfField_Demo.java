@@ -20,7 +20,6 @@ import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.SummedAreaTable;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuffer;
 import com.thomasdiewald.pixelflow.java.utils.DwMagnifier;
@@ -61,8 +60,6 @@ public class DepthOfField_Demo extends PApplet {
   PGraphics3D pg_tmp;
   DwScreenSpaceGeometryBuffer geombuffer;
   
-  SummedAreaTable sat;
-  
   DepthOfField dof;
   
   DwMagnifier magnifier;
@@ -92,11 +89,6 @@ public class DepthOfField_Demo extends PApplet {
     // projection
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
-    // processing font
-    
-//    shape = loadShape("examples/data/skylight_demo_scene.obj");
-//    shape.scale(20);
-    
     pg_render = (PGraphics3D) createGraphics(width, height, P3D);
     pg_render.smooth(8);
     
@@ -106,24 +98,17 @@ public class DepthOfField_Demo extends PApplet {
     pg_dof.beginDraw();
     pg_dof.endDraw();
 
-    
-    pg_tmp    = (PGraphics3D) createGraphics(width, height, P3D);
+    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
     
     DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
     pg_tmp.beginDraw();
-//    pg_tmp.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-//    pg_tmp.textureSampling(2);
-//    pg_tmp.background(0xFFFFFFFF);
-//    pg_tmp.blendMode(PConstants.REPLACE);
-//    pg_tmp.noStroke();
     pg_tmp.endDraw();
     
     // main library context
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
-    
  
 
     // callback for scene display (used in GBAA)
@@ -134,14 +119,11 @@ public class DepthOfField_Demo extends PApplet {
       }
     };
     
-    sat = new SummedAreaTable(context);
-    
     
     geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
     
     dof = new DepthOfField(context);
     
-
     int mag_h = (int) (height/3f);
     magnifier = new DwMagnifier(this, 4, 0, height-mag_h, mag_h, mag_h);
     
@@ -164,29 +146,30 @@ public class DepthOfField_Demo extends PApplet {
 
       DwFilter.get(context).gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, 5);
 
-  //    sat.create(pg_render);
-  
 //      dof.param.focus     = map(mouseX, 0, width, 0, 1);
       dof.param.focus_pos = new float[]{0.5f, 0.5f};
       dof.param.focus_pos[0] = map(mouseX+0.5f, 0, width , 0, 1);
       dof.param.focus_pos[1] = map(mouseY+0.5f, 0, height, 1, 0);
       dof.param.mult_blur = mult_blur;
-      dof.apply(pg_render, pg_dof,geombuffer);
+      dof.apply(pg_render, pg_dof, geombuffer);
+      
+      DwFilter.get(context).copy.apply(pg_dof, pg_render);
+    } else {
+      
     }
     
-    magnifier.apply(pg_dof, mouseX, mouseY);
+    magnifier.apply(pg_render, mouseX, mouseY);
     magnifier.displayTool();
 
     peasycam.beginHUD();
     {
       blendMode(REPLACE);
       clear();
-      image(pg_dof, 0, 0);
+      image(pg_render, 0, 0);
 //      image(geombuffer.pg_geom, 0, 0);
       
       magnifier.display(this.g);
       
-
       blendMode(BLEND);
       
       pushMatrix();
