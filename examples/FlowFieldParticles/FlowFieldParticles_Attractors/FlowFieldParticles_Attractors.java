@@ -15,10 +15,11 @@ package FlowFieldParticles.FlowFieldParticles_Attractors;
 
 import java.util.Locale;
 
-import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
+import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -148,28 +149,20 @@ public class FlowFieldParticles_Attractors extends PApplet {
   }
   
 
-  public void resizeScene(){
-    
-    if(pg_canvas != null && width == pg_canvas.width && height == pg_canvas.height){
-      return;
+  // dynamically resize if surface-size changes
+  public boolean resizeScene(){
+
+    boolean[] RESIZED = { false };
+    pg_canvas     = DwGLTextureUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
+    pg_obstacles  = DwGLTextureUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
+    pg_impulse    = DwGLTextureUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
+    pg_luminance  = DwGLTextureUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
+
+    if(RESIZED[0]){
+      setParticleColor(2);
     }
-    
-    pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_canvas.smooth(0);
-    
-    pg_luminance = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_luminance.smooth(0);
-    
-    pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(0);
-    
-    pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_impulse.smooth(0);
-
-    setParticleColor(2);
+    return RESIZED[0];
   }
-  
-
   
   
   //////////////////////////////////////////////////////////////////////////////
@@ -364,7 +357,7 @@ public class FlowFieldParticles_Attractors extends PApplet {
   
 
   void info(){
-    String txt_device = context.gl.glGetString(GL2ES2.GL_RENDERER).trim().split("/")[0];
+    String txt_device = context.gl.glGetString(GL2.GL_RENDERER).trim().split("/")[0];
     String txt_app = getClass().getSimpleName();
     String txt_fps = String.format(Locale.ENGLISH, "[%s]   [%s]   [%d/%d]   [%7.2f fps]   [particles %,d] ", 
         txt_app, txt_device, 

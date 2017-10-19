@@ -90,6 +90,7 @@ public class Skylight_BasicGUI extends PApplet {
   PGraphics3D pg_tmp;
   
   SMAA smaa;
+  
   PGraphics3D pg_aa;
   PGraphics3D pg_render;
   
@@ -97,6 +98,7 @@ public class Skylight_BasicGUI extends PApplet {
   // scene to render
   PShape shp_group;
   
+  int BACKGROUND = 32;
   float SCENE_SCALE = 500;
 
   
@@ -109,7 +111,16 @@ public class Skylight_BasicGUI extends PApplet {
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
-
+    surface.setResizable(true);
+    
+    
+    // library context
+    context = new DwPixelFlow(this);
+    context.print();
+    context.printGL();
+    // context.printGL_Extensions();
+    context.printGL_MemoryInfo();
+    
     // camera
     peasycam = new PeasyCam(this, SCENE_SCALE * 1.5f);
 //    peasycam.setRotations(  0.422,   1.075,  -2.085);
@@ -190,22 +201,11 @@ public class Skylight_BasicGUI extends PApplet {
       }
     };
     
-    // library context
-    context = new DwPixelFlow(this);
-    context.print();
-    context.printGL();
+
     
+    // Depth of Field
     dof = new DepthOfField(context);
     geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
-    
-    
-    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_tmp.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-    pg_tmp.beginDraw();
-    pg_tmp.endDraw();
-    
-    
     
     // init skylight renderer
     skylight = new DwSkyLight(context, scene_display, mat_scene_bounds);
@@ -230,27 +230,56 @@ public class Skylight_BasicGUI extends PApplet {
     
     // postprocessing AA
     smaa = new SMAA(context);
-    pg_aa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_aa.smooth(0);
     
-    pg_render = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render.smooth(0);
-    pg_render.beginDraw();
-    pg_render.endDraw();
-    
-    // cp5 gui
+    // ControlP5
     createGUI();
 
     frameRate(1000);
   }
 
-  
-  
 
+  public boolean resizeScene(){
+    
+    viewport_w = width;
+    viewport_h = height;
+
+    boolean[] RESIZED = {false};
+    
+    pg_aa     = DwGLTextureUtils.changeTextureSize(this, pg_aa    , width, height, 0, RESIZED);
+    pg_render = DwGLTextureUtils.changeTextureSize(this, pg_render, width, height, 0, RESIZED);
+    pg_tmp    = DwGLTextureUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+//    pg_render_smaa = DwGLTextureUtils.changeTextureSize(this, pg_render_smaa, width, height, 0, RESIZED);
+//    pg_render_gbaa = DwGLTextureUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
+    
+    skylight.resize(width, height);
+    
+    if(RESIZED[0]){
+      resetMatrix();
+      camera();
+      perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
+      
+      float[] rot = peasycam.getRotations();
+      float[] lat = peasycam.getLookAt();
+      double  dis = peasycam.getDistance();
+      
+      peasycam.setActive(false);  // unregister handler
+      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
+      peasycam.setRotations(rot[0], rot[1], rot[2]);
+      
+      gui_x = width - gui_w;
+      cp5.setPosition(gui_x, gui_y);
+      
+    }
+    peasycam.feed();
+    
+    return RESIZED[0];
+  }
     
 
   public void draw() {
     
+    resizeScene();
+ 
     peasycam.setActive(!cp5.isMouseOver());
     
     // when the camera moves, the renderer restarts
@@ -347,16 +376,15 @@ public class Skylight_BasicGUI extends PApplet {
 
   public void displayScene(PGraphicsOpenGL canvas){
     if(canvas == skylight.renderer.pg_render){
-      canvas.background(32);
+      canvas.background(BACKGROUND);
       displaySamples(canvas);
     }
     
     if(canvas == geombuffer.pg_geom){
-      canvas.background(255, 255);
+      canvas.pgl.clearDepth(1.0f);
       canvas.pgl.clearColor(1, 1, 1, clip_z_far);
-      canvas.pgl.clear(PGL.COLOR_BUFFER_BIT);
+      canvas.pgl.clear(PGL.COLOR_BUFFER_BIT | PGL.DEPTH_BUFFER_BIT);
     }
-    
     
     canvas.pushMatrix();
     canvas.applyMatrix(mat_scene_view);
@@ -405,6 +433,9 @@ public class Skylight_BasicGUI extends PApplet {
   
   public void keyReleased(){
     if(key == 'c') printCam();
+    if(key == 'm'){
+      context.printGL_MemoryInfo();
+    }
   }
   
   
@@ -464,17 +495,18 @@ public class Skylight_BasicGUI extends PApplet {
     APPLY_DOF           = (val[3] > 0);
   }
   
-  float mult_fg = 1f;
+  float mult_bg     = 0.25f;
+  float mult_fg     = 1f;
   float mult_active = 2f;
-  float CR = 32;
+  float CR = 0;
   float CG = 64;
   float CB = 128;
   int col_bg, col_fg, col_active;
 
   public void createGUI(){
     
-    col_bg     = color(4, 220);
-    col_fg     = color(CR*mult_fg, CG*mult_fg, CB*mult_fg);
+    col_bg     = color(CR*mult_bg, CG*mult_bg, CB*mult_bg, 220);
+    col_fg     = color(CR*mult_fg, CG*mult_fg, CB*mult_fg, 255);
     col_active = color(CR*mult_active, CG*mult_active, CB*mult_active);
     
     CColor theme = ControlP5.getColor();
@@ -484,6 +516,7 @@ public class Skylight_BasicGUI extends PApplet {
     
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(false);
+    cp5.setPosition(gui_x, gui_y);
 
     int sx, sy, px, py, oy;
     sx = 100; sy = 14; oy = (int)(sy*1.4f);
@@ -510,7 +543,9 @@ public class Skylight_BasicGUI extends PApplet {
       ;
       
       cp5.addSlider("gamma").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*5.4f))
-      .setRange(1, 2.2f).setValue(skylight.renderer.param.gamma).plugTo(skylight.renderer.param, "gamma");
+          .setRange(1, 2.2f).setValue(skylight.renderer.param.gamma).plugTo(skylight.renderer.param, "gamma");
+      cp5.addSlider("BACKGROUND").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
+          .setRange(0, 255).setValue(BACKGROUND).plugTo(this, "BACKGROUND");
       
   
       DwSkyLightShader.Param param_sky = skylight.sky.param;
@@ -550,11 +585,10 @@ public class Skylight_BasicGUI extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
-    cp5.addAccordion("acc").setPosition(gui_x, gui_y).setWidth(gui_w).setSize(gui_w, height)
-      .setCollapseMode(Accordion.MULTI)
+    cp5.addAccordion("acc").setCollapseMode(Accordion.MULTI)
       .addItem(group_skylight)
-      .open(0, 1);
-   
+      .open();
+    
   }
   
 
@@ -567,7 +601,8 @@ public class Skylight_BasicGUI extends PApplet {
     ControlP5 cp5;
     DwColorPicker colorpicker;
     Pointer mouse = getPointer();
-    float[] rgb;
+    float[] rgb;   
+    int hud_sy = 16;
 
     ColorPicker(ControlP5 cp5, String theName, int dim_x, int dim_y, int ny, float[] rgb) {
       super(cp5, theName);
@@ -581,8 +616,31 @@ public class Skylight_BasicGUI extends PApplet {
       createPallette(ny);
       
       setView(new ControllerView<ColorPicker>() {
-        public void display(PGraphics p, ColorPicker b) {
+        public void display(PGraphics pg, ColorPicker cp) {
           colorpicker.display();
+          
+          int dim_x = getWidth();
+ 
+          int    cp_col = colorpicker.getSelectedColor();
+          String cp_rgb = colorpicker.getSelectedRGBasString();
+          // String cp_hsb = colorpicker.getSelectedHSBasString();
+
+          int sy = hud_sy;
+          int px = 0;
+          int py = colorpicker.h()+1;
+          
+          pg.noStroke();
+          pg.fill(200, 50);
+          pg.rect(px-1, py, dim_x+2, sy+1);
+          pg.fill(cp_col);
+          pg.rect(px, py, sy, sy);
+          
+          pg.fill(255);
+          pg.text(cp_rgb, px + sy + 5, py+8);
+//          pg.text(cp_hsb, px + sy * 2, py+8);
+
+          colorpicker.display();
+          
         }
       });
     }

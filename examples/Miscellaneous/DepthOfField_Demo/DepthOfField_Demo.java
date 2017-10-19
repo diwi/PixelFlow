@@ -35,7 +35,7 @@ import processing.opengl.PGraphics3D;
 public class DepthOfField_Demo extends PApplet {
   
   //
-  // Depth of Field (DoF) Demo
+  // Depth of Field (DoF)
   //
   // WIP, I am still experimenting here ... so better do not use it yet.
   // 
@@ -54,15 +54,17 @@ public class DepthOfField_Demo extends PApplet {
   // library context
   DwPixelFlow context;
 
-  
   PGraphics3D pg_render;
   PGraphics3D pg_dof;
   PGraphics3D pg_tmp;
+
+  DepthOfField dof;
   DwScreenSpaceGeometryBuffer geombuffer;
   
-  DepthOfField dof;
-  
   DwMagnifier magnifier;
+  
+  boolean APPLY_DOF = true;
+  
   
   public void settings() {
     if(START_FULLSCREEN){
@@ -77,9 +79,9 @@ public class DepthOfField_Demo extends PApplet {
     smooth(0);
   }
   
-  
-  
+ 
   public void setup() {
+    surface.setResizable(true);
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
@@ -88,22 +90,6 @@ public class DepthOfField_Demo extends PApplet {
 
     // projection
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
-    
-    pg_render = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render.smooth(8);
-    
-    pg_dof = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_dof.smooth(8);
-    
-    pg_dof.beginDraw();
-    pg_dof.endDraw();
-
-    pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_tmp.smooth(0);
-    
-    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-    pg_tmp.beginDraw();
-    pg_tmp.endDraw();
     
     // main library context
     context = new DwPixelFlow(this);
@@ -130,13 +116,45 @@ public class DepthOfField_Demo extends PApplet {
     frameRate(1000);
   }
 
-  
-  boolean APPLY_DOF = true;
 
+  
+  // dynamically resize render-targets
+  public boolean resizeScreen(){
+
+    boolean[] RESIZED = {false};
+    
+    pg_render = DwGLTextureUtils.changeTextureSize(this, pg_render, width, height, 8, RESIZED);
+    pg_dof    = DwGLTextureUtils.changeTextureSize(this, pg_dof   , width, height, 0, RESIZED);
+    pg_tmp    = DwGLTextureUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+
+//    geombuffer.resize(width, height)
+    
+    if(RESIZED[0]){
+      resetMatrix();
+      camera();
+      perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+      
+      float[] rot = peasycam.getRotations();
+      float[] lat = peasycam.getLookAt();
+      double  dis = peasycam.getDistance();
+      
+      peasycam.setActive(false);  // unregister handler
+      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
+      peasycam.setRotations(rot[0], rot[1], rot[2]);
+    }
+    peasycam.feed();
+    
+    return RESIZED[0];
+  }
+  
 
 
   public void draw() {
+    
+    resizeScreen();
+    
     displaySceneWrap(pg_render);
+    
     DwFilter.get(context).gamma.apply(pg_render, pg_render);
     
     int mult_blur = 20;
@@ -166,7 +184,7 @@ public class DepthOfField_Demo extends PApplet {
       image(pg_render, 0, 0);
 //      image(geombuffer.pg_geom, 0, 0);
       
-      magnifier.display(this.g);
+      magnifier.display(g, 0, height-magnifier.h);
       
       blendMode(BLEND);
       

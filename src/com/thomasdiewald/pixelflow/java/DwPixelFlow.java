@@ -420,6 +420,8 @@ public class DwPixelFlow{
     System.out.println();
   }
 
+  
+  
   public void printGL_Extensions(){
     String gl_extensions = gl.glGetString(GL2ES2.GL_EXTENSIONS).trim();
     String[] list = gl_extensions.split(" ");
@@ -427,10 +429,11 @@ public class DwPixelFlow{
     System.out.println();
     System.out.printf("[-] %d etensions\n", list.length);
     for(int i = 0; i < list.length; i++){
-      System.out.printf("  [-] %d - %s\n", i, list[i]);
+      System.out.printf("  [-] %d - %s\n", i, list[i].trim());
     }
     System.out.println();
   }
+  
   
   public void print(){
     System.out.println(INFO);
@@ -445,40 +448,46 @@ public class DwPixelFlow{
   static public final int     GPU_MEMORY_INFO_EVICTION_COUNT_NVX           = 0x904A;
   static public final int     GPU_MEMORY_INFO_EVICTED_MEMORY_NVX           = 0x904B;
   
-  static public boolean       VAL_GL_NVX_gpu_memory_info                       = false;
-  static public int           VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          = 0;
-  static public int           VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    = 0;
-  static public int           VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  = 0;
-  static public int           VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            = 0;
-  static public int           VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            = 0;
-  
+  // https://www.khronos.org/registry/OpenGL/extensions/ATI/ATI_meminfo.txt
+  //    [0] - total memory free in the pool
+  //    [1] - largest available free block in the pool
+  //    [2] - total auxiliary memory free
+  //    [3] - largest auxiliary free block
   static public final String  ATI_meminfo                  = "ATI_meminfo";
   static public final int     VBO_FREE_MEMORY_ATI          = 0x87FB;
   static public final int     TEXTURE_FREE_MEMORY_ATI      = 0x87FC;
   static public final int     RENDERBUFFER_FREE_MEMORY_ATI = 0x87FD;
   
+  
+  static public boolean       VAL_GL_NVX_gpu_memory_info                       = false;
+  static public int[]         VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX         = {0};
+  static public int[]         VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX   = {0};
+  static public int[]         VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = {0};
+  static public int[]         VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX           = {0};
+  static public int[]         VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX           = {0};
+  
   static public boolean       VAL_ATI_meminfo                  = false;
-  static public int           VAL_VBO_FREE_MEMORY_ATI          = 0;
-  static public int           VAL_TEXTURE_FREE_MEMORY_ATI      = 0;
-  static public int           VAL_RENDERBUFFER_FREE_MEMORY_ATI = 0;
+  static public int[]         VAL_VBO_FREE_MEMORY_ATI          = {0,0,0,0};
+  static public int[]         VAL_TEXTURE_FREE_MEMORY_ATI      = {0,0,0,0};
+  static public int[]         VAL_RENDERBUFFER_FREE_MEMORY_ATI = {0,0,0,0};
   
   
-  
+
   public void updateGL_MemoryInfo(){
-    VAL_GL_NVX_gpu_memory_info = extensionAvailable(GL_NVX_gpu_memory_info);
+    VAL_GL_NVX_gpu_memory_info = gl.isExtensionAvailable(GL_NVX_gpu_memory_info);
     if(VAL_GL_NVX_gpu_memory_info){
-      VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          = getIntVal(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX        );
-      VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    = getIntVal(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX  );
-      VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  = getIntVal(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX);
-      VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            = getIntVal(GPU_MEMORY_INFO_EVICTION_COUNT_NVX          );
-      VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            = getIntVal(GPU_MEMORY_INFO_EVICTED_MEMORY_NVX          );
+      gl.glGetIntegerv(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX        , VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX        , 0);
+      gl.glGetIntegerv(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX  , VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX  , 0);
+      gl.glGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, 0);
+      gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTION_COUNT_NVX          , VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX          , 0);
+      gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTED_MEMORY_NVX          , VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX          , 0);
     }
     
-    VAL_ATI_meminfo = extensionAvailable(ATI_meminfo);
+    VAL_ATI_meminfo = gl.isExtensionAvailable(ATI_meminfo);
     if(VAL_ATI_meminfo){
-      VAL_VBO_FREE_MEMORY_ATI           = getIntVal(VBO_FREE_MEMORY_ATI         );
-      VAL_TEXTURE_FREE_MEMORY_ATI       = getIntVal(TEXTURE_FREE_MEMORY_ATI     );
-      VAL_RENDERBUFFER_FREE_MEMORY_ATI  = getIntVal(RENDERBUFFER_FREE_MEMORY_ATI);
+      gl.glGetIntegerv(VBO_FREE_MEMORY_ATI         , VAL_VBO_FREE_MEMORY_ATI         , 0);
+      gl.glGetIntegerv(TEXTURE_FREE_MEMORY_ATI     , VAL_TEXTURE_FREE_MEMORY_ATI     , 0);
+      gl.glGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, VAL_RENDERBUFFER_FREE_MEMORY_ATI, 0);
     }
   }
   
@@ -487,37 +496,36 @@ public class DwPixelFlow{
     
     updateGL_MemoryInfo();
 
-    if(extensionAvailable(GL_NVX_gpu_memory_info)){
+    if(VAL_GL_NVX_gpu_memory_info)
+    {
       System.out.printf("[-] %s\n", GL_NVX_gpu_memory_info);
-      System.out.printf("  [-] GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX         = %d MB\n", (VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX         >> 10));
-      System.out.printf("  [-] GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX   = %d MB\n", (VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX   >> 10));
-      System.out.printf("  [-] GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = %d MB\n", (VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX >> 10));
-      System.out.printf("  [-] GPU_MEMORY_INFO_EVICTION_COUNT_NVX           = %d\n", (VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX               ));
-      System.out.printf("  [-] GPU_MEMORY_INFO_EVICTED_MEMORY_NVX           = %d MB\n", (VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX           >> 10));
+      System.out.printf("  [-] GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX         (MB) = %d\n", (VAL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX        [0] >> 10));
+      System.out.printf("  [-] GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX   (MB) = %d\n", (VAL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX  [0] >> 10));
+      System.out.printf("  [-] GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX (MB) = %d\n", (VAL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX[0] >> 10));
+      System.out.printf("  [-] GPU_MEMORY_INFO_EVICTION_COUNT_NVX                = %d\n", (VAL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX          [0]      ));
+      System.out.printf("  [-] GPU_MEMORY_INFO_EVICTED_MEMORY_NVX           (MB) = %d\n", (VAL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX          [0] >> 10));
       System.out.printf("\n");
     }
      
-    if(extensionAvailable(ATI_meminfo)){
+    if(VAL_ATI_meminfo)
+    {
       System.out.printf("[-] %s\n", ATI_meminfo);
-      System.out.printf("  [-] VBO_FREE_MEMORY_ATI          = %d MB\n", (VAL_VBO_FREE_MEMORY_ATI          >> 10));
-      System.out.printf("  [-] TEXTURE_FREE_MEMORY_ATI      = %d MB\n", (VAL_TEXTURE_FREE_MEMORY_ATI      >> 10));
-      System.out.printf("  [-] RENDERBUFFER_FREE_MEMORY_ATI = %d MB\n", (VAL_RENDERBUFFER_FREE_MEMORY_ATI >> 10));
+      System.out.printf("  [-] VBO_FREE_MEMORY_ATI          (MB) = %d\n", (VAL_VBO_FREE_MEMORY_ATI         [0] >> 10)
+                                                                        , (VAL_VBO_FREE_MEMORY_ATI         [1] >> 10)
+                                                                        , (VAL_VBO_FREE_MEMORY_ATI         [2] >> 10)
+                                                                        , (VAL_VBO_FREE_MEMORY_ATI         [3] >> 10));
+      System.out.printf("  [-] TEXTURE_FREE_MEMORY_ATI      (MB) = %d\n", (VAL_TEXTURE_FREE_MEMORY_ATI     [0] >> 10)
+                                                                        , (VAL_TEXTURE_FREE_MEMORY_ATI     [1] >> 10)
+                                                                        , (VAL_TEXTURE_FREE_MEMORY_ATI     [2] >> 10)
+                                                                        , (VAL_TEXTURE_FREE_MEMORY_ATI     [3] >> 10));
+      System.out.printf("  [-] RENDERBUFFER_FREE_MEMORY_ATI (MB) = %d\n", (VAL_RENDERBUFFER_FREE_MEMORY_ATI[0] >> 10)
+                                                                        , (VAL_RENDERBUFFER_FREE_MEMORY_ATI[1] >> 10)
+                                                                        , (VAL_RENDERBUFFER_FREE_MEMORY_ATI[2] >> 10)
+                                                                        , (VAL_RENDERBUFFER_FREE_MEMORY_ATI[3] >> 10));
     }
   }
   
   
-  public int getIntVal(int pname){
-    int[] val = {0};
-    gl.glGetIntegerv(pname, val, 0);
-    return val[0];
-  }
-  
-  
-  public boolean extensionAvailable(String glExtensionName){
-    return gl.isExtensionAvailable(glExtensionName);
-  }
 
 
-  
-  
 }

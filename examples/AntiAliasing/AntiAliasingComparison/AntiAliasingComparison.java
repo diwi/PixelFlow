@@ -102,9 +102,9 @@ public class AntiAliasingComparison extends PApplet {
   
   // AntiAliasing render targets
   PGraphics3D pg_render_noaa;
+  PGraphics3D pg_render_msaa;
   PGraphics3D pg_render_smaa;
   PGraphics3D pg_render_fxaa;
-  PGraphics3D pg_render_msaa;
   PGraphics3D pg_render_gbaa;
   
   // toggling active AntiAliasing-Mode
@@ -121,8 +121,6 @@ public class AntiAliasingComparison extends PApplet {
   PFont font48, font12;
   float gamma = 2.2f;
   float BACKGROUND_COLOR = 32;
-  
-//  PShape shape;
   
   DwMagnifier magnifier;
 
@@ -141,59 +139,26 @@ public class AntiAliasingComparison extends PApplet {
   }
   
   
-  
-  
   public void setup() {
+    surface.setResizable(true);
     surface.setLocation(viewport_x, viewport_y);
-
-    // camera
-    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
-    peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
-    
+
+    // camera
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
+    peasycam.setRotations(1.085,  -0.477,   2.910);
+
     // processing font
     font48 = createFont("../data/SourceCodePro-Regular.ttf", 48);
     font12 = createFont("../data/SourceCodePro-Regular.ttf", 12);
-    
-    // load obj file into shape-object
-//    shape = loadShape("examples/data/skylight_demo_scene.obj");
-//    shape.scale(20);
-
     
     // main library context
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
-    
-    // MSAA - main render-target for MSAA
-    pg_render_msaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render_msaa.smooth(8);
-    pg_render_msaa.textureSampling(5);
-    
-    // NOAA - main render-target for FXAA and MSAA
-    pg_render_noaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render_noaa.smooth(0);
-    pg_render_noaa.textureSampling(5);
-    
-    // FXAA
-    pg_render_fxaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render_fxaa.smooth(0);
-    pg_render_fxaa.textureSampling(5);
-    
-    // SMAA
-    pg_render_smaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render_smaa.smooth(0);
-    pg_render_smaa.textureSampling(5);
-    
-    // GBAA
-    pg_render_gbaa = (PGraphics3D) createGraphics(width, height, P3D);
-    pg_render_gbaa.smooth(0);
-    pg_render_gbaa.textureSampling(5);
-    
 
-    
     // callback for scene display (used in GBAA)
     DwSceneDisplay scene_display = new DwSceneDisplay() {  
       @Override
@@ -207,17 +172,49 @@ public class AntiAliasingComparison extends PApplet {
     smaa = new SMAA(context);
     gbaa = new GBAA(context, scene_display);
 
-    
-    int mag_h = (int) (height/2.5f);
-    magnifier = new DwMagnifier(this, 4, 0, height-mag_h, mag_h, mag_h);
+    // magnifier
+    int mag_wh = (int) (height/2.5f);
+    magnifier = new DwMagnifier(this, 4, 0, height-mag_wh, mag_wh, mag_wh);
     
     frameRate(1000);
   }
 
+  
+  // dynamically resize render-targets
+  public boolean resizeScreen(){
+
+    boolean[] RESIZED = {false};
+    
+    pg_render_noaa = DwGLTextureUtils.changeTextureSize(this, pg_render_noaa, width, height, 0, RESIZED);
+    pg_render_msaa = DwGLTextureUtils.changeTextureSize(this, pg_render_msaa, width, height, 8, RESIZED);
+    pg_render_fxaa = DwGLTextureUtils.changeTextureSize(this, pg_render_fxaa, width, height, 0, RESIZED);
+    pg_render_smaa = DwGLTextureUtils.changeTextureSize(this, pg_render_smaa, width, height, 0, RESIZED);
+    pg_render_gbaa = DwGLTextureUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
+    
+    if(RESIZED[0]){
+      resetMatrix();
+      camera();
+      perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+      
+      float[] rot = peasycam.getRotations();
+      float[] lat = peasycam.getLookAt();
+      double  dis = peasycam.getDistance();
+      
+      peasycam.setActive(false);  // unregister handler
+      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
+      peasycam.setRotations(rot[0], rot[1], rot[2]);
+    }
+    peasycam.feed();
+    
+    return RESIZED[0];
+  }
 
   
-
+  
   public void draw() {
+    
+    resizeScreen();
+     
     if(aa_mode == AA_MODE.MSAA){
       displaySceneWrap(pg_render_msaa);
       // RGB gamma correction
@@ -257,10 +254,8 @@ public class AntiAliasingComparison extends PApplet {
       case GBAA: display = pg_render_gbaa; break;
     }
     
-    
     magnifier.apply(display, mouseX, mouseY);
     magnifier.displayTool();
-
 
     peasycam.beginHUD();
     {
@@ -271,7 +266,7 @@ public class AntiAliasingComparison extends PApplet {
       blendMode(BLEND);
       
       // display magnifer
-      magnifier.display(this.g);
+      magnifier.display(g, 0, height-magnifier.h);
       
       // display AA name
       String mode = aa_mode.name();

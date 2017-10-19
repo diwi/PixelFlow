@@ -202,60 +202,40 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     
     createGUI();
     
+    textSize(12);
+    
     frameRate(1000);
   }
   
 
 
-  public void resizeScene(){
-    
-    if(pg_canvas != null && width == pg_canvas.width && height == pg_canvas.height){
-      return;
-    }
-    
-    pg_aa = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_aa.smooth(0);
-    pg_aa.textureSampling(5);
-    
-    pg_checker = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_checker.smooth(0);
-    
-    pg_canvas = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_canvas.smooth(0);
-    
-    pg_obstacles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_obstacles.smooth(0);
-    
-    pg_spheres = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_spheres.smooth(0);
-    
-    pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_particles.smooth(0);
-    
-    pg_trails = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_trails.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_trails, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
-    
-    pg_trails_tmp = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_trails_tmp.smooth(0);
-    DwGLTextureUtils.changeTextureFormat(pg_trails_tmp, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
-       
-    pg_impulse = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_impulse.smooth(0);
-    
-    pg_luminance = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_luminance.smooth(0);
+  // dynamically resize if surface-size changes
+  public boolean resizeScene(){
 
-    pg_gravity = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_gravity.smooth(0);
-    
-    pg_gravity.beginDraw();
-    pg_gravity.blendMode(REPLACE);
-    pg_gravity.background(0, 255, 0);
-    pg_gravity.endDraw();
-    
-    setParticleColor(PARTICLE_COLOR);
-    setCheckerboardBG(BACKGROUND_MODE);
+    boolean[] RESIZED = { false };
+    pg_canvas     = DwGLTextureUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
+    pg_aa         = DwGLTextureUtils.changeTextureSize(this, pg_aa        , width, height, 0, RESIZED);
+    pg_checker    = DwGLTextureUtils.changeTextureSize(this, pg_checker   , width, height, 0, RESIZED);
+    pg_obstacles  = DwGLTextureUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
+    pg_spheres    = DwGLTextureUtils.changeTextureSize(this, pg_spheres   , width, height, 0, RESIZED);
+    pg_particles  = DwGLTextureUtils.changeTextureSize(this, pg_particles , width, height, 0, RESIZED);
+    pg_trails     = DwGLTextureUtils.changeTextureSize(this, pg_trails    , width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
+    pg_trails_tmp = DwGLTextureUtils.changeTextureSize(this, pg_trails_tmp, width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
+    pg_impulse    = DwGLTextureUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
+    pg_luminance  = DwGLTextureUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
+    pg_gravity    = DwGLTextureUtils.changeTextureSize(this, pg_gravity   , width, height, 0, RESIZED);
+
+    if(RESIZED[0]){
+      pg_gravity.beginDraw();
+      pg_gravity.blendMode(REPLACE);
+      pg_gravity.background(0, 255, 0);
+      pg_gravity.endDraw();
+      
+      setParticleColor(PARTICLE_COLOR);
+      setCheckerboardBG(BACKGROUND_MODE);
+    }
+   
+    return RESIZED[0];
   }
   
 
@@ -821,6 +801,7 @@ public class FlowFieldParticles_DevDemo extends PApplet {
     if(key == '4') setParticleColor(3);
     if(key == '5') setParticleColor(4);
     if(key == '6') setParticleColor(5);
+    if(key == 'm') context.printGL_MemoryInfo();
     
     if(key == 'h') toggleGUI(); 
   }
