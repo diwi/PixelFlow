@@ -1,14 +1,13 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PixelFlow
+ * https://github.com/diwi/PixelFlow.git
  * 
  * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 
 

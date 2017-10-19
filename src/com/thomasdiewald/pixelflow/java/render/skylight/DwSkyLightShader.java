@@ -1,14 +1,13 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PixelFlow
+ * https://github.com/diwi/PixelFlow.git
  * 
  * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 
 
@@ -54,8 +53,6 @@ public class DwSkyLightShader {
 
   public Param param = new Param();
   
-
-  
   
   public PMatrix3D mat_sun = new PMatrix3D();
   
@@ -89,7 +86,6 @@ public class DwSkyLightShader {
     this.shader = new PShader(papplet, src_vert, src_frag);
 //    this.shader  = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
     
-   
 //    this.shader_ = context.createShader(dir+"skylight.frag");
     
     this.scene_display = scene_display;
@@ -128,7 +124,7 @@ public class DwSkyLightShader {
       pg_shading[i] = DwGLTextureUtils.changeTextureSize(papplet, pg_shading[i], w, h, 0, resized);
       
       if(resized[0]){
-        DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
+        DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
       }
     }
     
@@ -205,11 +201,15 @@ public class DwSkyLightShader {
     PGraphics3D pg_dst = getDst();
     PGraphics3D pg_src = getSrc();
     
+    float w = pg_dst.width;
+    float h = pg_dst.height;
+    
     // 2.1) render pass
     pg_dst.beginDraw();
     pg_dst.blendMode(PConstants.REPLACE);
     pg_dst.shader(shader);
     setUniforms();
+    shader.set("wh"            , w, h);
     shader.set("tex_src"       , pg_src);
     shader.set("tex_shadow"    , shadowmap.pg_shadowmap);
     shader.set("tex_geombuffer", geombuffer.pg_geom);
@@ -300,8 +300,8 @@ public class DwSkyLightShader {
     
 //    shadow_bias_mag = scene_scale/ shadow_map_size;
 
-    float w = geombuffer.pg_geom.width;
-    float h = geombuffer.pg_geom.height;
+//    float w = geombuffer.pg_geom.width;
+//    float h = geombuffer.pg_geom.height;
     
 //    PMatrix3D mat_screen_to_eye = new PMatrix3D();
 //    mat_screen_to_eye.scale(w, h, 1);
@@ -323,7 +323,7 @@ public class DwSkyLightShader {
 //    shader.set("mat_shadow_modelview", mat_shadow_modelview);
     shader.set("dir_light", light_dir_cameraspace);
     shader.set("pass_mix", pass_mix);
-    shader.set("wh", w, h); // should match the dimensions of the shading buffers
+    // shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("wh_shadow", w_shadow, h_shadow); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
 
@@ -340,7 +340,7 @@ public class DwSkyLightShader {
 //    shader_.uniformMatrix3fv("mat_shadow_normal_projection", 1, transpose, buf_mat_shadow_normal_projection, 0);
 //    shader_.uniform3f("dir_light", light_dir_cameraspace.x, light_dir_cameraspace.y, light_dir_cameraspace.z);
 //    shader_.uniform1f("pass_mix", pass_mix);
-//    shader_.uniform2f("wh", w, h);
+//    // shader_.uniform2f("wh", w, h);
 //    shader_.uniform2f("wh_shadow", w_shadow, h_shadow);
 //    shader_.uniform1f("shadow_bias_mag", shadow_bias_mag);
   }

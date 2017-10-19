@@ -56,7 +56,8 @@ float getShadow(vec4 p_frag_shadow){
 void main(void) {
 
   vec2 fragcoordn = (gl_FragCoord.xy) / wh;
-  vec4 geom = texelFetch(tex_geombuffer, ivec2(gl_FragCoord.xy), 0);
+  //vec4 geom = texelFetch(tex_geombuffer, ivec2(gl_FragCoord.xy), 0);
+  vec4 geom = texture(tex_geombuffer, fragcoordn);
   
   // transform vertex normal to eye-space
   // vec3 vert_normal = normalize(normalMatrix * vertNormal);

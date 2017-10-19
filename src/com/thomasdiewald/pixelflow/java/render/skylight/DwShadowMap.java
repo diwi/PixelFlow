@@ -1,15 +1,13 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PixelFlow
+ * https://github.com/diwi/PixelFlow.git
  * 
  * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
-
 
 
 
@@ -76,7 +74,7 @@ public class DwShadowMap {
   
   public void update(){
     pg_shadowmap.beginDraw();
-    // saves quite some time in contrast to background(0xFFFFFFFF);
+    // saves quite some time compared to background(0xFFFFFFFF);
     pg_shadowmap.pgl.clearColor(1, 1, 1, 1);
     pg_shadowmap.pgl.clearDepth(1);
     pg_shadowmap.pgl.clear(PGL.COLOR_BUFFER_BIT | PGL.DEPTH_BUFFER_BIT);

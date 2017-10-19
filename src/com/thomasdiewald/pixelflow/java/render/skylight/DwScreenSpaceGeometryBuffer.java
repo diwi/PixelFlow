@@ -1,14 +1,13 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PixelFlow
+ * https://github.com/diwi/PixelFlow.git
  * 
  * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
  * 
  */
-
 
 
 
@@ -54,7 +53,7 @@ public class DwScreenSpaceGeometryBuffer {
     pg_geom = DwGLTextureUtils.changeTextureSize(papplet, pg_geom, w, h, 0, resized);
     
     if(resized[0]){
-      DwGLTextureUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
+      DwGLTextureUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
     }
     
     return resized[0];

@@ -1,8 +1,8 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2017 Thomas Diewald (www.thomasdiewald.com)
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - www.thomasdiewald.com
  * 
- * src  - www.github.com/diwi/PixelFlow
+ * https://github.com/diwi/PixelFlow.git
  * 
  * A Processing/Java library for high performance GPU-Computing.
  * MIT License: https://opensource.org/licenses/MIT
@@ -21,7 +21,6 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 
@@ -35,6 +34,8 @@ public class DwSkyLightRenderer {
   
   static public class Param{
     public float gamma = 2.2f;
+    public int   wh_sky_mult = 0;
+    public int   wh_sun_mult = 0;
   }
   
   public Param param = new Param();
@@ -76,8 +77,13 @@ public class DwSkyLightRenderer {
     
     pg_render = DwGLTextureUtils.changeTextureSize(papplet, pg_render, w, h, 0, resized);
     
-    resized[0] |= sky.resize(w, h);
-    resized[0] |= sun.resize(w, h);
+    int w_sky = Math.max(1, w >> param.wh_sky_mult);
+    int h_sky = Math.max(1, h >> param.wh_sky_mult);
+    int w_sun = Math.max(1, w >> param.wh_sun_mult);
+    int h_sun = Math.max(1, h >> param.wh_sun_mult);
+    
+    resized[0] |= sky.resize(w_sky, h_sky);
+    resized[0] |= sun.resize(w_sun, h_sun);
 //    resized[0] |= geom.resize(w, h);
     
     return resized[0];
@@ -120,7 +126,8 @@ public class DwSkyLightRenderer {
     pg_render.endDraw();
   }
   
-  
 
   
 }
+
+
