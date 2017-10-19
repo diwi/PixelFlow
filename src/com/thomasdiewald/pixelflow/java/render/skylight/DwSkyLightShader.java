@@ -70,7 +70,7 @@ public class DwSkyLightShader {
   
   
 //  public DwGLSLProgram shader_;
-//  public DwGLTexture.TexturePingPong tex_shading_ = new DwGLTexture.TexturePingPong();
+//  public DwGLTexture.TexturePingPong tex_shading = new DwGLTexture.TexturePingPong();
 
   public ArrayList<float[]> samples = new ArrayList<float[]>();
 
@@ -87,10 +87,11 @@ public class DwSkyLightShader {
     String[] src_vert = context.utils.readASCIIfile(dir+"skylight.vert");
 
     this.shader = new PShader(papplet, src_vert, src_frag);
+//    this.shader  = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
+    
    
 //    this.shader_ = context.createShader(dir+"skylight.frag");
-   
-//    this.shader        = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
+    
     this.scene_display = scene_display;
     this.geombuffer    = geombuffer;
     this.shadowmap     = shadowmap;
@@ -114,7 +115,8 @@ public class DwSkyLightShader {
     }
     RENDER_PASS = 0;
     samples.clear();
-//    tex_shading_.clear(0.0f);
+    
+//    tex_shading.clear(0.0f);
   }
   
   
@@ -130,11 +132,13 @@ public class DwSkyLightShader {
       }
     }
     
+//    resized[0] |= tex_shading.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+    
     if(resized[0]){
       reset();
     }
     
-//    tex_shading_.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, 1, 4);
+
 
     return resized[0];
   }
@@ -222,19 +226,19 @@ public class DwSkyLightShader {
 //    Texture tex_geombuffer = geombuffer.pg_geom.getTexture();
 //
 //    context.begin();
-//    context.beginDraw(tex_shading_.dst);
+//    context.beginDraw(tex_shading.dst);
 //    shader_.begin();
 //    setUniforms();
-//    shader_.uniformTexture("tex_src"       , tex_shading_.src);
+//    shader_.uniformTexture("tex_src"       , tex_shading.src);
 //    shader_.uniformTexture("tex_shadow"    , tex_shadowmap.glName);
 //    shader_.uniformTexture("tex_geombuffer", tex_geombuffer.glName);
 //    shader_.drawFullScreenQuad();
 //    shader_.end();
 //    context.endDraw();
-//    tex_shading_.swap();
+//    tex_shading.swap();
 //    context.end();
 //    
-//    DwFilter.get(context).copy.apply(tex_shading_.src, pg_src);
+//    DwFilter.get(context).copy.apply(tex_shading.src, pg_src);
 
 
     RENDER_PASS++;
@@ -310,9 +314,9 @@ public class DwSkyLightShader {
 
     
     // 3) update shader uniforms
-    shader.set("mat_projection", mat_projection);
-    shader.set("mat_shadow", mat_shadow);
-    shader.set("mat_shadow_normal_modelview", mat_shadow_normal_modelview, true);
+    shader.set("mat_projection"              , mat_projection                    );
+    shader.set("mat_shadow"                  , mat_shadow                        );
+    shader.set("mat_shadow_normal_modelview" , mat_shadow_normal_modelview , true);
     shader.set("mat_shadow_normal_projection", mat_shadow_normal_projection, true);
 //    shader.set("mat_shadow_normal", mat_shadow_normal);
 //    shader.set("mat_screen_to_eye", mat_screen_to_eye);
@@ -324,15 +328,16 @@ public class DwSkyLightShader {
     shader.set("shadow_bias_mag", shadow_bias_mag);
 
     
-//    getBuffer(buf_mat_projection              , mat_projection             );
-//    getBuffer(buf_mat_shadow                  , mat_shadow                 );
+//    getBuffer(buf_mat_projection              , mat_projection                    );
+//    getBuffer(buf_mat_shadow                  , mat_shadow                        );
 //    getBuffer(buf_mat_shadow_normal_modelview , mat_shadow_normal_modelview , true);
 //    getBuffer(buf_mat_shadow_normal_projection, mat_shadow_normal_projection, true);
 //
-//    shader_.uniformMatrix4fv("mat_projection"              , 1, false, buf_mat_projection              , 0);
-//    shader_.uniformMatrix4fv("mat_shadow"                  , 1, false, buf_mat_shadow                  , 0);
-//    shader_.uniformMatrix3fv("mat_shadow_normal_modelview" , 1, false, buf_mat_shadow_normal_modelview , 0);
-//    shader_.uniformMatrix3fv("mat_shadow_normal_projection", 1, false, buf_mat_shadow_normal_projection, 0);
+//    boolean transpose = !true;
+//    shader_.uniformMatrix4fv("mat_projection"              , 1, transpose, buf_mat_projection              , 0);
+//    shader_.uniformMatrix4fv("mat_shadow"                  , 1, transpose, buf_mat_shadow                  , 0);
+//    shader_.uniformMatrix3fv("mat_shadow_normal_modelview" , 1, transpose, buf_mat_shadow_normal_modelview , 0);
+//    shader_.uniformMatrix3fv("mat_shadow_normal_projection", 1, transpose, buf_mat_shadow_normal_projection, 0);
 //    shader_.uniform3f("dir_light", light_dir_cameraspace.x, light_dir_cameraspace.y, light_dir_cameraspace.z);
 //    shader_.uniform1f("pass_mix", pass_mix);
 //    shader_.uniform2f("wh", w, h);

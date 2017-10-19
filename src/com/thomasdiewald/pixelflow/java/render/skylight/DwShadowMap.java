@@ -25,6 +25,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PMatrix3D;
 import processing.core.PVector;
+import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 
@@ -63,28 +64,28 @@ public class DwShadowMap {
   
 
   public void resize(int wh){
-    pg_shadowmap = (PGraphics3D) papplet.createGraphics(wh, wh, PConstants.P3D);
-    pg_shadowmap.smooth(0);
-
-    DwGLTextureUtils.changeTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
-
-    pg_shadowmap.beginDraw();
-    pg_shadowmap.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_shadowmap.background(0xFFFFFFFF);
-    pg_shadowmap.blendMode(PConstants.REPLACE);
-    pg_shadowmap.shader(shader_shadow);
-    pg_shadowmap.noStroke();
-    pg_shadowmap.endDraw();
+    boolean[] resized = {false};
+    pg_shadowmap = DwGLTextureUtils.changeTextureSize(papplet, pg_shadowmap, wh, wh, 0, resized);
     
-    setOrtho();
+    if(resized[0]){
+      DwGLTextureUtils.changeTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
+      setOrtho();
+    }
   }
   
   
   public void update(){
     pg_shadowmap.beginDraw();
-    pg_shadowmap.background(0xFFFFFFFF);
+    // saves quite some time in contrast to background(0xFFFFFFFF);
+    pg_shadowmap.pgl.clearColor(1, 1, 1, 1);
+    pg_shadowmap.pgl.clearDepth(1);
+    pg_shadowmap.pgl.clear(PGL.COLOR_BUFFER_BIT | PGL.DEPTH_BUFFER_BIT);
+    
+//  pg_shadowmap.background(0xFFFFFFFF);
+    pg_shadowmap.blendMode(PConstants.REPLACE);
     pg_shadowmap.noStroke();
     pg_shadowmap.applyMatrix(mat_scene_bounds);
+    pg_shadowmap.shader(shader_shadow);
     scene_display.display(pg_shadowmap);
     pg_shadowmap.endDraw();
   }

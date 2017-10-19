@@ -21,6 +21,7 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
 
@@ -77,15 +78,22 @@ public class DwSkyLightRenderer {
     
     resized[0] |= sky.resize(w, h);
     resized[0] |= sun.resize(w, h);
+//    resized[0] |= geom.resize(w, h);
     
     return resized[0];
   }
   
+  public void reset(){
+    sun.reset();
+    sky.reset();
+  }
+  
 
   public void update(){
+    
+    DwGLTextureUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
 
-    geom.update((PGraphics3D) papplet.g);
-
+    geom.update(pg_render);
     sky.update();
     sun.update();
     
@@ -99,7 +107,6 @@ public class DwSkyLightRenderer {
     float[] sun_col = sun.param.rgb;
     
     pg_render.beginDraw();
-    DwGLTextureUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
     pg_render.blendMode(PConstants.REPLACE);
     pg_render.clear();
     pg_render.shader(shader);
@@ -114,9 +121,6 @@ public class DwSkyLightRenderer {
   }
   
   
-  public void reset(){
-    sun.reset();
-    sky.reset();
-  }
+
   
 }

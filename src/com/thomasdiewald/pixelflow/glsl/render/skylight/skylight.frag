@@ -14,10 +14,6 @@
 out vec4 glFragColor;
 
 
-uniform mat4 projection;
-uniform mat4 modelview;
-uniform mat3 normalMatrix;
-
 uniform mat4 mat_projection;
 // uniform mat4 mat_screen_to_eye; // screen-space (view) -> eye-space
 // uniform mat4 mat_shadow_modelview;
@@ -28,16 +24,12 @@ uniform mat3 mat_shadow_normal_projection;
 uniform vec3 dir_light;
 
 
-
-
 uniform float shadow_bias_mag = 0;
+uniform float pass_mix;
 uniform vec2 wh;
 uniform vec2 wh_shadow;
-uniform sampler2D tex_shadow;
 uniform sampler2D tex_src;
-uniform float pass_mix;
-// uniform int singlesided = 1;
-
+uniform sampler2D tex_shadow;
 uniform sampler2D tex_geombuffer;
 
 vec2 endcodeNormal2F(in vec3 n3){
@@ -52,7 +44,7 @@ vec3 decodeNormal3f(in vec2 n2){
 }
 
 float getShadow(vec4 p_frag_shadow){
-  //return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
+  // return step(p_frag_shadow.z, texture(tex_shadow, p_frag_shadow.xy).r);
 
   // if(p_frag_shadow.x < 0 || p_frag_shadow.x > 1) return 0.0;
   // if(p_frag_shadow.y < 0 || p_frag_shadow.y > 1) return 0.0;

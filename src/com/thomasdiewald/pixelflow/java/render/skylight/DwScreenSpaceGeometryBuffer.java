@@ -45,15 +45,19 @@ public class DwScreenSpaceGeometryBuffer {
 
     this.shader = new PShader(papplet, src_vert, src_frag);
 //    this.shader = papplet.loadShader(dir+"geometryBuffer.frag", dir+"geometryBuffer.vert");
+    
+//    resize(context.papplet.width, context.papplet.height); // TODO
   }
   
-  public void resize(int w, int h){
+  public boolean resize(int w, int h){
     boolean[] resized = {false};
     pg_geom = DwGLTextureUtils.changeTextureSize(papplet, pg_geom, w, h, 0, resized);
     
     if(resized[0]){
       DwGLTextureUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
     }
+    
+    return resized[0];
   }
   
   public void updateMatrices(PGraphics3D pg_src){
@@ -62,7 +66,7 @@ public class DwScreenSpaceGeometryBuffer {
 
   public void update(PGraphics3D pg_src){
     
-    resize(pg_src.width, pg_src.height); // TODO
+    resize(pg_src.width, pg_src.height);
     
     pg_geom.beginDraw();
     updateMatrices(pg_src);
