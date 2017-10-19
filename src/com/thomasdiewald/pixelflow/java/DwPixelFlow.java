@@ -188,7 +188,7 @@ public class DwPixelFlow{
   
   PGraphicsOpenGL pgl_dst = null;
   public void beginDraw(PGraphicsOpenGL dst){
-    beginDraw(dst, true);
+    beginDraw(dst, dst.smooth != 0);
   }
   
   public void beginDraw(PGraphicsOpenGL dst, boolean multisample){
@@ -198,19 +198,38 @@ public class DwPixelFlow{
       return;
     }
     
-    ACTIVE_FRAMEBUFFER = true;
-    
+    // 1) first try, multisample could be true, else try without multisample
     FrameBuffer fbo = dst.getFrameBuffer(multisample);
     if(fbo == null){
-      multisample = false;
-      fbo = dst.getFrameBuffer(multisample);
+      fbo = dst.getFrameBuffer(false);
     }
+    
+    // 2) try again, but explicitly load the texture now
+    if(fbo == null){
+      end();
+      dst.loadTexture();
+      begin();
+
+      fbo = dst.getFrameBuffer(multisample);
+      if(fbo == null){
+        fbo = dst.getFrameBuffer(false);
+      }
+    }
+    
+    if(fbo == null){
+      System.out.println("DwPixelFlow.beginDraw(PGraphicsOpenGL) ERROR: Texture not initialized");
+      return;
+    }
+    
+    multisample = (fbo == dst.getFrameBuffer(true));
+  
     fbo.bind();
     defaultRenderSettings(0, 0, fbo.width, fbo.height);
     if(multisample){
       gl.glEnable(GL.GL_MULTISAMPLE);
     }
-    this.pgl_dst = dst;
+    pgl_dst = dst;
+    ACTIVE_FRAMEBUFFER = true;
   }
   
   public void endDraw(){
@@ -223,7 +242,6 @@ public class DwPixelFlow{
    
       if(pgl_dst != null){
         updateFBO(pgl_dst);
-        
         pgl_dst = null;
       }
     }
@@ -243,6 +261,7 @@ public class DwPixelFlow{
     if (ofb != null && mfb != null) {
       mfb.copyColor(ofb);
     }
+    // errorCheck("DwPixelFlow.updateFBO(PGraphicsOpenGL pg)");
   }
   
   

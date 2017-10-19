@@ -96,6 +96,8 @@ public class Skylight_BasicGUI extends PApplet {
   
   // scene to render
   PShape shp_group;
+  
+  float SCENE_SCALE = 500;
 
   
   public void settings() {
@@ -107,22 +109,17 @@ public class Skylight_BasicGUI extends PApplet {
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
-    
-    float SCENE_SCALE = 500;
-    
+
     // camera
     peasycam = new PeasyCam(this, SCENE_SCALE * 1.5f);
 //    peasycam.setRotations(  0.422,   1.075,  -2.085);
 //    peasycam.setDistance(475.257);
 //    peasycam.lookAt(-33.842, -38.242,  64.793);
 
-
     clip_z_far =  SCENE_SCALE * 5;
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
 
     
-    
-
     // create scene
     {
       // load obj file into shape-object
@@ -248,9 +245,12 @@ public class Skylight_BasicGUI extends PApplet {
   }
 
   
+  
+
+    
 
   public void draw() {
- 
+    
     peasycam.setActive(!cp5.isMouseOver());
     
     // when the camera moves, the renderer restarts

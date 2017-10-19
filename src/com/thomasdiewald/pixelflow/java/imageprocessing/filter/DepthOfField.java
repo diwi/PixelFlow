@@ -54,6 +54,8 @@ public class DepthOfField {
     int w = dst.width;
     int h = dst.height;
     
+//    dst.loadTexture();
+    
     context.begin();
     context.beginDraw(dst);
     shader.begin();

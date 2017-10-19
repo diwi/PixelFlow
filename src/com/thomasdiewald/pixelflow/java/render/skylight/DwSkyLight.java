@@ -69,11 +69,16 @@ public class DwSkyLight {
     sun.param.rgb = new float[]{1,1,1};
   }
   
+
+  
   public void update(){
     renderer.update();
   }
   public void reset(){
     renderer.reset();
+  }
+  public void resize(int w, int h){
+    renderer.resize(w, h);
   }
 
 }

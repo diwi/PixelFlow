@@ -11,9 +11,12 @@ package com.thomasdiewald.pixelflow.java.dwgl;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 
+import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.opengl.PGL;
+import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.Texture;
@@ -23,6 +26,122 @@ import processing.opengl.Texture;
  *
  */
 public class DwGLTextureUtils {
+  
+  
+  static public PGraphics2D changeTextureSize(PApplet papplet, PGraphics2D pg, int w, int h, int smooth, boolean[] resized)
+  {   
+    if(pg == null){
+      pg = (PGraphics2D) papplet.createGraphics(w, h, PConstants.P2D);
+      pg.smooth(smooth);
+      resized[0] |= true;
+    } else {
+      resized[0] |= changeTextureSize(pg, w, h);
+    }
+    
+    if(resized[0]){
+      pg.loadTexture();
+    }
+    
+    return pg;
+  }
+  
+  static public PGraphics2D changeTextureSize(PApplet papplet, PGraphics2D pg, int w, int h, int smooth, boolean[] resized,  int internal_format, int format, int type)
+  {   
+    if(pg == null){
+      pg = (PGraphics2D) papplet.createGraphics(w, h, PConstants.P2D);
+      pg.smooth(smooth);
+      resized[0] |= true;
+    } else {
+      resized[0] |= changeTextureSize(pg, w, h);
+    }
+    
+    if(resized[0]){
+      changeTextureFormat(pg, internal_format, format, type);
+      pg.loadTexture();
+    }
+
+    return pg;
+  }
+  
+  
+  static public PGraphics3D changeTextureSize(PApplet papplet, PGraphics3D pg, int w, int h, int smooth, boolean[] resized)
+  {   
+    if(pg == null){
+      pg = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
+      pg.smooth(smooth);
+      resized[0] |= true;
+    } else {
+      resized[0] |= changeTextureSize(pg, w, h);
+    }
+    
+    if(resized[0]){
+      pg.loadTexture();
+    }
+    
+    return pg;
+  }
+  
+  static public PGraphics3D changeTextureSize(PApplet papplet, PGraphics3D pg, int w, int h, int smooth, boolean[] resized,  int internal_format, int format, int type)
+  {   
+    if(pg == null){
+      pg = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
+      pg.smooth(smooth);
+      resized[0] |= true;
+    } else {
+      resized[0] |= changeTextureSize(pg, w, h);
+    }
+    
+    if(resized[0]){
+      changeTextureFormat(pg, internal_format, format, type);
+      pg.loadTexture();
+    }
+
+    return pg;
+  }
+  
+  
+  static public boolean changeTextureSize(PGraphicsOpenGL pg, int w, int h, int internal_format, int format, int type){
+    boolean resize = changeTextureSize(pg, w, h);
+    if(resize){
+      changeTextureFormat(pg, internal_format, format, type);
+    }
+    return resize;
+  }
+  
+  
+  static public boolean changeTextureSize(PGraphicsOpenGL pg, int w, int h){
+    if(pg.width == w && pg.height == h){
+      return false;
+    }
+    
+    // ... re-sizing is quite messy ...
+    // TODO
+    
+    // restore that later
+    int smooth = pg.smooth;
+    
+    // TODO check that
+    // pg.removeCache(pg);
+    
+    // only way to release GL resources?
+    pg.dispose(); 
+    
+    // TODO check that
+    pg.setPrimary(false);
+    
+    // TODO check that
+    pg.setParent(pg.parent);
+    
+    // possible leak:
+    // --> texture = null;
+    pg.setSize(w, h);
+    // TODO check that
+
+    // required, but is this supposed to be public?
+    pg.initialized = false; 
+    pg.smooth = smooth;
+    return true;
+  }
   
   
   static public void changeTextureFormat(PGraphicsOpenGL pg, int internal_format, int format, int type){
@@ -39,6 +158,7 @@ public class DwGLTextureUtils {
       System.out.println("ERROR DwGLTextureUtils.changeTextureFormat: PGraphicsOpenGL texture not available.");
       return;
     }
+    
     PGL pgl = pg.beginPGL();
     pgl.bindTexture  (tex.glTarget, tex.glName);
     pgl.texParameteri(tex.glTarget, GL2ES2.GL_TEXTURE_MIN_FILTER, filter); // GL_NEAREST, GL_LINEAR
@@ -137,7 +257,7 @@ public class DwGLTextureUtils {
   
   
   
-  static public void copyMatrices(PGraphics3D src, PGraphics3D dst){
+  static public void copyMatrices(PGraphicsOpenGL src, PGraphicsOpenGL dst){
     dst.projection     = src.projection   .get();
     dst.camera         = src.camera       .get();
     dst.cameraInv      = src.cameraInv    .get();
@@ -146,14 +266,16 @@ public class DwGLTextureUtils {
     dst.projmodelview  = src.projmodelview.get();
   }
   
-  static public void setLookAt(PGraphics3D dst, float[] eye, float[] center, float[] up){
+  
+  
+  static public void setLookAt(PGraphicsOpenGL dst, float[] eye, float[] center, float[] up){
     dst.camera(
         eye   [0], eye   [1], eye   [2], 
         center[0], center[1], center[2], 
         up    [0], up    [1], up    [2]);
   }
   
-  static public void setLookAt(PGraphics3D dst, PVector eye, PVector center, PVector up){
+  static public void setLookAt(PGraphicsOpenGL dst, PVector eye, PVector center, PVector up){
     dst.camera(
         eye   .x, eye   .y, eye   .z, 
         center.x, center.y, center.z, 

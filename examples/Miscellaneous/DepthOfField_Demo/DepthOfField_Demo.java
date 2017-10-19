@@ -154,8 +154,6 @@ public class DepthOfField_Demo extends PApplet {
       dof.apply(pg_render, pg_dof, geombuffer);
       
       DwFilter.get(context).copy.apply(pg_dof, pg_render);
-    } else {
-      
     }
     
     magnifier.apply(pg_render, mouseX, mouseY);

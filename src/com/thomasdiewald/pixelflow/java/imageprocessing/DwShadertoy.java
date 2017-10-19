@@ -362,7 +362,7 @@ public class DwShadertoy{
     set_iTimeDelta(1f/context.papplet.frameRate);
     set_iTime();
     set_iDate();
-
+    
     shader.begin();
     shader.uniform3fv    ("iResolution"       , 1, iResolution       );
     shader.uniform1f     ("iTime"             , iTime                );

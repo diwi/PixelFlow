@@ -32,7 +32,7 @@ public class Gamma {
   public void apply(PGraphicsOpenGL src, PGraphicsOpenGL dst, float gamma) {
     Texture tex_src = src.getTexture(); if(!tex_src.available()) return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available()) return;
-
+    
     context.begin();
     context.beginDraw(dst);
     apply(tex_src.glName,dst.width, dst.height, gamma);
@@ -69,10 +69,10 @@ public class Gamma {
     if(shader == null) shader = context.createShader(this, DwPixelFlow.SHADER_DIR+"Filter/gamma.frag");
     shader.begin();
     shader.uniform2f     ("wh_rcp" , 1f/w, 1f/h);
-    shader.uniform1f     ("GAMMA_CORRECTION", gamma);
+    shader.uniform1f     ("gamma", gamma);
     shader.uniformTexture("tex", tex_handle);
     shader.drawFullScreenQuad();
-    shader.end();
+    shader.end("GammaCorrection.apply shader");
   }
   
 }

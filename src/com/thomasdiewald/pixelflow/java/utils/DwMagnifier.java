@@ -40,6 +40,8 @@ public class DwMagnifier{
     setMagnification(magnification);
   }
   
+  
+  
   public void setMagnification(float magnification){
     if(this.magnification == magnification && pg_region != null){
       return;
@@ -53,11 +55,13 @@ public class DwMagnifier{
     pg_region.textureSampling(2);
   }
   
-  public void setCenter(boolean center){
-    this.center = center;
-  }
+
 
  
+  public void setDisplayPosition(int x, int y){
+    this.x = x;
+    this.y = y;
+  }
   
   protected PGraphics pg_mag;
   protected int mag_px = 0;
@@ -66,6 +70,11 @@ public class DwMagnifier{
   public void apply(PGraphics pg_mag, int mag_px, int mag_py){
     setMagPosition(mag_px, mag_py);
     apply(pg_mag);
+  }
+  
+  
+  public void setMagCenter(boolean center){
+    this.center = center;
   }
   
   public void setMagPosition(int mag_px, int mag_py){
@@ -124,14 +133,17 @@ public class DwMagnifier{
   }
   
   public void display(PGraphics pg_canvas){
-//    pg_canvas.beginDraw();
+    display(pg_canvas, x, y);
+  }
+  
+  public void display(PGraphics pg_canvas, int x, int y){
+    setDisplayPosition(x, y);
     pg_canvas.image(pg_region, x, y, w, h);
     pg_canvas.rectMode(PConstants.CORNER);
     pg_canvas.stroke(128);
     pg_canvas.strokeWeight(1);
     pg_canvas.noFill();
     pg_canvas.rect(x, y, w, h);
-//    pg_canvas.endDraw();
   }
   
 }

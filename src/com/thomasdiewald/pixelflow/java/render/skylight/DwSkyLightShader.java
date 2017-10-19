@@ -87,39 +87,56 @@ public class DwSkyLightShader {
     String[] src_vert = context.utils.readASCIIfile(dir+"skylight.vert");
 
     this.shader = new PShader(papplet, src_vert, src_frag);
-    
-
+   
 //    this.shader_ = context.createShader(dir+"skylight.frag");
-    
-    
+   
 //    this.shader        = papplet.loadShader(dir+"skylight.frag", dir+"skylight.vert");
     this.scene_display = scene_display;
     this.geombuffer    = geombuffer;
     this.shadowmap     = shadowmap;
-
+    
     resize(papplet.width, papplet.height);
   }
   
-  public void resize(int w, int h){
+  
+  public void reset(){
     for(int i = 0; i < pg_shading.length; i++){
-      pg_shading[i] = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
-      pg_shading[i].smooth(0);
-      pg_shading[i].textureSampling(2);
-      
-      DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
-      
+      if(pg_shading[i] == null){
+        continue;
+      }
       pg_shading[i].beginDraw();
+      pg_shading[i].hint(PConstants.DISABLE_DEPTH_TEST);
       pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-      pg_shading[i].background(0xFFFFFFFF);
-      pg_shading[i].blendMode(PConstants.REPLACE);
-      pg_shading[i].shader(shader);
-      pg_shading[i].noStroke();
+      pg_shading[i].clear();
+      pg_shading[i].resetMatrix();
+      pg_shading[i].resetProjection();
       pg_shading[i].endDraw();
+    }
+    RENDER_PASS = 0;
+    samples.clear();
+//    tex_shading_.clear(0.0f);
+  }
+  
+  
+  
+  public boolean resize(int w, int h){
+    boolean[] resized = {false};
+    for(int i = 0; i < pg_shading.length; i++){
+      
+      pg_shading[i] = DwGLTextureUtils.changeTextureSize(papplet, pg_shading[i], w, h, 0, resized);
+      
+      if(resized[0]){
+        DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE);
+      }
+    }
+    
+    if(resized[0]){
+      reset();
     }
     
 //    tex_shading_.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, 1, 4);
-    
-    reset();
+
+    return resized[0];
   }
 
   
@@ -152,39 +169,6 @@ public class DwSkyLightShader {
     samples.add(eye);
     
     shadowmap.setDirection(eye, center, up);
-    
-    
-    
-    
-//    // create shadowmap direction
-//    float[] center = {0,0,0};
-//    float[] up = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
-//    
-//    // create new sample direction
-////    float[] sample = DwSampling.uniformSampleHemisphere_Halton(RENDER_PASS+1);
-//    float[] sample = DwSampling.uniformSampleSphere_Halton(RENDER_PASS+1);
-//    float[] eye = new float[3];
-//    eye[0] = sample[0];
-//    eye[1] = sample[1];
-//    eye[2] = sample[2];
-//    
-//    // project to bounding-sphere
-//    float dd = (float)Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
-//    eye[0] /=  dd;
-//    eye[1] /=  dd;
-//    eye[2] /=  dd;
-//
-//    // rotate
-////    setOrientation(param.solar_azimuth, param.solar_zenith);
-////    mat_sun.reset();
-////    mat_sun.rotateZ(param.solar_azimuth * TO_RAD);
-////    mat_sun.rotateY(param.solar_zenith  * TO_RAD);
-////    eye = mat_sun.mult(eye, new float[3]);
-//    samples.add(eye);
-//    
-//    shadowmap.setDirection(eye, center, up);
-//    
-     
   }
   
 
@@ -205,19 +189,21 @@ public class DwSkyLightShader {
       return;
     }
     
-    if( shadowmap.pg_shadowmap.width != param.shadowmap_size){
+    if(shadowmap.pg_shadowmap.width != param.shadowmap_size){
       shadowmap.resize(param.shadowmap_size);
     }
     
+
     // 1) shadow pass
     generateSampleDirection();
     shadowmap.update();
-
+    
     PGraphics3D pg_dst = getDst();
     PGraphics3D pg_src = getSrc();
     
-    // 2) render pass
+    // 2.1) render pass
     pg_dst.beginDraw();
+    pg_dst.blendMode(PConstants.REPLACE);
     pg_dst.shader(shader);
     setUniforms();
     shader.set("tex_src"       , pg_src);
@@ -377,26 +363,7 @@ public class DwSkyLightShader {
     }
   }
   
-  public void reset(){
-    for(int i = 0; i < pg_shading.length; i++){
-      pg_shading[i].beginDraw();
-      pg_shading[i].hint(PConstants.DISABLE_DEPTH_TEST);
-      pg_shading[i].blendMode(PConstants.REPLACE);
-      pg_shading[i].textureSampling(2);
-      pg_shading[i].hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-      pg_shading[i].clear();
-      pg_shading[i].resetMatrix();
-      pg_shading[i].resetProjection();
-      pg_shading[i].noStroke();
-      pg_shading[i].endDraw();
-    }
-    RENDER_PASS = 0;
-    samples.clear();
-    
-    
 
-//    tex_shading_.clear(0.0f);
-  }
 
 
 
