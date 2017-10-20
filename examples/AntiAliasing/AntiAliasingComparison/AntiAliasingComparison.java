@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.utils.DwMagnifier;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import peasy.*;
 import processing.core.PApplet;
@@ -144,7 +145,7 @@ public class AntiAliasingComparison extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // projection
-    perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
 
     // camera
     peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
@@ -193,8 +194,8 @@ public class AntiAliasingComparison extends PApplet {
     
     if(RESIZED[0]){
       resetMatrix();
-      camera();
-      perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+//      camera();
+      perspective(90 * DEG_TO_RAD, width/(float)height, 2, 6000);
       
       float[] rot = peasycam.getRotations();
       float[] lat = peasycam.getLookAt();
@@ -257,7 +258,8 @@ public class AntiAliasingComparison extends PApplet {
     magnifier.apply(display, mouseX, mouseY);
     magnifier.displayTool();
 
-    peasycam.beginHUD();
+    DwUtils.pushScreen2D(g);
+//    peasycam.beginHUD();
     {
       // display Anti Aliased result
       blendMode(REPLACE);
@@ -302,8 +304,9 @@ public class AntiAliasingComparison extends PApplet {
       text(mode + buffer, tx, ty);
       
     }
-    peasycam.endHUD();
-
+//    peasycam.endHUD();
+    DwUtils.popScreen2D(g);
+    
     // some info, window title
     String txt_fps = String.format(getClass().getName()+ "   [fps %6.2f]", frameRate);
     surface.setTitle(txt_fps);

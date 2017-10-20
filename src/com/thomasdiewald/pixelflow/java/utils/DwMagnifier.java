@@ -4,7 +4,6 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PGraphicsOpenGL;
 
 
 
@@ -97,39 +96,23 @@ public class DwMagnifier{
   
   
   public void displayTool(){
-    if(pg_mag != null){
+    if(pg_mag == null){
+      return;
+    }
       
-      int region_w = pg_region.width;
-      int region_h = pg_region.height;
-    
-      int src_w = pg_mag.width;
-      int src_h = pg_mag.height;
-      
-      pg_mag.beginDraw();
-      pg_mag.pushStyle();
-      pg_mag.pushMatrix();
-      ((PGraphicsOpenGL) pg_mag).pushProjection();
-      pg_mag.hint(PConstants.DISABLE_DEPTH_TEST);
-      
-      pg_mag.resetMatrix();
-      if(pg_mag.is3D()){
-        pg_mag.ortho(0, src_w, -src_h, 0, 0, 1);
-      }
-
+    boolean offscreen = pg_mag != papplet.g;
+    if(offscreen) pg_mag.beginDraw();
+    DwUtils.pushScreen2D(pg_mag);
+    {
       pg_mag.blendMode(PConstants.EXCLUSION);
       pg_mag.rectMode(PConstants.CORNER);
       pg_mag.noFill();
       pg_mag.stroke(255, 128);
       pg_mag.strokeWeight(1);
-      pg_mag.rect(mag_px+0.5f, mag_py+0.5f, region_w, region_h);
-      
-      
-      pg_mag.hint(PConstants.ENABLE_DEPTH_TEST);
-      ((PGraphicsOpenGL) pg_mag).popProjection();
-      pg_mag.popMatrix();
-      pg_mag.popStyle();
-      pg_mag.endDraw();
+      pg_mag.rect(mag_px+0.5f, mag_py+0.5f,  pg_region.width, pg_region.height);
     }
+    DwUtils.popScreen2D(pg_mag);
+    if(offscreen) pg_mag.endDraw();
   }
   
   public void display(PGraphics pg_canvas){

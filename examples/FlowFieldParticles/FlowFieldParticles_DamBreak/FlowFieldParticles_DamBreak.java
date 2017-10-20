@@ -44,10 +44,10 @@ public class FlowFieldParticles_DamBreak extends PApplet {
   //
   
   boolean START_FULLSCREEN = !true;
-//  int viewport_w = 1680;
-//  int viewport_h = 1024;
-  int viewport_w = 1280;
-  int viewport_h = 720;
+  int viewport_w = 1680;
+  int viewport_h = 1024;
+//  int viewport_w = 1280;
+//  int viewport_h = 720;
   int viewport_x = 230;
   int viewport_y = 0;
   

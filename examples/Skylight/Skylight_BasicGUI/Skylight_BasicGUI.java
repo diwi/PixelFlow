@@ -29,6 +29,7 @@ import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightShader;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwColorPicker;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
 import controlP5.Accordion;
@@ -128,7 +129,7 @@ public class Skylight_BasicGUI extends PApplet {
 //    peasycam.lookAt(-33.842, -38.242,  64.793);
 
     clip_z_far =  SCENE_SCALE * 5;
-    perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
+    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
 
     
     // create scene
@@ -314,7 +315,8 @@ public class Skylight_BasicGUI extends PApplet {
     }
 
 
-    peasycam.beginHUD();
+    DwUtils.pushScreen2D(g);
+//    peasycam.beginHUD();
     // display result
     image(pg_aa, 0, 0);
     // display textures
@@ -345,8 +347,8 @@ public class Skylight_BasicGUI extends PApplet {
     
     displayCross();
     
-    peasycam.endHUD();
-    
+//    peasycam.endHUD();
+    DwUtils.popScreen2D(g);
     
     displayGUI();
     

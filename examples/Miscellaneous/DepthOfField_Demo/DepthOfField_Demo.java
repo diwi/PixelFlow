@@ -23,6 +23,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuffer;
 import com.thomasdiewald.pixelflow.java.utils.DwMagnifier;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import peasy.*;
 import processing.core.PApplet;
@@ -89,7 +90,7 @@ public class DepthOfField_Demo extends PApplet {
     peasycam.setRotations(  1.085,  -0.477,   2.910);
 
     // projection
-    perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     // main library context
     context = new DwPixelFlow(this);
@@ -177,7 +178,8 @@ public class DepthOfField_Demo extends PApplet {
     magnifier.apply(pg_render, mouseX, mouseY);
     magnifier.displayTool();
 
-    peasycam.beginHUD();
+    DwUtils.pushScreen2D(g);
+//    peasycam.beginHUD();
     {
       blendMode(REPLACE);
       clear();
@@ -203,8 +205,9 @@ public class DepthOfField_Demo extends PApplet {
       blendMode(BLEND);
       popMatrix();
     }
-    peasycam.endHUD();
-
+//    peasycam.endHUD();
+    DwUtils.popScreen2D(g);
+    
     // some info, window title
     String txt_fps = String.format(getClass().getName()+ "   [fps %6.2f]", frameRate);
     surface.setTitle(txt_fps);

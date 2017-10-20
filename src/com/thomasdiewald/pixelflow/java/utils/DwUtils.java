@@ -24,8 +24,10 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphicsOpenGL;
 
 
 
@@ -411,4 +413,49 @@ public class DwUtils {
   }
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  static public void pushScreen2D(PGraphics pg){
+    pg.pushStyle();
+    pg.pushMatrix();
+    pg.hint(PConstants.DISABLE_DEPTH_TEST);
+    if(pg.is3D() && pg.isGL()){
+      ((PGraphicsOpenGL) pg).pushProjection();
+    }
+    pg.resetMatrix();
+    if(pg.is3D()){
+      pg.ortho(0, pg.width, -pg.height, 0, 0, 1);
+      pg.noLights();
+    } 
+  }
+  
+  static public void popScreen2D(PGraphics pg){
+    if(pg.is3D() && pg.isGL()){
+      ((PGraphicsOpenGL) pg).popProjection();
+    }
+    pg.hint(PConstants.ENABLE_DEPTH_TEST);
+    pg.popMatrix();
+    pg.popStyle();
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }

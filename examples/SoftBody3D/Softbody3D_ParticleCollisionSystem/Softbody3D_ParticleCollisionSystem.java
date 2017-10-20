@@ -98,6 +98,8 @@ public class Softbody3D_ParticleCollisionSystem extends PApplet {
     context.print();
     context.printGL();
     
+    
+    
 
     ////////////////////////////////////////////////////////////////////////////
     // PARAMETER settings
