@@ -424,28 +424,34 @@ public class DwUtils {
   
   
   
+  static private boolean pushed_lights = false;
   
-  
-  static public void pushScreen2D(PGraphics pg){
+  static public void beginScreen2D(PGraphics pg){
     pg.pushStyle();
-    pg.pushMatrix();
     pg.hint(PConstants.DISABLE_DEPTH_TEST);
-    if(pg.is3D() && pg.isGL()){
-      ((PGraphicsOpenGL) pg).pushProjection();
-    }
+    pg.pushMatrix();
     pg.resetMatrix();
+    if(pg.isGL()){
+      PGraphicsOpenGL pgl = (PGraphicsOpenGL)pg;
+      pgl.pushProjection();
+      pushed_lights = pgl.lights;
+      pgl.lights = false;
+    }
     if(pg.is3D()){
-      pg.ortho(0, pg.width, -pg.height, 0, 0, 1);
-      pg.noLights();
-    } 
+      pg.ortho(0, pg.width, -pg.height, 0, -Float.MAX_VALUE, +Float.MAX_VALUE);
+    }
+
   }
   
-  static public void popScreen2D(PGraphics pg){
-    if(pg.is3D() && pg.isGL()){
-      ((PGraphicsOpenGL) pg).popProjection();
+  static public void endScreen2D(PGraphics pg){
+    if(pg.isGL()){
+      PGraphicsOpenGL pgl = (PGraphicsOpenGL)pg;
+      pgl.popProjection();
+      pgl.lights = pushed_lights;
+      pushed_lights = false;
     }
-    pg.hint(PConstants.ENABLE_DEPTH_TEST);
     pg.popMatrix();
+    pg.hint(PConstants.ENABLE_DEPTH_TEST);
     pg.popStyle();
   }
   

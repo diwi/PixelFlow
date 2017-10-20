@@ -266,10 +266,6 @@ public class Skylight_BasicGUI extends PApplet {
       peasycam.setActive(false);  // unregister handler
       peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
       peasycam.setRotations(rot[0], rot[1], rot[2]);
-      
-      gui_x = width - gui_w;
-      cp5.setPosition(gui_x, gui_y);
-      
     }
     peasycam.feed();
     
@@ -315,7 +311,7 @@ public class Skylight_BasicGUI extends PApplet {
     }
 
 
-    DwUtils.pushScreen2D(g);
+    DwUtils.beginScreen2D(g);
 //    peasycam.beginHUD();
     // display result
     image(pg_aa, 0, 0);
@@ -347,10 +343,11 @@ public class Skylight_BasicGUI extends PApplet {
     
     displayCross();
     
-//    peasycam.endHUD();
-    DwUtils.popScreen2D(g);
-    
     displayGUI();
+   
+//    peasycam.endHUD();
+    DwUtils.endScreen2D(g);
+    
     
     // some info, window title
     int sun_pass = skylight.sun.RENDER_PASS;
@@ -472,10 +469,9 @@ public class Skylight_BasicGUI extends PApplet {
   ControlP5 cp5;
   
   public void displayGUI(){
-    noLights();
-    peasycam.beginHUD();
+    gui_x = width - gui_w;
+    cp5.setPosition(gui_x, gui_y);
     cp5.draw();
-    peasycam.endHUD();
   }
   
   public void controlEvent(ControlEvent ce) {

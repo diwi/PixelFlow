@@ -258,7 +258,7 @@ public class AntiAliasingComparison extends PApplet {
     magnifier.apply(display, mouseX, mouseY);
     magnifier.displayTool();
 
-    DwUtils.pushScreen2D(g);
+    DwUtils.beginScreen2D(g);
 //    peasycam.beginHUD();
     {
       // display Anti Aliased result
@@ -305,7 +305,7 @@ public class AntiAliasingComparison extends PApplet {
       
     }
 //    peasycam.endHUD();
-    DwUtils.popScreen2D(g);
+    DwUtils.endScreen2D(g);
     
     // some info, window title
     String txt_fps = String.format(getClass().getName()+ "   [fps %6.2f]", frameRate);

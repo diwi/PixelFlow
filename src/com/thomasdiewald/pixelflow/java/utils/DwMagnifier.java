@@ -102,16 +102,18 @@ public class DwMagnifier{
       
     boolean offscreen = pg_mag != papplet.g;
     if(offscreen) pg_mag.beginDraw();
-    DwUtils.pushScreen2D(pg_mag);
+    DwUtils.beginScreen2D(pg_mag);
     {
+//      pg_mag.pushStyle(); // TODO
       pg_mag.blendMode(PConstants.EXCLUSION);
       pg_mag.rectMode(PConstants.CORNER);
       pg_mag.noFill();
       pg_mag.stroke(255, 128);
       pg_mag.strokeWeight(1);
       pg_mag.rect(mag_px+0.5f, mag_py+0.5f,  pg_region.width, pg_region.height);
+//      pg_mag.popStyle();
     }
-    DwUtils.popScreen2D(pg_mag);
+    DwUtils.endScreen2D(pg_mag);
     if(offscreen) pg_mag.endDraw();
   }
   

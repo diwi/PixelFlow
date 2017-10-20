@@ -96,8 +96,7 @@ public class DepthOfField_Demo extends PApplet {
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
- 
-
+    
     // callback for scene display (used in GBAA)
     DwSceneDisplay scene_display = new DwSceneDisplay() {  
       @Override
@@ -178,7 +177,7 @@ public class DepthOfField_Demo extends PApplet {
     magnifier.apply(pg_render, mouseX, mouseY);
     magnifier.displayTool();
 
-    DwUtils.pushScreen2D(g);
+    DwUtils.beginScreen2D(g);
 //    peasycam.beginHUD();
     {
       blendMode(REPLACE);
@@ -206,7 +205,7 @@ public class DepthOfField_Demo extends PApplet {
       popMatrix();
     }
 //    peasycam.endHUD();
-    DwUtils.popScreen2D(g);
+    DwUtils.endScreen2D(g);
     
     // some info, window title
     String txt_fps = String.format(getClass().getName()+ "   [fps %6.2f]", frameRate);
