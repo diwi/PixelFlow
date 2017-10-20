@@ -581,41 +581,51 @@ public class Skylight_BasicGUI_cp5listener extends PApplet {
     ////////////////////////////////////////////////////////////////////////////
     cp5.addCallback(new CallbackListener() {
       
+      int           ACTION;
+      Controller<?> CTRL;
+      String        CTRL_NAME;
+      float         CTRL_VAL;
+      boolean       update;
+      
+      public boolean checkID(String name){
+        return name.equals(CTRL_NAME);
+      }
+      
       @Override
       public void controlEvent(CallbackEvent event) {
         
-        final int           ACTION    = event.getAction();
-        final Controller<?> CTRL      = event.getController();
-        final String        CTRL_NAME = CTRL.getName();
-        final float         CTRL_VAL  = CTRL.getValue();
+        ACTION    = event.getAction();
+        CTRL      = event.getController();
+        CTRL_NAME = CTRL.getName();
+        CTRL_VAL  = CTRL.getValue();
         
-        boolean update = false;
+        update = false;
 //        update |= ACTION == ControlP5.ACTION_PRESS    ;
         update |= ACTION == ControlP5.ACTION_CLICK    ;
         update |= ACTION == ControlP5.ACTION_BROADCAST;
 
         if(update){
         
-          if("gamma"            .equals(CTRL_NAME)) param_renderer.gamma     = CTRL_VAL;
-          if("BACKGROUND"       .equals(CTRL_NAME)) BACKGROUND               = (int) CTRL_VAL;
-          if("SKY.samples"      .equals(CTRL_NAME)) DISPLAY_SAMPLES_SKY      = CTRL_VAL > 0;
-          if("SUN.samples"      .equals(CTRL_NAME)) DISPLAY_SAMPLES_SUN      = CTRL_VAL > 0;
-          if("textures"         .equals(CTRL_NAME)) DISPLAY_TEXTURES         = CTRL_VAL > 0;
-          if("DoF"              .equals(CTRL_NAME)) APPLY_DOF                = CTRL_VAL > 0;
-
-          if("sky.iterations"   .equals(CTRL_NAME)) param_sky.iterations     = (int) CTRL_VAL;
-          if("sky.quality"      .equals(CTRL_NAME)) param_sky.shadowmap_size = (int) CTRL_VAL;
-          if("sky.solar_azimuth".equals(CTRL_NAME)) param_sky.solar_azimuth  =       CTRL_VAL;
-          if("sky.solar_zenith" .equals(CTRL_NAME)) param_sky.solar_zenith   =       CTRL_VAL;
-          if("sky.sample_focus" .equals(CTRL_NAME)) param_sky.sample_focus   =       CTRL_VAL;
-          if("sky.intensity"    .equals(CTRL_NAME)) param_sky.intensity      =       CTRL_VAL;
-
-          if("sun.iterations"   .equals(CTRL_NAME)) param_sun.iterations     = (int) CTRL_VAL;
-          if("sun.quality"      .equals(CTRL_NAME)) param_sun.shadowmap_size = (int) CTRL_VAL;
-          if("sun.solar_azimuth".equals(CTRL_NAME)) param_sun.solar_azimuth  =       CTRL_VAL;
-          if("sun.solar_zenith" .equals(CTRL_NAME)) param_sun.solar_zenith   =       CTRL_VAL;
-          if("sun.sample_focus" .equals(CTRL_NAME)) param_sun.sample_focus   =       CTRL_VAL;
-          if("sun.intensity"    .equals(CTRL_NAME)) param_sun.intensity      =       CTRL_VAL;
+          if(checkID("gamma"            )) param_renderer.gamma     = CTRL_VAL;
+          if(checkID("BACKGROUND"       )) BACKGROUND               = (int) CTRL_VAL;
+          if(checkID("SKY.samples"      )) DISPLAY_SAMPLES_SKY      = CTRL_VAL > 0;
+          if(checkID("SUN.samples"      )) DISPLAY_SAMPLES_SUN      = CTRL_VAL > 0;
+          if(checkID("textures"         )) DISPLAY_TEXTURES         = CTRL_VAL > 0;
+          if(checkID("DoF"              )) APPLY_DOF                = CTRL_VAL > 0;
+       
+          if(checkID("sky.iterations"   )) param_sky.iterations     = (int) CTRL_VAL;
+          if(checkID("sky.quality"      )) param_sky.shadowmap_size = (int) CTRL_VAL;
+          if(checkID("sky.solar_azimuth")) param_sky.solar_azimuth  =       CTRL_VAL;
+          if(checkID("sky.solar_zenith" )) param_sky.solar_zenith   =       CTRL_VAL;
+          if(checkID("sky.sample_focus" )) param_sky.sample_focus   =       CTRL_VAL;
+          if(checkID("sky.intensity"    )) param_sky.intensity      =       CTRL_VAL;
+         
+          if(checkID("sun.iterations"   )) param_sun.iterations     = (int) CTRL_VAL;
+          if(checkID("sun.quality"      )) param_sun.shadowmap_size = (int) CTRL_VAL;
+          if(checkID("sun.solar_azimuth")) param_sun.solar_azimuth  =       CTRL_VAL;
+          if(checkID("sun.solar_zenith" )) param_sun.solar_zenith   =       CTRL_VAL;
+          if(checkID("sun.sample_focus" )) param_sun.sample_focus   =       CTRL_VAL;
+          if(checkID("sun.intensity"    )) param_sun.intensity      =       CTRL_VAL;
           
           boolean reset = false;
           reset |= CTRL_NAME.contains("solar_azimuth");
