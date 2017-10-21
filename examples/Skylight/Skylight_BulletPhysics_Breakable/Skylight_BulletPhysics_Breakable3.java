@@ -28,7 +28,6 @@ import peasy.*;
 import bRigid.*;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
@@ -36,6 +35,7 @@ import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuf
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwFrameCapture;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -230,10 +230,7 @@ public class Skylight_BulletPhysics_Breakable3 extends PApplet {
     
     pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
-    
-    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-    pg_tmp.beginDraw();
-    pg_tmp.endDraw();
+    DwUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
     
     // fresh start
     reset();
@@ -277,7 +274,7 @@ public class Skylight_BulletPhysics_Breakable3 extends PApplet {
       RigidBody rb1 = (RigidBody) contactManifold.getBody1();
 
       BreakableBody window_bodyrb0 = null;
-      BreakableBody window_bodyrb1 = null;
+      //BreakableBody window_bodyrb1 = null;
       
       Object rb0_usr_ptr = rb0.getUserPointer();
       Object rb1_usr_ptr = rb1.getUserPointer();
@@ -328,10 +325,10 @@ public class Skylight_BulletPhysics_Breakable3 extends PApplet {
         rb1.getLinearVelocity(vel1);
 
 
-        float vel0_sq = vel0.lengthSquared();
-        float vel1_sq = vel1.lengthSquared();
+        //float vel0_sq = vel0.lengthSquared();
+        //float vel1_sq = vel1.lengthSquared();
         
-        float vel_max = Math.max(vel0_sq, vel1_sq);
+        //float vel_max = Math.max(vel0_sq, vel1_sq);
         
         
 //        if(mp_max.appliedImpulse * vel_max > 5000000 * min_vel_sq){

@@ -16,8 +16,9 @@ package Shadertoy.Shadertoy_MengerSponge;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -48,8 +49,8 @@ public class Shadertoy_MengerSponge extends PApplet {
     toy = new DwShadertoy(context, "data/MengerSponge.frag");
     
     pg_albedo = (PGraphics2D) createGraphics(512, 512, P2D);
-    DwGLTextureUtils.changeTextureWrap  (pg_albedo, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_albedo, GL2.GL_LINEAR, GL2.GL_LINEAR);
+    DwUtils.changeTextureWrap  (pg_albedo, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_albedo, GL2.GL_LINEAR, GL2.GL_LINEAR);
     
     pg_albedo.beginDraw();
     pg_albedo.background(200,100,5);

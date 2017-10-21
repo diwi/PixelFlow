@@ -20,7 +20,6 @@ import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -213,17 +212,17 @@ public class FlowFieldParticles_DevDemo extends PApplet {
   public boolean resizeScene(){
 
     boolean[] RESIZED = { false };
-    pg_canvas     = DwGLTextureUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
-    pg_aa         = DwGLTextureUtils.changeTextureSize(this, pg_aa        , width, height, 0, RESIZED);
-    pg_checker    = DwGLTextureUtils.changeTextureSize(this, pg_checker   , width, height, 0, RESIZED);
-    pg_obstacles  = DwGLTextureUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
-    pg_spheres    = DwGLTextureUtils.changeTextureSize(this, pg_spheres   , width, height, 0, RESIZED);
-    pg_particles  = DwGLTextureUtils.changeTextureSize(this, pg_particles , width, height, 0, RESIZED);
-    pg_trails     = DwGLTextureUtils.changeTextureSize(this, pg_trails    , width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
-    pg_trails_tmp = DwGLTextureUtils.changeTextureSize(this, pg_trails_tmp, width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
-    pg_impulse    = DwGLTextureUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
-    pg_luminance  = DwGLTextureUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
-    pg_gravity    = DwGLTextureUtils.changeTextureSize(this, pg_gravity   , width, height, 0, RESIZED);
+    pg_canvas     = DwUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
+    pg_aa         = DwUtils.changeTextureSize(this, pg_aa        , width, height, 0, RESIZED);
+    pg_checker    = DwUtils.changeTextureSize(this, pg_checker   , width, height, 0, RESIZED);
+    pg_obstacles  = DwUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
+    pg_spheres    = DwUtils.changeTextureSize(this, pg_spheres   , width, height, 0, RESIZED);
+    pg_particles  = DwUtils.changeTextureSize(this, pg_particles , width, height, 0, RESIZED);
+    pg_trails     = DwUtils.changeTextureSize(this, pg_trails    , width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
+    pg_trails_tmp = DwUtils.changeTextureSize(this, pg_trails_tmp, width, height, 0, RESIZED, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT);
+    pg_impulse    = DwUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
+    pg_luminance  = DwUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
+    pg_gravity    = DwUtils.changeTextureSize(this, pg_gravity   , width, height, 0, RESIZED);
 
     if(RESIZED[0]){
       pg_gravity.beginDraw();

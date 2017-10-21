@@ -18,8 +18,9 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PMatrix3D;
@@ -121,10 +122,10 @@ public class DwSkyLightShader {
     boolean[] resized = {false};
     for(int i = 0; i < pg_shading.length; i++){
       
-      pg_shading[i] = DwGLTextureUtils.changeTextureSize(papplet, pg_shading[i], w, h, 0, resized);
+      pg_shading[i] = DwUtils.changeTextureSize(papplet, pg_shading[i], w, h, 0, resized);
       
       if(resized[0]){
-        DwGLTextureUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
+        DwUtils.changeTextureFormat(pg_shading[i], GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
       }
     }
     
@@ -219,7 +220,7 @@ public class DwSkyLightShader {
     pg_dst.fill(255);
     pg_dst.rect(-1,-1,2,2);
     pg_dst.endDraw();
-    DwGLTextureUtils.swap(pg_shading);
+    DwUtils.swap(pg_shading);
     
     
 //    Texture tex_shadowmap = shadowmap.pg_shadowmap.getTexture();

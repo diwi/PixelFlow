@@ -20,12 +20,12 @@ import java.util.Locale;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuffer;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
+import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightRenderer;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLightShader;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwColorPicker;
@@ -34,7 +34,8 @@ import com.thomasdiewald.pixelflow.java.utils.DwVertexRecorder;
 
 import controlP5.Accordion;
 import controlP5.CColor;
-import controlP5.ControlEvent;
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import controlP5.Controller;
 import controlP5.ControllerView;
@@ -246,19 +247,16 @@ public class Skylight_BasicGUI extends PApplet {
 
     boolean[] RESIZED = {false};
     
-    pg_aa     = DwGLTextureUtils.changeTextureSize(this, pg_aa    , width, height, 0, RESIZED);
-    pg_render = DwGLTextureUtils.changeTextureSize(this, pg_render, width, height, 0, RESIZED);
-    pg_tmp    = DwGLTextureUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-//    pg_render_smaa = DwGLTextureUtils.changeTextureSize(this, pg_render_smaa, width, height, 0, RESIZED);
-//    pg_render_gbaa = DwGLTextureUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
-    
+    pg_aa     = DwUtils.changeTextureSize(this, pg_aa    , width, height, 0, RESIZED);
+    pg_render = DwUtils.changeTextureSize(this, pg_render, width, height, 0, RESIZED);
+    pg_tmp    = DwUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+
     skylight.resize(width, height);
     
     if(RESIZED[0]){
       resetMatrix();
       camera();
-      perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
-      
+    
       float[] rot = peasycam.getRotations();
       float[] lat = peasycam.getLookAt();
       double  dis = peasycam.getDistance();
@@ -268,6 +266,7 @@ public class Skylight_BasicGUI extends PApplet {
       peasycam.setRotations(rot[0], rot[1], rot[2]);
     }
     peasycam.feed();
+    perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
     
     return RESIZED[0];
   }
@@ -474,25 +473,7 @@ public class Skylight_BasicGUI extends PApplet {
     cp5.draw();
   }
   
-  public void controlEvent(ControlEvent ce) {
-    String cname = ce.getName();
-    boolean reset = false;
-    reset |= cname.contains("solar_azimuth");
-    reset |= cname.contains("solar_zenith");
-    reset |= cname.contains("sample_focus");
-    reset |= cname.contains("quality");
-    if(reset){
-      skylight.reset();
-    }
-  }
 
-  public void displaySamples(float[] val){
-    DISPLAY_SAMPLES_SKY = (val[0] > 0);
-    DISPLAY_SAMPLES_SUN = (val[1] > 0);
-    DISPLAY_TEXTURES    = (val[2] > 0);
-    APPLY_DOF           = (val[3] > 0);
-  }
-  
   float mult_bg     = 0.25f;
   float mult_fg     = 1f;
   float mult_active = 2f;
@@ -500,7 +481,7 @@ public class Skylight_BasicGUI extends PApplet {
   float CG = 64;
   float CB = 128;
   int col_bg, col_fg, col_active;
-
+  
   public void createGUI(){
     
     col_bg     = color(CR*mult_bg, CG*mult_bg, CB*mult_bg, 220);
@@ -515,19 +496,23 @@ public class Skylight_BasicGUI extends PApplet {
     cp5 = new ControlP5(this);
     cp5.setAutoDraw(false);
     cp5.setPosition(gui_x, gui_y);
-
+    
     int sx, sy, px, py, oy;
     sx = 100; sy = 14; oy = (int)(sy*1.4f);
     
     int col_group = color(8,220);
+    
+    final DwSkyLightRenderer.Param param_renderer = skylight.renderer.param;
+    final DwSkyLightShader  .Param param_sky      = skylight.sky.param;
+    final DwSkyLightShader  .Param param_sun      = skylight.sun.param;
     
     ////////////////////////////////////////////////////////////////////////////
     // GUI - SKYLIGHT
     ////////////////////////////////////////////////////////////////////////////
     Group group_skylight = cp5.addGroup("skylight");
     {
-      group_skylight.setHeight(20).setSize(gui_w, height)
-      .setBackgroundColor(col_group).setColorBackground(col_group);
+      group_skylight.setHeight(20).setSize(gui_w, height);
+      group_skylight.setBackgroundColor(col_group).setColorBackground(col_group);
       group_skylight.getCaptionLabel().align(CENTER, CENTER);
       
       px = 10; py = 15;
@@ -541,51 +526,121 @@ public class Skylight_BasicGUI extends PApplet {
       ;
       
       cp5.addSlider("gamma").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*5.4f))
-          .setRange(1, 2.2f).setValue(skylight.renderer.param.gamma).plugTo(skylight.renderer.param, "gamma");
+          .setRange(1, 2.2f).setValue(param_renderer.gamma);
+
       cp5.addSlider("BACKGROUND").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 255).setValue(BACKGROUND).plugTo(this, "BACKGROUND");
+          .setRange(0, 255).setValue(BACKGROUND).setDecimalPrecision(0);
       
-  
-      DwSkyLightShader.Param param_sky = skylight.sky.param;
-      DwSkyLightShader.Param param_sun = skylight.sun.param;
+      int sky_quality = DwUtils.log2ceil(param_sky.shadowmap_size);
+      int sun_quality = DwUtils.log2ceil(param_sun.shadowmap_size);
 
       cp5.addSlider("sky.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*2.5f))
-          .setRange(0, 200).setValue(param_sky.iterations).plugTo(param_sky, "iterations");
+          .setRange(0, 150).setValue(param_sky.iterations).setDecimalPrecision(0);
       cp5.addSlider("sky.quality").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(32, 2048).setValue(param_sky.shadowmap_size).plugTo(param_sky, "shadowmap_size");
+          .setRange(6, 12).setValue(sky_quality).setDecimalPrecision(0).setNumberOfTickMarks(7).snapToTickMarks(true);
       cp5.addSlider("sky.solar_azimuth").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 360).setValue(param_sky.solar_azimuth).plugTo(param_sky, "solar_azimuth");
+          .setRange(0, 360).setValue(param_sky.solar_azimuth);
       cp5.addSlider("sky.solar_zenith").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 90).setValue(param_sky.solar_zenith).plugTo(param_sky, "solar_zenith");
+          .setRange(0, 90).setValue(param_sky.solar_zenith);
       cp5.addSlider("sky.sample_focus").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0.001f, 1).setValue(param_sky.sample_focus).plugTo(param_sky, "sample_focus");
+          .setRange(0.001f, 1).setValue(param_sky.sample_focus);
       cp5.addSlider("sky.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 7).setValue(param_sky.intensity).plugTo(param_sky, "intensity");
+          .setRange(0, 10).setValue(param_sky.intensity);
       new ColorPicker(cp5, "sky.colorpicker", gui_w-20, 40, 100, param_sky.rgb).setGroup(group_skylight).setPosition(px, py+=(oy*1.5f));
 
       py += 80;
       
       cp5.addSlider("sun.iterations").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(int)(oy*1.5f))
-          .setRange(0, 200).setValue(param_sun.iterations).plugTo(param_sun, "iterations");
+          .setRange(0, 150).setValue(param_sun.iterations).setDecimalPrecision(0);
       cp5.addSlider("sun.quality").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(32, 2048).setValue(param_sun.shadowmap_size).plugTo(param_sun, "shadowmap_size");
+          .setRange(6, 12).setValue(sun_quality).setDecimalPrecision(0).setNumberOfTickMarks(7).snapToTickMarks(true);
       cp5.addSlider("sun.solar_azimuth").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 360).setValue(param_sun.solar_azimuth).plugTo(param_sun, "solar_azimuth");
+          .setRange(0, 360).setValue(param_sun.solar_azimuth);
       cp5.addSlider("sun.solar_zenith").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0, 90).setValue(param_sun.solar_zenith).plugTo(param_sun, "solar_zenith");
+          .setRange(0, 90).setValue(param_sun.solar_zenith);
       cp5.addSlider("sun.sample_focus").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=oy)
-          .setRange(0.02f, 0.50f).setValue(param_sun.sample_focus).plugTo(param_sun, "sample_focus");
+          .setRange(0.02f, 0.50f).setValue(param_sun.sample_focus);
       cp5.addSlider("sun.intensity").setGroup(group_skylight).setSize(sx, sy).setPosition(px, py+=(oy*1.5f))
-          .setRange(0, 7).setValue(param_sun.intensity).plugTo(param_sun, "intensity");
+          .setRange(0, 10).setValue(param_sun.intensity);
       new ColorPicker(cp5, "sun.colorpicker", gui_w-20, 40, 100, param_sun.rgb).setGroup(group_skylight).setPosition(px, py+=(oy*1.5f));
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////
     // GUI - ACCORDION
     ////////////////////////////////////////////////////////////////////////////
     cp5.addAccordion("acc").setCollapseMode(Accordion.MULTI)
       .addItem(group_skylight)
       .open();
+    
+    
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI EVENT LISTENER
+    ////////////////////////////////////////////////////////////////////////////
+    cp5.addCallback(new CallbackListener() {
+      
+      int           ACTION;
+      Controller<?> CTRL;
+      String        CTRL_NAME;
+      float         CTRL_VAL;
+      boolean       update;
+      
+      public boolean isControl(String name){
+        return name.equals(CTRL_NAME);
+      }
+      
+      @Override
+      public void controlEvent(CallbackEvent event) {
+        
+        ACTION    = event.getAction();
+        CTRL      = event.getController();
+        CTRL_NAME = CTRL.getName();
+        CTRL_VAL  = CTRL.getValue();
+        
+        update = false;
+//        update |= ACTION == ControlP5.ACTION_PRESS    ;
+        update |= ACTION == ControlP5.ACTION_RELEASE;
+        update |= ACTION == ControlP5.ACTION_RELEASE_OUTSIDE;
+        update |= ACTION == ControlP5.ACTION_CLICK;
+        update |= ACTION == ControlP5.ACTION_BROADCAST;
+
+        if(update){
+
+          if(isControl("gamma"            )) param_renderer.gamma     = CTRL_VAL;
+          if(isControl("BACKGROUND"       )) BACKGROUND               = (int) CTRL_VAL;
+          if(isControl("SKY.samples"      )) DISPLAY_SAMPLES_SKY      = CTRL_VAL > 0;
+          if(isControl("SUN.samples"      )) DISPLAY_SAMPLES_SUN      = CTRL_VAL > 0;
+          if(isControl("textures"         )) DISPLAY_TEXTURES         = CTRL_VAL > 0;
+          if(isControl("DoF"              )) APPLY_DOF                = CTRL_VAL > 0;
+       
+          if(isControl("sky.iterations"   )) param_sky.iterations     = (int) CTRL_VAL;
+          if(isControl("sky.quality"      )) param_sky.shadowmap_size = 1 << (int) CTRL_VAL;
+          if(isControl("sky.solar_azimuth")) param_sky.solar_azimuth  =       CTRL_VAL;
+          if(isControl("sky.solar_zenith" )) param_sky.solar_zenith   =       CTRL_VAL;
+          if(isControl("sky.sample_focus" )) param_sky.sample_focus   =       CTRL_VAL;
+          if(isControl("sky.intensity"    )) param_sky.intensity      =       CTRL_VAL;
+         
+          if(isControl("sun.iterations"   )) param_sun.iterations     = (int) CTRL_VAL;
+          if(isControl("sun.quality"      )) param_sun.shadowmap_size = 1 << (int) CTRL_VAL;
+          if(isControl("sun.solar_azimuth")) param_sun.solar_azimuth  =       CTRL_VAL;
+          if(isControl("sun.solar_zenith" )) param_sun.solar_zenith   =       CTRL_VAL;
+          if(isControl("sun.sample_focus" )) param_sun.sample_focus   =       CTRL_VAL;
+          if(isControl("sun.intensity"    )) param_sun.intensity      =       CTRL_VAL;
+          
+          boolean reset = false;
+          reset |= CTRL_NAME.contains("solar_azimuth");
+          reset |= CTRL_NAME.contains("solar_zenith");
+          reset |= CTRL_NAME.contains("sample_focus");
+          reset |= CTRL_NAME.contains("quality");
+          if(reset){
+            skylight.reset();
+          }
+        }
+      }
+      
+    });
+    
     
   }
   

@@ -25,7 +25,6 @@ import bRigid.*;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
@@ -33,6 +32,7 @@ import com.thomasdiewald.pixelflow.java.render.skylight.DwScreenSpaceGeometryBuf
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwFrameCapture;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -224,11 +224,8 @@ public class Skylight_BulletPhysics_Cubes extends PApplet {
     
     pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
-    
-    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-    pg_tmp.beginDraw();
-    pg_tmp.endDraw();
-    
+    DwUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+
     // fresh start
     reset();
     

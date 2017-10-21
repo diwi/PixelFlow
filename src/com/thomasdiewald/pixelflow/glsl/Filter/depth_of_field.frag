@@ -37,31 +37,38 @@ void main(){
   float frag_z  = frag_geom.w  / clip_nf.y;
   float focus_z = focus_geom.w / clip_nf.y;
   
-  float z_diff = frag_z - focus_z;
-  z_diff = abs(z_diff);
-  z_diff -= focus_z * 0.1;
-  z_diff /= focus_z;
-  z_diff = clamp(z_diff, 0.0, 1.0);
-
+  // focus: depth of interest
+  // frag: current fragement 
+  float dz_frag_focus;
+  float dz_sample_frag;
+  float dz_sample_focus;
+  
+  dz_frag_focus = frag_z - focus_z;
+  dz_frag_focus = abs(dz_frag_focus);
+  dz_frag_focus -= focus_z * 0.1;
+  dz_frag_focus /= focus_z;
+  dz_frag_focus = clamp(dz_frag_focus, 0.0, 1.0);
+  //dz_frag_focus = dz_frag_focus * dz_frag_focus;
 
   vec4  sum_color = texture(tex_src, gl_FragCoord.xy / wh);
   float sum_weights = 1.0;
   
-  int radius = int(z_diff * mult_blur);
+  int radius = int(dz_frag_focus * mult_blur);
+
   if(radius > 0){
   
     sum_color = vec4(0.0);
     sum_weights = 0.0; 
 
     float sample_rad = float(radius);
-    int count = 1 + radius * 5; 
+    int count = 1 + radius * 3; 
     for(int i = 0; i < count; i++){
       float sample_idx  = float(i);
       float sample_idxn = sample_idx / float(count-1);
      
       // spawn fibonacci pattern for uniform distribution over a radial area
       float radn = sqrt(sample_idxn * 0.5);
-      float off_rad = sample_rad * radn;
+      float off_rad = sample_rad * radn * 0.5;
       float off_ang = sample_idx * GOLDEN_ANGLE_R;
       vec2  off_pos = vec2(cos(off_ang), sin(off_ang)) * off_rad;
       
@@ -72,16 +79,17 @@ void main(){
       vec4  sample_col = texture(tex_src, sample_fpos);
       //if(sample_z <= frag_z)
       {
-        float z_diff_sample_frag = sample_z - frag_z;
-        z_diff_sample_frag = abs(z_diff_sample_frag);
-        z_diff_sample_frag = min(z_diff_sample_frag, z_diff);
-        z_diff_sample_frag = 1.0 - z_diff_sample_frag;
+        dz_sample_frag = sample_z - frag_z;
+        dz_sample_frag = abs(dz_sample_frag);
+        //dz_sample_frag = dz_sample_frag * dz_sample_frag;
+        dz_sample_frag = min(dz_sample_frag, dz_frag_focus);
+        dz_sample_frag = 1.0 - dz_sample_frag;
         
-        float z_diff_sample_focus = sample_z - focus_z;
-        z_diff_sample_focus = abs(z_diff_sample_focus);
+        dz_sample_focus = sample_z - focus_z;
+        dz_sample_focus = abs(dz_sample_focus);
+        //dz_sample_focus = dz_sample_focus * dz_sample_focus;
                 
-        float sample_weight = (z_diff) * z_diff_sample_frag * z_diff_sample_focus * (1.0 - radn*radn);
-
+        float sample_weight = (1.0 - radn * radn) * dz_frag_focus * dz_sample_focus * dz_sample_frag;
         sum_color   += sample_weight * sample_col;
         sum_weights += sample_weight;
       }
@@ -90,7 +98,9 @@ void main(){
   
   out_frag = sum_color / sum_weights;
   
-  // out_frag = vec4(1.0-z_diff,0,0,1);
+  //out_frag = vec4(1.0-dz_frag_focus,0,0,1);
+  
+
 }
 
 

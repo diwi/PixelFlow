@@ -18,7 +18,8 @@
 package com.thomasdiewald.pixelflow.java.render.skylight;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.opengl.PGraphics3D;
@@ -75,7 +76,7 @@ public class DwSkyLightRenderer {
   public boolean resize(int w, int h){
     boolean[] resized = {false};
     
-    pg_render = DwGLTextureUtils.changeTextureSize(papplet, pg_render, w, h, 0, resized);
+    pg_render = DwUtils.changeTextureSize(papplet, pg_render, w, h, 0, resized);
     
     int w_sky = Math.max(1, w >> param.wh_sky_mult);
     int h_sky = Math.max(1, h >> param.wh_sky_mult);
@@ -97,7 +98,7 @@ public class DwSkyLightRenderer {
 
   public void update(){
     
-    DwGLTextureUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
+    DwUtils.copyMatrices((PGraphics3D) papplet.g, pg_render);
 
     geom.update(pg_render);
     sky.update();

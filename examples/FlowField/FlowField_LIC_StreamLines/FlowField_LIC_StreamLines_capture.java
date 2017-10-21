@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
@@ -33,12 +32,11 @@ import controlP5.RadioButton;
 import controlP5.Toggle;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.opengl.PJOGL;
 import processing.video.Capture;
 
 
 
-public class FlowField_LIC_StreamLines2 extends PApplet {
+public class FlowField_LIC_StreamLines_capture extends PApplet {
   
   //
   // Line Integral Convolution (LIC) Shader
@@ -207,8 +205,8 @@ public class FlowField_LIC_StreamLines2 extends PApplet {
     pg_tmp = (PGraphics2D) createGraphics(width, height, P2D);
     pg_tmp.smooth(0);
     
-    DwGLTextureUtils.changeTextureFormat(pg_canvas, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
-    DwGLTextureUtils.changeTextureFormat(pg_tmp   , GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
+    DwUtils.changeTextureFormat(pg_canvas, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
+    DwUtils.changeTextureFormat(pg_tmp   , GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
     
     pg_canvas.beginDraw();
     pg_canvas.endDraw();
@@ -732,7 +730,7 @@ public class FlowField_LIC_StreamLines2 extends PApplet {
   
  
   public static void main(String args[]) {
-    PApplet.main(new String[] { FlowField_LIC_StreamLines2.class.getName() });
+    PApplet.main(new String[] { FlowField_LIC_StreamLines_capture.class.getName() });
   }
   
   

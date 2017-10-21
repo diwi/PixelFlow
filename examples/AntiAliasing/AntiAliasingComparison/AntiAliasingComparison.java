@@ -17,7 +17,6 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.FXAA.FXAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.GBAA.GBAA;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -186,17 +185,15 @@ public class AntiAliasingComparison extends PApplet {
 
     boolean[] RESIZED = {false};
     
-    pg_render_noaa = DwGLTextureUtils.changeTextureSize(this, pg_render_noaa, width, height, 0, RESIZED);
-    pg_render_msaa = DwGLTextureUtils.changeTextureSize(this, pg_render_msaa, width, height, 8, RESIZED);
-    pg_render_fxaa = DwGLTextureUtils.changeTextureSize(this, pg_render_fxaa, width, height, 0, RESIZED);
-    pg_render_smaa = DwGLTextureUtils.changeTextureSize(this, pg_render_smaa, width, height, 0, RESIZED);
-    pg_render_gbaa = DwGLTextureUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
+    pg_render_noaa = DwUtils.changeTextureSize(this, pg_render_noaa, width, height, 0, RESIZED);
+    pg_render_msaa = DwUtils.changeTextureSize(this, pg_render_msaa, width, height, 8, RESIZED);
+    pg_render_fxaa = DwUtils.changeTextureSize(this, pg_render_fxaa, width, height, 0, RESIZED);
+    pg_render_smaa = DwUtils.changeTextureSize(this, pg_render_smaa, width, height, 0, RESIZED);
+    pg_render_gbaa = DwUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
     
     if(RESIZED[0]){
       resetMatrix();
-//      camera();
-      perspective(90 * DEG_TO_RAD, width/(float)height, 2, 6000);
-      
+
       float[] rot = peasycam.getRotations();
       float[] lat = peasycam.getLookAt();
       double  dis = peasycam.getDistance();
@@ -206,6 +203,7 @@ public class AntiAliasingComparison extends PApplet {
       peasycam.setRotations(rot[0], rot[1], rot[2]);
     }
     peasycam.feed();
+    perspective(80 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     return RESIZED[0];
   }
@@ -316,7 +314,7 @@ public class AntiAliasingComparison extends PApplet {
   
   public void displaySceneWrap(PGraphics3D canvas){
     canvas.beginDraw();
-    DwGLTextureUtils.copyMatrices((PGraphics3D) this.g, canvas);
+    DwUtils.copyMatrices((PGraphics3D) this.g, canvas);
     float BACKGROUND_COLOR_GAMMA = (float) (Math.pow(BACKGROUND_COLOR/255.0, gamma) * 255.0);
 
     // background

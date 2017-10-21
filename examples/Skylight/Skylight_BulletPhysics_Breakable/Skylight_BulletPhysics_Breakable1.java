@@ -34,7 +34,6 @@ import wblut.geom.WB_Voronoi;
 import wblut.geom.WB_VoronoiCell2D;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.antialiasing.SMAA.SMAA;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
@@ -43,6 +42,7 @@ import com.thomasdiewald.pixelflow.java.render.skylight.DwSkyLight;
 import com.thomasdiewald.pixelflow.java.sampling.DwSampling;
 import com.thomasdiewald.pixelflow.java.utils.DwBoundingSphere;
 import com.thomasdiewald.pixelflow.java.utils.DwFrameCapture;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -237,10 +237,7 @@ public class Skylight_BulletPhysics_Breakable1 extends PApplet {
     
     pg_tmp = (PGraphics3D) createGraphics(width, height, P3D);
     pg_tmp.smooth(0);
-    
-    DwGLTextureUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
-    pg_tmp.beginDraw();
-    pg_tmp.endDraw();
+    DwUtils.changeTextureFormat(pg_tmp, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
     
     // fresh start
     reset();
@@ -805,7 +802,7 @@ public class Skylight_BulletPhysics_Breakable1 extends PApplet {
 
     ArrayList<BObject> bodies = new ArrayList<BObject>();
 
-    float mass_sum = 0;
+    //float mass_sum = 0;
  
     for (int i = 0; i < cells.size(); i++) {
       
@@ -849,7 +846,7 @@ public class Skylight_BulletPhysics_Breakable1 extends PApplet {
       
       // create rigid body
       float mass = (float) (cell.getArea() * dimz);
-      mass_sum += mass;
+      //mass_sum += mass;
       
       BConvexHull body = new MyBConvexHull(this, mass, vertices, new Vector3f(center_of_mass), true);
 //
@@ -886,8 +883,8 @@ public class Skylight_BulletPhysics_Breakable1 extends PApplet {
     
     
     
-    float pillar_dim = dimz;
-    float pillar_mass = 0;
+    //float pillar_dim = dimz;
+    //float pillar_mass = 0;
     
     
     

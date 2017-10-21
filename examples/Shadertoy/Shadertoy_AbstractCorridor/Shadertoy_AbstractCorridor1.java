@@ -15,8 +15,9 @@ package Shadertoy.Shadertoy_AbstractCorridor;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -55,11 +56,11 @@ public class Shadertoy_AbstractCorridor1 extends PApplet {
     pg_0 = (PGraphics2D) createGraphics(w, h, P2D);
     pg_1 = (PGraphics2D) createGraphics(w, h, P2D);
     
-    DwGLTextureUtils.changeTextureWrap  (pg_0, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_0, GL2.GL_LINEAR, GL2.GL_LINEAR);
+    DwUtils.changeTextureWrap  (pg_0, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_0, GL2.GL_LINEAR, GL2.GL_LINEAR);
     
-    DwGLTextureUtils.changeTextureWrap  (pg_1, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_1, GL2.GL_LINEAR, GL2.GL_LINEAR);
+    DwUtils.changeTextureWrap  (pg_1, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_1, GL2.GL_LINEAR, GL2.GL_LINEAR);
     
     pg_0.beginDraw();
     pg_0.background(100,200,0);

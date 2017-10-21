@@ -14,9 +14,9 @@ package com.thomasdiewald.pixelflow.java.antialiasing.GBAA;
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGeometryShader;
 import com.thomasdiewald.pixelflow.java.render.skylight.DwSceneDisplay;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -26,7 +26,6 @@ import processing.opengl.Texture;
 
 public class GBAA {
   
-
   String dir = DwPixelFlow.SHADER_DIR+"antialiasing/GBAA/";
   
   DwPixelFlow context;
@@ -43,7 +42,6 @@ public class GBAA {
     this.context = context;
     this.papplet = context.papplet;
     this.scene_display = scene_display;
-    
 
     String[] src_vert = context.utils.readASCIIfile(dir+"GBAA_edges.vert");
     String[] src_geom = context.utils.readASCIIfile(dir+"GBAA_edges.geom");
@@ -53,22 +51,10 @@ public class GBAA {
     this.shader_gbaa = context.createShader(dir+"GBAA_blending.frag");
   }
   
-  public void resize(int w, int h){
-    if(pg_edges != null){
-      if(pg_edges.width == w && pg_edges.height == h){
-        return;
-      } 
-    }
-    pg_edges = (PGraphics3D) papplet.createGraphics(w, h, PConstants.P3D);
-    pg_edges.smooth(0);
-    
-    DwGLTextureUtils.changeTextureFormat(pg_edges, GL3.GL_RG16F, GL3.GL_RG, GL3.GL_FLOAT);
-    pg_edges.beginDraw();
-    pg_edges.hint(PConstants.DISABLE_TEXTURE_MIPMAPS);
-    pg_edges.textureSampling(2);
-    pg_edges.blendMode(PConstants.REPLACE);
-    pg_edges.noStroke();
-    pg_edges.endDraw();
+  public boolean resize(int w, int h){
+    boolean[] resized = {false};
+    pg_edges = DwUtils.changeTextureSize(papplet, pg_edges, w, h, 0, resized, GL3.GL_RG16F, GL3.GL_RG, GL3.GL_FLOAT);
+    return resized[0];
   }
   
   public int MODE = 0;
@@ -82,17 +68,17 @@ public class GBAA {
     
     // 1) GeometryBuffer Pass
     pg_edges.beginDraw();
-    DwGLTextureUtils.copyMatrices(src, pg_edges);
-//    pg_geom.background(0xFFFFFFFF);
+    DwUtils.copyMatrices(src, pg_edges);
+    pg_edges.blendMode(PConstants.REPLACE);
     pg_edges.pgl.clearColor(0.5f, 0.5f, 0.5f, 0.5f);
     pg_edges.pgl.clear(PGL.COLOR_BUFFER_BIT);
     shader_edges.set("wh", (float)w, (float)h);
     pg_edges.shader(shader_edges);
+    pg_edges.noStroke();
     scene_display.display(pg_edges);
     pg_edges.endDraw();
     
 
-//    DwFilter.get(context).copy.apply(pg_geom, dst);
     
     // 2) AA Pass
     if(src == dst){
@@ -103,7 +89,6 @@ public class GBAA {
     Texture tex_src = src.getTexture(); if(!tex_src.available())  return;
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available())  return;
     Texture tex_edges = pg_edges.getTexture(); if(!tex_edges.available())  return;
-
 
     context.begin();
     context.beginDraw(dst);

@@ -15,8 +15,9 @@ package Shadertoy.Shadertoy_AlienCorridor;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -52,8 +53,8 @@ public class Shadertoy_AlienCorridor extends PApplet {
     
     pg_noise = (PGraphics2D) createGraphics(512, 512, P2D);
     pg_noise.smooth(0);
-    DwGLTextureUtils.changeTextureWrap  (pg_noise, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_noise, GL2.GL_LINEAR, GL2.GL_LINEAR);
+    DwUtils.changeTextureWrap  (pg_noise, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_noise, GL2.GL_LINEAR, GL2.GL_LINEAR);
     pg_noise.beginDraw();
     pg_noise.noStroke();
     for(int y = 0; y < pg_noise.height; y++){

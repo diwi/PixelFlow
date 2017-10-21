@@ -15,8 +15,9 @@ package Shadertoy.Shadertoy_AbstractCorridor;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.opengl.PGraphics2D;
@@ -66,12 +67,12 @@ public class Shadertoy_AbstractCorridor3 extends PApplet {
     pg_1.image(img1, 0, 0);
     pg_1.endDraw();
 
-    DwGLTextureUtils.changeTextureWrap  (pg_0, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_0, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
-    DwGLTextureUtils.generateMipMaps    (pg_0);
-    DwGLTextureUtils.changeTextureWrap  (pg_1, GL2.GL_MIRRORED_REPEAT);
-    DwGLTextureUtils.changeTextureFilter(pg_1, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
-    DwGLTextureUtils.generateMipMaps    (pg_1);
+    DwUtils.changeTextureWrap  (pg_0, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_0, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
+    DwUtils.generateMipMaps    (pg_0);
+    DwUtils.changeTextureWrap  (pg_1, GL2.GL_MIRRORED_REPEAT);
+    DwUtils.changeTextureFilter(pg_1, GL2.GL_LINEAR_MIPMAP_LINEAR, GL2.GL_LINEAR);
+    DwUtils.generateMipMaps    (pg_1);
     
     frameRate(60);
   }

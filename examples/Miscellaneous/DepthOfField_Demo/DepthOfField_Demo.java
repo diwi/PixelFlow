@@ -15,7 +15,6 @@ package Miscellaneous.DepthOfField_Demo;
 import java.util.Locale;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.geometry.DwCube;
 import com.thomasdiewald.pixelflow.java.geometry.DwMeshUtils;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DepthOfField;
@@ -123,9 +122,9 @@ public class DepthOfField_Demo extends PApplet {
 
     boolean[] RESIZED = {false};
     
-    pg_render = DwGLTextureUtils.changeTextureSize(this, pg_render, width, height, 8, RESIZED);
-    pg_dof    = DwGLTextureUtils.changeTextureSize(this, pg_dof   , width, height, 0, RESIZED);
-    pg_tmp    = DwGLTextureUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
+    pg_render = DwUtils.changeTextureSize(this, pg_render, width, height, 8, RESIZED);
+    pg_dof    = DwUtils.changeTextureSize(this, pg_dof   , width, height, 0, RESIZED);
+    pg_tmp    = DwUtils.changeTextureSize(this, pg_tmp   , width, height, 0, RESIZED, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT);
 
 //    geombuffer.resize(width, height)
     
@@ -157,12 +156,12 @@ public class DepthOfField_Demo extends PApplet {
     
     DwFilter.get(context).gamma.apply(pg_render, pg_render);
     
-    int mult_blur = 20;
+    int mult_blur = 30;
 
     if(APPLY_DOF){
       geombuffer.update(pg_render);
 
-      DwFilter.get(context).gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, 5);
+      DwFilter.get(context).gaussblur.apply(geombuffer.pg_geom, geombuffer.pg_geom, pg_tmp, (int) Math.pow(mult_blur, 0.33f));
 
 //      dof.param.focus     = map(mouseX, 0, width, 0, 1);
       dof.param.focus_pos = new float[]{0.5f, 0.5f};
@@ -216,8 +215,7 @@ public class DepthOfField_Demo extends PApplet {
   
   public void displaySceneWrap(PGraphics3D canvas){
     canvas.beginDraw();
-    DwGLTextureUtils.copyMatrices((PGraphics3D) this.g, canvas);
-
+    DwUtils.copyMatrices((PGraphics3D) this.g, canvas);
     // background
     canvas.blendMode(PConstants.BLEND);
     canvas.background(2);

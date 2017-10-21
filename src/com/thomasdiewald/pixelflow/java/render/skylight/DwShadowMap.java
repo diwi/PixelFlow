@@ -17,7 +17,7 @@ package com.thomasdiewald.pixelflow.java.render.skylight;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -63,10 +63,10 @@ public class DwShadowMap {
 
   public void resize(int wh){
     boolean[] resized = {false};
-    pg_shadowmap = DwGLTextureUtils.changeTextureSize(papplet, pg_shadowmap, wh, wh, 0, resized);
+    pg_shadowmap = DwUtils.changeTextureSize(papplet, pg_shadowmap, wh, wh, 0, resized);
     
     if(resized[0]){
-      DwGLTextureUtils.changeTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
+      DwUtils.changeTextureFormat(pg_shadowmap, GL2.GL_R32F, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
       setOrtho();
     }
   }
@@ -99,11 +99,11 @@ public class DwShadowMap {
   }
   
   public void setDirection(float[] eye, float[] center, float[] up){
-    DwGLTextureUtils.setLookAt(pg_shadowmap, eye, center, up);
+    DwUtils.setLookAt(pg_shadowmap, eye, center, up);
     lightdir.set(eye);
   }
   public void setDirection(PVector eye, PVector center, PVector up){
-    DwGLTextureUtils.setLookAt(pg_shadowmap, eye, center, up);
+    DwUtils.setLookAt(pg_shadowmap, eye, center, up);
     lightdir.set(eye);
   }
   

@@ -17,7 +17,8 @@ package com.thomasdiewald.pixelflow.java.render.skylight;
 
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.opengl.PGraphics3D;
@@ -50,17 +51,17 @@ public class DwScreenSpaceGeometryBuffer {
   
   public boolean resize(int w, int h){
     boolean[] resized = {false};
-    pg_geom = DwGLTextureUtils.changeTextureSize(papplet, pg_geom, w, h, 0, resized);
+    pg_geom = DwUtils.changeTextureSize(papplet, pg_geom, w, h, 0, resized);
     
     if(resized[0]){
-      DwGLTextureUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
+      DwUtils.changeTextureFormat(pg_geom, GL2.GL_RGBA16F, GL2.GL_RGBA, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE);
     }
     
     return resized[0];
   }
   
   public void updateMatrices(PGraphics3D pg_src){
-    DwGLTextureUtils.copyMatrices(pg_src, pg_geom);
+    DwUtils.copyMatrices(pg_src, pg_geom);
   }
 
   public void update(PGraphics3D pg_src){

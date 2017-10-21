@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import com.jogamp.opengl.GL3;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
@@ -196,8 +195,8 @@ public class FlowField_LIC_StreamLines extends PApplet {
     pg_tmp = (PGraphics2D) createGraphics(width, height, P2D);
     pg_tmp.smooth(0);
     
-    DwGLTextureUtils.changeTextureFormat(pg_canvas, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
-    DwGLTextureUtils.changeTextureFormat(pg_tmp   , GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
+    DwUtils.changeTextureFormat(pg_canvas, GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
+    DwUtils.changeTextureFormat(pg_tmp   , GL3.GL_RGBA16F, GL3.GL_RGBA, GL3.GL_FLOAT, GL3.GL_LINEAR);
     
     pg_canvas.beginDraw();
     pg_canvas.endDraw();

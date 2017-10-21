@@ -19,11 +19,12 @@ import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLSLProgram;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
-import com.thomasdiewald.pixelflow.java.dwgl.DwGLTextureUtils;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
+import com.thomasdiewald.pixelflow.java.utils.DwUtils;
+
 import controlP5.Accordion;
 import controlP5.CColor;
 import controlP5.ControlP5;
@@ -153,10 +154,10 @@ public class FlowFieldParticles_Attractors extends PApplet {
   public boolean resizeScene(){
 
     boolean[] RESIZED = { false };
-    pg_canvas     = DwGLTextureUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
-    pg_obstacles  = DwGLTextureUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
-    pg_impulse    = DwGLTextureUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
-    pg_luminance  = DwGLTextureUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
+    pg_canvas     = DwUtils.changeTextureSize(this, pg_canvas    , width, height, 0, RESIZED);
+    pg_obstacles  = DwUtils.changeTextureSize(this, pg_obstacles , width, height, 0, RESIZED);
+    pg_impulse    = DwUtils.changeTextureSize(this, pg_impulse   , width, height, 0, RESIZED);
+    pg_luminance  = DwUtils.changeTextureSize(this, pg_luminance , width, height, 0, RESIZED);
 
     if(RESIZED[0]){
       setParticleColor(2);
