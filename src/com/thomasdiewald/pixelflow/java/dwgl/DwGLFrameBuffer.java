@@ -26,9 +26,9 @@ public class DwGLFrameBuffer {
   public int[] bind_color_attachments = new int[0]; // currently bound rendertargets
   public int[] bind_targets           = new int[0]; // currently bound rendertargets
   
-  public int max_color_attachments;
+//  public int max_color_attachments;
   public int max_draw_buffers;
-  public int max_bind;
+//  public int max_bind;
   
   public DwGLFrameBuffer(){
   }
@@ -56,21 +56,36 @@ public class DwGLFrameBuffer {
       gl.glGenFramebuffers(1, HANDLE_fbo, 0);
       
       int[] buf = new int[1];
-      gl.glGetIntegerv(GL2.GL_MAX_COLOR_ATTACHMENTS, buf, 0);
-      max_color_attachments = buf[0];
+//      gl.glGetIntegerv(GL2.GL_MAX_COLOR_ATTACHMENTS, buf, 0);
+//      max_color_attachments = buf[0];
       gl.glGetIntegerv(GL2.GL_MAX_DRAW_BUFFERS, buf, 0);
       max_draw_buffers = buf[0];
       
-      max_bind = Math.min(max_draw_buffers, max_color_attachments);
+//      max_bind = Math.min(max_draw_buffers, max_color_attachments);
+      
+//      max_bind = max_draw_buffers;
     }
   }
   
   
-  public void bind(){
-    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+  
+  private static DwGLFrameBuffer active_fbo = null;
+  
+  public void bindFBO(){
+    if(active_fbo != this){
+      gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+      active_fbo = this;
+    }
   }
   
+  public void unbindFBO(){
+    if(active_fbo != null){
+      gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
+      active_fbo = null;
+    }
+  }
 
+  
   // textures must be of the same size
   public void bind(int ... HANDLE_tex){
     
@@ -79,14 +94,14 @@ public class DwGLFrameBuffer {
     }
     
     int count = HANDLE_tex.length;  
-    if(count > max_bind){
-      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);
-      count = max_bind;
+    if(count > max_draw_buffers){
+      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_draw_buffers);
+      count = max_draw_buffers;
     }
     bind_color_attachments = new int[count];
     bind_targets           = new int[count];
     
-    bind();
+    bindFBO();
     for(int i = 0; i < count; i++){
       bind_color_attachments[i] = GL2ES2.GL_COLOR_ATTACHMENT0 + i;
       bind_targets          [i] = GL2ES2.GL_TEXTURE_2D;
@@ -109,14 +124,14 @@ public class DwGLFrameBuffer {
     }
     
     int count = tex.length;  
-    if(count > max_bind){
-      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);
-      count = max_bind;
+    if(count > max_draw_buffers){
+      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_draw_buffers);
+      count = max_draw_buffers;
     }
     bind_color_attachments = new int[count];
     bind_targets           = new int[count];
     
-    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+    bindFBO();
     for(int i = 0; i < count; i++){
       bind_color_attachments[i] = GL2ES2.GL_COLOR_ATTACHMENT0 + i;
       bind_targets          [i] = tex[i].target;
@@ -128,6 +143,15 @@ public class DwGLFrameBuffer {
     IS_ACTIVE = true;
   }
   
+  public void bind(DwGLTexture3D tex, int ... layer){
+    int num_layers = layer.length;
+    DwGLTexture3D[] tex_ = new DwGLTexture3D[num_layers];
+    for(int i = 0; i < num_layers; i++){
+      tex_[i] = tex;
+    }
+    bind(tex_, layer);
+  }
+  
   public void bind(DwGLTexture3D[] tex, int[] layer){
    
     if(IS_ACTIVE){
@@ -135,14 +159,14 @@ public class DwGLFrameBuffer {
     }
 
     int count = tex.length;  
-    if(count > max_bind){
-      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);
-      count = max_bind;
+    if(count > max_draw_buffers){
+      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_draw_buffers);
+      count = max_draw_buffers;
     }
     bind_color_attachments = new int[count];
     bind_targets           = new int[count];
     
-    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+    bindFBO();
     for(int i = 0; i < count; i++){
       bind_color_attachments[i] = GL2ES2.GL_COLOR_ATTACHMENT0 + i;
       bind_targets          [i] = tex[i].target;
@@ -167,14 +191,14 @@ public class DwGLFrameBuffer {
     }
     
     int count = tex.length;  
-    if(count > max_bind){
-      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_bind);
-      count = max_bind;
+    if(count > max_draw_buffers){
+      System.out.println("WARNING: DwGLFrameBuffer.bind(...) number of textures exceeds max limit: "+count+" > "+max_draw_buffers);
+      count = max_draw_buffers;
     }
     bind_color_attachments = new int[count];
     bind_targets           = null;
     
-    gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, HANDLE_fbo[0]);
+    bindFBO();
     for(int i = 0; i < count; i++){
       bind_color_attachments[i] = GL3.GL_COLOR_ATTACHMENT0 + i;
       gl3.glFramebufferTexture(GL3.GL_FRAMEBUFFER, bind_color_attachments[i], tex[i].HANDLE[0], 0);
@@ -205,7 +229,7 @@ public class DwGLFrameBuffer {
       }
     }
     bind_color_attachments = new int[0];
-    gl.glBindFramebuffer(GL2ES2.GL_FRAMEBUFFER, 0);
+    unbindFBO();
     IS_ACTIVE = false;
   }
   
@@ -256,7 +280,7 @@ public class DwGLFrameBuffer {
   
   public void setRenderBuffer(int HANDLE_rbo, boolean depth, boolean stencil){
     boolean is_active = isActive();
-    if(!is_active) bind();
+    if(!is_active) bindFBO();
   
     if(depth  ) gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_DEPTH_ATTACHMENT  , GLES3.GL_RENDERBUFFER, HANDLE_rbo);
     if(stencil) gl.glFramebufferRenderbuffer(GLES3.GL_FRAMEBUFFER, GLES3.GL_STENCIL_ATTACHMENT, GLES3.GL_RENDERBUFFER, HANDLE_rbo);

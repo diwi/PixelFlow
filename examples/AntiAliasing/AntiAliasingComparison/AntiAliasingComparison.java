@@ -144,7 +144,7 @@ public class AntiAliasingComparison extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // projection
-    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+    // perspective(120 * DEG_TO_RAD, width/(float)height, 2, 6000);
 
     // camera
     peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
@@ -192,19 +192,19 @@ public class AntiAliasingComparison extends PApplet {
     pg_render_gbaa = DwUtils.changeTextureSize(this, pg_render_gbaa, width, height, 0, RESIZED);
     
     if(RESIZED[0]){
-      resetMatrix();
-
-      float[] rot = peasycam.getRotations();
-      float[] lat = peasycam.getLookAt();
-      double  dis = peasycam.getDistance();
-      
-      peasycam.setActive(false);  // unregister handler
-      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
-      peasycam.setRotations(rot[0], rot[1], rot[2]);
+//      resetMatrix();
+//
+//      float[] rot = peasycam.getRotations();
+//      float[] lat = peasycam.getLookAt();
+//      double  dis = peasycam.getDistance();
+//      
+//      peasycam.setActive(false);  // unregister handler
+//      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
+//      peasycam.setRotations(rot[0], rot[1], rot[2]);
     }
     peasycam.feed();
-    perspective(80 * DEG_TO_RAD, width/(float)height, 2, 6000);
-    
+    perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
+
     return RESIZED[0];
   }
 

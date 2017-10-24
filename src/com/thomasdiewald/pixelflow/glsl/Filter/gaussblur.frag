@@ -10,7 +10,10 @@
 
 #version 150
 
+
 #define PI (3.14159265)
+#define TWO_PI (6.283185307)        //      2 * PI
+#define TWO_PI_SQRT (2.506628274)   // sqrt(2 * PI)
 
 out vec4 glFragColor;
 
@@ -39,7 +42,7 @@ uniform vec2  dir;
 void main(){
 
   vec3 coeff;  
-  coeff.x = 1.0 / (sqrt(2.0 * PI) * sigma);  
+  coeff.x = 1.0 / (TWO_PI_SQRT * sigma);  
   coeff.y = exp(-0.5 / (sigma * sigma));  
   coeff.z = coeff.y * coeff.y;  
   

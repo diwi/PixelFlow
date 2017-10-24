@@ -131,14 +131,13 @@ public class DwPixelFlow{
       gl = pjogl.gl.getGL2ES2();
       framebuffer.allocate(gl);
     }
-
     scope_depth++;
     return gl;
   }
   
   public void end(){
     endDraw(); // just in case, a framebuffer is still bound
-    
+
     scope_depth--;
 //    System.out.printf("%"+(scope_depth*2+1)+"s GLScope.end   %d\n", " ", scope_depth);
     if(scope_depth == 0){
@@ -176,6 +175,12 @@ public class DwPixelFlow{
     defaultRenderSettings(0, 0, dst[0].w, dst[0].h);
   }
   
+  public void beginDraw(DwGLTexture3D dst, int ... layer){
+  //  if(ACTIVE_FRAMEBUFFER) return;
+    ACTIVE_FRAMEBUFFER = true;
+    framebuffer.bind(dst, layer);
+    defaultRenderSettings(0, 0, dst.w, dst.h);
+  }
 
   public void beginDraw(DwGLTexture3D dst, int layer){
   //  if(ACTIVE_FRAMEBUFFER) return;
@@ -427,7 +432,7 @@ public class DwPixelFlow{
     String[] list = gl_extensions.split(" ");
     
     System.out.println();
-    System.out.printf("[-] %d etensions\n", list.length);
+    System.out.printf("[-] %d extensions\n", list.length);
     for(int i = 0; i < list.length; i++){
       System.out.printf("  [-] %d - %s\n", i, list[i].trim());
     }

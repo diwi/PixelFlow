@@ -254,16 +254,16 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.resize(width, height);
     
     if(RESIZED[0]){
-      resetMatrix();
-      camera();
-    
-      float[] rot = peasycam.getRotations();
-      float[] lat = peasycam.getLookAt();
-      double  dis = peasycam.getDistance();
-      
-      peasycam.setActive(false);  // unregister handler
-      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
-      peasycam.setRotations(rot[0], rot[1], rot[2]);
+//      resetMatrix();
+//      camera();
+//    
+//      float[] rot = peasycam.getRotations();
+//      float[] lat = peasycam.getLookAt();
+//      double  dis = peasycam.getDistance();
+//      
+//      peasycam.setActive(false);  // unregister handler
+//      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
+//      peasycam.setRotations(rot[0], rot[1], rot[2]);
     }
     peasycam.feed();
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);

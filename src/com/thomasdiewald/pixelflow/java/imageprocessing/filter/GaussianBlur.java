@@ -90,23 +90,19 @@ public class GaussianBlur {
     Texture tex_dst = dst.getTexture(); if(!tex_dst.available()) return;
     Texture tex_tmp = tmp.getTexture(); if(!tex_tmp.available()) return;
     
-//    tmp.beginDraw();
     context.begin();
+    
     context.beginDraw(tmp);
     pass(tex_src.glName, tmp.width, tmp.height, radius, sigma, HORZ);
-    context.endDraw();
-    context.end("GaussianBlur.apply - HORZ");
-//    tmp.endDraw(); 
-    
+    context.endDraw("GaussianBlur.apply - HORZ");
+
 //    Texture tex_tmp = tmp.getTexture();
     
-//    dst.beginDraw();
-    context.begin();
     context.beginDraw(dst);
     pass(tex_tmp.glName, dst.width, dst.height, radius, sigma, VERT);
-    context.endDraw();
-    context.end("GaussianBlur.apply - VERT");
-//    dst.endDraw(); 
+    context.endDraw("GaussianBlur.apply - VERT");
+    
+    context.end();
   }
   
   public void apply(DwGLTexture src, DwGLTexture dst, DwGLTexture tmp, int radius) {
@@ -123,16 +119,16 @@ public class GaussianBlur {
     }
     
     context.begin();
+    
     context.beginDraw(tmp);
     pass(src.HANDLE[0], tmp.w, tmp.h, radius, sigma, HORZ);
-    context.endDraw();
-    context.end("GaussianBlur.apply - HORZ");
-    
-    context.begin();
+    context.endDraw("GaussianBlur.apply - HORZ");
+
     context.beginDraw(dst);
     pass(tmp.HANDLE[0], dst.w, dst.h, radius, sigma, VERT);
-    context.endDraw();
-    context.end("GaussianBlur.apply - VERT");
+    context.endDraw("GaussianBlur.apply - VERT");
+    
+    context.end();
   }
   
   DwGLSLProgram shader;
