@@ -95,8 +95,8 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 ## videos
 
 #### Skylight Renderer
+[<img src="https://i.vimeocdn.com/video/661407332.jpg" alt="alt text" width="30%">](https://vimeo.com/238654801 "Skylight Renderer - Ambient Occlusion / Soft Shadows")
 [<img src="https://i.vimeocdn.com/video/621790715.jpg" alt="alt text" width="30%">](https://vimeo.com/206696210 "Skylight - Cloth Simulation")
-[<img src="https://i.vimeocdn.com/video/621790926.jpg" alt="alt text" width="30%">](https://vimeo.com/206696403 "Skylight - Basic")
 [<img src="https://i.vimeocdn.com/video/621791014.jpg" alt="alt text" width="30%">](https://vimeo.com/206696738 "Skylight - Poisson Spheres")
 [<img src="https://i.vimeocdn.com/video/635968099.jpg" alt="alt text" width="30%">](https://vimeo.com/218485498 "Rigid Body - Menger Sponge")
 [<img src="https://i.vimeocdn.com/video/627412633.jpg" alt="alt text" width="30%">](https://vimeo.com/211395605 "Rigid Origami Simulation")
@@ -106,7 +106,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://vimeo.com/184854758/og_image_watermark/59441739" alt="alt text" width="30%">](https://vimeo.com/184854758 "SoftBody Dynamics 3D - Playground, Cloth Simulation")
 [<img src="https://vimeo.com/184854746/og_image_watermark/594416647" alt="alt text" width="30%">](https://vimeo.com/184854746 "SoftBody Dynamics 3D - Cloth Simulation")
 [<img src="https://vimeo.com/184853892/og_image_watermark/594415861" alt="alt text" width="30%">](https://vimeo.com/184853892 "SoftBody Dynamics 2D - Playground")
-[<img src="https://vimeo.com/184853883/og_image_watermark/594415377" alt="alt text" width="30%">](https://vimeo.com/184853883 "SoftBody Dynamics 2D - Connected Bodies")
+
 
 #### Computational Fluid Dynamics
 [<img src="https://vimeo.com/184850259/og_image_watermark/594412638" alt="alt text" width="30%">](https://vimeo.com/184850259 "WindTunnel")
@@ -200,9 +200,8 @@ public void draw() {
 }
 
 ```
-<img src="https://github.com/diwi/PixelFlow/blob/master/examples/Fluid_GetStarted/out/GetStarted.jpg" alt="result" width="50%">
-
 <br>
+
 <br>
 
 ## Installation, Processing IDE
