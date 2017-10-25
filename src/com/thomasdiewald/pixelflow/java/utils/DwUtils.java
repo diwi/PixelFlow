@@ -725,13 +725,17 @@ public class DwUtils {
   }
   
   
-  static public void swap(PGraphics[] pg){
-    PGraphics tmp = pg[0];
-    pg[0] = pg[1];
-    pg[1] = tmp;
+//  static public void swap(PGraphics[] pg){
+//    PGraphics tmp = pg[0];
+//    pg[0] = pg[1];
+//    pg[1] = tmp;
+//  }
+  
+  static public void swap(Object[] obj){
+    Object tmp = obj[0];
+    obj[0] = obj[1];
+    obj[1] = tmp;
   }
-  
-  
   
   
   static private boolean pushed_lights = false;

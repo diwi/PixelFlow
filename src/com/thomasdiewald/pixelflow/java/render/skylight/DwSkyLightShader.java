@@ -27,7 +27,6 @@ import processing.core.PMatrix3D;
 import processing.core.PVector;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PShader;
-import processing.opengl.Texture;
 
 
 
@@ -130,14 +129,12 @@ public class DwSkyLightShader {
       }
     }
     
-//    resized[0] |= tex_shading.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_NEAREST, GL2.GL_CLAMP_TO_EDGE, 1, 4);
+//    resized[0] |= tex_shading.resize(context,  GL2.GL_R32F, w, h, GL2.GL_RED, GL2.GL_FLOAT, GL2.GL_LINEAR, GL2.GL_CLAMP_TO_EDGE, 1, 4);
     
     if(resized[0]){
       reset();
     }
     
-
-
     return resized[0];
   }
 
@@ -231,14 +228,16 @@ public class DwSkyLightShader {
 //    context.beginDraw(tex_shading.dst);
 //    shader_.begin();
 //    setUniforms();
+//    shader_.uniform2f     ("wh"            , w, h);
 //    shader_.uniformTexture("tex_src"       , tex_shading.src);
 //    shader_.uniformTexture("tex_shadow"    , tex_shadowmap.glName);
 //    shader_.uniformTexture("tex_geombuffer", tex_geombuffer.glName);
 //    shader_.drawFullScreenQuad();
 //    shader_.end();
 //    context.endDraw();
-//    tex_shading.swap();
 //    context.end();
+//    
+//    tex_shading.swap();
 //    
 //    DwFilter.get(context).copy.apply(tex_shading.src, pg_src);
 
@@ -260,7 +259,6 @@ public class DwSkyLightShader {
     mat_shadow.apply(mat_modelviewInv);
     mat_shadow.transpose(); // processing
     
-    
     PMatrix3D mat_shadow_normal = mat_shadow.get();
     mat_shadow_normal.invert();
     mat_shadow_normal.transpose(); // processing
@@ -274,8 +272,6 @@ public class DwSkyLightShader {
     PMatrix3D mat_shadow_normal_projection = shadowmap.getProjection().get();
     mat_shadow_normal_projection.invert();
     mat_shadow_normal_projection.transpose(); // processing
-    
-
     
 //    PMatrix3D mat_shadow_modelview = new PMatrix3D(shadowmap.pg_shadowmap.modelview);
 //    mat_shadow_modelview.apply(mat_modelviewInv);
@@ -302,8 +298,6 @@ public class DwSkyLightShader {
     
 //    shadow_bias_mag = scene_scale/ shadow_map_size;
 
-//    float w = geombuffer.pg_geom.width;
-//    float h = geombuffer.pg_geom.height;
     
 //    PMatrix3D mat_screen_to_eye = new PMatrix3D();
 //    mat_screen_to_eye.scale(w, h, 1);
@@ -325,7 +319,6 @@ public class DwSkyLightShader {
 //    shader.set("mat_shadow_modelview", mat_shadow_modelview);
     shader.set("dir_light", light_dir_cameraspace);
     shader.set("pass_mix", pass_mix);
-    // shader.set("wh", w, h); // should match the dimensions of the shading buffers
     shader.set("wh_shadow", w_shadow, h_shadow); // should match the dimensions of the shading buffers
     shader.set("shadow_bias_mag", shadow_bias_mag);
 
@@ -335,16 +328,15 @@ public class DwSkyLightShader {
 //    getBuffer(buf_mat_shadow_normal_modelview , mat_shadow_normal_modelview , true);
 //    getBuffer(buf_mat_shadow_normal_projection, mat_shadow_normal_projection, true);
 //
-//    boolean transpose = !true;
+//    boolean transpose = !false;
 //    shader_.uniformMatrix4fv("mat_projection"              , 1, transpose, buf_mat_projection              , 0);
 //    shader_.uniformMatrix4fv("mat_shadow"                  , 1, transpose, buf_mat_shadow                  , 0);
 //    shader_.uniformMatrix3fv("mat_shadow_normal_modelview" , 1, transpose, buf_mat_shadow_normal_modelview , 0);
 //    shader_.uniformMatrix3fv("mat_shadow_normal_projection", 1, transpose, buf_mat_shadow_normal_projection, 0);
-//    shader_.uniform3f("dir_light", light_dir_cameraspace.x, light_dir_cameraspace.y, light_dir_cameraspace.z);
-//    shader_.uniform1f("pass_mix", pass_mix);
-//    // shader_.uniform2f("wh", w, h);
-//    shader_.uniform2f("wh_shadow", w_shadow, h_shadow);
-//    shader_.uniform1f("shadow_bias_mag", shadow_bias_mag);
+//    shader_.uniform3f       ("dir_light", light_dir_cameraspace.x, light_dir_cameraspace.y, light_dir_cameraspace.z);
+//    shader_.uniform1f       ("pass_mix", pass_mix);
+//    shader_.uniform2f       ("wh_shadow", w_shadow, h_shadow);
+//    shader_.uniform1f       ("shadow_bias_mag", shadow_bias_mag);
   }
   
   float[] buf_mat_projection               = new float[16];
@@ -368,6 +360,18 @@ public class DwSkyLightShader {
       matv[ 8]=mat.m20; matv[ 9]=mat.m21; matv[10]=mat.m22; matv[11]=mat.m23;
       matv[12]=mat.m30; matv[13]=mat.m31; matv[14]=mat.m32; matv[15]=mat.m33;
     }
+    
+    
+//    if (use3x3) { 
+//      matv[0]=mat.m00; matv[1]=mat.m10; matv[2]=mat.m20;
+//      matv[3]=mat.m01; matv[4]=mat.m11; matv[5]=mat.m21;
+//      matv[6]=mat.m02; matv[7]=mat.m12; matv[8]=mat.m22;
+//    } else {
+//      matv[ 0]=mat.m00; matv[ 1]=mat.m10; matv[ 2]=mat.m20; matv[ 3]=mat.m30;
+//      matv[ 4]=mat.m01; matv[ 5]=mat.m11; matv[ 6]=mat.m21; matv[ 7]=mat.m31;
+//      matv[ 8]=mat.m02; matv[ 9]=mat.m12; matv[10]=mat.m22; matv[11]=mat.m32;
+//      matv[12]=mat.m03; matv[13]=mat.m13; matv[14]=mat.m23; matv[15]=mat.m33;
+//    }
   }
   
 

@@ -87,9 +87,6 @@ public class DepthOfField_Demo extends PApplet {
     // camera
     peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1300);
     peasycam.setRotations(  1.085,  -0.477,   2.910);
-
-    // projection
-    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     
     // main library context
     context = new DwPixelFlow(this);
@@ -103,7 +100,6 @@ public class DepthOfField_Demo extends PApplet {
         displayScene(canvas); 
       }
     };
-    
     
     geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
     
@@ -129,18 +125,9 @@ public class DepthOfField_Demo extends PApplet {
 //    geombuffer.resize(width, height)
     
     if(RESIZED[0]){
-//      resetMatrix();
-//      camera();
-//      perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
-//      
-//      float[] rot = peasycam.getRotations();
-//      float[] lat = peasycam.getLookAt();
-//      double  dis = peasycam.getDistance();
-//      
-//      peasycam.setActive(false);  // unregister handler
-//      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
-//      peasycam.setRotations(rot[0], rot[1], rot[2]);
+      // nothing here
     }
+    
     peasycam.feed();
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 6000);
     

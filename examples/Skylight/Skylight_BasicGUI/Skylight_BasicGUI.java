@@ -109,13 +109,13 @@ public class Skylight_BasicGUI extends PApplet {
     smooth(0);
   }
   
-  public float clip_z_far;
+  public float clip_z_far = SCENE_SCALE * 5;
   
   public void setup() {
     surface.setLocation(viewport_x, viewport_y);
     surface.setResizable(true);
     
-    
+ 
     // library context
     context = new DwPixelFlow(this);
     context.print();
@@ -129,9 +129,7 @@ public class Skylight_BasicGUI extends PApplet {
 //    peasycam.setDistance(475.257);
 //    peasycam.lookAt(-33.842, -38.242,  64.793);
 
-    clip_z_far =  SCENE_SCALE * 5;
-    // perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);
-
+    
     
     // create scene
     {
@@ -204,7 +202,6 @@ public class Skylight_BasicGUI extends PApplet {
     };
     
 
-    
     // Depth of Field
     dof = new DepthOfField(context);
     geombuffer = new DwScreenSpaceGeometryBuffer(context, scene_display);
@@ -254,16 +251,7 @@ public class Skylight_BasicGUI extends PApplet {
     skylight.resize(width, height);
     
     if(RESIZED[0]){
-//      resetMatrix();
-//      camera();
-//    
-//      float[] rot = peasycam.getRotations();
-//      float[] lat = peasycam.getLookAt();
-//      double  dis = peasycam.getDistance();
-//      
-//      peasycam.setActive(false);  // unregister handler
-//      peasycam = new PeasyCam(this, lat[0], lat[1], lat[2], dis);
-//      peasycam.setRotations(rot[0], rot[1], rot[2]);
+      // nothing here
     }
     peasycam.feed();
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, clip_z_far);

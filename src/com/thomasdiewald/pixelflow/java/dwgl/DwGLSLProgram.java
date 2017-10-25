@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Stack;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
@@ -158,6 +159,7 @@ public class DwGLSLProgram {
   
   public void end(){
     clearUniformTextures();
+    clearAttribLocations();
     gl.glUseProgram(0);
   }
   
@@ -182,6 +184,7 @@ public class DwGLSLProgram {
   //////////////////////////////////////////////////////////////////////////////
   
   HashMap<String, Integer> uniform_loc = new HashMap<String, Integer>();
+  HashMap<String, Integer> attrib_loc = new HashMap<String, Integer>();
 
   public boolean LOG_WARNINGS = true;
   
@@ -207,7 +210,32 @@ public class DwGLSLProgram {
     return LOC_name;
   }
   
+  
+  private int getAttribLocation(String attrib_name){
+    int LOC_name = -1;
+    Integer loc = attrib_loc.get(attrib_name);
+    if(loc != null){
+      LOC_name = loc;
+    } else {
+      LOC_name = gl.glGetAttribLocation(HANDLE, attrib_name);
+      if(LOC_name != -1){
+        attrib_loc.put(attrib_name, LOC_name);
+      }
+    }
+    if(LOC_name == -1){
+      if(LOG_WARNINGS && warning_count < 20){
+        System.out.println(name+": attrib location \""+attrib_name+"\" = -1");
+        warning_count++;
+      }
+    }
+    return LOC_name;
+  }
+  
  
+  
+  
+  
+  
 
   public static class UniformTexture{
     String name = null;;
@@ -256,6 +284,7 @@ public class DwGLSLProgram {
       gl.glBindTexture(untex.target, 0);
     }
   }
+  
   
   
 
@@ -326,6 +355,41 @@ public class DwGLSLProgram {
   public void uniform4i(String uniform_name, int v0, int v1, int v2, int v3){
     gl.glUniform4i(getUniformLocation(uniform_name), v0, v1, v2, v3);
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  public int attributeArrayBuffer(String attrib_name, int HANDLE_buffer, int size, int type, boolean normalized, int stride, long pointer_buffer_offset){
+    int LOC_ATTRIB = getAttribLocation(attrib_name);
+    if( LOC_ATTRIB != -1 ){
+      gl.glBindBuffer(GL.GL_ARRAY_BUFFER, HANDLE_buffer);
+      gl.glVertexAttribPointer    (LOC_ATTRIB, size, type, normalized, stride, pointer_buffer_offset);
+      gl.glEnableVertexAttribArray(LOC_ATTRIB);
+      vertex_attrib_arrays.push   (LOC_ATTRIB);
+    }
+    return LOC_ATTRIB;
+  }
+  
+  
+  
+  public Stack<Integer> vertex_attrib_arrays = new Stack<>();
+  public void clearAttribLocations(){
+    while(!vertex_attrib_arrays.empty()){
+      Integer loc = vertex_attrib_arrays.pop();
+      if(loc != -1) gl.glDisableVertexAttribArray(loc);
+    }
+  }
+  
   
   
   
