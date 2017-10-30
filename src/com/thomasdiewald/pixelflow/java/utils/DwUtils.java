@@ -110,6 +110,12 @@ public class DwUtils {
     argb[3] *= mult;
   }
   
+  final static public double clamp(double a, double lo, double hi){
+    if(a < lo) return lo;
+    if(a > hi) return hi;
+    return a;
+  }
+  
   final static public float clamp(float a, float lo, float hi){
     if(a < lo) return lo;
     if(a > hi) return hi;
@@ -129,7 +135,48 @@ public class DwUtils {
     argb[3] = clamp(argb[3], lo, hi);
   }
   
+  // en.wikipedia.org/wiki/Smoothstep
+  // www.khronos.org/registry/OpenGL-Refpages/gl4/html/smoothstep.xhtml
+  final static public float smoothstep(float edge0, float edge1, float x){
+    x = clamp((x - edge0)/(edge1 - edge0), 0.0f, 1.0f); // [0, 1]
+    return smoothstep(x);
+  }
+  
+  final static public double smoothstep(double edge0, double edge1, double x){
+    x = clamp((x - edge0)/(edge1 - edge0), 0.0f, 1.0f); // [0, 1]
+    return smoothstep(x);
+  }
+  
+  final static public float smootherstep(float edge0, float edge1, float x){
+    x = clamp((x - edge0)/(edge1 - edge0), 0.0f, 1.0f); // [0, 1]
+    return smootherstep(x);
+  }
+  
+  final static public double smootherstep(double edge0, double edge1, double x){
+    x = clamp((x - edge0)/(edge1 - edge0), 0.0f, 1.0f); // [0, 1]
+    return smootherstep(x);
+  }
+
+
+  /**  @param x [0,1] */
+  final static public float smoothstep(float x){
+    return x*x*(3 - 2*x);
+  }
+  /**  @param x [0,1] */
+  final static public double smoothstep(double x){
+    return x*x*(3 - 2*x);
+  }
+  /**  @param x [0,1] */
+  final static public float smootherstep(float x){
+    return x*x*x*(x*(x*6 - 15) + 10);
+  }
+  /**  @param x [0,1] */
+  final static public double smootherstep(double x){
+    return x*x*x*(x*(x*6 - 15) + 10);
+  }
  
+  
+  
   final static public float[] getColor(float[][] pallette, float val_norm, float[] rgb){
     if(rgb == null || rgb.length < 3){
       rgb = new float[3];
