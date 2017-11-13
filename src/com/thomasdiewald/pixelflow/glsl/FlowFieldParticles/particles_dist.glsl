@@ -56,7 +56,7 @@ void main(){
   
   vec2 pc = my_PointCoord * 2.0 - 1.0;
   
-  #if (0 == POINT_SHADER)
+#if   (0 == POINT_SHADER)
   out_frag = max(0, 1.0 - length(pc));
 #elif (1 == POINT_SHADER)
   out_frag = max(0, 1.0 - dot(pc,pc));
@@ -64,6 +64,8 @@ void main(){
   out_frag = max(0, 1.0 - sqrt(length(pc)));
 #endif
 
+  // out_frag = smoothstep(0.0, 1.0, out_frag);
+  // out_frag = out_frag * out_frag * (3.0 - 2.0 * out_frag);
 }
 
 #endif // #if SHADER_FRAG

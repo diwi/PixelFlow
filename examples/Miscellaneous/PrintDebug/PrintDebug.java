@@ -32,8 +32,6 @@ public class PrintDebug extends PApplet {
   public void settings() {
     size(200, 200, P2D);
     // PJOGL.profile = 3;
-    System.out.println(Math.PI*2);
-    System.out.println(Math.sqrt(Math.PI*2));
   }
   
   public void setup() {
