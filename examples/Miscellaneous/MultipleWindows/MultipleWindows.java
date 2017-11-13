@@ -38,6 +38,7 @@ public class MultipleWindows extends PApplet {
     surface.setLocation(300, 0);
     surface.setResizable(true);
     
+    
     context = new DwPixelFlow(this);
     context.print();
     context.printGL();
