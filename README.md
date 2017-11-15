@@ -92,7 +92,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
  
 <br>
 
-## videos / examples / demos
+## Videos / Examples / Demos / Applications
 
 #### Skylight Renderer
 [<img src="https://i.vimeocdn.com/video/661407332.jpg" alt="alt text" width="30%">](https://vimeo.com/238654801 "Skylight Renderer - Ambient Occlusion / Soft Shadows")
