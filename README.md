@@ -130,7 +130,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 [<img src="https://i.vimeocdn.com/video/660270815.jpg" alt="alt text" width="30%">](https://vimeo.com/237766186 "LIC - WindTunnel")
 [<img src="https://i.vimeocdn.com/video/659919142.jpg" alt="alt text" width="30%">](https://vimeo.com/237491566 "LIC - First Results")
 
-#### Realtime 2D Radiosity - Global illumination
+#### Realtime 2D Radiosity - Global Illumination (GI)
 [<img src="https://i.vimeocdn.com/video/668126268.jpg" alt="alt text" width="30%">](https://vimeo.com/243877934 "Tetris + Realtime Radiosity")
 [<img src="https://i.vimeocdn.com/video/646193678.jpg" alt="alt text" width="30%">](https://vimeo.com/226554155 "Realtime GI - LiquidFun/Box2D")
 [<img src="https://i.vimeocdn.com/video/646483311.jpg" alt="alt text" width="30%">](https://vimeo.com/226784500 "Realtime GI - LiquidFun/Box2D")
