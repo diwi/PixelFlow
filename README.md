@@ -132,6 +132,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 
 #### Realtime 2D Radiosity - Global Illumination (GI)
 [<img src="https://i.vimeocdn.com/video/668126268.jpg" alt="alt text" width="30%">](https://vimeo.com/243877934 "Tetris + Realtime Radiosity")
+[<img src="https://i.vimeocdn.com/video/668525007.jpg" alt="alt text" width="30%">](https://vimeo.com/244191105 "Radiant Poisson Disks")
 [<img src="https://i.vimeocdn.com/video/646193678.jpg" alt="alt text" width="30%">](https://vimeo.com/226554155 "Realtime GI - LiquidFun/Box2D")
 [<img src="https://i.vimeocdn.com/video/646483311.jpg" alt="alt text" width="30%">](https://vimeo.com/226784500 "Realtime GI - LiquidFun/Box2D")
 [<img src="https://i.vimeocdn.com/video/646679859.jpg" alt="alt text" width="30%">](https://vimeo.com/226939350 "Realtime GI - LiquidFun/Box2D")
