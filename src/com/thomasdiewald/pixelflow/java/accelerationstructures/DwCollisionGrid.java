@@ -64,19 +64,17 @@ public class DwCollisionGrid{
 //    for(int i = 0; i < DATA.length; i++) DATA[i] = null; 
 
     // reset HEAD pointer
-    HEAD_PTR = 0;
+    HEAD_PTR = 1;
     
     // set grid size
     GRID_X = gx;
     GRID_Y = gy;
   }
-  
-  
-  
+
   public void insertRealloc(DwCollisionObject object){
     int TMP_HEAD_PTR = HEAD_PTR;
     insert(object);
-    
+
     // resize if necessary
     if(HEAD_PTR > NEXT.length){
       // push
@@ -96,10 +94,8 @@ public class DwCollisionGrid{
       // insert again
       insert(object);
     }
+    
   }
-  
-  
-//  public void testCollision
   
   
   public void insert(DwCollisionObject object){
@@ -116,7 +112,7 @@ public class DwCollisionGrid{
     int ymax = (int)((py+pr)/CELL_SIZE);  ymax = Math.min(ymax, GRID_Y-1);
     
     int count = (xmax - xmin + 1) * (ymax - ymin + 1);
-    if(HEAD_PTR + count > NEXT.length){
+    if((HEAD_PTR + count) > NEXT.length){
       HEAD_PTR += count; // prepare for reallocation
       return;
     }
