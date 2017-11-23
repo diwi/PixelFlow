@@ -92,7 +92,7 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
  
 <br>
 
-## videos
+## Videos / Examples / Demos / Applications
 
 #### Skylight Renderer
 [<img src="https://i.vimeocdn.com/video/661407332.jpg" alt="alt text" width="30%">](https://vimeo.com/238654801 "Skylight Renderer - Ambient Occlusion / Soft Shadows")
@@ -129,6 +129,20 @@ JavaDoc: http://thomasdiewald.com/processing/libraries/pixelflow/reference/index
 #### Flow Field - LIC
 [<img src="https://i.vimeocdn.com/video/660270815.jpg" alt="alt text" width="30%">](https://vimeo.com/237766186 "LIC - WindTunnel")
 [<img src="https://i.vimeocdn.com/video/659919142.jpg" alt="alt text" width="30%">](https://vimeo.com/237491566 "LIC - First Results")
+
+#### Realtime 2D Radiosity - Global Illumination (GI)
+[<img src="https://i.vimeocdn.com/video/668126268.jpg" alt="alt text" width="30%">](https://vimeo.com/243877934 "Tetris + Realtime Radiosity")
+[<img src="https://i.vimeocdn.com/video/646193678.jpg" alt="alt text" width="30%">](https://vimeo.com/226554155 "Realtime GI - LiquidFun/Box2D")
+[<img src="https://i.vimeocdn.com/video/646483311.jpg" alt="alt text" width="30%">](https://vimeo.com/226784500 "Realtime GI - LiquidFun/Box2D")
+[<img src="https://i.vimeocdn.com/video/646679859.jpg" alt="alt text" width="30%">](https://vimeo.com/226939350 "Realtime GI - LiquidFun/Box2D")
+[<img src="https://i.vimeocdn.com/video/630695092.jpg" alt="alt text" width="30%">](https://vimeo.com/214264003 "Realtime GI - Random Modelling")
+[<img src="https://i.vimeocdn.com/video/646490228.jpg" alt="alt text" width="30%">](https://vimeo.com/226790885 "Realtime GI - Cornell Box")
+
+#### Space Syntax
+
+[<img src="https://i.vimeocdn.com/video/648427506.jpg" alt="alt text" width="30%">](https://vimeo.com/228387816 "SpaceSyntax - Realtime Local Evaluations")
+[<img src="https://i.vimeocdn.com/video/654202699.jpg" alt="alt text" width="30%">](https://vimeo.com/232981476 "SpaceSyntax - Realtime Global Evaluations")
+[<img src="https://i.vimeocdn.com/video/653671271.jpg" alt="alt text" width="30%">](https://vimeo.com/232576820 "FlowField Pathfinding - Particle Simulation")
 
 <br>
 
