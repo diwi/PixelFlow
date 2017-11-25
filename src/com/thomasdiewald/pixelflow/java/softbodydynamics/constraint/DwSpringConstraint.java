@@ -8,7 +8,8 @@
  */
 package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
-
+import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 
 public abstract class DwSpringConstraint {
   
@@ -65,4 +66,21 @@ public abstract class DwSpringConstraint {
   }
   
   
+  public boolean removeSpring(DwPhysics<? extends DwParticle> physics){
+    DwParticle[] particles = physics.getParticles();
+    
+    DwParticle pa = particles[idxPa()];
+    DwParticle pb = particles[idxPb()];
+    
+    boolean removed_pa = pa.removeSpring(this);
+    boolean removed_pb = pb.removeSpring(this);
+    
+    boolean removed_map = physics.spring_map.remove(this) == this;
+    boolean removed_list = physics.springs.remove(this);
+    
+    return removed_pa && removed_pb && removed_map && removed_list;
+    
+  }
+
+
 }

@@ -176,6 +176,31 @@ public abstract class DwParticle implements DwCollisionObject{
 //    return removed;
 //  }
   
+  /**
+   * detach a spring from this particle.<br>
+   * note: internally the spring is just swapped with the last element in the spring array.
+   * 
+   * @param spring
+   * @return
+   */
+  public boolean removeSpring(DwSpringConstraint spring){
+    boolean removed = false;
+    int last = spring_count-1;
+    int iter = 0;
+    for(iter = 0; iter < spring_count; iter++){
+      if(springs[iter] == spring){
+        springs[iter] = springs[last];
+        springs[last] = spring;
+        removed = true;
+        break;
+      }
+    }
+    if(removed){
+      spring_count--;
+    }
+    return removed;
+  }
+  
   
 
   public void enableAllSprings(boolean enable){
