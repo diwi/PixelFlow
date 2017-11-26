@@ -78,6 +78,10 @@ public abstract class DwSpringConstraint {
     boolean removed_map = physics.spring_map.remove(this) == this;
     boolean removed_list = physics.springs.remove(this);
     
+    this.dd_rest = 0;
+    this.dd_rest_sq = 0;
+    this.enabled = false;
+    
     return removed_pa && removed_pb && removed_map && removed_list;
     
   }
