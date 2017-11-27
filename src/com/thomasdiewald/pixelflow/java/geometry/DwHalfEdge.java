@@ -24,11 +24,11 @@ public class DwHalfEdge {
   static public class Edge{
     public Edge pair;
     public Edge next;
-    public int  vert;
+    public Vert vert;
     public int  FLAG; // can be used for anything. e.g. bitmask, pointer, boolean etc...
-    public int  indx; // can be used for anything.
-    public Edge(int vert){
+    public Edge(Vert vert){
       this.vert = vert;
+      this.vert.edge = this;
     }
   }
 
@@ -42,9 +42,10 @@ public class DwHalfEdge {
 
   static public class Vert{
     public Edge edge;
+    public int  vert;
     public int  FLAG;
-    public Vert(Edge edge){
-      this.edge = edge;
+    public Vert(int vert){
+      this.vert = vert;
     }
   }
   
@@ -99,7 +100,12 @@ public class DwHalfEdge {
       verts = new DwHalfEdge.Vert[verts_count];
       
       // edgemap, for finding edge-pairs
-      HashMap<DwPair<Integer>, DwHalfEdge.Edge> edgemap = new HashMap<DwPair<Integer>, DwHalfEdge.Edge>();
+      HashMap<DwPair<DwHalfEdge.Vert>, DwHalfEdge.Edge> edgemap = new HashMap<DwPair<DwHalfEdge.Vert>, DwHalfEdge.Edge>();
+      
+      // verts initialized
+      for(int i = 0; i < verts_count; i++){
+        verts[i] = new Vert(i);
+      }
       
       // setup edges/faces
       for(int i = 0, edge_id = 0; i < faces_count; i++){
@@ -107,7 +113,7 @@ public class DwHalfEdge {
         
         // create face-edges
         for(int j = 0; j < num_edges; j++){
-          edges[edge_id + j] = new DwHalfEdge.Edge(ifs_faces[i][j]); 
+          edges[edge_id + j] = new DwHalfEdge.Edge(verts[ifs_faces[i][j]]); 
         }
         
         // create links + fill edgemap
@@ -125,7 +131,6 @@ public class DwHalfEdge {
       // setup edge-pairs
       for(DwHalfEdge.Edge edge : edges){
         edge.pair = edgemap.get(DwPair.BA(edge)); // pair-link
-        verts[edge.vert] = new DwHalfEdge.Vert(edge);  // vertex-link
       }
     }
     
@@ -191,7 +196,7 @@ public class DwHalfEdge {
           DwHalfEdge.Edge iter = edge;
           pg.beginShape();
           do {
-            v = verts[iter.vert]; pg.vertex(v[0], v[1], v[2]); 
+            v = verts[iter.vert.vert]; pg.vertex(v[0], v[1], v[2]); 
           } while((iter = iter.next) != edge);
           pg.endShape(PConstants.CLOSE);
           
@@ -214,10 +219,10 @@ public class DwHalfEdge {
         edge = stack.pop();
         if(edge != null && getFLAG_display(edge)){
           // draw quad
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           // recursively draw neighbors
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
@@ -238,9 +243,9 @@ public class DwHalfEdge {
         edge = stack.pop();
         if(edge != null && getFLAG_display(edge)){
           // draw triangle
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           // recursively draw neighbors
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 

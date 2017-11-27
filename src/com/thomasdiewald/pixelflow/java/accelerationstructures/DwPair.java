@@ -34,7 +34,10 @@ public class DwPair<T> {
   
   
   // comfort methods
-  public static final DwPair<Integer> AB(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.vert, e.next.vert ); }
-  public static final DwPair<Integer> BA(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.next.vert, e.vert ); }
+//  public static final DwPair<Integer> AB(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.vert, e.next.vert ); }
+//  public static final DwPair<Integer> BA(final DwHalfEdge.Edge e){  return new DwPair<Integer>( e.next.vert, e.vert ); }
+  
+  public static final DwPair<DwHalfEdge.Vert> AB(final DwHalfEdge.Edge e){  return new DwPair<DwHalfEdge.Vert>( e.vert, e.next.vert ); }
+  public static final DwPair<DwHalfEdge.Vert> BA(final DwHalfEdge.Edge e){  return new DwPair<DwHalfEdge.Vert>( e.next.vert, e.vert ); }
   
 }

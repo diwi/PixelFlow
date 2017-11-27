@@ -12,7 +12,10 @@ package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.Param;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 
@@ -85,6 +88,15 @@ public class DwSpringConstraint3D extends DwSpringConstraint{
       pb.cy += dy * force * pb_mass_factor; 
       pb.cz += dz * force * pb_mass_factor; 
     }
+  }
+  
+  
+  
+  static public DwSpringConstraint addSpring(DwPhysics<DwParticle3D> physics, DwParticle3D pa, DwParticle3D pb, float rest_length, Param param){
+    DwSpringConstraint spring = addSpring(physics, pa, pb, param, TYPE.STRUCT); 
+    spring.dd_rest = rest_length;
+    spring.dd_rest_sq = rest_length*rest_length;
+    return spring;
   }
   
   
