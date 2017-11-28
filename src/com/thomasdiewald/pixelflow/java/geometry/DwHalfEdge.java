@@ -22,13 +22,23 @@ import processing.opengl.PGraphics3D;
 public class DwHalfEdge {
 
   static public class Edge{
-    public Edge pair;
-    public Edge next;
-    public Vert vert;
-    public int  FLAG; // can be used for anything. e.g. bitmask, pointer, boolean etc...
+    public Edge   pair;
+    public Edge   next;
+    public Vert   vert;
+    public int    FLAG; // can be used for anything. e.g. bitmask, pointer, boolean etc...
+    public Object user; // user pointer
+    
     public Edge(Vert vert){
       this.vert = vert;
       this.vert.edge = this;
+    }
+    
+    public void dispose(){
+      pair = null;
+      next = null;
+      vert = null;
+      user = null;
+      FLAG = 0;
     }
   }
 
@@ -41,11 +51,19 @@ public class DwHalfEdge {
   }
 
   static public class Vert{
-    public Edge edge;
-    public int  vert;
-    public int  FLAG;
+    public Edge   edge;
+    public int    FLAG;
+    public int    idx;  // vertex array index
+    public Object user; // user pointer
     public Vert(int vert){
-      this.vert = vert;
+      this.idx = vert;
+    }
+
+    public void dispose(){
+      edge = null;
+      user = null;
+      idx = 0;
+      FLAG = 0;
     }
   }
   
@@ -102,7 +120,8 @@ public class DwHalfEdge {
       // edgemap, for finding edge-pairs
       HashMap<DwPair<DwHalfEdge.Vert>, DwHalfEdge.Edge> edgemap = new HashMap<DwPair<DwHalfEdge.Vert>, DwHalfEdge.Edge>();
       
-      // verts initialized
+      
+      // init vertices
       for(int i = 0; i < verts_count; i++){
         verts[i] = new Vert(i);
       }
@@ -138,14 +157,7 @@ public class DwHalfEdge {
     
 
     public int getNumberOfVertexEdges(int vertex_id){
-      DwHalfEdge.Vert vert = verts[vertex_id];
-      DwHalfEdge.Edge edge = vert.edge;  
-      DwHalfEdge.Edge iter = edge;
-      int count = 0;
-      do {
-        count++;
-      } while((iter = iter.pair.next) != edge);
-      return count;
+      return DwHalfEdge.getNumberOfVertexEdges(verts[vertex_id]);
     }
     
     /**
@@ -157,20 +169,8 @@ public class DwHalfEdge {
      * @return int, number of edges attached to this vertex
      */
     public int getVertexEdges(int vertex_id, DwHalfEdge.Edge[] edges){
-      DwHalfEdge.Vert vert = verts[vertex_id];
-      DwHalfEdge.Edge edge = vert.edge;  
-      DwHalfEdge.Edge iter = edge;
-      int count = 0;
-      do {
-        if(count < edges.length){
-          edges[count] = iter;
-        }
-        count++;
-      } while(iter.pair != null && (iter = iter.pair.next) != edge);
-      return count;
+      return DwHalfEdge.getVertexEdges(verts[vertex_id], edges);
     }
-    
-    
 
     // display stuff
     private int DISPLAY_BIT        = 0;
@@ -196,7 +196,7 @@ public class DwHalfEdge {
           DwHalfEdge.Edge iter = edge;
           pg.beginShape();
           do {
-            v = verts[iter.vert.vert]; pg.vertex(v[0], v[1], v[2]); 
+            v = verts[iter.vert.idx]; pg.vertex(v[0], v[1], v[2]); 
           } while((iter = iter.next) != edge);
           pg.endShape(PConstants.CLOSE);
           
@@ -219,10 +219,10 @@ public class DwHalfEdge {
         edge = stack.pop();
         if(edge != null && getFLAG_display(edge)){
           // draw quad
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           // recursively draw neighbors
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
@@ -243,9 +243,9 @@ public class DwHalfEdge {
         edge = stack.pop();
         if(edge != null && getFLAG_display(edge)){
           // draw triangle
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
-          v = verts[edge.vert.vert]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
+          v = verts[edge.vert.idx]; edge = edge.next; pg.vertex(v[0], v[1], v[2]); 
           // recursively draw neighbors
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
           stack.push((edge = edge.next).pair); setFLAG_display(edge); 
@@ -274,6 +274,28 @@ public class DwHalfEdge {
   
   
 
+  static public int getNumberOfVertexEdges(DwHalfEdge.Vert vert){
+    DwHalfEdge.Edge edge = vert.edge;  
+    DwHalfEdge.Edge iter = edge;
+    int count = 0;
+    do {
+      count++;
+    } while((iter = iter.pair.next) != edge);
+    return count;
+  }
+  
+  static public int getVertexEdges(DwHalfEdge.Vert vert, DwHalfEdge.Edge[] edges){
+    DwHalfEdge.Edge edge = vert.edge;  
+    DwHalfEdge.Edge iter = edge;
+    int count = 0;
+    do {
+      if(count < edges.length){
+        edges[count] = iter;
+      }
+      count++;
+    } while(iter.pair != null && (iter = iter.pair.next) != edge);
+    return count;
+  }
   
   
   

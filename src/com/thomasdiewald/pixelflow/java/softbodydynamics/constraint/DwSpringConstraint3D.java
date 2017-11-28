@@ -91,8 +91,7 @@ public class DwSpringConstraint3D extends DwSpringConstraint{
   }
   
   
-  
-  static public DwSpringConstraint addSpring(DwPhysics<DwParticle3D> physics, DwParticle3D pa, DwParticle3D pb, float rest_length, Param param){
+  static public DwSpringConstraint addSpring(DwPhysics<? extends DwParticle> physics, DwParticle3D pa, DwParticle3D pb, float rest_length, Param param){
     DwSpringConstraint spring = addSpring(physics, pa, pb, param, TYPE.STRUCT); 
     spring.dd_rest = rest_length;
     spring.dd_rest_sq = rest_length*rest_length;

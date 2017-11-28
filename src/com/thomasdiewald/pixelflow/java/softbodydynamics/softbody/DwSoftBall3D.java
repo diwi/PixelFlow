@@ -84,7 +84,7 @@ public class DwSoftBall3D extends DwSoftBody3D{
       int edge_count = mesh.getVertexEdges(ia, edges);
       
       for(int j = 0; j < edge_count; j++){
-        int ib = edges[j].pair.vert.vert;     
+        int ib = edges[j].pair.vert.idx;     
         DwSpringConstraint spring = addSpring(ia, ib, DwSpringConstraint.TYPE.STRUCT);
         if(spring != null && spring.dd_rest < nodes_r_tmp){
           nodes_r_tmp = spring.dd_rest;
@@ -129,7 +129,7 @@ public class DwSoftBall3D extends DwSoftBody3D{
           edge = edge.pair.next;
         }
 
-        ib = edge.vert.vert;     
+        ib = edge.vert.idx;     
         addSpring(ia, ib, DwSpringConstraint.TYPE.BEND);
       } 
     }
@@ -191,12 +191,12 @@ public class DwSoftBall3D extends DwSoftBody3D{
       float[]n = normals[ia]; n[0] = n[1] = n[2] = 0;
       int edge_count = mesh.getVertexEdges(ia, edges);
       for(int j = 0; j < edge_count-1; j++){
-        int ib0 = edges[j+0].next.vert.vert;
-        int ib1 = edges[j+1].next.vert.vert;
+        int ib0 = edges[j+0].next.vert.idx;
+        int ib1 = edges[j+1].next.vert.idx;
         DwParticle3D.crossAccum(pC, particles[ib0], particles[ib1], n);
       }
-      int ib0 = edges[0].next.vert.vert;
-      int ib1 = edges[edge_count-1].next.vert.vert;
+      int ib0 = edges[0].next.vert.idx;
+      int ib1 = edges[edge_count-1].next.vert.idx;
       DwParticle3D.crossAccum(pC, particles[ib0], particles[ib1], n);
       
       float dd_sq  = n[0]*n[0] +  n[1]*n[1] +  n[2]*n[2];
