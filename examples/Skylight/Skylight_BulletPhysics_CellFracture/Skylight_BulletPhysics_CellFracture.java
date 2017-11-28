@@ -30,6 +30,7 @@ import bRigid.*;
 
 import wblut.geom.WB_AABB;
 import wblut.geom.WB_Coord;
+import wblut.geom.WB_CoordCollection;
 import wblut.geom.WB_Mesh;
 import wblut.geom.WB_Point;
 import wblut.geom.WB_Vector;
@@ -597,13 +598,13 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
     for (int i = 0; i < cells.size(); i++) {
       WB_VoronoiCell3D cell = cells.get(i);
       WB_Mesh mesh = cell.getMesh();
+  
       int num_verts = mesh.getNumberOfVertices();
-      List<WB_Coord> verts = mesh.getPoints();
-      
+
       // compute center of mass
       float[][] pnts = new float[num_verts][3];
       for(int j = 0; j < num_verts; j++){
-        WB_Coord vtx = verts.get(j);
+        WB_Coord vtx =  mesh.getVertex(j);
         pnts[j][0] = vtx.xf(); 
         pnts[j][1] = vtx.yf(); 
         pnts[j][2] = vtx.zf(); 
@@ -623,7 +624,7 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
 
       
       // create rigid body coords, center is at 0,0,0
-      ObjectArrayList<Vector3f> vertices = new ObjectArrayList<Vector3f>(verts.size());
+      ObjectArrayList<Vector3f> vertices = new ObjectArrayList<Vector3f>(num_verts);
       for(int j = 0; j < num_verts; j++){
         Vector3f vtx = new Vector3f(pnts[j]);
         vtx.sub(center_of_mass);
@@ -701,7 +702,6 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
     PShape voronoi_cell = createShape(GROUP);
     
     WB_Mesh mesh = cell.getMesh();
-    List<WB_Coord> verts = mesh.getPoints();
     int[][] faces = mesh.getFacesAsInt();
 
     int on_boundary = 0;
@@ -715,7 +715,7 @@ public class Skylight_BulletPhysics_CellFracture extends PApplet {
       polygon.normal(normal.xf(), normal.yf(), normal.zf());
       
       for(int k = 0; k < face.length; k++){
-        WB_Coord vtx = verts.get(face[k]);
+        WB_Coord vtx = mesh.getVertex(face[k]);
         
         float x = vtx.xf() - center_of_mass.x;
         float y = vtx.yf() - center_of_mass.y;

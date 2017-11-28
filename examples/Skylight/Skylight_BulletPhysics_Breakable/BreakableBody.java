@@ -20,6 +20,7 @@ import processing.core.PConstants;
 import processing.core.PMatrix3D;
 import processing.core.PShape;
 import wblut.geom.WB_Coord;
+import wblut.geom.WB_CoordCollection;
 import wblut.geom.WB_GeometryOp2D;
 import wblut.geom.WB_Point;
 import wblut.geom.WB_Polygon;
@@ -181,14 +182,12 @@ public class BreakableBody{
       
       WB_VoronoiCell2D cell = cells.get(i);
       WB_Polygon cell_polygon = cell.getPolygon();
-      List<WB_Point> cell_points = cell_polygon.getPoints();
-      
-      int num_verts = cell_points.size();
-      
+      int num_verts = cell_polygon.getNumberOfPoints();
+
       // compute center of mass
       float[][] pnts = new float[num_verts][2];
       for(int j = 0; j < num_verts; j++){
-        WB_Coord vtx = cell_points.get(j);
+        WB_Point vtx = cell_polygon.getPoint(j);
         pnts[j][0] = vtx.xf(); 
         pnts[j][1] = vtx.yf();
       }
@@ -221,7 +220,7 @@ public class BreakableBody{
         float y = pnts[j][1] - center_of_mass.y;
         vertices.add(new Vector3f(x, y, -thickness * 0.5f));
         vertices.add(new Vector3f(x, y, +thickness * 0.5f));
-        cell_points.get(j).set(x, y, 0);
+        cell_polygon.getPoint(j).set(x, y, 0);
       }
       
       
@@ -247,7 +246,7 @@ public class BreakableBody{
 //      body_new.rigidBody.setRestitution(.01f);
 //      body_new.rigidBody.setFriction(0.97f);
 //      body_new.rigidBody.setDamping(0.2f, 0.2f);
-      body_new.displayShape = createCellShape(cell_points, thickness);
+      body_new.displayShape = createCellShape(cell_polygon, thickness);
       
       
       group_bulletbodies.addChild(body_new.displayShape);
@@ -268,14 +267,15 @@ public class BreakableBody{
   }
   
   
-  public PShape createCellShape(List<WB_Point> points, float dimz){
-    int num_points = points.size();
+  public PShape createCellShape(WB_Polygon polygon, float dimz){
+    int num_points = polygon.getNumberOfPoints();
     float dimz_half = dimz*0.5f;
     
     PShape cell_top = papplet.createShape();
     cell_top.beginShape(PConstants.POLYGON);
     cell_top.normal(0, 0, -1);
-    for(WB_Point vtx : points){
+    for(int i = 0; i < num_points; i++){
+      WB_Point vtx = polygon.getPoint(i);
       cell_top.vertex(vtx.xf(), vtx.yf(), +dimz_half);
     }
     cell_top.endShape(PConstants.CLOSE);
@@ -283,7 +283,8 @@ public class BreakableBody{
     PShape cell_bot = papplet.createShape();
     cell_bot.beginShape(PConstants.POLYGON);
     cell_bot.normal(0, 0, -1);
-    for(WB_Point vtx : points){
+    for(int i = 0; i < num_points; i++){
+      WB_Point vtx = polygon.getPoint(i);
       cell_bot.vertex(vtx.xf(), vtx.yf(), -dimz_half);
     }
     cell_bot.endShape(PConstants.CLOSE);
@@ -291,9 +292,9 @@ public class BreakableBody{
     PShape cell_side = papplet.createShape();
     cell_side.beginShape(PConstants.QUADS);
 
-    for(int i = 0; i <= points.size(); i++){
-      WB_Point v0 = points.get((i+0)%num_points);
-      WB_Point v1 = points.get((i+1)%num_points);
+    for(int i = 0; i <= num_points; i++){
+      WB_Point v0 = polygon.getPoint((i+0)%num_points);
+      WB_Point v1 = polygon.getPoint((i+1)%num_points);
       float v0x = v0.xf();
       float v0y = v0.yf();
       float v1x = v1.xf();
