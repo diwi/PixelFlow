@@ -16,10 +16,15 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   public float[][] verts;
   private int      verts_idx;
   private HashMap<DwPair<Integer>, Integer> verts_cache = new HashMap<DwPair<Integer>, Integer>();
-
+  
+  public boolean round = true;
   
   public DwIcosahedron(int subdivisions){
-    create(subdivisions);
+    create(subdivisions, true);
+  }
+  
+  public DwIcosahedron(int subdivisions, boolean round){
+    create(subdivisions, round);
   }
   
   
@@ -43,8 +48,11 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
   }
   
   private int addVertex(float[][] verts, int verts_idx, float x, float y, float z){
-    float dd_sq = x*x + y*y + z*z;
-    float dd_inv = 1f / (float) Math.sqrt(dd_sq);
+    float dd_inv = 1;
+    if(round){
+      float dd_sq = x*x + y*y + z*z;
+      dd_inv = 1f / (float) Math.sqrt(dd_sq);
+    }
     verts[verts_idx][0] = x * dd_inv;
     verts[verts_idx][1] = y * dd_inv;
     verts[verts_idx][2] = z * dd_inv;
@@ -72,13 +80,14 @@ public class DwIcosahedron implements DwIndexedFaceSetAble{
     return val;
   }
 
-  public void create(int subdivisions){
+  public void create(int subdivisions, boolean round){
     
     // 1) create initial vertex set
     verts_count = getNumVerts(subdivisions);
     verts       = new float[verts_count][3];
     verts_idx   = 0;
     verts_cache.clear();
+    this.round = round;
     
     final float t = (float) GOLDEN_RATIO;
 

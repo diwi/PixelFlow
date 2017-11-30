@@ -68,7 +68,10 @@ public abstract class DwSoftBody3D extends DwSoftBody{
   public void createShapeParticles(PApplet papplet, boolean icosahedron){
     PShape shp = papplet.createShape(PShape.GROUP);
     for(int i = 0; i < particles.length; i++){
-      PShape shp_pa = createShape(papplet, particles[i].rad, icosahedron);
+      
+      float radius = 1;
+//      float radius = particles[i].rad;
+      PShape shp_pa = createShape(papplet, radius, icosahedron);
       particles[i].setShape(shp_pa);
       shp.addChild(shp_pa);
     }
@@ -84,7 +87,7 @@ public abstract class DwSoftBody3D extends DwSoftBody{
     if(!icosahedron){
       shape = papplet.createShape(PConstants.POINT, 0, 0);
       shape.setStroke(true);
-      shape.setStrokeWeight(6);
+      shape.setStrokeWeight(1);
     } else {
       if(ifs == null){
         ifs = new DwIcosahedron(1);

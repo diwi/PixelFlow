@@ -160,7 +160,7 @@ public class ParticleSystem {
     
     if(ifs == null) ifs = new DwIcosahedron(1);
 //    if(ifs == null) ifs = new DwCube(1);
-    DwMeshUtils.createPolyhedronShape(shp_particle, ifs, particle.rad, 3, true);
+    DwMeshUtils.createPolyhedronShape(shp_particle, ifs, 1, 3, true);
 
     return shp_particle;
   }

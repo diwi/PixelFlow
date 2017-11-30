@@ -230,6 +230,7 @@ public class DwParticle3D extends DwParticle{
     if(shp_transform != null){
       shp_transform.reset();
       shp_transform.translate(cx, cy, cz);
+      shp_transform.scale(rad);
       // TODO: rotation matrix
       // normalize up vector
 //      float vx = cx - px;

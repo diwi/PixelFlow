@@ -241,6 +241,7 @@ public class DwParticle2D extends DwParticle{
     if(shp_transform != null){
       shp_transform.reset();
       shp_transform.translate(cx, cy);
+      shp_transform.scale(rad);
       shp_transform.rotate((float)Math.atan2(cy-py, cx-px));
     }
 

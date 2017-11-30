@@ -8,8 +8,12 @@
  */
 package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
+import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.Param;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
+import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 public abstract class DwSpringConstraint {
   
@@ -48,6 +52,8 @@ public abstract class DwSpringConstraint {
   public float dd_rest;
   public float force;
   
+  public Object user;
+  
   
   public abstract void  updateRestlength();
   public abstract float computeForce();
@@ -81,10 +87,10 @@ public abstract class DwSpringConstraint {
     this.dd_rest = 0;
     this.dd_rest_sq = 0;
     this.enabled = false;
+    this.user = null;
     
     return removed_pa && removed_pb && removed_map && removed_list;
-    
   }
-
-
+  
+  
 }

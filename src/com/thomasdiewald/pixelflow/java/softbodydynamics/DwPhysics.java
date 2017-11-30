@@ -53,6 +53,9 @@ public class DwPhysics<T extends DwParticle> {
   public T[] getParticles(){
     return particles;
   }
+  public T getParticle(int idx){
+    return particles[idx];
+  }
   public int getParticlesCount(){
     return particles_count;
   }

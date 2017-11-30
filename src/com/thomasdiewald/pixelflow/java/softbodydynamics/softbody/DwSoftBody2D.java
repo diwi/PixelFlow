@@ -54,7 +54,9 @@ public abstract class DwSoftBody2D extends DwSoftBody{
   public void createShapeParticles(PApplet papplet, boolean icosahedron){
     PShape shp = papplet.createShape(PShape.GROUP);
     for(int i = 0; i < particles.length; i++){
-      PShape shp_pa = createShape(papplet, particles[i].rad);
+      float radius = 1;
+//      float radius = particles[i].rad;
+      PShape shp_pa = createShape(papplet, radius);
       particles[i].setShape(shp_pa);
       shp.addChild(shp_pa);
     }

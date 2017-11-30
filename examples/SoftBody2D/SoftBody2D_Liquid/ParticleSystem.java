@@ -148,7 +148,7 @@ public class ParticleSystem {
   // create the shape that is going to be rendered
   public PShape createParticleShape(DwParticle2D particle, PImage pimg_sprite){
     
-    final float rad = particle.rad * 1.1f + 5;
+    final float rad = 2;
 
     PShape shp_sprite = papplet.createShape();
     shp_sprite.beginShape(PConstants.QUADS);

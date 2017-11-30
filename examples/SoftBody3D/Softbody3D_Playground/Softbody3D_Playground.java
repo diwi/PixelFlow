@@ -310,7 +310,7 @@ public class Softbody3D_Playground extends PApplet {
     int ball_subdivisions, ball_radius;
     float r,g,b,s;
     
-    boolean particles_volume = false;
+    boolean particles_volume = !false;
     
     
     // add to global list

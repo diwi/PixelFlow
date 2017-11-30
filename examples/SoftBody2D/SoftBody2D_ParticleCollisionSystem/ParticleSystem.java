@@ -157,8 +157,8 @@ public class ParticleSystem {
     circle.noStroke();
     circle.fill(200,100);
     for(int i = 0; i < num_vtx; i++){
-      float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * rad;
-      float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * rad;
+      float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * 1;
+      float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * 1;
       circle.vertex(vx, vy);
     }
     circle.endShape(PConstants.CLOSE);
@@ -167,9 +167,9 @@ public class ParticleSystem {
     PShape line = papplet.createShape(PShape.GEOMETRY);
     line.beginShape(PConstants.LINES);
     line.stroke(255, 100);
-    line.strokeWeight(1);
+    line.strokeWeight(1f/rad);
     line.vertex(0, 0);
-    line.vertex(-(rad-1), 0);
+    line.vertex(-1, 0);
     line.endShape();
     
     shp_particle.addChild(circle);
