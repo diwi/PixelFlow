@@ -21,16 +21,6 @@ import processing.opengl.PGraphicsOpenGL;
 /**
  * @author Thomas Diewald
  * 
- * 
- * resources:
- * 
- * 1) http://prideout.net/archive/bloom/
- *
- * 2) https://threejs.org/examples/webgl_postprocessing_unreal_bloom.html
- *    three.js/examples/js/postprocessing/UnrealBloomPass.js 
- *    
- * 3) http://www.gamasutra.com/view/feature/130520/realtime_glow.php
- *
  */
 public class GaussianBlurPyramid {
   
