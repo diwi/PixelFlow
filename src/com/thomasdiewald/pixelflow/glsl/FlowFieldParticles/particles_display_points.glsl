@@ -54,23 +54,23 @@ void main(){
 
 #if (SHADER_FRAG == 1)
 
-#define INVERT 0
-#define STEPS 2
-uniform vec4 PALLETTE[STEPS] = {
-  vec4(0.25, 0.50, 1.00, 1.0),
-  vec4(1.00, 0.50, 0.25, 1.0)
-};
+// #define INVERT 0
+// #define STEPS 2
+// uniform vec4 PALLETTE[STEPS] = {
+  // vec4(0.25, 0.50, 1.00, 1.0),
+  // vec4(1.00, 0.50, 0.25, 1.0)
+// };
 
-vec4 getShading(float val){
-  val = clamp(val, 0.0, 0.99999);
-#if INVERT
-    val = 1.0 - val;
-#endif
-  float lum_steps = val * (STEPS-1);
-  float frac = fract(lum_steps);
-  int id = int(floor(lum_steps));
-  return mix(PALLETTE[id], PALLETTE[id+1], frac);
-}
+// vec4 getShading(float val){
+  // val = clamp(val, 0.0, 0.99999);
+// #if INVERT
+    // val = 1.0 - val;
+// #endif
+  // float lum_steps = val * (STEPS-1);
+  // float frac = fract(lum_steps);
+  // int id = int(floor(lum_steps));
+  // return mix(PALLETTE[id], PALLETTE[id+1], frac);
+// }
 
 
 out vec4 out_frag;
