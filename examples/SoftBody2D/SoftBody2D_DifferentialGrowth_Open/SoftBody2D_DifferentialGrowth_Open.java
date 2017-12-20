@@ -1,6 +1,6 @@
 /**
  * 
- * PixelFlow | Copyright (C) 2016 Thomas Diewald - http://thomasdiewald.com
+ * PixelFlow | Copyright (C) 2017 Thomas Diewald - http://thomasdiewald.com
  * 
  * A Processing/Java library for high performance GPU-Computing (GLSL).
  * MIT License: https://opensource.org/licenses/MIT
@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Bloom;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
@@ -32,19 +30,16 @@ public class SoftBody2D_DifferentialGrowth_Open extends PApplet {
 
   
   //
-  // A simple Verlet Physics Example, that shows how to create a chain by 
-  // creating particles and chaining them together with spring-constraints.
-  // The springs-color shows the current stress, ... at a range from red to black.
-  // 
-  // + Collision Detection
+  // Differential Line Growth Example
   //
   // Controls:
   // LMB: drag particles
   // MMB: drag + fix particles to a location
   // RMB: disable springs, to split the chain
   //
-  // key ' ': add particles at the current mouse location
+  // key 'r': reset
   // key 'p': toggle particle display
+  // key 'l': toggle liquidfx
   //
   
   int viewport_w = 1280;
@@ -75,7 +70,6 @@ public class SoftBody2D_DifferentialGrowth_Open extends PApplet {
 
   // post-processing effect
   DwLiquidFX liquidfx;
-  Bloom bloom;
   
   // render canvas
   PGraphics2D pg_particles;
@@ -133,7 +127,6 @@ public class SoftBody2D_DifferentialGrowth_Open extends PApplet {
     physics = new DwPhysics<DwParticle2D>(param_physics);
     
     liquidfx = new DwLiquidFX(context);
-    bloom = new Bloom(context);
     
     pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
     pg_particles.smooth(0);
@@ -312,12 +305,7 @@ public class SoftBody2D_DifferentialGrowth_Open extends PApplet {
       liquidfx.param.sss_enabled = false;
       liquidfx.apply(pg_particles);
     }
-    
-//    bloom.param.mult   = map(mouseX, 0, width, 0, 10);
-//    bloom.param.radius = map(mouseY, 0, height, 0, 1);
-//    
-//    bloom.apply(pg_particles);
-    
+     
     // display
     background(BACKGROUND_COLOR);
     blendMode(BLEND);
