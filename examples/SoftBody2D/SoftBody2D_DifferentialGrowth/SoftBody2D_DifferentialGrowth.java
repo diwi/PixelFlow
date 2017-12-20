@@ -16,9 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Bloom;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint2D;
@@ -26,7 +23,6 @@ import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
 
 import processing.core.*;
-import processing.opengl.PGraphics2D;
 
 public class SoftBody2D_DifferentialGrowth extends PApplet {
 
@@ -53,49 +49,25 @@ public class SoftBody2D_DifferentialGrowth extends PApplet {
   int viewport_y = 0;
   
   
-  DwPixelFlow context;
-  
   // parameters
   // particle behavior, different presets for different bodies
   DwPhysics.Param          param_physics      = new DwPhysics.Param();
   DwParticle.Param         param_chain        = new DwParticle.Param();
   DwSpringConstraint.Param param_spring_chain = new DwSpringConstraint.Param();
   
-
   // physics simulation
   DwPhysics<DwParticle2D> physics;
  
-  // array for our particles
+  // all we need is an array of particles
   int particles_count = 0;
   DwParticle2D[] particles = new DwParticle2D[particles_count];
-  
-  int particles_sorted_count = 0;
-  DwParticle2D[] particles_sorted = new DwParticle2D[particles_count];
-  
 
-  // post-processing effect
-  DwLiquidFX liquidfx;
-  Bloom bloom;
   
-  // render canvas
-  PGraphics2D pg_particles;
-  
-  
-  // some global settings
-  float radius;
-  float restlen_scale;
-  
-  
-  // some state variables
   boolean DISPLAY_PARTICLES = true;
-  boolean APPLY_LIQUIDFX = true;
-  int BACKGROUND_COLOR = 16;
-  
-  
-  
+
   public void settings(){
     size(viewport_w, viewport_h, P2D); 
-    smooth(0);
+    smooth(8);
   }
   
 
@@ -103,226 +75,200 @@ public class SoftBody2D_DifferentialGrowth extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
     
     // main library context
-    context = new DwPixelFlow(this);
+    DwPixelFlow context = new DwPixelFlow(this);
     context.print();
-    context.printGL();
-    
-    
+//    context.printGL();
     
     param_physics.GRAVITY = new float[]{ 0, 0.0f };
     param_physics.bounds  = new float[]{ 0, 0, width, height };
-    param_physics.iterations_collisions = 2;
-    param_physics.iterations_springs    = 2;
+    param_physics.iterations_collisions = 8;
+    param_physics.iterations_springs    = 8;
     
     // parameters for chain-particles
-    param_chain.DAMP_BOUNDS    = 0.50f;
-    param_chain.DAMP_COLLISION = 0.199999f;
-    param_chain.DAMP_VELOCITY  = 0.8999999f; 
+    param_chain.DAMP_BOUNDS          = 0.50f;
+    param_chain.DAMP_COLLISION       = 0.19999f;
+    param_chain.DAMP_VELOCITY        = 0.799999f; 
 
-    param_spring_chain.damp_dec = 0.499999f;
-    param_spring_chain.damp_inc = 0.499999f;
+    param_spring_chain.damp_dec = 0.1999999f;
+    param_spring_chain.damp_inc = 0.1999999f;
     
-    // particle radius
-    radius = 10;
-    // spring length scale
-    restlen_scale = 0.2f;
-    
-    
-
     // physics simulation object
     physics = new DwPhysics<DwParticle2D>(param_physics);
     
-    liquidfx = new DwLiquidFX(context);
-    bloom = new Bloom(context);
+    // create 200 particles at start
+//    for(int i = 0; i < 2; i++){
+//      float spawn_x = width/2 + random(-200, 200);
+//      float spawn_y = height/2 + random(-200, 200);
+//      createParticle(spawn_x, spawn_y);
+//    }
+    float x, y;
     
-    pg_particles = (PGraphics2D) createGraphics(width, height, P2D);
-    pg_particles.smooth(0);
+    x = width/2 - radius/2;
+    y = height/2;
+    createParticle(x, y);
     
-    reset();
-    
+    x = width/2 + radius/2;
+    y = height/2;
+    createParticle(x, y);
+
     frameRate(60);
   }
   
+  float radius = 5; 
+  
+  
+  // creates a new particle, and links it with the previous one
+  public void createParticle(float spawn_x, float spawn_y){
+    // just in case, to avoid position conflicts
+    spawn_x += random(-0.01f, +0.01f);
+    spawn_y += random(-0.01f, +0.01f);
+    
+    int   idx_curr = particles_count;
+    int   idx_prev = idx_curr - 1;
+    float radius_collision_scale = 1.1f;
 
-  
-  
-  public void reset(){
-    physics.reset();
-    particles_count = 0;
-    particles = new DwParticle2D[particles_count];
-    particles_sorted_count = 0;
-    particles_sorted = new DwParticle2D[particles_count];
+    float rest_len = radius * 2 * radius_collision_scale;
     
-//    initVersion_01();
-    initVersion_02();
-    
-    sortParticles();
-  }
-  
-  
-  
-  
-  public void initVersion_01(){
-    float x,y;
- 
-    x = 250;
-    y = height/2;
-    DwParticle2D pa = createParticle(x, y, radius);
-    
-    x = width-250;
-    y = height/2;
-    DwParticle2D pb = createParticle(x, y, radius, pa, null);
-    
-    pa.enable(false, false, false);
-    pb.enable(false, false, false);
-  }
-  
-  
-  public void initVersion_02(){
-    
-    float spawn_radius = 20;
-    int count = 200;
-    for(int i = 0; i < count; i++){
-      float a = TWO_PI * i / (float)count;
-      float px = width /2 + sin(a) * spawn_radius;
-      float py = height/2 + cos(a) * spawn_radius;
-      createParticle(px, py, radius);
-    }
-    
-    for(int i = 0; i < count; i++){
-      int ia = (i + 0) % count;
-      int ib = (i + 1) % count;
-
-      DwParticle2D pa = particles[ia];
-      DwParticle2D pb = particles[ib];
-      DwSpringConstraint2D.addSpring(physics, pa, pb, radius * restlen_scale, param_spring_chain);
-    }
-    
-  }
-  
-
-  
-  
-  public DwParticle2D createParticle(float spawn_x, float spawn_y, float radius){
-    return createParticle(spawn_x, spawn_y, radius, null, null);
-  }
-
-  public DwParticle2D createParticle(float spawn_x, float spawn_y, float radius, DwParticle2D p_prev, DwParticle2D p_next){
-
-    int idx_curr = particles_count;
     DwParticle2D pa = new DwParticle2D(idx_curr);
     pa.setMass(1);
     pa.setParamByRef(param_chain);
     pa.setPosition(spawn_x, spawn_y);
     pa.setRadius(radius);
-    pa.setRadiusCollision(radius);
-    pa.setCollisionGroup(idx_curr);
+    pa.setRadiusCollision(radius * radius_collision_scale);
+    pa.setCollisionGroup(idx_curr); // every particle has a different collision-ID
     addParticleToList(pa);
-    
-    float restlen = radius * restlen_scale;
-    if(p_prev != null) DwSpringConstraint2D.addSpring(physics, pa, p_prev, restlen, param_spring_chain);
-    if(p_next != null) DwSpringConstraint2D.addSpring(physics, pa, p_next, restlen, param_spring_chain);
-     
-    return pa;
+
+    if(idx_prev >= 0){
+      DwParticle2D pb = particles[idx_prev];
+      pa.px = pb.cx;
+      pa.py = pb.cy;
+      DwSpringConstraint2D.addSpring(physics, pb, pa, rest_len, param_spring_chain);
+    }
   }
   
+  
+  public void createParticle(float spawn_x, float spawn_y, DwParticle2D p_prev, DwParticle2D p_next){
+    spawn_x += random(-0.01f, +0.01f);
+    spawn_y += random(-0.01f, +0.01f);
+    
+    int   idx_curr = particles_count;
+    float radius_collision_scale = 1.1f;
 
-  // kind of the same what an ArrayList<DwParticle2D> would do.
+    DwParticle2D pa = new DwParticle2D(idx_curr);
+    pa.setMass(1);
+    pa.setParamByRef(param_chain);
+    pa.setPosition(spawn_x, spawn_y);
+    pa.setRadius(radius);
+    pa.setRadiusCollision(radius * radius_collision_scale);
+    pa.setCollisionGroup(idx_curr); // every particle has a different collision-ID
+    addParticleToList(pa);
+
+    if(p_prev != null){
+      DwSpringConstraint2D.addSpring(physics, pa, p_prev, radius, param_spring_chain);
+      DwSpringConstraint2D.addSpring(physics, pa, p_next, radius, param_spring_chain);
+    }
+  }
+  
+  
+  
+  
+  // kind of the same what an ArrayList<VerletParticle2D> would do.
   public void addParticleToList(DwParticle2D particle){
     if(particles_count >= particles.length){
       int new_len = (int) Math.max(2, Math.ceil(particles_count*1.5f) );
       if(particles == null){
         particles = new DwParticle2D[new_len];
-        particles_sorted = new DwParticle2D[new_len];
       } else {
         particles = Arrays.copyOf(particles, new_len);
-        particles_sorted = Arrays.copyOf(particles_sorted, new_len);
       }
-
     }
     particles[particles_count++] = particle;
     physics.setParticles(particles, particles_count);
   }
   
   
-  
-  
-  public void lineGrowth(){
-    int num_new_particles = min(5, ceil(particles_sorted_count / 100f));
-
-    for(int i = 0; i < num_new_particles; i++){
-      
-      // pick a random particle
-      int idx = (int) (random(1) * particles_sorted_count);
-      
-      // get spring and two attached particles
-      DwSpringConstraint2D spring = (DwSpringConstraint2D) particles_sorted[idx].springs[1];
-      if(spring == null){
-        spring = (DwSpringConstraint2D) particles_sorted[idx].springs[0];
-      }
-      DwParticle2D pa = spring.pa;
-      DwParticle2D pb = spring.pb;
-      
-      // get rid of old spring
-      spring.removeSpring(physics);
-      float jitter = radius * 0.01f;
-      
-      // spawn new particle somewhere in the middle
-      float px = (pa.cx + pb.cx) * 0.5f + random(-1, 1) * jitter;
-      float py = (pa.cy + pb.cy) * 0.5f + random(-1, 1) * jitter;
-      
-      // add new spring
-      createParticle(px, py, radius, pa, pb);
-    }
-  }
-  
-  
-  
-  
-  
   public void draw() {
 
-    // insert new particles to grow the linked list
-    lineGrowth();
+    if(keyPressed && key == ' '){
+      createParticle(mouseX, mouseY);
+    }
     
-    // creat sorted list of particles
-    sortParticles();
 
-    // user 
-    updateMouseInteractions();
     
-    // physics
+    ArrayList<DwSpringConstraint> springs = physics.getSprings();
+
+    for(int i = springs.size()-1; i >= 0; i--){
+      DwSpringConstraint2D spring = (DwSpringConstraint2D) springs.get(i);
+      DwParticle2D pa = spring.pa;
+      DwParticle2D pb = spring.pb;
+      spring.dd_rest += random(0.2f);
+      
+      float dd_rest_max = sqrt(spring.dd_rest_sq) * 2;
+      
+      int count = pa.spring_count + pb.spring_count;
+
+
+      if(spring.enabled && spring.dd_rest > dd_rest_max){
+        spring.enable(false);
+        float px = (pa.cx + pb.cx) * 0.5f;
+        float py = (pa.cy + pb.cy) * 0.5f;
+        
+        createParticle(px, py, pa, pb);
+      }
+//      spring.dd_rest_sq = spring.dd_rest * spring.dd_rest;
+//      spring.pa.springs
+//      s2d.dd_rest
+//      spring.idxPa();
+    }
+    
+    updateMouseInteractions();    
+    
+    // update physics simulation
     physics.update(1);
       
     // render
-    pg_particles.beginDraw();
-    pg_particles.blendMode(REPLACE);
-    pg_particles.background(BACKGROUND_COLOR, 0);
-    pg_particles.blendMode(BLEND);
-    drawParticleLine(pg_particles, DISPLAY_PARTICLES, true);
-    pg_particles.endDraw();
+    background(255);
     
+    noFill();
+    strokeWeight(1);
+    beginShape(LINES);
+    for(int i = 0; i < particles_count; i++){
+      DwParticle2D pa = particles[i];
+      for(int j = 0; j < pa.spring_count; j++){
+        DwSpringConstraint2D spring = (DwSpringConstraint2D) pa.springs[j];
+        if(spring.pa != pa) continue;
+        if(!spring.enabled) continue;
+        
+        DwParticle2D pb = spring.pb;
+        float force = Math.abs(spring.force);
+        float r = force*5000f;
+        float g = r/10;
+        float b = 0;
+        stroke(r,g,b);
+        vertex(pa.cx, pa.cy);
+        vertex(pb.cx, pb.cy);
+        
+      }
+    }
+    endShape();
     
-    // post processing
-    if(APPLY_LIQUIDFX){
-      liquidfx.param.base_LoD = 1;
-      liquidfx.param.base_blur_radius = 2;
-      liquidfx.param.highlight_enabled = true;
-      liquidfx.param.highlight_LoD = 1;
-      liquidfx.param.sss_enabled = false;
-      liquidfx.apply(pg_particles);
+    if(DISPLAY_PARTICLES){
+      noStroke();
+      fill(0);
+      for(int i = 0; i < particles_count; i++){
+        DwParticle2D particle = particles[i];
+        ellipse(particle.cx, particle.cy, particle.rad*2, particle.rad*2);
+      }
     }
     
-//    bloom.param.mult   = map(mouseX, 0, width, 0, 10);
-//    bloom.param.radius = map(mouseY, 0, height, 0, 1);
-//    
-//    bloom.apply(pg_particles);
-    
-    // display
-    background(BACKGROUND_COLOR);
-    blendMode(BLEND);
-    image(pg_particles, 0, 0);
-    
+    // interaction stuff
+    if(DELETE_SPRINGS){
+      fill(255,64);
+      stroke(0);
+      strokeWeight(1);
+      ellipse(mouseX, mouseY, DELETE_RADIUS*2, DELETE_RADIUS*2);
+    }
+
     // info
     int NUM_SPRINGS   = physics.getSpringCount();
     int NUM_PARTICLES = physics.getParticlesCount();
@@ -330,109 +276,7 @@ public class SoftBody2D_DifferentialGrowth extends PApplet {
     surface.setTitle(txt_fps);
   }
   
-  
-  
-  
-  // get next particle in the chain
-  public DwParticle2D getNextParticle(DwParticle2D pcurr, DwParticle2D pprev){
-    
-    int icurr = pcurr.idx;
-    int iprev = (pprev != null) ? pprev.idx : -1;
-    
-    if(pcurr.spring_count >= 1){
-      int i0 = pcurr.springs[0].idxPa();
-      int i1 = pcurr.springs[0].idxPb();
-      if(i0 != icurr && i0 != iprev) return particles[i0];
-      if(i1 != icurr && i1 != iprev) return particles[i1];
-    }
-    
-    if(pcurr.spring_count >= 2){
-      int i0 = pcurr.springs[1].idxPa();
-      int i1 = pcurr.springs[1].idxPb();
-      if(i0 != icurr && i0 != iprev) return particles[i0];
-      if(i1 != icurr && i1 != iprev) return particles[i1];
-    }
 
-    return null;
-  }
-  
-  
-  // save particles in a sorted list, as they are lined up in the chain
-  public void sortParticles(){
-    particles_sorted_count = 0;
-    
-    DwParticle2D pstart = particles[0];
-    DwParticle2D pprev = null;
-    DwParticle2D pcurr = pstart;
-    DwParticle2D pnext = null;
-    
-    while(pcurr != null && pnext != pstart){
-      particles_sorted[particles_sorted_count++] = pcurr;
-      pnext = getNextParticle(pcurr, pprev);
-      pprev = pcurr;
-      pcurr = pnext;
-    }
-  }
-  
-  
-  // draw particles/lines
-  public void drawParticleLine(PGraphics2D pg, boolean display_particles, boolean display_line){
-
-    DwParticle2D pprev;
-    DwParticle2D pcurr;
-    
-    pg.colorMode(HSB, 1);
-
-
-    
-    if(display_line){
-      pg.beginShape();
-      pg.noStroke();
-      pg.fill(0,0,0.9f);
-      for(int i = 0; i < particles_sorted_count; i++){
-        pcurr = particles_sorted[i]; 
-
-//        float hue = i/(float)particles_sorted_count;
-//        pg.fill(hue, 1, 1);
-        pg.vertex(pcurr.cx, pcurr.cy);
-      }
-      pg.endShape();
-    }
-    
-//    if(display_line){
-//      pg.strokeWeight(1);
-//      pg.fill(128);
-//      for(int i = 1; i < particles_sorted_count; i++){
-//        pprev = particles_sorted[i-1];
-//        pcurr = particles_sorted[i]; 
-//
-//        float hue = i/(float)particles_sorted_count;
-//        pg.stroke(hue, 1, 1);
-//        pg.line(pprev.cx, pprev.cy, pcurr.cx, pcurr.cy);
-//      }
-//    }
-    
-
-    if(display_particles){
-  
-      pg.noStroke();
-      for(int i = 0; i < particles_sorted_count; i++){
-        pcurr = particles_sorted[i];
-        float radius = max(pcurr.rad * 1.0f, 5);
-        float hue = i/(float)particles_sorted_count;
-        pg.fill(hue, 1.0f, 1);
-        pg.ellipse(pcurr.cx, pcurr.cy, radius, radius);
-      }
-    }
-    
-    pg.colorMode(RGB, 255);
-  }
-  
-  
-
-  
-
-  
   
   //////////////////////////////////////////////////////////////////////////////
   // User Interaction
@@ -469,31 +313,48 @@ public class SoftBody2D_DifferentialGrowth extends PApplet {
     return list;
   }
   
+  
   public void updateMouseInteractions(){
-    if(particle_mouse != null){
-      float[] mouse = {mouseX, mouseY};
-      particle_mouse.moveTo(mouse, 0.2f);
+    // deleting springs/constraints between particles
+    if(DELETE_SPRINGS){
+      ArrayList<DwParticle> list = findParticlesWithinRadius(mouseX, mouseY, DELETE_RADIUS);
+      for(DwParticle tmp : list){
+        tmp.enableAllSprings(false);
+        tmp.collision_group = physics.getNewCollisionGroupId();
+        tmp.rad_collision = tmp.rad;
+      }
+    } else {
+      if(particle_mouse != null){
+        float[] mouse = {mouseX, mouseY};
+        particle_mouse.moveTo(mouse, 0.2f);
+      }
     }
   }
   
+  
+  boolean DELETE_SPRINGS = false;
+  float   DELETE_RADIUS  = 10;
 
   public void mousePressed(){
-    particle_mouse = findNearestParticle(mouseX, mouseY, 100);
-    if(particle_mouse != null) particle_mouse.enable(false, false, false);
+    if(mouseButton == RIGHT ) DELETE_SPRINGS = true;
+    
+    if(!DELETE_SPRINGS){
+      particle_mouse = findNearestParticle(mouseX, mouseY, 100);
+      if(particle_mouse != null) particle_mouse.enable(false, false, false);
+    }
   }
   
   public void mouseReleased(){
-    if(particle_mouse != null){
+    if(particle_mouse != null && !DELETE_SPRINGS){
       if(mouseButton == LEFT  ) particle_mouse.enable(true, true,  true );
-      if(mouseButton == CENTER) particle_mouse.enable(false, false, false);
+      if(mouseButton == CENTER) particle_mouse.enable(true, false, false);
       particle_mouse = null;
     }
+    if(mouseButton == RIGHT ) DELETE_SPRINGS = false;
   }
   
   public void keyReleased(){
-    if(key == 'r') reset();
     if(key == 'p') DISPLAY_PARTICLES = !DISPLAY_PARTICLES;
-    if(key == 'l') APPLY_LIQUIDFX = !APPLY_LIQUIDFX;
   }
 
   public static void main(String args[]) {
