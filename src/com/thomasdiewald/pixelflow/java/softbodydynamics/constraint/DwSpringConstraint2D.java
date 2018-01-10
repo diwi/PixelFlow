@@ -12,11 +12,8 @@ package com.thomasdiewald.pixelflow.java.softbodydynamics.constraint;
 
 import com.thomasdiewald.pixelflow.java.accelerationstructures.DwPair;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.DwPhysics;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.Param;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.constraint.DwSpringConstraint.TYPE;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle;
 import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle2D;
-import com.thomasdiewald.pixelflow.java.softbodydynamics.particle.DwParticle3D;
 
 
 public class DwSpringConstraint2D extends DwSpringConstraint{

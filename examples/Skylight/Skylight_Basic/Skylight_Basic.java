@@ -67,9 +67,8 @@ public class Skylight_Basic extends PApplet {
     surface.setLocation(viewport_x, viewport_y);
 
     // camera
-    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 1000);
+    peasycam = new PeasyCam(this, -4.083,  -6.096,   7.000, 100);
     peasycam.setRotations(  1.085,  -0.477,   2.910);
-    peasycam.setDistance(100);
 
     // projection
     perspective(60 * DEG_TO_RAD, width/(float)height, 2, 1000);

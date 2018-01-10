@@ -48,7 +48,7 @@ public class Geometry_Grid extends PApplet {
   
   
   public void createMesh(int subdivisions){
-    grid = new DwIFSGrid(15, 30);
+    grid = new DwIFSGrid(1<<subdivisions, 2<<subdivisions);
     mesh = new DwHalfEdge.Mesh(grid);
   }
   

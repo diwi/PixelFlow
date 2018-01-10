@@ -38,10 +38,10 @@ public class ParticleSystem {
   
   // particle system
   public float PARTICLE_SCREEN_FILL_FACTOR = 0.9f;
-  public int   PARTICLE_COUNT              = 500;
+  public int   PARTICLE_COUNT = 500;
   
   // particle behavior
-  public float MULT_GRAVITY  = 0.50f;
+  public float MULT_GRAVITY = 0.50f;
   
   DwParticle2D.Param particle_param = new DwParticle2D.Param();
   
